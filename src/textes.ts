@@ -4,7 +4,7 @@ seulement : web.5 ajoutera l'anglais à côté, avec la même forme, sans avoir 
 
 Les textes qui dépendent d'un nombre ou d'un nom sont des fonctions : « essais(3) » donne « 3 essais ».
  */
-import type { Indice } from './domaine/partie.ts'
+import type { Indice, Partie } from './domaine/partie.ts'
 
 export const textes = {
   titre: 'Francle',
@@ -54,6 +54,33 @@ export const textes = {
   gagnee: (essais: number) => (essais === 1 ? 'Bravo, trouvé du premier coup !' : `Bravo, trouvé en ${essais} essais !`),
   perdue: 'Perdu, ce sera pour demain.',
   abandonnee: 'Partie abandonnée.',
+  // le message de fin, selon l'état de la partie
+  fin: (partie: Partie) =>
+    partie.etat === 'gagnee'
+      ? textes.gagnee(partie.essais.length)
+      : partie.etat === 'perdue'
+        ? textes.perdue
+        : textes.abandonnee,
   reponse: 'La réponse :',
   carte: (nom: string) => `Carte de France, la région ${nom} en bleu`,
+  voirResultats: 'Voir les résultats',
+
+  resultats: 'Résultats',
+  fermer: 'Fermer',
+  partager: 'Partager',
+  copie: 'Résultat copié : il n’y a plus qu’à le coller.',
+  copieImpossible: 'La copie a échoué. Le navigateur l’a peut-être refusée.',
+  prochaine: 'Prochaine région dans',
+
+  stats: {
+    titre: 'Statistiques',
+    ouvrir: 'Voir les statistiques',
+    jouees: 'Parties',
+    victoires: 'Victoires',
+    serie: 'Série en cours',
+    meilleureSerie: 'Meilleure série',
+    repartition: 'Victoires par nombre d’essais',
+    barre: (essais: number, nombre: number) =>
+      `${nombre} victoire${nombre > 1 ? 's' : ''} en ${essais} essai${essais > 1 ? 's' : ''}`,
+  },
 }
