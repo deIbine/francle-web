@@ -39,7 +39,7 @@ function lignes() {
 describe('Le jeu', () => {
   it('affiche le titre, le numéro de la partie et la silhouette', () => {
     demarrer()
-    expect(screen.getByRole('heading', { level: 1 }).textContent).toBe('Francle n° 2')
+    expect(screen.getByRole('heading', { level: 1 }).textContent).toBe('Francle n°\u00a02')
     expect(screen.getByRole('img', { name: 'La silhouette de la région à deviner' })).toBeDefined()
     expect(lignes()).toHaveLength(0)
   })
@@ -84,7 +84,7 @@ describe('Le jeu', () => {
     const resultats = screen.getByRole('dialog', { name: 'Résultats' })
     expect(within(resultats).getByText('Bravo, trouvé en 2 essais !')).toBeDefined()
     expect(within(resultats).getByRole('img', { name: `Carte de France, la région ${CIBLE.nom.fr} en bleu` })).toBeDefined()
-    expect(lignes()[1].textContent).toContain('100 %')
+    expect(lignes()[1].textContent).toContain('100\u00a0%')
     // plus de saisie ni de bouton « Abandonner » une fois la partie finie
     expect(screen.queryByRole('combobox')).toBeNull()
     expect(screen.queryByRole('button', { name: 'Abandonner' })).toBeNull()
@@ -182,11 +182,11 @@ describe('Le jeu', () => {
       vi.setSystemTime(new Date(2026, 9, 14, 23, 59, 58))
       const joueur = demarrer()
       await proposer(joueur, CIBLE.nom.fr)
-      expect(screen.getByRole('heading', { level: 1 }).textContent).toBe('Francle n° 2')
+      expect(screen.getByRole('heading', { level: 1 }).textContent).toBe('Francle n°\u00a02')
 
       vi.setSystemTime(new Date(2026, 9, 15, 0, 0, 1))
       // la minuterie du compte à rebours passe chaque seconde : on attend qu'elle voie minuit
-      expect(await screen.findByRole('heading', { name: 'Francle n° 3' }, { timeout: 2000 })).toBeDefined()
+      expect(await screen.findByRole('heading', { name: /^Francle n°\s3$/ }, { timeout: 2000 })).toBeDefined()
       expect(screen.getByRole('combobox')).toBeDefined()
       expect(lignes()).toHaveLength(0)
     })

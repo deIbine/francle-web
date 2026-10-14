@@ -488,3 +488,66 @@ commandes), **comment le penser** (la question à se poser la prochaine fois).
   chose pour la langue : `undefined` = celle du navigateur.
 - **Comment le penser** : distinguer « la valeur par défaut » de « la valeur choisie ». Si on enregistre la valeur
   par défaut comme un choix, on ne peut plus la faire évoluer.
+
+## web.6 Les finitions
+
+### L'accessibilité vérifiée par un outil, et l'outil vérifié lui-même
+
+- **Pourquoi** : on ne remarque pas soi-même un bouton sans nom (« ❓ » ne dit rien à un lecteur d'écran) ou un
+  identifiant en double. axe, la bibliothèque d'accessibilité la plus utilisée (elle est aussi dans les outils de
+  développement des navigateurs), parcourt la page et signale ces fautes.
+- **Comment le faire** : `npm install -D axe-core`, puis dans un test `await axe.run(document.body)` : la liste
+  `violations` doit être vide. On la lance sur chaque état important de l'écran (départ, aide, réglages,
+  suggestions ouvertes, résultats, partie libre en anglais). Un premier test donne exprès une image sans `alt` et un
+  bouton vide, pour vérifier qu'axe les **trouve** : un test qui ne trouve jamais rien peut aussi ne rien vérifier.
+  jsdom ne dessine rien, donc ne mesure pas les contrastes : on a lancé axe une fois dans le vrai navigateur
+  (`axe.run(document, { runOnly: ['color-contrast'] })`), en clair et en sombre.
+- **Comment le penser** : un outil automatique trouve environ un tiers des problèmes d'accessibilité ; le reste se
+  voit au clavier et au lecteur d'écran. Mais ce tiers revient à chaque modification : autant le confier aux tests.
+
+### Les espaces insécables du français
+
+- **Pourquoi** : sur téléphone, « 76 % » se coupait en fin de ligne, le « % » seul sur la ligne suivante. En
+  français, on met une espace avant « : ; ! ? % » et dans « « » » ; elle doit être **insécable**, sinon le
+  navigateur peut couper la ligne à cet endroit.
+- **Comment le faire** : ` ` (espace insécable) dans les textes français, entre un nombre et son unité
+  (« 251 km »), avant la ponctuation double (« La réponse : »). On l'écrit sous la forme visible
+  ` ` dans le code, plutôt que le caractère lui-même, invisible et indiscernable d'une espace ordinaire. Dans
+  les tests, `\s` dans une expression régulière reconnaît aussi l'espace insécable.
+- **Comment le penser** : tester l'affichage à la largeur d'un téléphone (375 pixels) fait apparaître ce que l'écran
+  large cache : coupures de ligne, débordements, défilement horizontal (`document.documentElement.scrollWidth` doit
+  rester égal à `innerWidth`).
+
+### Afficher l'aide une seule fois
+
+- **Pourquoi** : un nouveau joueur doit comprendre les règles sans chercher ; un habitué ne doit pas refermer l'aide à
+  chaque visite.
+- **Comment le faire** : une clé `francle.aide-vue.v1` dans `localStorage`, posée quand on ferme l'aide.
+  `useState(() => !aideVue())` ouvre la fenêtre au premier affichage seulement. Si le stockage est refusé, on
+  préfère ne **pas** l'ouvrir (sinon elle reviendrait à chaque visite). Dans les tests, `beforeEach` pose la clé :
+  chaque test fait comme si l'aide avait été vue, sauf ceux qui l'effacent pour la vérifier.
+- **Comment le penser** : l'exemple de l'aide (« Normandie · 251 km · ↙️ · 76 % ») est **calculé** par les règles du
+  jeu, pas écrit à la main : il reste juste si une règle change. Ce qui peut se déduire du code ne doit pas être
+  recopié.
+
+### Licence, crédits et README : ce qu'on doit à ceux dont on s'inspire
+
+- **Pourquoi** : la licence MIT de Worldle demande de garder sa mention de copyright si l'on reprend son code ; la
+  licence ouverte Etalab demande de citer la source des données (les contours viennent de l'IGN et de l'INSEE).
+  Le README, lui, dit à un visiteur du dépôt ce qu'est le projet et comment le lancer.
+- **Comment le faire** : `LICENSE` (MIT, « Copyright (c) 2026 deIbine »), avec les mentions de Worldle et d'Etalab
+  à la suite ; un bas de page (`<footer>`, que les lecteurs d'écran savent trouver) avec les liens ; un README en
+  français : présentation, commandes, organisation du code, images, lien avec la version Java.
+- **Comment le penser** : pour chaque chose reprise (code, données, idée), se demander « sous quelle licence, et que
+  demande-t-elle ? ». Le faire au moment où l'on reprend, pas à la fin.
+
+### Une icône produite comme le reste
+
+- **Pourquoi** : l'icône de l'onglet était un « F » provisoire. Une silhouette de la France, dans le bleu du jeu, se
+  reconnaît mieux, et on avait déjà tout pour la dessiner.
+- **Comment le faire** : une fonction de plus dans `outils/generer_images.py`, qui écrit `public/favicon.svg` : la
+  métropole ramenée à 64 unités, et simplifiée bien plus fort (à 16 pixels, les détails de la côte sont invisibles) :
+  1,4 Ko. Le dossier `public/` est copié tel quel dans le site : c'est là que vont les fichiers dont l'adresse doit
+  rester fixe.
+- **Comment le penser** : quand un outil sait déjà produire une famille de fichiers, lui ajouter le nouveau venu
+  plutôt que de le faire à la main : on pourra le refaire à l'identique.

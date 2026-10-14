@@ -7,6 +7,7 @@ Adapté de outils/generer_images.py du projet Java (deIbine/francle), qui produi
     src/images/regions/defaut.svg   la France métropolitaine et un point d'interrogation (mode « image cachée »)
     src/images/cartes/<mode>.json   les contours des régions de chaque époque, pour la carte de fin de partie :
                                     le composant React les dessine et colore la réponse lui-même
+    public/favicon.svg              l'icône du site : la France métropolitaine en bleu Francle
 
 Les contours viennent du dépôt https://github.com/gregoiredavid/france-geojson (données IGN et INSEE, licence ouverte
 Etalab). Ils ne sont pas dans le dépôt (près de 6 Mo) : les télécharger dans un dossier à part.
@@ -15,7 +16,7 @@ Etalab). Ils ne sont pas dans le dépôt (près de 6 Mo) : les télécharger dan
     regions-avant-redecoupage-2015.geojson
 
 Utilisation, depuis la racine du projet :
-    py outils/generer_images.py <dossier des contours> src/images
+    py outils/generer_images.py <dossier des contours> src/images public
 """
 import json
 import math
@@ -111,6 +112,7 @@ OUTRE_MER = {"971": "guadeloupe", "972": "martinique", "973": "guyane", "974": "
 
 # les couleurs des images du projet Java
 BLEU_CLAIR = "#a2d1fb"
+BLEU_FONCE = "#3a4bc4"
 TRAIT_DEPARTEMENT = "#7f97ad"
 GRIS_DEFAUT = "#b7c3cf"
 
@@ -190,12 +192,12 @@ def simplifier(points, tolerance):
     return [point for point, garde in zip(points, garder) if garde]
 
 
-def chemin(formes):
+def chemin(formes, tolerance=TOLERANCE):
     """L'attribut « d » d'un <path> SVG : M = aller à (début d'un contour), puis les points reliés par des
     segments (l = relatif au point précédent : des nombres plus petits, donc un fichier plus léger), Z = fermer."""
     morceaux = []
     for forme in formes:
-        points = simplifier([(round(x), round(y)) for x, y in forme], TOLERANCE)
+        points = simplifier([(round(x), round(y)) for x, y in forme], tolerance)
         # deux points identiques de suite ne dessinent rien
         points = [p for i, p in enumerate(points) if i == 0 or p != points[i - 1]]
         if len(points) < 3:
@@ -249,6 +251,19 @@ def defaut(fichier, regions):
     ))
 
 
+def favicon(fichier, regions):
+    """L'icône du site : la métropole en bleu Francle, dans un carré de 64 unités. À 16 ou 32 pixels, les détails de
+    la côte sont invisibles : on simplifie bien plus fort, et l'icône pèse moins de 2 Ko."""
+    formes = [projeter(a, LATITUDE_FRANCE, decalage(r["properties"]["nom"])) for r in regions
+              for a in anneaux(r["geometry"])]
+    formes, largeur, hauteur = ramener(formes, cadre(formes, 0.02), 64)
+    ecrire(fichier, (
+        f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {largeur} {hauteur}">'
+        f'<path fill="{BLEU_FONCE}" stroke="{BLEU_FONCE}" stroke-width="1" stroke-linejoin="round" '
+        f'd="{chemin(formes, 1)}"/></svg>\n'
+    ))
+
+
 def carte(fichier, regions, noms, departements):
     """Les contours des régions d'une époque, ramenés dans un rectangle, en JSON : { largeur, hauteur, regions:
     { id: chemin } }. L'outre-mer est dessiné dans cinq encadrés, dans l'Atlantique, à gauche."""
@@ -286,7 +301,7 @@ def carte(fichier, regions, noms, departements):
 
 
 def main():
-    contours, sortie = Path(sys.argv[1]), Path(sys.argv[2])
+    contours, sortie, public = Path(sys.argv[1]), Path(sys.argv[2]), Path(sys.argv[3])
     departements = charger(contours, "departements-avec-outre-mer.geojson")
     nouvelles = charger(contours, "regions.geojson")
     anciennes = charger(contours, "regions-avant-redecoupage-2015.geojson")
@@ -299,7 +314,8 @@ def main():
     defaut(sortie / "regions" / "defaut.svg", nouvelles)
     carte(sortie / "cartes" / "nouvelles.json", nouvelles, NOUVELLES, departements)
     carte(sortie / "cartes" / "anciennes.json", anciennes, ANCIENNES, departements)
-    print(f"{len(DEPARTEMENTS) + 1} silhouettes, 2 cartes")
+    favicon(public / "favicon.svg", nouvelles)
+    print(f"{len(DEPARTEMENTS) + 1} silhouettes, 2 cartes, 1 icône")
 
 
 main()

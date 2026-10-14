@@ -58,7 +58,7 @@ describe('Les réglages', () => {
     const joueur = demarrer()
     await regler(joueur, 'Miles')
     await proposer(joueur, AUTRES[0].nom.fr)
-    expect(within(panneau()).getByRole('table').textContent).toMatch(/\d mi/)
+    expect(within(panneau()).getByRole('table').textContent).toMatch(/\d\smi/)
   })
 
   it('la rotation 🌀 tourne la silhouette de l’angle du jour', async () => {

@@ -1,12 +1,15 @@
 // lancé par Vitest avant chaque fichier de test (voir setupFiles dans vite.config.ts)
 import { cleanup } from '@testing-library/react'
-import { afterEach } from 'vitest'
+import { afterEach, beforeEach } from 'vitest'
 
 // après chaque test, on retire de la page ce que le test y a affiché : sinon les composants s'empileraient d'un test
 // à l'autre, et un test trouverait les boutons du précédent
 afterEach(cleanup)
 // et on efface les parties sauvées (localStorage), pour que chaque test commence sans historique
 afterEach(() => localStorage.clear())
+// « Comment jouer » s'ouvre à la première visite : sauf dans les tests qui le vérifient (qui effacent cette clé),
+// chaque test fait comme si le joueur l'avait déjà vu
+beforeEach(() => localStorage.setItem('francle.aide-vue.v1', '1'))
 // et on retire le thème sombre qu'un test aurait posé sur <html> (la page, elle, n'est pas effacée par cleanup)
 afterEach(() => document.documentElement.classList.remove('dark'))
 
