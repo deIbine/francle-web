@@ -1,0 +1,46 @@
+# Vérifie chaque PR, puis met le site en ligne sur GitHub Pages à chaque fusion dans main.
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+# Droits minimum : lire le code, et publier sur Pages (le jeton « id-token » prouve à Pages qui publie).
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Une seule publication à la fois ; une nouvelle fusion annule la publication en attente.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verifier:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npm run lint
+      - run: npm test
+      - run: npm run build
+      - uses: actions/upload-pages-artifact@v4
+        with:
+          path: dist
+
+  publier:
+    if: github.event_name == 'push'
+    needs: verifier
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.publication.outputs.page_url }}
+    steps:
+      - id: publication
+        uses: actions/deploy-pages@v4
