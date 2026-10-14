@@ -86,7 +86,8 @@ angle de rotation, et les valeurs de ses tests.
 
 ## Où on en est (mis à jour le 14 octobre 2026)
 
-**Faites : web.0 à web.5.** Prochaine étape : **web.6 Les finitions**.
+**Faites : web.0 à web.6.** Prochaine étape : **web.7 Le domaine et le défi** (l'utilisateur doit d'abord acheter
+le nom de domaine).
 
 - **web.0** (PR #1, étiquette `web-0`) : dépôt public `deIbine/francle-web`, Vite + React + TypeScript, Vitest, lint
   oxlint, CI `.github/workflows/ci.yml` (tâche `verifier` sur chaque PR et sur `main`, tâche `publier` vers GitHub
@@ -129,9 +130,18 @@ angle de rotation, et les valeurs de ses tests.
     (`uniteAffichee`). Bouton FR / EN dans l'en-tête ; `<html lang>` à jour (aussi dans le script de `index.html`).
   - Partage en anglais : « #Francle #12 3/6 ». Données corrigées : mataba, Zéna M'Déré, Montaigne, plus de
     parenthèses dans les indices anglais.
-- **Ce que web.6 doit faire** : « Comment jouer » (fenêtre ❓, ouverte à la première visite), affichage mobile,
-  vérification de l'accessibilité (axe) dans les tests, crédits en bas de page, README en français, `LICENSE`
-  (« Copyright (c) 2026 deIbine » + mention teuteuf), icône (la France en bleu Francle).
+- **web.6** (PR #7, étiquette `web-6`) : les finitions.
+  - « Comment jouer » (`composants/Aide.tsx`, bouton ❓), ouvert à la première visite (clé `francle.aide-vue.v1`) ;
+    son exemple est calculé par les règles du jeu.
+  - Bas de page (`composants/Credits.tsx`) : contours IGN/INSEE (Etalab), Worldle, code source, aucune donnée
+    collectée. `LICENSE` (MIT, « Copyright (c) 2026 deIbine », mentions Worldle et Etalab). `README.md` en français.
+  - Icône `public/favicon.svg` (la métropole en bleu Francle), produite par `outils/generer_images.py`, qui prend
+    maintenant un troisième argument : `py outils/generer_images.py <contours> src/images public`.
+  - Accessibilité : `axe-core` dans les tests (`src/Accessibilite.test.tsx`) ; contrastes vérifiés dans le
+    navigateur, en clair et en sombre. Mobile : vérifié à 375 pixels ; espaces insécables dans les textes français.
+- **Ce que web.7 doit faire** : (1) le nom de domaine, une fois acheté par l'utilisateur : `public/CNAME`, réglages
+  DNS, domaine déclaré dans GitHub Pages, `base: '/'` dans `vite.config.ts`, `ADRESSE` dans `domaine/partage.ts`,
+  liens du README ; (2) le défi : un lien à envoyer pour faire deviner une région choisie.
 - **À faire relire par l'utilisateur** (pas encore validé) : les monuments et les traductions anglaises de
   `regions.ts` ; « le matsidza » (Mayotte) est resté tel quel en anglais.
 

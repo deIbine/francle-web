@@ -6,6 +6,9 @@ essais ! ». Le type Textes est celui de l'objet français : TypeScript refuse u
 texte, ou dont une fonction n'aurait pas les mêmes paramètres. Pas besoin de bibliothèque (Worldle utilisait
 i18next) : deux langues et une centaine de textes tiennent dans un objet par langue.
 
+En français, l'espace avant « : ; ! ? % » et après « « » est insécable (\u00a0) : sur un écran étroit, la ponctuation
+ne se retrouve jamais seule en début de ligne.
+
 Les composants n'importent pas TEXTES directement : ils appellent useTextes(), qui donne les textes de la langue
 choisie (voir plus bas).
  */
@@ -27,12 +30,15 @@ function nombre(n: number, langue: Langue): string {
 }
 
 function distance(km: number, unite: Unite, langue: Langue): string {
-  return unite === 'km' ? `${nombre(Math.round(km), langue)} km` : `${nombre(Math.round(km / KM_PAR_MILE), langue)} mi`
+  // \u00a0 : une espace insécable, pour que le nombre et son unité ne soient jamais séparés en fin de ligne
+  return unite === 'km'
+    ? `${nombre(Math.round(km), langue)}\u00a0km`
+    : `${nombre(Math.round(km / KM_PAR_MILE), langue)}\u00a0mi`
 }
 
 const fr = {
   titre: 'Francle',
-  numero: (n: number) => `n° ${n}`,
+  numero: (n: number) => `n°\u00a0${n}`,
   sousTitre: 'Devine la région française du jour, en six essais.',
   onglets: { titre: 'Sorte de partie', jour: 'Partie du jour', libre: 'Partie libre' },
   // le bouton de langue montre la langue vers laquelle il fait passer
@@ -40,19 +46,19 @@ const fr = {
 
   silhouette: 'La silhouette de la région à deviner',
   silhouetteTournee: 'La silhouette de la région à deviner, tournée',
-  silhouetteCachee: 'Silhouette cachée : une carte de France et un point d’interrogation',
+  silhouetteCachee: 'Silhouette cachée\u00a0: une carte de France et un point d’interrogation',
 
   saisie: 'Ta proposition',
   saisieExemple: 'Une région…',
   proposer: 'Proposer',
   inconnue: 'Cette région n’existe pas, ou n’est pas dans le jeu.',
-  dejaProposee: (nom: string) => `${nom} : déjà proposée.`,
+  dejaProposee: (nom: string) => `${nom}\u00a0: déjà proposée.`,
 
   tableau: 'Tes essais',
   colonnes: { region: 'Région', distance: 'Distance', direction: 'Direction', proximite: 'Proximité' },
   // la distance, arrondie, dans l'unité choisie
   distance: (km: number, unite: Unite) => distance(km, unite, 'fr'),
-  pourcentage: (p: number) => `${p} %`,
+  pourcentage: (p: number) => `${p}\u00a0%`,
   directions: {
     nord: 'vers le nord',
     'nord-est': 'vers le nord-est',
@@ -74,10 +80,10 @@ const fr = {
     capitale: 'Capitale',
     monument: 'Monument',
   } satisfies Record<Indice, string>,
-  kilometresCarres: (km2: number) => `${nombre(km2, 'fr')} km²`,
+  kilometresCarres: (km2: number) => `${nombre(km2, 'fr')}\u00a0km²`,
 
   abandonner: 'Abandonner',
-  confirmerAbandon: 'Abandonner pour de bon ?',
+  confirmerAbandon: 'Abandonner pour de bon\u00a0?',
   oui: 'Oui',
   non: 'Non',
 
@@ -85,21 +91,21 @@ const fr = {
   fin: (partie: Partie, libre = false) =>
     partie.etat === 'gagnee'
       ? partie.essais.length === 1
-        ? 'Bravo, trouvé du premier coup !'
-        : `Bravo, trouvé en ${partie.essais.length} essais !`
+        ? 'Bravo, trouvé du premier coup\u00a0!'
+        : `Bravo, trouvé en ${partie.essais.length} essais\u00a0!`
       : partie.etat === 'perdue'
         ? libre
-          ? 'Perdu !'
+          ? 'Perdu\u00a0!'
           : 'Perdu, ce sera pour demain.'
         : 'Partie abandonnée.',
-  reponse: 'La réponse :',
+  reponse: 'La réponse\u00a0:',
   carte: (nom: string) => `Carte de France, la région ${nom} en bleu`,
   voirResultats: 'Voir les résultats',
 
   resultats: 'Résultats',
   fermer: 'Fermer',
   partager: 'Partager',
-  copie: 'Résultat copié : il n’y a plus qu’à le coller.',
+  copie: 'Résultat copié\u00a0: il n’y a plus qu’à le coller.',
   copieImpossible: 'La copie a échoué. Le navigateur l’a peut-être refusée.',
   prochaine: 'Prochaine région dans',
 
@@ -119,6 +125,31 @@ const fr = {
       `${nombre} victoire${nombre > 1 ? 's' : ''} en ${essais} essai${essais > 1 ? 's' : ''}`,
   },
 
+  aide: {
+    titre: 'Comment jouer',
+    ouvrir: 'Comment jouer',
+    but: 'Devine la région française à partir de sa silhouette, en six essais au plus.',
+    apres: 'Après chaque essai, tu vois\u00a0:',
+    distance: 'la distance entre les capitales des deux régions\u00a0;',
+    direction: 'la direction à suivre pour aller vers la région à deviner\u00a0;',
+    proximite: 'la proximité\u00a0: 100\u00a0% pour la bonne région, 0\u00a0% pour la plus éloignée.',
+    exemple: (nom: string, distance: string, fleche: string, proximite: string) =>
+      `Par exemple, «\u00a0${nom} · ${distance} · ${fleche} · ${proximite}\u00a0»\u00a0: la région à deviner est à ${distance}, dans cette direction.`,
+    indices: 'Après chaque essai raté, un indice apparaît\u00a0: la superficie, une spécialité, une personnalité, la capitale, puis un monument.',
+    jour: 'La partie du jour est la même pour tout le monde, et change à minuit. Partage ton résultat\u00a0: il ne dévoile pas la réponse.',
+    libre: 'En partie libre, joue autant que tu veux, avec les régions actuelles ou celles d’avant 2016.',
+    modes: 'Dans les réglages ⚙️, essaie les modes difficiles\u00a0: la silhouette tournée 🌀, ou cachée 🙈.',
+    jouer: 'Jouer',
+  },
+
+  credits: {
+    contours: 'Contours des régions\u00a0: IGN et INSEE',
+    licence: 'licence ouverte Etalab',
+    inspiration: 'Inspiré de Worldle',
+    code: 'Code source',
+    vie: 'Aucune donnée collectée\u00a0: tout reste dans ton navigateur.',
+  },
+
   reglages: {
     titre: 'Réglages',
     ouvrir: 'Ouvrir les réglages',
@@ -132,8 +163,8 @@ const fr = {
     rotation: 'Rotation 🌀',
     rotationAide: 'La silhouette est tournée.',
     cachee: 'Image cachée 🙈',
-    cacheeAide: 'Pas de silhouette : seulement les distances, les flèches et les indices.',
-    plusTard: 'Ils sont fixés au premier essai : dans une partie commencée, un changement compte pour la suivante.',
+    cacheeAide: 'Pas de silhouette\u00a0: seulement les distances, les flèches et les indices.',
+    plusTard: 'Ils sont fixés au premier essai\u00a0: dans une partie commencée, un changement compte pour la suivante.',
   },
 }
 
@@ -181,7 +212,7 @@ const en: Textes = {
     capitale: 'Capital',
     monument: 'Landmark',
   },
-  kilometresCarres: (km2: number) => `${nombre(km2, 'en')} km²`,
+  kilometresCarres: (km2: number) => `${nombre(km2, 'en')}\u00a0km²`,
 
   abandonner: 'Give up',
   confirmerAbandon: 'Give up for good?',
@@ -223,6 +254,31 @@ const en: Textes = {
     repartition: 'Wins by number of tries',
     barre: (essais: number, nombre: number) =>
       `${nombre} win${nombre === 1 ? '' : 's'} in ${essais} ${essais === 1 ? 'try' : 'tries'}`,
+  },
+
+  aide: {
+    titre: 'How to play',
+    ouvrir: 'How to play',
+    but: 'Guess the French region from its outline, in six tries at most.',
+    apres: 'After each guess, you see:',
+    distance: 'the distance between the capitals of the two regions;',
+    direction: 'the direction to go to reach the region to guess;',
+    proximite: 'the proximity: 100% for the right region, 0% for the farthest one.',
+    exemple: (nom: string, distance: string, fleche: string, proximite: string) =>
+      `For example, “${nom} · ${distance} · ${fleche} · ${proximite}”: the region to guess is ${distance} away, in that direction.`,
+    indices: 'After each wrong guess, a clue appears: the area, a speciality, a famous person, the capital, then a landmark.',
+    jour: 'The daily game is the same for everyone, and changes at midnight. Share your result: it doesn’t give the answer away.',
+    libre: 'In free play, play as much as you like, with the current regions or those from before 2016.',
+    modes: 'In the settings ⚙️, try the hard modes: the outline rotated 🌀, or hidden 🙈.',
+    jouer: 'Play',
+  },
+
+  credits: {
+    contours: 'Region outlines: IGN and INSEE',
+    licence: 'Etalab open licence',
+    inspiration: 'Inspired by Worldle',
+    code: 'Source code',
+    vie: 'No data collected: everything stays in your browser.',
   },
 
   reglages: {

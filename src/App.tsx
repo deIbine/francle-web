@@ -1,5 +1,6 @@
 /*
-L'application : l'en-tête (titre, onglets, boutons 📊 et ⚙️), les réglages, et les deux sortes de partie.
+L'application : l'en-tête (titre, onglets, boutons ❓ ⚙️ FR/EN 📊), « Comment jouer », les réglages, les deux sortes de
+partie et le bas de page.
 
 Les deux parties restent affichées en même temps, l'une cachée (attribut hidden) : passer d'un onglet à l'autre ne
 fait pas perdre la partie en cours de l'autre.
@@ -8,12 +9,14 @@ fait pas perdre la partie en cours de l'autre.
 l'ancienne partie du jour pour en créer une neuve. Tout son état repart de zéro pour la nouvelle région.
  */
 import { useEffect, useId, useState, type KeyboardEvent } from 'react'
+import { Aide } from './composants/Aide.tsx'
+import { Credits } from './composants/Credits.tsx'
 import { Fenetre } from './composants/Fenetre.tsx'
 import { Reglages } from './composants/Reglages.tsx'
 import { numero } from './domaine/regionDuJour.ts'
 import { PartieDuJour } from './PartieDuJour.tsx'
 import { PartieLibre } from './PartieLibre.tsx'
-import { langueAffichee, useReglages, useTheme } from './reglages.ts'
+import { aideVue, langueAffichee, marquerAideVue, useReglages, useTheme } from './reglages.ts'
 import { LangueContext, TEXTES } from './textes.ts'
 
 type Onglet = 'jour' | 'libre'
@@ -26,6 +29,8 @@ export default function App({ date }: { date?: Date }) {
   const [onglet, setOnglet] = useState<Onglet>('jour')
   const [reglages, changerReglages] = useReglages()
   const [fenetreReglages, setFenetreReglages] = useState(false)
+  // « Comment jouer » : ouvert d'emblée à la première visite
+  const [fenetreAide, setFenetreAide] = useState(() => !aideVue())
   // chaque clic sur 📊 augmente ce compteur : la partie du jour, qui garde la fenêtre des statistiques, l'ouvre
   const [demandeStats, setDemandeStats] = useState(0)
   const id = useId()
@@ -55,14 +60,24 @@ export default function App({ date }: { date?: Date }) {
       <main className="mx-auto flex min-h-screen max-w-md flex-col gap-4 p-4 text-center">
         {/* grid à trois colonnes (1fr auto 1fr) : le titre reste centré, les boutons de part et d'autre */}
         <header className="grid grid-cols-[1fr_auto_1fr] items-center gap-y-2">
-          <button
-            type="button"
-            onClick={() => setFenetreReglages(true)}
-            aria-label={textes.reglages.ouvrir}
-            className={`justify-self-start ${boutonIcone}`}
-          >
-            ⚙️
-          </button>
+          <div className="flex items-center justify-self-start">
+            <button
+              type="button"
+              onClick={() => setFenetreAide(true)}
+              aria-label={textes.aide.ouvrir}
+              className={boutonIcone}
+            >
+              ❓
+            </button>
+            <button
+              type="button"
+              onClick={() => setFenetreReglages(true)}
+              aria-label={textes.reglages.ouvrir}
+              className={boutonIcone}
+            >
+              ⚙️
+            </button>
+          </div>
           <h1 className="text-3xl font-bold tracking-wide">
             {textes.titre}
             {onglet === 'jour' && (
@@ -147,6 +162,24 @@ export default function App({ date }: { date?: Date }) {
             )}
           </section>
         ))}
+
+        <Credits />
+
+        <Fenetre
+          ouverte={fenetreAide}
+          onFermer={() => {
+            setFenetreAide(false)
+            marquerAideVue()
+          }}
+          titre={textes.aide.titre}
+        >
+          <Aide
+            onJouer={() => {
+              setFenetreAide(false)
+              marquerAideVue()
+            }}
+          />
+        </Fenetre>
 
         <Fenetre ouverte={fenetreReglages} onFermer={() => setFenetreReglages(false)} titre={textes.reglages.titre}>
           <Reglages reglages={reglages} onChanger={changerReglages} />

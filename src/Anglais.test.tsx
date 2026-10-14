@@ -95,11 +95,11 @@ describe('L’unité suit la langue, tant que le joueur ne l’a pas choisie', (
 
   it('miles en anglais, kilomètres en français', async () => {
     navigateurEn('en-US')
-    expect(await distanceAffichee(demarrer())).toMatch(/\d mi/)
+    expect(await distanceAffichee(demarrer())).toMatch(/\d\smi/)
     cleanup()
     navigateurEn('fr-FR')
     localStorage.clear()
-    expect(await distanceAffichee(demarrer())).toMatch(/\d km/)
+    expect(await distanceAffichee(demarrer())).toMatch(/\d\skm/)
   })
 
   it('une unité choisie l’emporte, même après un changement de langue', async () => {
@@ -111,7 +111,7 @@ describe('L’unité suit la langue, tant que le joueur ne l’a pas choisie', (
     await joueur.click(within(reglages).getByRole('button', { name: 'Close' }))
     await joueur.click(screen.getByRole('button', { name: 'Passer en français' }))
     await joueur.click(screen.getByRole('button', { name: 'Switch to English' }))
-    expect(await distanceAffichee(joueur)).toMatch(/\d km/)
+    expect(await distanceAffichee(joueur)).toMatch(/\d\skm/)
   })
 })
 

@@ -98,3 +98,22 @@ export function useTheme(theme: Theme): void {
     return () => systeme?.removeEventListener('change', appliquer)
   }, [theme])
 }
+
+// « Comment jouer » s'ouvre tout seul à la première visite seulement : on retient qu'il a été vu
+export const CLE_AIDE = 'francle.aide-vue.v1'
+
+export function aideVue(stockage: Storage = localStorage): boolean {
+  try {
+    return stockage.getItem(CLE_AIDE) !== null
+  } catch {
+    return true // stockage refusé : on ne peut pas s'en souvenir, mieux vaut ne pas l'ouvrir à chaque visite
+  }
+}
+
+export function marquerAideVue(stockage: Storage = localStorage): void {
+  try {
+    stockage.setItem(CLE_AIDE, '1')
+  } catch {
+    // tant pis : l'aide se rouvrira à la prochaine visite
+  }
+}
