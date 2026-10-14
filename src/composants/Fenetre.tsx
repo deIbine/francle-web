@@ -45,7 +45,7 @@ export function Fenetre({ ouverte, onFermer, titre, children }: Props) {
         }
       }}
       // m-auto : centrée ; backdrop: : le fond grisé derrière la fenêtre (le pseudo-élément ::backdrop)
-      className="m-auto w-[min(28rem,calc(100%-2rem))] rounded-lg p-0 shadow-xl backdrop:bg-black/50"
+      className="m-auto w-[min(28rem,calc(100%-2rem))] rounded-lg bg-fond p-0 text-texte shadow-xl backdrop:bg-black/50"
     >
       <div className="flex flex-col gap-4 p-5 text-center">
         <header className="flex items-center justify-between">
@@ -56,7 +56,7 @@ export function Fenetre({ ouverte, onFermer, titre, children }: Props) {
             type="button"
             onClick={onFermer}
             aria-label={textes.fermer}
-            className="rounded px-2 text-xl text-gray-500 hover:bg-gray-100"
+            className="rounded px-2 text-xl text-discret hover:bg-surface"
           >
             ✕
           </button>

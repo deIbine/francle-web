@@ -90,7 +90,7 @@ export function Saisie({ mode, onProposer }: Props) {
         onKeyDown={touche}
         // la liste se ferme quand on quitte le champ (un clic sur une suggestion arrive avant, voir onMouseDown)
         onBlur={() => setOuverte(false)}
-        className="min-w-0 flex-1 rounded border border-gray-300 px-3 py-2 focus:border-francle-fonce focus:outline-none"
+        className="min-w-0 flex-1 rounded border border-bord px-3 py-2 focus:border-francle-fonce focus:outline-none"
       />
       <button type="submit" className="rounded bg-francle-fonce px-4 py-2 font-semibold text-white hover:opacity-90">
         {textes.proposer}
@@ -101,7 +101,7 @@ export function Saisie({ mode, onProposer }: Props) {
           role="listbox"
           aria-label={textes.saisie}
           // top-full : juste sous le formulaire ; z-10 : au-dessus du tableau
-          className="absolute top-full right-0 left-0 z-10 mt-1 max-h-60 overflow-y-auto rounded border border-gray-300 bg-white text-left shadow-lg"
+          className="absolute top-full right-0 left-0 z-10 mt-1 max-h-60 overflow-y-auto rounded border border-bord bg-fond text-left shadow-lg"
         >
           {liste.map((region, index) => (
             <li
@@ -116,7 +116,7 @@ export function Saisie({ mode, onProposer }: Props) {
                 evenement.preventDefault()
                 proposer(region.nom.fr)
               }}
-              className={`cursor-pointer px-3 py-2 ${index === choisie ? 'bg-francle-clair' : 'hover:bg-gray-100'}`}
+              className={`cursor-pointer px-3 py-2 ${index === choisie ? 'bg-francle-clair text-gray-900' : 'hover:bg-surface'}`}
             >
               {region.nom.fr}
             </li>

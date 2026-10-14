@@ -11,6 +11,7 @@ pourcentages : on rejoue les propositions avec proposer(), qui les recalcule. Si
 parties se rejouent avec la nouvelle règle, sans sauvegarde à convertir.
  */
 import { abandonner, enCours, nouvellePartie, proposer, type Etat, type Partie } from './domaine/partie.ts'
+import { SANS_MODE, type ModesDifficiles } from './domaine/partage.ts'
 import { parId, type Mode, type Region } from './domaine/regions.ts'
 import type { Resultat } from './domaine/statistiques.ts'
 
@@ -19,6 +20,8 @@ export const CLE = 'francle.parties-du-jour.v1'
 export interface PartieSauvee {
   readonly regions: readonly string[]
   readonly etat: Etat
+  // les modes difficiles fixés au premier essai (absents des sauvegardes d'avant web.4 : aucun mode)
+  readonly modes?: ModesDifficiles
 }
 
 // toutes les parties sauvées : numéro du jour -> partie. Une sauvegarde illisible (modifiée à la main, d'un autre
@@ -48,13 +51,23 @@ function estPartieSauvee(valeur: unknown): valeur is PartieSauvee {
     valeur !== null &&
     Array.isArray(partie.regions) &&
     partie.regions.every((id) => typeof id === 'string') &&
-    ['en-cours', 'gagnee', 'perdue', 'abandonnee'].includes(partie.etat)
+    ['en-cours', 'gagnee', 'perdue', 'abandonnee'].includes(partie.etat) &&
+    (partie.modes === undefined ||
+      (typeof partie.modes === 'object' &&
+        partie.modes !== null &&
+        typeof partie.modes.rotation === 'boolean' &&
+        typeof partie.modes.cachee === 'boolean'))
   )
 }
 
-export function enregistrer(numero: number, partie: Partie, stockage: Storage = localStorage): void {
+export function enregistrer(
+  numero: number,
+  partie: Partie,
+  modes: ModesDifficiles = SANS_MODE,
+  stockage: Storage = localStorage,
+): void {
   const parties = lire(stockage)
-  parties.set(numero, { regions: partie.essais.map((essai) => essai.region.id), etat: partie.etat })
+  parties.set(numero, { regions: partie.essais.map((essai) => essai.region.id), etat: partie.etat, modes })
   try {
     // Object.fromEntries : Map -> objet, car JSON ne sait pas écrire une Map
     stockage.setItem(CLE, JSON.stringify(Object.fromEntries(parties)))
@@ -80,6 +93,11 @@ export function restaurer(sauvee: PartieSauvee, cible: Region, mode: Mode): Part
     partie = abandonner(partie)
   }
   return partie
+}
+
+// les modes d'une partie sauvée (aucun pour les sauvegardes d'avant web.4)
+export function modesSauves(sauvee: PartieSauvee): ModesDifficiles {
+  return sauvee.modes ?? SANS_MODE
 }
 
 // les résultats de toutes les parties sauvées, pour les statistiques

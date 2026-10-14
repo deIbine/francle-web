@@ -19,7 +19,7 @@ export function Statistiques({ stats, dernier }: { stats: Stats; dernier?: numbe
         {chiffres.map(([nom, valeur]) => (
           // flex-col-reverse : la valeur (dd) au-dessus de son nom (dt), tout en gardant l'ordre dt puis dd du HTML
           <div key={nom} className="flex flex-col-reverse">
-            <dt className="text-xs text-gray-600">{nom}</dt>
+            <dt className="text-xs text-discret">{nom}</dt>
             <dd className="text-2xl font-bold tabular-nums">{valeur}</dd>
           </div>
         ))}

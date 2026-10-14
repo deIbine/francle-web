@@ -359,3 +359,73 @@ commandes), **comment le penser** (la question à se poser la prochaine fois).
   qu'on relit avec `navigator.clipboard.readText()`.
 - **Comment le penser** : tester la **capacité** (« le pointeur est-il un doigt ? », « `share` existe-t-il ? »)
   plutôt que deviner l'appareil d'après son nom. Et toujours prévoir le cas où l'action est refusée.
+
+## web.4 Les réglages et la partie libre
+
+### Le thème sombre : des couleurs qui sont des rôles
+
+- **Pourquoi** : la manière directe, avec Tailwind, est d'écrire deux couleurs sur chaque élément
+  (`bg-gray-100 dark:bg-gray-800`). Sur trente éléments, on en oublie forcément, et changer une couleur oblige à
+  repasser partout. On a préféré nommer des **rôles** (le fond, le texte, la surface d'une ligne, le texte discret,
+  la bordure), et ne changer que leur valeur en thème sombre.
+- **Comment le faire** : dans `src/index.css`, `@theme { --color-surface: #f3f4f6; … }` crée la classe `bg-surface`
+  (et `border-surface`, `text-surface`…). Le bloc `.dark { --color-surface: #1f2937; }` redéfinit la **variable CSS**
+  quand `<html>` porte la classe `dark` ; toutes les classes qui l'utilisent suivent seules. `@custom-variant dark`
+  dit à Tailwind que le sombre vient de cette classe, et non directement du système : le joueur peut ainsi forcer
+  clair ou sombre. `color-scheme: dark` demande aussi au navigateur ses propres éléments en sombre (barres de
+  défilement, cases à cocher, fenêtres `<dialog>`).
+- **Comment le penser** : nommer une couleur par **ce qu'elle fait** (« texte discret »), pas par **ce qu'elle est**
+  (« gris 500 »). C'est l'idée des variables CSS : une valeur, un seul endroit, et la cascade fait le reste. Le même
+  principe qu'une constante Java plutôt qu'un nombre magique répété.
+
+### L'éclair blanc au chargement
+
+- **Pourquoi** : React ne démarre qu'après avoir téléchargé et exécuté le JavaScript. D'ici là, la page est
+  affichée sans la classe `dark` : en clair. Un joueur en thème sombre verrait un éclair blanc à chaque ouverture.
+- **Comment le faire** : un petit `<script>` directement dans `index.html`, avant le reste, lit le réglage dans
+  `localStorage` et pose la classe `dark` tout de suite. Il est écrit en JavaScript simple (pas de TypeScript, pas
+  d'import) parce qu'il s'exécute tel quel, avant tout outil.
+- **Comment le penser** : se demander ce que voit le joueur **pendant** le chargement, pas seulement après.
+
+### Un plateau commun, deux propriétaires
+
+- **Pourquoi** : la partie du jour et la partie libre ont le même plateau (silhouette, saisie, tableau, indices),
+  mais pas le même comportement : l'une sauvegarde, compte et partage ; l'autre non. Copier le plateau, c'était
+  devoir corriger chaque bug deux fois.
+- **Comment le faire** : `Plateau` reçoit la partie et une fonction `onChanger(suite)` ; il ne garde que ce qui
+  lui est propre (le message d'erreur, la confirmation d'abandon). `PartieDuJour` et `PartieLibre` gardent la
+  partie et décident quoi faire à chaque changement. Ce qui diffère à l'écran (le bas de la fenêtre de fin) passe
+  par `children` ou par une prop qui contient du JSX (`fin={…}`).
+- **Comment le penser** : séparer **ce qui s'affiche** de **qui décide**. En Java, ce serait une vue qui reçoit un
+  écouteur plutôt que de connaître le contrôleur.
+
+### Fixer les modes au premier essai
+
+- **Pourquoi** : sans règle, on pourrait jouer avec la silhouette, puis cocher 🙈 juste avant de partager, et
+  afficher un exploit qu'on n'a pas fait. La partie doit donc retenir les modes avec lesquels elle a été jouée.
+- **Comment le faire** : tant qu'aucun essai n'est joué, la partie suit les réglages ; au premier changement,
+  `setModesFixes(modes)` les fige. Pour la partie du jour, ils sont sauvegardés avec elle (champ `modes`, absent
+  des anciennes sauvegardes : on lit alors « aucun mode »).
+- **Comment le penser** : quand une valeur peut changer *pendant* qu'on s'en sert, se demander à quel moment elle
+  doit être **lue une fois pour toutes**, et la copier à ce moment-là.
+
+### Garder les deux onglets montés, l'un caché
+
+- **Pourquoi** : afficher un seul onglet à la fois, c'est retirer l'autre de la page : React jette alors son état,
+  et la partie libre en cours serait perdue au premier coup d'œil à la partie du jour.
+- **Comment le faire** : les deux panneaux restent dans la page ; celui qu'on ne regarde pas a l'attribut `hidden`.
+  Piège : la classe `flex` l'emporte sur `hidden` (deux règles `display` en concurrence) ; la variante
+  `[&[hidden]]:hidden` remet `display: none` quand l'attribut est présent. Les rôles `tablist`, `tab` et `tabpanel`
+  et les flèches ← → suivent le modèle « onglets » du W3C.
+- **Comment le penser** : cacher n'est pas détruire. Se demander si l'état de ce qu'on fait disparaître doit
+  survivre ; si oui, cacher plutôt que retirer.
+
+### Une espace qui disparaît pour les lecteurs d'écran
+
+- **Pourquoi** : un test ne trouvait plus le titre « Francle n° 3 ». À l'écran, tout allait bien ; mais l'espace
+  était écrite au début du `<span>` du numéro, et le calcul du **nom accessible** (le texte que lit un lecteur
+  d'écran) la perdait : « Francleno° 3 ».
+- **Comment le faire** : écrire l'espace **hors** du `<span>` (`{' '}` juste avant). Les tests qui cherchent par
+  rôle et par nom (`getByRole('heading', { name: … })`) vérifient justement ce nom accessible.
+- **Comment le penser** : ce qu'on voit et ce qu'un lecteur d'écran entend peuvent différer. Un test par rôle et par
+  nom est aussi un test d'accessibilité : quand il échoue sans raison visible, c'est souvent un vrai problème.

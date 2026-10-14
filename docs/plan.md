@@ -86,7 +86,7 @@ angle de rotation, et les valeurs de ses tests.
 
 ## Où on en est (mis à jour le 14 octobre 2026)
 
-**Faites : web.0 à web.3.** Prochaine étape : **web.4 Les réglages et la partie libre**.
+**Faites : web.0 à web.4.** Prochaine étape : **web.5 L'anglais**.
 
 - **web.0** (PR #1, étiquette `web-0`) : dépôt public `deIbine/francle-web`, Vite + React + TypeScript, Vitest, lint
   oxlint, CI `.github/workflows/ci.yml` (tâche `verifier` sur chaque PR et sur `main`, tâche `publier` vers GitHub
@@ -114,9 +114,17 @@ angle de rotation, et les valeurs de ses tests.
   - `App` ne garde que le jour et affiche `<Jeu key={numero}>` : à minuit, un nouveau `Jeu` repart de zéro.
     `Jeu.tsx` garde la partie ; fenêtre `<dialog>` (`Fenetre`) pour les résultats et les statistiques (bouton 📊),
     `Partager` (menu du téléphone ou presse-papiers), `CompteARebours`.
-- **Ce que web.4 réutilise** : `Jeu` (à rendre utilisable pour une partie libre, sans sauvegarde du jour ni
-  statistiques), `angleDuJour()` pour la rotation, `defaut.svg` pour l'image cachée, `tirer(mode)` pour la partie
-  libre, `CarteFrance` (déjà prête pour les deux époques).
+- **web.4** (PR #5, étiquette `web-4`) : les réglages et la partie libre.
+  - `src/reglages.ts` : réglages dans `localStorage` (clé `francle.reglages.v1` : thème, unité, rotation, image
+    cachée), `useReglages()`, `useTheme()` (classe `dark` sur `<html>`) ; un script dans `index.html` applique le
+    thème avant l'affichage. Couleurs par rôles dans `src/index.css` (`bg-fond`, `text-discret`, `bg-surface`…).
+  - `App.tsx` : en-tête (⚙️, titre, 📊), onglets « Partie du jour » / « Partie libre » (les deux restent montés).
+    `composants/Plateau.tsx` : le plateau commun. `PartieDuJour.tsx` (ancien `Jeu.tsx`) et `PartieLibre.tsx`.
+  - Modes difficiles fixés au premier essai, sauvegardés avec la partie du jour (champ `modes`) et montrés dans le
+    partage (« #Francle n° 12 3/6 🌀🙈 »).
+- **Ce que web.5 doit faire** : l'anglais dans `textes.ts` (et `toLocaleString`), la langue dans les réglages
+  (`uniteAffichee` : miles par défaut en anglais si `unite` n'est pas choisie), le bouton FR / EN dans l'en-tête,
+  les noms et indices en anglais (`region.nom[langue]`…), les corrections décidées des indices.
 - **À faire relire par l'utilisateur** (pas encore validé) : les monuments et les traductions anglaises de
   `regions.ts` ; « le matsidza » (Mayotte) est resté tel quel en anglais.
 

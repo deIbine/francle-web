@@ -47,7 +47,7 @@ export function Partager({ texte }: { texte: string }) {
       >
         {textes.partager} 📋
       </button>
-      <p aria-live="polite" className="min-h-5 text-sm text-gray-600">
+      <p aria-live="polite" className="min-h-5 text-sm text-discret">
         {message}
       </p>
     </div>

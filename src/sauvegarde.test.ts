@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest'
+import { SANS_MODE } from './domaine/partage.ts'
 import { abandonner, nouvellePartie, proposer, type Partie } from './domaine/partie.ts'
 import { parId } from './domaine/regions.ts'
 import { CLE, enregistrer, lire, restaurer, resultats } from './sauvegarde.ts'
@@ -18,7 +19,7 @@ describe('La sauvegarde', () => {
     const partie = jouer('Normandie', 'Brittany')
     enregistrer(5, partie)
     const sauvee = lire().get(5)
-    expect(sauvee).toEqual({ regions: ['normandie', 'bretagne'], etat: 'gagnee' })
+    expect(sauvee).toEqual({ regions: ['normandie', 'bretagne'], etat: 'gagnee', modes: SANS_MODE })
     // rejouée, elle redonne les mêmes essais, distances et pourcentages compris
     expect(restaurer(sauvee!, BRETAGNE, 'nouvelles')).toEqual(partie)
   })

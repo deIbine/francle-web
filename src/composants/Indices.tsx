@@ -1,3 +1,4 @@
+import { useId } from 'react'
 import type { Indice } from '../domaine/partie.ts'
 import type { Region } from '../domaine/regions.ts'
 import { textes } from '../textes.ts'
@@ -18,13 +19,15 @@ function valeur(region: Region, indice: Indice): string {
 
 // les indices déjà révélés, dans l'ordre
 export function Indices({ cible, reveles }: { cible: Region; reveles: readonly Indice[] }) {
+  // un identifiant unique : la partie du jour et la partie libre affichent chacune leurs indices dans la page
+  const idTitre = useId()
   return (
-    <section aria-labelledby="titre-indices" className="text-left">
-      <h2 id="titre-indices" className="mb-1 font-semibold">
+    <section aria-labelledby={idTitre} className="text-left">
+      <h2 id={idTitre} className="mb-1 font-semibold">
         {textes.indices}
       </h2>
       {reveles.length === 0 ? (
-        <p className="text-sm text-gray-500">{textes.aucunIndice}</p>
+        <p className="text-sm text-discret">{textes.aucunIndice}</p>
       ) : (
         // dl / dt / dd : une liste de définitions (un nom, sa valeur), la balise HTML faite pour ça
         <dl className="grid grid-cols-[auto_1fr] gap-x-3 gap-y-1 text-sm">
@@ -32,7 +35,7 @@ export function Indices({ cible, reveles }: { cible: Region; reveles: readonly I
             // HTML permet de grouper chaque paire dt + dd dans un div ; « contents » (display: contents) fait comme
             // si ce div n'existait pas pour la grille : dt et dd restent ses deux colonnes
             <div key={indice} className="contents">
-              <dt className="text-gray-500">{textes.nomsIndices[indice]}</dt>
+              <dt className="text-discret">{textes.nomsIndices[indice]}</dt>
               <dd>{valeur(cible, indice)}</dd>
             </div>
           ))}
