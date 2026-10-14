@@ -91,8 +91,8 @@ le nom de domaine).
 
 - **web.0** (PR #1, étiquette `web-0`) : dépôt public `deIbine/francle-web`, Vite + React + TypeScript, Vitest, lint
   oxlint, CI `.github/workflows/ci.yml` (tâche `verifier` sur chaque PR et sur `main`, tâche `publier` vers GitHub
-  Pages après chaque fusion). Le site est en ligne : https://deibine.github.io/francle-web/ (page « Francle arrive
-  bientôt »).
+  Pages après chaque fusion). Le site est en ligne : https://deibine.github.io/francle-web/ (le jeu complet depuis
+  web.6).
 - **web.1** (PR #2, étiquette `web-1`) : tout le domaine dans `src/domaine/`, sans affichage :
   - `regions.ts` (35 régions, noms et indices FR/EN, 5e indice « monument »), `recherche.ts` (saisie, suggestions,
     noms FR et EN acceptés), `geographie.ts` (distance, 8 directions, proximité), `partie.ts` (6 essais, valeurs non
@@ -142,8 +142,14 @@ le nom de domaine).
 - **Ce que web.7 doit faire** : (1) le nom de domaine, une fois acheté par l'utilisateur : `public/CNAME`, réglages
   DNS, domaine déclaré dans GitHub Pages, `base: '/'` dans `vite.config.ts`, `ADRESSE` dans `domaine/partage.ts`,
   liens du README ; (2) le défi : un lien à envoyer pour faire deviner une région choisie.
-- **À faire relire par l'utilisateur** (pas encore validé) : les monuments et les traductions anglaises de
-  `regions.ts` ; « le matsidza » (Mayotte) est resté tel quel en anglais.
+- **Relu et validé avant web.4** : les monuments et les traductions anglaises de `regions.ts` (corrections faites à
+  web.5).
+- **Encore à valider par l'utilisateur, en jouant** (signalé dans les PR #5 à #7) : en partie libre, changer
+  d'époque commence aussitôt une nouvelle partie ; les textes anglais de l'interface, « Comment jouer » (FR et EN) et
+  les crédits du bas de page (`src/textes.ts`) ; le thème sombre et l'affichage sur téléphone.
+- **Pour reprendre** : lire ce plan et `docs/lecons.md`, vérifier que `main` est à jour (`git pull`), puis présenter
+  le découpage de web.7 et ses questions (quel domaine, s'il est acheté ; comment fonctionne le lien du défi : région
+  visible dans le lien ou codée, partie du jour ou libre, époque…). Rien n'est commencé pour web.7.
 
 ## L'environnement de travail
 
