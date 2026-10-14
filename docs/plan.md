@@ -53,7 +53,7 @@ angle de rotation, et les valeurs de ses tests.
 | Noms en anglais | Noms des régions **et** indices traduits (Brittany, Normandy, Corsica, Burgundy…). À la saisie, on **accepte les deux** noms, quelle que soit la langue. |
 | Directions | **8** (comme Francle), pas 16 : les distances sont courtes en France. Affichées en **emoji** (⬆️ ↗️ … 🎉), dans le tableau comme dans le partage (décidé à web.2). |
 | Abandon | Un bouton **Abandonner**, avec confirmation (web.2). Une partie abandonnée compte comme une **défaite** dans les statistiques (web.3). |
-| Région déjà proposée | Refusée avec un message, **sans coûter d'essai** (web.2, à valider). |
+| Région déjà proposée | Refusée avec un message, **sans coûter d’essai** (décidé à web.2). |
 | Proximité | La **formule de Francle** (pensée pour la France). Celle de Worldle, rapportée au tour de la Terre, donnerait 95 à 100 % partout. |
 | Mode « image cachée » 🙈 | La case « Silhouette de la région » de Francle devient ce mode, avec son emoji dans le partage (comme 🌀 pour la rotation). |
 | Licence | **MIT**, comme Worldle. |
