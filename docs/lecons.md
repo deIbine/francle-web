@@ -551,3 +551,22 @@ commandes), **comment le penser** (la question à se poser la prochaine fois).
   rester fixe.
 - **Comment le penser** : quand un outil sait déjà produire une famille de fichiers, lui ajouter le nouveau venu
   plutôt que de le faire à la main : on pourra le refaire à l'identique.
+
+## Fusionner des PR empilées
+
+### Rebaser une branche qui partait d'une autre branche, après une fusion en squash
+
+- **Pourquoi** : web.5 partait de la branche de web.4, et web.6 de celle de web.5. Une fusion en squash crée sur
+  `main` un **nouveau** commit, qui a le même contenu que la branche mais pas la même histoire. La branche suivante
+  porte toujours les anciens commits : il faut la « rebaser » sur `main` pour ne garder que ses propres commits.
+  Une fois, la commande a reçu le mauvais point de départ (la branche précédente déjà rebasée, et non celle dont la
+  branche partait vraiment) : git a voulu rejouer les commits de web.4 et a signalé des conflits partout.
+- **Comment le faire** : `git rebase --onto origin/main <ancien sommet de la branche précédente> <branche>`. L'ancien
+  sommet est le commit de la branche précédente **tel qu'il était quand la branche suivante en est partie** ; le
+  retrouver avec `git log --oneline` sur la branche suivante, et le vérifier avec
+  `git merge-base --is-ancestor <commit> <branche>`. En cas de conflits inattendus : `git rebase --abort` remet tout
+  comme avant. Après le rebase, vérifier que le contenu n'a pas changé : `git rev-parse <avant>^{tree}` et
+  `git rev-parse <après>^{tree}` doivent être égaux. Puis `gh pr edit <n> --base main` et
+  `git push --force-with-lease` (qui refuse d'écraser un travail que l'on n'a pas vu).
+- **Comment le penser** : des conflits sur des fichiers qu'on n'a pas touchés, c'est le signe que git rejoue des
+  commits qu'il ne devrait pas. S'arrêter, annuler, et vérifier le point de départ plutôt que de résoudre.
