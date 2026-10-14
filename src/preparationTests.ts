@@ -7,6 +7,8 @@ import { afterEach } from 'vitest'
 afterEach(cleanup)
 // et on efface les parties sauvées (localStorage), pour que chaque test commence sans historique
 afterEach(() => localStorage.clear())
+// et on retire le thème sombre qu'un test aurait posé sur <html> (la page, elle, n'est pas effacée par cleanup)
+afterEach(() => document.documentElement.classList.remove('dark'))
 
 // jsdom (le faux navigateur des tests) connaît la balise <dialog> mais pas encore ses méthodes showModal() et
 // close() : on les imite. Ouvrir = poser l'attribut « open » ; fermer = l'enlever et prévenir avec l'évènement

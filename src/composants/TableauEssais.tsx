@@ -1,10 +1,11 @@
 import { EMOJIS } from '../domaine/geographie.ts'
 import { ESSAIS_MAX, type Essai } from '../domaine/partie.ts'
+import type { Unite } from '../reglages.ts'
 import { textes } from '../textes.ts'
 
 // le tableau des essais : une ligne par essai joué, et des lignes vides pour ceux qui restent, comme Worldle
 // (on voit d'un coup d'œil combien d'essais il reste)
-export function TableauEssais({ essais }: { essais: readonly Essai[] }) {
+export function TableauEssais({ essais, unite }: { essais: readonly Essai[]; unite: Unite }) {
   // Array.from({ length: n }) : un tableau de n cases vides, pour dessiner les lignes restantes
   const restants = Array.from({ length: ESSAIS_MAX - essais.length })
   return (
@@ -21,9 +22,9 @@ export function TableauEssais({ essais }: { essais: readonly Essai[] }) {
       </thead>
       <tbody>
         {essais.map((essai, index) => (
-          <tr key={index} className="bg-gray-100">
+          <tr key={index} className="bg-surface">
             <td className="rounded-l px-2 py-1.5 text-left font-medium">{essai.region.nom.fr}</td>
-            <td className="px-2 py-1.5 text-right tabular-nums">{textes.kilometres(Math.round(essai.distance))}</td>
+            <td className="px-2 py-1.5 text-right tabular-nums">{textes.distance(essai.distance, unite)}</td>
             <td className="px-2 py-1.5 text-center">
               <span role="img" aria-label={textes.directions[essai.direction]}>
                 {EMOJIS[essai.direction]}
@@ -35,7 +36,7 @@ export function TableauEssais({ essais }: { essais: readonly Essai[] }) {
         {restants.map((_, index) => (
           // aria-hidden : ces lignes vides ne sont qu'un dessin, un lecteur d'écran n'a rien à en dire
           <tr key={`vide-${index}`} aria-hidden="true">
-            <td colSpan={4} className="h-8 rounded border border-dashed border-gray-300" />
+            <td colSpan={4} className="h-8 rounded border border-dashed border-bord" />
           </tr>
         ))}
       </tbody>

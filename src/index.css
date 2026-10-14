@@ -1,11 +1,42 @@
 /* Tailwind : ses styles de base (qui effacent les marges et styles par défaut des navigateurs) et toutes ses classes */
 @import 'tailwindcss';
 
-/* Les couleurs propres à Francle, reprises du jeu Java. Déclarées ici, elles deviennent des classes Tailwind comme
-   les autres : --color-francle-clair donne bg-francle-clair, fill-francle-clair, text-francle-clair… */
+/* Le thème sombre s'active par la classe « dark » posée sur <html> (voir useTheme dans reglages.ts), et non
+   directement par le réglage du système : le joueur peut ainsi forcer le clair ou le sombre */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* Les couleurs du jeu. Déclarées ici, elles deviennent des classes Tailwind comme les autres : --color-surface
+   donne bg-surface, border-surface… Les couleurs du jeu Java (francle-clair, francle-fonce) ne changent pas avec le
+   thème ; les autres sont des « rôles » (le fond, le texte discret…) dont la valeur change en thème sombre. */
 @theme {
   --color-francle-clair: #a2d1fb;
   --color-francle-fonce: #3a4bc4;
+
+  --color-fond: #ffffff;
+  --color-texte: #111827;
+  --color-surface: #f3f4f6;
+  --color-bord: #d1d5db;
+  --color-discret: #4b5563;
+  --color-erreur: #b91c1c;
   --color-carte-fond: #fbf9f6;
   --color-carte-trait: #8c98b8;
+}
+
+/* En thème sombre, on redéfinit seulement les valeurs des rôles : aucune classe à changer dans les composants.
+   color-scheme: dark demande aussi au navigateur ses propres éléments en sombre (barres de défilement, champs…) */
+.dark {
+  color-scheme: dark;
+  --color-fond: #111827;
+  --color-texte: #f3f4f6;
+  --color-surface: #1f2937;
+  --color-bord: #4b5563;
+  --color-discret: #9ca3af;
+  --color-erreur: #f87171;
+  --color-carte-fond: #374151;
+  --color-carte-trait: #9ca3af;
+}
+
+body {
+  background-color: var(--color-fond);
+  color: var(--color-texte);
 }

@@ -42,21 +42,25 @@ angle de rotation, et les valeurs de ses tests.
 | Textes de l'écran | Tous dans **`src/textes.ts`** dès web.2, pour que web.5 n'ait plus qu'à ajouter l'anglais. |
 | Images | **SVG**, générées par un script **Python** à partir des contours officiels (`outils/generer_images.py`, adapté du Java ; il écrit le SVG lui-même, sans bibliothèque). La carte de fin est **un seul fichier de contours par époque**, dessiné par React, avec l'outre-mer en encadrés. |
 | Partie du jour | Les **18 nouvelles régions** (depuis 2016), la même pour tout le monde. |
-| Partie libre | Les **deux époques**, au choix : anciennes régions ou nouvelles régions. |
+| Partie libre | Les **deux époques**, au choix : anciennes régions ou nouvelles régions. **Deux onglets** en haut, « Partie du jour » et « Partie libre ». La partie libre n'est **ni sauvegardée, ni comptée, ni partageable** : c'est de l'entraînement (décidé avant web.4). |
 | Essais | **6**, comme Worldle (le Java en a 5). |
 | Partage | Le résultat en **carrés emoji**, avec un bouton pour le copier, et le **menu de partage du téléphone** quand il existe (Web Share). **Pas d'indices** dans le texte partagé (décidé à web.3). |
 | Statistiques | Calculées à partir de l'historique des parties. Une **série** demande des **jours consécutifs** : un jour sauté la remet à zéro (décidé à web.3). |
 | Fin de partie et statistiques | Dans une **fenêtre** par-dessus le jeu (`<dialog>`), comme Worldle (décidé à web.3). |
 | Indices | **On les garde** (superficie, spécialité, personnalité, capitale) : c'est la particularité de Francle. **Plus un 5e, le monument** (décidé à web.1), révélé après le 5e essai raté. |
 | Région du jour | **La même que le Java**, au bit près (même hasard, même premier jour, le 13 octobre 2026). Le jour change **à minuit chez le joueur** (décidé à web.1). |
-| Langues | **Français et anglais**, au choix du joueur. |
-| Noms en anglais | Noms des régions **et** indices traduits (Brittany, Normandy, Corsica, Burgundy…). À la saisie, on **accepte les deux** noms, quelle que soit la langue. |
+| Langues | **Français et anglais**, au choix du joueur. Au premier passage, la **langue du navigateur** ; un **bouton FR / EN visible** dans l'en-tête ; les traductions dans **`textes.ts`**, sans bibliothèque ; une **seule adresse** pour les deux langues ; le texte de partage est traduit (« #Francle #12 3/6 » en anglais) (décidé avant web.4). |
+| Réglages | Une fenêtre **⚙️**, gardée dans le navigateur. **Thème** : automatique (celui du système) par défaut, ou clair, ou sombre. **Unité** : km par défaut en français, **miles par défaut en anglais** ; l'unité suit la langue tant que le joueur ne l'a pas choisie lui-même, ensuite son choix l'emporte (décidé avant web.4). |
+| Modes difficiles 🌀 🙈 | Fixés **au premier essai** : un changement en cours de partie ne compte que pour la partie suivante, pour que l'emoji du partage dise vrai. Rotation : l'angle du jour en partie du jour, un **angle au hasard** en partie libre (décidé avant web.4). |
+| Noms en anglais | Noms des régions **et** indices traduits (Brittany, Normandy, Corsica, Burgundy…). À la saisie, on **accepte les deux** noms, quelle que soit la langue. Le tableau des traductions a été relu avant web.4. À faire à web.5 : Mayotte, « le matsidza » devient **« le mataba »** et Taambati Moussa devient **Zéna M'Déré** ; Nouvelle-Aquitaine, Jacques Ellul devient **Montaigne** ; en anglais, **plus d'explications entre parenthèses** (« matelote », pas « matelote (fish stewed in wine) »). Le web s'écarte alors du Java sur ces indices. |
+| Finitions | « **Comment jouer** » ouvert à la première visite, puis par un bouton ❓ ; **vérification automatique de l'accessibilité** (axe) dans les tests ; **crédits** en bas de page (contours IGN/Etalab, inspiration Worldle, lien vers le code) ; **README en français** ; **aucune statistique de visite** ; icône : la France en bleu Francle ; **pas de jeu installable** pour l'instant (décidé avant web.4). |
+| Nom de domaine | Un domaine à soi, **à web.7** (proposé : `francle.fr`, libre le 14 octobre 2026), acheté par l'utilisateur avant de commencer web.7. Le chemin de base `/francle-web/` deviendra `/` (décidé avant web.4). |
 | Directions | **8** (comme Francle), pas 16 : les distances sont courtes en France. Affichées en **emoji** (⬆️ ↗️ … 🎉), dans le tableau comme dans le partage (décidé à web.2). |
 | Abandon | Un bouton **Abandonner**, avec confirmation (web.2). Une partie abandonnée compte comme une **défaite** dans les statistiques (web.3). |
 | Région déjà proposée | Refusée avec un message, **sans coûter d’essai** (décidé à web.2). |
 | Proximité | La **formule de Francle** (pensée pour la France). Celle de Worldle, rapportée au tour de la Terre, donnerait 95 à 100 % partout. |
 | Mode « image cachée » 🙈 | La case « Silhouette de la région » de Francle devient ce mode, avec son emoji dans le partage (comme 🌀 pour la rotation). |
-| Licence | **MIT**, comme Worldle. |
+| Licence | **MIT**, comme Worldle : « Copyright (c) 2026 deIbine », plus la mention « Copyright (c) 2022 teuteuf » pour ce qui s'inspire de Worldle (décidé avant web.4). |
 | Mode de travail | **Claude code et explique** ; des **leçons** dans `docs/lecons.md` (format pourquoi / comment le faire / comment le penser), y compris pour les notions web (HTML, CSS, React, navigateur). |
 | Git | **Itératif, une PR par étape.** |
 
@@ -77,10 +81,12 @@ angle de rotation, et les valeurs de ses tests.
 5. **web.5 L'anglais** : tous les textes en deux langues, au choix du joueur.
 6. **web.6 Les finitions** : affichage mobile, accessibilité (clavier, lecteurs d'écran), « comment jouer », README,
    licence.
+7. **web.7 Le domaine et le défi** : d'abord le nom de domaine, puis le défi (un lien à envoyer à un ami pour lui
+   faire deviner une région). Pas d'archives des jours passés (décidé avant web.4).
 
 ## Où on en est (mis à jour le 14 octobre 2026)
 
-**Faites : web.0 à web.3.** Prochaine étape : **web.4 Les réglages et la partie libre**.
+**Faites : web.0 à web.4.** Prochaine étape : **web.5 L'anglais**.
 
 - **web.0** (PR #1, étiquette `web-0`) : dépôt public `deIbine/francle-web`, Vite + React + TypeScript, Vitest, lint
   oxlint, CI `.github/workflows/ci.yml` (tâche `verifier` sur chaque PR et sur `main`, tâche `publier` vers GitHub
@@ -108,9 +114,17 @@ angle de rotation, et les valeurs de ses tests.
   - `App` ne garde que le jour et affiche `<Jeu key={numero}>` : à minuit, un nouveau `Jeu` repart de zéro.
     `Jeu.tsx` garde la partie ; fenêtre `<dialog>` (`Fenetre`) pour les résultats et les statistiques (bouton 📊),
     `Partager` (menu du téléphone ou presse-papiers), `CompteARebours`.
-- **Ce que web.4 réutilise** : `Jeu` (à rendre utilisable pour une partie libre, sans sauvegarde du jour ni
-  statistiques), `angleDuJour()` pour la rotation, `defaut.svg` pour l'image cachée, `tirer(mode)` pour la partie
-  libre, `CarteFrance` (déjà prête pour les deux époques).
+- **web.4** (PR #5, étiquette `web-4`) : les réglages et la partie libre.
+  - `src/reglages.ts` : réglages dans `localStorage` (clé `francle.reglages.v1` : thème, unité, rotation, image
+    cachée), `useReglages()`, `useTheme()` (classe `dark` sur `<html>`) ; un script dans `index.html` applique le
+    thème avant l'affichage. Couleurs par rôles dans `src/index.css` (`bg-fond`, `text-discret`, `bg-surface`…).
+  - `App.tsx` : en-tête (⚙️, titre, 📊), onglets « Partie du jour » / « Partie libre » (les deux restent montés).
+    `composants/Plateau.tsx` : le plateau commun. `PartieDuJour.tsx` (ancien `Jeu.tsx`) et `PartieLibre.tsx`.
+  - Modes difficiles fixés au premier essai, sauvegardés avec la partie du jour (champ `modes`) et montrés dans le
+    partage (« #Francle n° 12 3/6 🌀🙈 »).
+- **Ce que web.5 doit faire** : l'anglais dans `textes.ts` (et `toLocaleString`), la langue dans les réglages
+  (`uniteAffichee` : miles par défaut en anglais si `unite` n'est pas choisie), le bouton FR / EN dans l'en-tête,
+  les noms et indices en anglais (`region.nom[langue]`…), les corrections décidées des indices.
 - **À faire relire par l'utilisateur** (pas encore validé) : les monuments et les traductions anglaises de
   `regions.ts` ; « le matsidza » (Mayotte) est resté tel quel en anglais.
 
