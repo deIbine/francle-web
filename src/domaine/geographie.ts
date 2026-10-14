@@ -43,6 +43,20 @@ export const SYMBOLES: Readonly<Record<Direction, string>> = {
   'sur-place': '●',
 }
 
+// les mêmes flèches en emoji, comme Worldle : affichées dans le tableau des essais, et dans le texte de partage
+// (un emoji garde la même allure partout, dans un message comme sur la page)
+export const EMOJIS: Readonly<Record<Direction, string>> = {
+  nord: '⬆️',
+  'nord-est': '↗️',
+  est: '➡️',
+  'sud-est': '↘️',
+  sud: '⬇️',
+  'sud-ouest': '↙️',
+  ouest: '⬅️',
+  'nord-ouest': '↖️',
+  'sur-place': '🎉',
+}
+
 // les 8 directions de la rose des vents, dans le sens des aiguilles d'une montre à partir du nord
 const ROSE: readonly Direction[] = ['nord', 'nord-est', 'est', 'sud-est', 'sud', 'sud-ouest', 'ouest', 'nord-ouest']
 

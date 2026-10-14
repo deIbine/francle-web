@@ -8,3 +8,5 @@ dist/
 !.vscode/extensions.json
 .idea/
 .DS_Store
+# Réglages locaux de Claude Code (serveur de prévisualisation)
+.claude/

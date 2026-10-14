@@ -1,4 +1,5 @@
 /// <reference types="vitest/config" />
+import tailwindcss from '@tailwindcss/vite'
 import react from '@vitejs/plugin-react'
 import { defineConfig } from 'vite'
 
@@ -6,9 +7,11 @@ import { defineConfig } from 'vite'
 export default defineConfig({
   // Le site est servi sous https://deibine.github.io/francle-web/ : tous les liens doivent commencer par ce chemin.
   base: '/francle-web/',
-  plugins: [react()],
+  // tailwindcss() lit les classes écrites dans les composants et produit le CSS qui leur correspond, et lui seul
+  plugins: [react(), tailwindcss()],
   test: {
     // Un faux navigateur (jsdom) pour pouvoir afficher les composants React pendant les tests.
     environment: 'jsdom',
+    setupFiles: ['src/preparationTests.ts'],
   },
 })
