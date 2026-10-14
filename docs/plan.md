@@ -1,7 +1,7 @@
 # Francle web : le plan
 
 Décidé le 14 octobre 2026, à la fin de la Phase 6 du projet Java [deIbine/francle](https://github.com/deIbine/francle).
-Aucun code n'est encore écrit : ce document sert de point de départ pour une nouvelle conversation.
+Ce document sert de point de départ à chaque nouvelle conversation : voir d'abord « Où on en est » plus bas.
 
 ## L'objectif
 
@@ -72,13 +72,38 @@ angle de rotation, et les valeurs de ses tests.
 6. **web.6 Les finitions** : affichage mobile, accessibilité (clavier, lecteurs d'écran), « comment jouer », README,
    licence.
 
-## Avant de commencer
+## Où on en est (mis à jour le 14 octobre 2026)
 
-- **Installer Node.js (version LTS)**, l'équivalent du JDK pour le JavaScript. Il n'était pas installé le 14 octobre
-  2026. C'est à l'utilisateur de l'installer (par exemple `winget install OpenJS.NodeJS.LTS` dans PowerShell), puis
-  de vérifier avec `node --version` et `npm --version`.
-- GitHub CLI (`gh`) est déjà connecté au compte `deIbine`, avec les droits `repo` et `workflow`.
-- Le dépôt `deIbine/francle-web` **n'existe pas encore** sur GitHub : il sera créé à l'étape web.0.
+**Faites : web.0 et web.1.** Prochaine étape : **web.2 Un jeu jouable**.
+
+- **web.0** (PR #1, étiquette `web-0`) : dépôt public `deIbine/francle-web`, Vite + React + TypeScript, Vitest, lint
+  oxlint, CI `.github/workflows/ci.yml` (tâche `verifier` sur chaque PR et sur `main`, tâche `publier` vers GitHub
+  Pages après chaque fusion). Le site est en ligne : https://deibine.github.io/francle-web/ (page « Francle arrive
+  bientôt »).
+- **web.1** (PR #2, étiquette `web-1`) : tout le domaine dans `src/domaine/`, sans affichage :
+  - `regions.ts` (35 régions, noms et indices FR/EN, 5e indice « monument »), `recherche.ts` (saisie, suggestions,
+    noms FR et EN acceptés), `geographie.ts` (distance, 8 directions, proximité), `partie.ts` (6 essais, valeurs non
+    modifiables : `proposer(partie, saisie)` renvoie une nouvelle partie), `hasardJava.ts` + `regionDuJour.ts`
+    (région et angle du jour identiques au Java, minuit chez le joueur) ;
+  - 98 tests, dont `reference-java.test.ts` qui compare tout au fichier `reference-java.json` produit par
+    `outils/ReferenceJava.java` (mode d'emploi dans son en-tête).
+- **Ce que web.2 réutilise** : `regionDuJour()`, `angleDuJour()`, `nouvellePartie()`, `proposer()`,
+  `indicesReveles()`, `suggestions(saisie, mode, langue)`, `SYMBOLES`. Il restera à produire les images SVG des
+  régions (identifiant de région = nom du fichier, par exemple `bretagne.svg`), à partir de `outils/generer_images.py`
+  du projet Java.
+- **À faire relire par l'utilisateur** (pas encore validé) : les monuments et les traductions anglaises de
+  `regions.ts` ; « le matsidza » (Mayotte) est resté tel quel en anglais.
+
+## L'environnement de travail
+
+- **Node.js 24 LTS** et npm 11 sont installés (par `winget install OpenJS.NodeJS.LTS`, le 14 octobre 2026). Dans le
+  Bash de Claude Code, Node n'est pas dans le `PATH` : préfixer les commandes par
+  `export PATH="/c/Program Files/nodejs:$PATH";`.
+- Commandes : `npm run dev` (site en local sur `http://localhost:5173/francle-web/`), `npm test`, `npm run lint`,
+  `npm run build`.
+- GitHub CLI (`gh`) est connecté au compte `deIbine`, avec les droits `repo` et `workflow`.
+- Java 21 est installé : il sert à régénérer le fichier de référence du Java si besoin.
+- Branches nommées `web-<n>-<sujet>` (par exemple `web-1-donnees-et-regles`), étiquettes `web-<n>`.
 
 ## Où trouver le reste
 
