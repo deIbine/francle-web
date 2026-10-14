@@ -1,6 +1,6 @@
 import { silhouette } from '../images.ts'
 import type { Region } from '../domaine/regions.ts'
-import { textes } from '../textes.ts'
+import { useTextes } from '../textes.ts'
 
 interface Props {
   region: Region
@@ -13,6 +13,7 @@ interface Props {
 // l'image de la région à deviner. Un composant React est une fonction : elle reçoit des « props » et renvoie ce
 // qu'il faut afficher
 export function Silhouette({ region, angle, cachee }: Props) {
+  const textes = useTextes()
   if (cachee) {
     return <img src={silhouette('defaut')} alt={textes.silhouetteCachee} className="mx-auto size-56 object-contain" />
   }

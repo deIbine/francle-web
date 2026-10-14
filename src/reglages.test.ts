@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { CLE_REGLAGES, enregistrerReglages, lireReglages, PAR_DEFAUT, uniteAffichee } from './reglages.ts'
-import { textes } from './textes.ts'
+import { TEXTES } from './textes.ts'
 
 describe('Les réglages', () => {
   it('sans rien d’enregistré : thème automatique, unité de la langue, aucun mode difficile', () => {
@@ -9,7 +9,7 @@ describe('Les réglages', () => {
   })
 
   it('se retrouvent tels qu’enregistrés', () => {
-    const reglages = { theme: 'sombre', unite: 'mi', rotation: true, cachee: false } as const
+    const reglages = { langue: 'en', theme: 'sombre', unite: 'mi', rotation: true, cachee: false } as const
     enregistrerReglages(reglages)
     expect(lireReglages()).toEqual(reglages)
   })
@@ -23,8 +23,8 @@ describe('Les réglages', () => {
 
   it('les distances en kilomètres ou en miles, arrondies', () => {
     // le séparateur des milliers en français est une espace fine insécable : on laisse toLocaleString l'écrire
-    expect(textes.distance(1024.6, 'km')).toBe(`${(1025).toLocaleString('fr-FR')} km`)
-    expect(textes.distance(160.9344, 'mi')).toBe('100 mi')
-    expect(textes.distance(0, 'mi')).toBe('0 mi')
+    expect(TEXTES.fr.distance(1024.6, 'km')).toBe(`${(1025).toLocaleString('fr-FR')} km`)
+    expect(TEXTES.fr.distance(160.9344, 'mi')).toBe('100 mi')
+    expect(TEXTES.fr.distance(0, 'mi')).toBe('0 mi')
   })
 })

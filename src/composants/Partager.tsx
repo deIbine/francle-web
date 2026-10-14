@@ -7,13 +7,14 @@ pratique pour coller un résultat dans une discussion : on ne l'utilise que sur 
 coarse » (un pointeur imprécis, le doigt) est vrai.
  */
 import { useState } from 'react'
-import { textes } from '../textes.ts'
+import { useTextes } from '../textes.ts'
 
 function surTelephone(): boolean {
   return typeof navigator.share === 'function' && window.matchMedia?.('(pointer: coarse)').matches === true
 }
 
 export function Partager({ texte }: { texte: string }) {
+  const textes = useTextes()
   const [message, setMessage] = useState('')
 
   async function partager() {

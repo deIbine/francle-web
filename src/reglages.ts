@@ -3,21 +3,24 @@ Les réglages du joueur, gardés dans le navigateur comme les parties (voir sauv
  */
 import { useEffect, useState } from 'react'
 import type { ModesDifficiles } from './domaine/partage.ts'
+import type { Langue } from './domaine/regions.ts'
 
 export type Theme = 'auto' | 'clair' | 'sombre'
 export type Unite = 'km' | 'mi'
 
 export interface Reglages {
+  // undefined : le joueur n'a pas choisi, c'est la langue de son navigateur
+  readonly langue: Langue | undefined
   readonly theme: Theme
-  // undefined : le joueur n'a pas choisi, l'unité suit la langue (km en français ; les miles viendront avec
-  // l'anglais, à web.5). Dès qu'il choisit, son choix l'emporte
+  // undefined : le joueur n'a pas choisi, l'unité suit la langue (km en français, miles en anglais). Dès qu'il
+  // choisit, son choix l'emporte, même s'il change ensuite de langue
   readonly unite: Unite | undefined
   // les modes difficiles : la silhouette tournée (🌀), ou pas de silhouette du tout (🙈)
   readonly rotation: boolean
   readonly cachee: boolean
 }
 
-export const PAR_DEFAUT: Reglages = { theme: 'auto', unite: undefined, rotation: false, cachee: false }
+export const PAR_DEFAUT: Reglages = { langue: undefined, theme: 'auto', unite: undefined, rotation: false, cachee: false }
 
 export const CLE_REGLAGES = 'francle.reglages.v1'
 
@@ -27,6 +30,7 @@ export function lireReglages(stockage: Storage = localStorage): Reglages {
   try {
     const lu: Partial<Reglages> = JSON.parse(stockage.getItem(CLE_REGLAGES) ?? '{}')
     return {
+      langue: lu.langue === 'fr' || lu.langue === 'en' ? lu.langue : undefined,
       theme: ['auto', 'clair', 'sombre'].includes(lu.theme as string) ? (lu.theme as Theme) : PAR_DEFAUT.theme,
       unite: lu.unite === 'km' || lu.unite === 'mi' ? lu.unite : undefined,
       rotation: lu.rotation === true,
@@ -45,9 +49,21 @@ export function enregistrerReglages(reglages: Reglages, stockage: Storage = loca
   }
 }
 
-// l'unité à afficher : celle choisie par le joueur, sinon celle de la langue
+// la langue du navigateur : le français si la première langue préférée du joueur est le français (fr, fr-FR,
+// fr-BE, fr-CA…), l'anglais sinon. navigator.languages est la liste réglée dans le navigateur, par ordre de préférence
+export function langueNavigateur(): Langue {
+  const preferee = navigator.languages?.[0] ?? navigator.language ?? 'fr'
+  return preferee.toLowerCase().startsWith('fr') ? 'fr' : 'en'
+}
+
+// la langue à afficher : celle choisie par le joueur, sinon celle de son navigateur
+export function langueAffichee(reglages: Reglages): Langue {
+  return reglages.langue ?? langueNavigateur()
+}
+
+// l'unité à afficher : celle choisie par le joueur, sinon celle de la langue (miles en anglais, km en français)
 export function uniteAffichee(reglages: Reglages): Unite {
-  return reglages.unite ?? 'km'
+  return reglages.unite ?? (langueAffichee(reglages) === 'en' ? 'mi' : 'km')
 }
 
 // les modes difficiles choisis dans les réglages

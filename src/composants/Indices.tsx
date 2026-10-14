@@ -1,10 +1,10 @@
 import { useId } from 'react'
 import type { Indice } from '../domaine/partie.ts'
-import type { Region } from '../domaine/regions.ts'
-import { textes } from '../textes.ts'
+import type { Langue, Region } from '../domaine/regions.ts'
+import { useLangue, useTextes, type Textes } from '../textes.ts'
 
 // la valeur d'un indice pour une région, prête à afficher
-function valeur(region: Region, indice: Indice): string {
+function valeur(region: Region, indice: Indice, textes: Textes, langue: Langue): string {
   // switch sur un type union : TypeScript vérifie que chaque cas est traité, comme un switch sur un enum Java
   switch (indice) {
     case 'superficie':
@@ -13,12 +13,14 @@ function valeur(region: Region, indice: Indice): string {
       return region.capitale
     default:
       // specialite, personnalite, monument : des textes dans les deux langues
-      return region[indice].fr
+      return region[indice][langue]
   }
 }
 
 // les indices déjà révélés, dans l'ordre
 export function Indices({ cible, reveles }: { cible: Region; reveles: readonly Indice[] }) {
+  const textes = useTextes()
+  const langue = useLangue()
   // un identifiant unique : la partie du jour et la partie libre affichent chacune leurs indices dans la page
   const idTitre = useId()
   return (
@@ -36,7 +38,7 @@ export function Indices({ cible, reveles }: { cible: Region; reveles: readonly I
             // si ce div n'existait pas pour la grille : dt et dd restent ses deux colonnes
             <div key={indice} className="contents">
               <dt className="text-discret">{textes.nomsIndices[indice]}</dt>
-              <dd>{valeur(cible, indice)}</dd>
+              <dd>{valeur(cible, indice, textes, langue)}</dd>
             </div>
           ))}
         </dl>

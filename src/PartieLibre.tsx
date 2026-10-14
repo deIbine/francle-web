@@ -10,7 +10,7 @@ import { enCours, nouvellePartie, type Partie } from './domaine/partie.ts'
 import type { ModesDifficiles } from './domaine/partage.ts'
 import { tirer, type Mode } from './domaine/regions.ts'
 import { modesReglages, uniteAffichee, type Reglages } from './reglages.ts'
-import { textes } from './textes.ts'
+import { useLangue, useTextes } from './textes.ts'
 
 // une nouvelle partie libre : une région de l'époque et un angle de rotation, tous deux au hasard.
 // numero compte les parties : il sert de clé au plateau (voir plus bas)
@@ -19,6 +19,8 @@ function tirage(mode: Mode, numero: number): { partie: Partie; angle: number; nu
 }
 
 export function PartieLibre({ reglages }: { reglages: Reglages }) {
+  const textes = useTextes()
+  const langue = useLangue()
   const [mode, setMode] = useState<Mode>('nouvelles')
   const [{ partie, angle, numero }, setTirage] = useState(() => tirage('nouvelles', 1))
   // les modes difficiles, fixés au premier essai comme pour la partie du jour
@@ -74,7 +76,7 @@ export function PartieLibre({ reglages }: { reglages: Reglages }) {
         fin={
           <div className="flex flex-col items-center gap-2">
             <p className="font-semibold">
-              {textes.fin(partie, true)} {textes.reponse} {partie.cible.nom.fr}
+              {textes.fin(partie, true)} {textes.reponse} {partie.cible.nom[langue]}
             </p>
             <button
               type="button"

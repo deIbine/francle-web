@@ -1,11 +1,12 @@
 import { useEffect, useState } from 'react'
 import { duree } from '../domaine/temps.ts'
-import { textes } from '../textes.ts'
+import { useTextes } from '../textes.ts'
 
 // le temps qui reste avant la région suivante (à « minuit », le minuit qui suit le jour de la partie), mis à jour
 // chaque seconde. À minuit, prévient le jeu (onMinuit). Si la page est restée ouverte depuis la veille, minuit est
 // déjà passé : le jeu est prévenu tout de suite, et passe à la région du jour
 export function CompteARebours({ minuit, onMinuit }: { minuit: Date; onMinuit: () => void }) {
+  const textes = useTextes()
   const [maintenant, setMaintenant] = useState(() => new Date())
   const reste = minuit.getTime() - maintenant.getTime()
 

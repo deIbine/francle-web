@@ -6,13 +6,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content="Devine la région française du jour." />
     <title>Francle</title>
-    <!-- Le thème, appliqué AVANT l'affichage : sinon la page apparaîtrait d'abord en clair, le temps que React
-         démarre, puis basculerait en sombre (un éclair blanc). Même règle que estSombre() dans src/reglages.ts -->
+    <!-- Le thème et la langue, appliqués AVANT l'affichage : sinon la page apparaîtrait d'abord en clair, le temps
+         que React démarre, puis basculerait en sombre (un éclair blanc). Mêmes règles que estSombre() et
+         langueNavigateur() dans src/reglages.ts -->
     <script>
       try {
-        var theme = JSON.parse(localStorage.getItem('francle.reglages.v1') || '{}').theme
+        var reglages = JSON.parse(localStorage.getItem('francle.reglages.v1') || '{}')
+        var theme = reglages.theme
         var sombre = theme === 'sombre' || (theme !== 'clair' && matchMedia('(prefers-color-scheme: dark)').matches)
         document.documentElement.classList.toggle('dark', sombre)
+        var preferee = (navigator.languages && navigator.languages[0]) || navigator.language || 'fr'
+        document.documentElement.lang = reglages.langue || (preferee.toLowerCase().indexOf('fr') === 0 ? 'fr' : 'en')
       } catch (e) {}
     </script>
   </head>

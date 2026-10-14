@@ -1,9 +1,10 @@
 import type { Statistiques as Stats } from '../domaine/statistiques.ts'
-import { textes } from '../textes.ts'
+import { useTextes } from '../textes.ts'
 
 // les statistiques : quatre nombres, puis la répartition des victoires par nombre d'essais, en barres.
 // « dernier » : le nombre d'essais de la victoire du jour, dont la barre est mise en avant (comme Wordle)
 export function Statistiques({ stats, dernier }: { stats: Stats; dernier?: number }) {
+  const textes = useTextes()
   const chiffres = [
     [textes.stats.jouees, stats.jouees],
     [textes.stats.victoires, `${stats.pourcentage} %`],
