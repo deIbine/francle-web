@@ -80,7 +80,7 @@ angle de rotation, et les valeurs de ses tests.
 
 ## Où on en est (mis à jour le 14 octobre 2026)
 
-**Faites : web.0, web.1 et web.2.** Prochaine étape : **web.3 La partie du jour complète**.
+**Faites : web.0 à web.3.** Prochaine étape : **web.4 Les réglages et la partie libre**.
 
 - **web.0** (PR #1, étiquette `web-0`) : dépôt public `deIbine/francle-web`, Vite + React + TypeScript, Vitest, lint
   oxlint, CI `.github/workflows/ci.yml` (tâche `verifier` sur chaque PR et sur `main`, tâche `publier` vers GitHub
@@ -100,8 +100,17 @@ angle de rotation, et les valeurs de ses tests.
   - `src/App.tsx` garde la partie (`useState`) ; composants dans `src/composants/` : `Silhouette`, `Saisie`
     (combobox accessible), `TableauEssais`, `Indices`, `FinDePartie`, `CarteFrance`. Textes dans `src/textes.ts`.
   - Tests de composants avec Testing Library et `user-event` (`src/preparationTests.ts` vide la page entre deux tests).
-- **Ce que web.3 réutilise** : la partie dans `App` (à sauvegarder et à rejouer avec `proposer()`), `numero()` pour la
-  clé du jour, `EMOJIS` (dans `geographie.ts`) pour le partage, `FinDePartie` à mettre dans une fenêtre.
+- **web.3** (PR #4, étiquette `web-3`) : la partie du jour complète.
+  - `src/sauvegarde.ts` : les parties du jour dans `localStorage` (clé `francle.parties-du-jour.v1`, numéro du jour
+    -> régions proposées et état), rejouées avec `proposer()` au retour.
+  - `src/domaine/statistiques.ts` (déduites de l'historique, série = jours consécutifs gagnés), `partage.ts`
+    (« #Francle n° 12 3/6 », carrés inspirés de Worldle, MIT), `temps.ts` (minuit suivant, durée).
+  - `App` ne garde que le jour et affiche `<Jeu key={numero}>` : à minuit, un nouveau `Jeu` repart de zéro.
+    `Jeu.tsx` garde la partie ; fenêtre `<dialog>` (`Fenetre`) pour les résultats et les statistiques (bouton 📊),
+    `Partager` (menu du téléphone ou presse-papiers), `CompteARebours`.
+- **Ce que web.4 réutilise** : `Jeu` (à rendre utilisable pour une partie libre, sans sauvegarde du jour ni
+  statistiques), `angleDuJour()` pour la rotation, `defaut.svg` pour l'image cachée, `tirer(mode)` pour la partie
+  libre, `CarteFrance` (déjà prête pour les deux époques).
 - **À faire relire par l'utilisateur** (pas encore validé) : les monuments et les traductions anglaises de
   `regions.ts` ; « le matsidza » (Mayotte) est resté tel quel en anglais.
 

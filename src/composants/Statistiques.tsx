@@ -1,0 +1,49 @@
+import type { Statistiques as Stats } from '../domaine/statistiques.ts'
+import { textes } from '../textes.ts'
+
+// les statistiques : quatre nombres, puis la répartition des victoires par nombre d'essais, en barres.
+// « dernier » : le nombre d'essais de la victoire du jour, dont la barre est mise en avant (comme Wordle)
+export function Statistiques({ stats, dernier }: { stats: Stats; dernier?: number }) {
+  const chiffres = [
+    [textes.stats.jouees, stats.jouees],
+    [textes.stats.victoires, `${stats.pourcentage} %`],
+    [textes.stats.serie, stats.serie],
+    [textes.stats.meilleureSerie, stats.meilleureSerie],
+  ] as const
+  // la plus grande barre prend toute la largeur ; Math.max(1, …) évite une division par zéro sans victoire
+  const plusGrande = Math.max(1, ...stats.repartition)
+  return (
+    <section aria-label={textes.stats.titre} className="flex flex-col gap-4">
+      {/* grid-cols-4 : quatre colonnes de même largeur */}
+      <dl className="grid grid-cols-4 gap-2">
+        {chiffres.map(([nom, valeur]) => (
+          // flex-col-reverse : la valeur (dd) au-dessus de son nom (dt), tout en gardant l'ordre dt puis dd du HTML
+          <div key={nom} className="flex flex-col-reverse">
+            <dt className="text-xs text-gray-600">{nom}</dt>
+            <dd className="text-2xl font-bold tabular-nums">{valeur}</dd>
+          </div>
+        ))}
+      </dl>
+      <div>
+        <h3 className="mb-2 font-semibold">{textes.stats.repartition}</h3>
+        <ol className="flex flex-col gap-1 text-sm">
+          {stats.repartition.map((nombre, index) => (
+            <li key={index} className="flex items-center gap-2">
+              <span className="w-3 tabular-nums">{index + 1}</span>
+              <span
+                aria-label={textes.stats.barre(index + 1, nombre)}
+                // la largeur dépend des données : un style calculé, que Tailwind ne peut pas connaître d'avance
+                style={{ width: `${Math.max(8, (nombre * 100) / plusGrande)}%` }}
+                className={`rounded px-2 text-right font-semibold text-white tabular-nums ${
+                  dernier === index + 1 ? 'bg-francle-fonce' : 'bg-gray-500'
+                }`}
+              >
+                {nombre}
+              </span>
+            </li>
+          ))}
+        </ol>
+      </div>
+    </section>
+  )
+}

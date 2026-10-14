@@ -5,9 +5,9 @@ user-event qui tape au clavier et clique comme une vraie personne (touche par to
 On cherche les éléments comme un joueur ou un lecteur d'écran les trouve : par leur rôle (« combobox », « button »)
 et leur texte, jamais par une classe CSS. Le test ne casse donc pas si on change l'apparence.
  */
-import { render, screen, within } from '@testing-library/react'
+import { cleanup, render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import App from './App.tsx'
 import { regionDuJour } from './domaine/regionDuJour.ts'
 import { tirables } from './domaine/regions.ts'
@@ -77,12 +77,13 @@ describe('Le jeu', () => {
     expect(lignes()).toHaveLength(1)
   })
 
-  it('trouver la région termine la partie, avec la carte', async () => {
+  it('trouver la région termine la partie, et ouvre les résultats avec la carte', async () => {
     const joueur = demarrer()
     await proposer(joueur, AUTRES[0].nom.fr)
     await proposer(joueur, CIBLE.nom.fr)
-    expect(screen.getByText('Bravo, trouvé en 2 essais !')).toBeDefined()
-    expect(screen.getByRole('img', { name: `Carte de France, la région ${CIBLE.nom.fr} en bleu` })).toBeDefined()
+    const resultats = screen.getByRole('dialog', { name: 'Résultats' })
+    expect(within(resultats).getByText('Bravo, trouvé en 2 essais !')).toBeDefined()
+    expect(within(resultats).getByRole('img', { name: `Carte de France, la région ${CIBLE.nom.fr} en bleu` })).toBeDefined()
     expect(lignes()[1].textContent).toContain('100 %')
     // plus de saisie ni de bouton « Abandonner » une fois la partie finie
     expect(screen.queryByRole('combobox')).toBeNull()
@@ -94,8 +95,9 @@ describe('Le jeu', () => {
     for (const region of AUTRES.slice(0, 6)) {
       await proposer(joueur, region.nom.fr)
     }
-    expect(screen.getByText('Perdu, ce sera pour demain.')).toBeDefined()
-    expect(screen.getByText(CIBLE.nom.fr, { selector: 'strong' })).toBeDefined()
+    const resultats = screen.getByRole('dialog', { name: 'Résultats' })
+    expect(within(resultats).getByText('Perdu, ce sera pour demain.')).toBeDefined()
+    expect(within(resultats).getByText(CIBLE.nom.fr, { selector: 'strong' })).toBeDefined()
     for (const indice of ['Superficie', 'Spécialité', 'Personnalité', 'Capitale', 'Monument']) {
       expect(screen.getByText(indice)).toBeDefined()
     }
@@ -109,7 +111,84 @@ describe('Le jeu', () => {
 
     await joueur.click(screen.getByRole('button', { name: 'Abandonner' }))
     await joueur.click(screen.getByRole('button', { name: 'Oui' }))
-    expect(screen.getByText('Partie abandonnée.')).toBeDefined()
+    expect(within(screen.getByRole('dialog')).getByText('Partie abandonnée.')).toBeDefined()
     expect(screen.queryByRole('combobox')).toBeNull()
+  })
+
+  it('la partie est retrouvée après fermeture de la page', async () => {
+    const joueur = demarrer()
+    await proposer(joueur, AUTRES[0].nom.fr)
+    await proposer(joueur, AUTRES[1].nom.fr)
+    // on ferme la page (le composant disparaît)… puis on revient
+    cleanup()
+    render(<App date={DATE} />)
+    expect(lignes()).toHaveLength(2)
+    expect(lignes()[1].textContent).toContain(AUTRES[1].nom.fr)
+    expect(screen.getByText('Spécialité')).toBeDefined()
+  })
+
+  it('une partie finie est retrouvée finie, résultats ouverts', async () => {
+    const joueur = demarrer()
+    await proposer(joueur, CIBLE.nom.fr)
+    cleanup()
+    render(<App date={DATE} />)
+    expect(screen.queryByRole('combobox')).toBeNull()
+    expect(screen.getByRole('dialog', { name: 'Résultats' })).toBeDefined()
+  })
+
+  it('les résultats comptent la partie qui vient de finir', async () => {
+    const joueur = demarrer()
+    await proposer(joueur, AUTRES[0].nom.fr)
+    await proposer(joueur, CIBLE.nom.fr)
+    const resultats = screen.getByRole('dialog', { name: 'Résultats' })
+    const chiffre = (nom: string) => within(resultats).getByText(nom).nextElementSibling?.textContent
+    // dt puis dd dans le HTML : la valeur suit son nom
+    expect(chiffre('Parties')).toBe('1')
+    expect(chiffre('Victoires')).toBe('100 %')
+    expect(chiffre('Série en cours')).toBe('1')
+    expect(within(resultats).getByLabelText('1 victoire en 2 essais')).toBeDefined()
+  })
+
+  it('le bouton 📊 ouvre les statistiques pendant la partie, ✕ les ferme', async () => {
+    const joueur = demarrer()
+    expect(screen.queryByRole('dialog')).toBeNull()
+    await joueur.click(screen.getByRole('button', { name: 'Voir les statistiques' }))
+    const fenetre = screen.getByRole('dialog', { name: 'Statistiques' })
+    expect(within(fenetre).queryByRole('button', { name: /Partager/ })).toBeNull()
+    await joueur.click(within(fenetre).getByRole('button', { name: 'Fermer' }))
+    expect(screen.queryByRole('dialog')).toBeNull()
+  })
+
+  it('« Partager » copie le résultat dans le presse-papiers', async () => {
+    // userEvent.setup() remplace le presse-papiers du faux navigateur par une imitation qu'on peut relire
+    const joueur = demarrer()
+    await proposer(joueur, AUTRES[0].nom.fr)
+    await proposer(joueur, CIBLE.nom.fr)
+    await joueur.click(screen.getByRole('button', { name: /Partager/ }))
+    const copie = await navigator.clipboard.readText()
+    expect(copie.split('\n')[0]).toBe('#Francle n° 2 2/6')
+    expect(copie).not.toContain(CIBLE.nom.fr)
+    expect(screen.getByText('Résultat copié : il n’y a plus qu’à le coller.')).toBeDefined()
+  })
+
+  describe('à minuit', () => {
+    afterEach(() => {
+      vi.useRealTimers()
+    })
+
+    it('la partie finie laisse place à la région du lendemain', async () => {
+      // seule l'horloge (Date) est truquée : les minuteries restent réelles, le compte à rebours tourne vraiment
+      vi.useFakeTimers({ toFake: ['Date'] })
+      vi.setSystemTime(new Date(2026, 9, 14, 23, 59, 58))
+      const joueur = demarrer()
+      await proposer(joueur, CIBLE.nom.fr)
+      expect(screen.getByRole('heading', { level: 1 }).textContent).toBe('Francle n° 2')
+
+      vi.setSystemTime(new Date(2026, 9, 15, 0, 0, 1))
+      // la minuterie du compte à rebours passe chaque seconde : on attend qu'elle voie minuit
+      expect(await screen.findByRole('heading', { name: 'Francle n° 3' }, { timeout: 2000 })).toBeDefined()
+      expect(screen.getByRole('combobox')).toBeDefined()
+      expect(lignes()).toHaveLength(0)
+    })
   })
 })

@@ -277,3 +277,85 @@ commandes), **comment le penser** (la question à se poser la prochaine fois).
   (`bretagne-3fa9c1.svg`) pour que le navigateur ne garde jamais une ancienne version en cache.
 - **Comment le penser** : un outil de construction transforme ce qu'on lui donne. Quand un résultat surprend, le
   regarder (`npm run build` liste les fichiers produits) avant de supposer un bug.
+
+## web.3 La partie du jour complète
+
+### localStorage : un petit dictionnaire qui survit à la fermeture de la page
+
+- **Pourquoi** : sans serveur, le seul endroit où garder la partie et l'historique du joueur, c'est son navigateur.
+  `localStorage` est un dictionnaire texte -> texte, propre au site, qui reste après la fermeture de l'onglet (un peu
+  comme `java.util.prefs.Preferences`).
+- **Comment le faire** : un seul texte JSON sous la clé `francle.parties-du-jour.v1` (`JSON.stringify` pour écrire,
+  `JSON.parse` pour lire). On n'y range que les régions proposées et l'état ; au retour, on **rejoue** les
+  propositions avec `proposer()`, qui recalcule distances et pourcentages. Tout est dans des `try … catch` :
+  navigation privée, stockage plein ou sauvegarde abîmée ne doivent jamais empêcher de jouer. Pour regarder ce qui
+  est rangé : outils de développement du navigateur (F12), onglet **Application**, puis **Local Storage**.
+- **Comment le penser** : sauvegarder le **minimum qui permet de tout reconstruire**, pas le résultat des calculs.
+  Mettre un numéro de version dans la clé, et traiter ce qu'on relit comme une saisie de l'utilisateur : ça peut être
+  n'importe quoi (d'où `estPartieSauvee`, qui vérifie la forme avant de faire confiance).
+
+### Des statistiques déduites, pas tenues à jour
+
+- **Pourquoi** : des compteurs (« parties jouées += 1 ») peuvent se désynchroniser des parties (un rechargement au
+  mauvais moment, un bug corrigé plus tard). En recalculant tout depuis l'historique, les statistiques sont toujours
+  justes, et une règle changée (la série, par exemple) s'applique aussi au passé.
+- **Comment le faire** : `statistiques(historique, aujourdhui)` est une fonction pure : même entrée, même résultat,
+  donc facile à tester avec des historiques écrits en abrégé (`{ 1: 'g3', 2: 'p' }`). La série remonte les jours
+  gagnés depuis aujourd'hui (ou hier, si la partie du jour n'est pas finie) : un jour sauté l'arrête.
+- **Comment le penser** : avant de stocker une valeur, se demander « puis-je la recalculer ? ». Si oui et que c'est
+  rapide, la recalculer : une seule source de vérité.
+
+### `<dialog>` : une fenêtre que le navigateur sait déjà gérer
+
+- **Pourquoi** : une fenêtre par-dessus la page doit bloquer ce qui est derrière, garder le focus du clavier à
+  l'intérieur, se fermer avec Échap, puis rendre le focus. Avant, il fallait une bibliothèque ; la balise `<dialog>`
+  le fait seule, à condition de l'ouvrir avec `showModal()`.
+- **Comment le faire** : `showModal()` et `close()` sont des **ordres** donnés à l'élément, pas une description de
+  l'écran : `useRef` donne accès à l'élément, `useEffect` donne l'ordre quand `ouverte` change. L'évènement `close`
+  prévient React quelle que soit la façon de fermer. Le fond grisé se style avec `backdrop:bg-black/50` (le
+  pseudo-élément `::backdrop`). jsdom ne connaît pas encore `showModal()` : `src/preparationTests.ts` l'imite.
+- **Comment le penser** : avant d'écrire un comportement d'interface, vérifier si une balise HTML le fait déjà
+  (`<dialog>`, `<details>`, `<input type="date">`…). Ce que le navigateur fait lui-même est plus solide et plus
+  accessible que ce qu'on refait.
+
+### Repartir de zéro avec `key`
+
+- **Pourquoi** : à minuit, page ouverte, il faut passer à la région suivante : nouvelle partie, messages effacés,
+  fenêtre fermée. Remettre chaque `useState` à zéro à la main, c'est risquer d'en oublier un.
+- **Comment le faire** : `App` ne garde que le jour, et affiche `<Jeu key={numero(jour)} … />`. Quand la clé change,
+  React jette l'ancien `Jeu` et en crée un neuf : tout son état repart de zéro, et la nouvelle partie est lue dans la
+  sauvegarde comme au premier affichage.
+- **Comment le penser** : quand un composant doit « recommencer », chercher l'identité de ce qu'il affiche (ici le
+  jour) et en faire sa clé, plutôt que d'écrire du code de remise à zéro.
+
+### Sauvegarder au moment du changement, pas après coup
+
+- **Pourquoi** : la fenêtre de résultats s'ouvre au moment où la partie se termine, et ses statistiques doivent déjà
+  compter cette partie. Si la sauvegarde se faisait dans un `useEffect` (après l'affichage), la fenêtre lirait
+  l'historique d'avant.
+- **Comment le faire** : une seule fonction `changer(suite)` dans `Jeu` remplace la partie, l'enregistre, relit
+  l'historique et ouvre la fenêtre si la partie est finie. `proposer` et `abandonner` passent tous deux par elle.
+- **Comment le penser** : quand plusieurs choses doivent arriver ensemble, les mettre dans une seule fonction par
+  laquelle tout passe, plutôt que de compter sur l'ordre des effets.
+
+### Les minuteries et le temps dans les tests
+
+- **Pourquoi** : le compte à rebours dépend de l'heure. Un test qui attend vraiment minuit est impossible, et un test
+  qui dépend de l'heure de son lancement échoue un jour sur deux.
+- **Comment le faire** : `setInterval(…, 1000)` met à jour l'affichage chaque seconde ; la fonction renvoyée par
+  `useEffect` l'arrête quand le composant disparaît (`clearInterval`), sinon elle tournerait pour rien. Dans le test,
+  `vi.useFakeTimers({ toFake: ['Date'] })` puis `vi.setSystemTime(…)` truquent l'horloge : on se place à 23 h 59,
+  on gagne, on avance l'horloge après minuit, et on attend (`findByRole`) que le jeu passe au n° 3.
+- **Comment le penser** : le temps est une entrée comme une autre. Le rendre réglable (paramètre `date`, horloge
+  truquée) rend testable tout ce qui en dépend.
+
+### Partager : le menu du téléphone, ou le presse-papiers
+
+- **Pourquoi** : sur téléphone, `navigator.share` ouvre le menu de partage du système (Messages, WhatsApp…). Sur
+  ordinateur, certains navigateurs l'ont aussi, mais il ouvre le menu de Windows, peu pratique ; copier est mieux.
+- **Comment le faire** : `matchMedia('(pointer: coarse)')` dit si le pointeur est un doigt. Sinon,
+  `navigator.clipboard.writeText(texte)`, qui renvoie une promesse (`await`, comme attendre un `CompletableFuture`)
+  car le navigateur peut demander la permission. Dans les tests, `userEvent.setup()` fournit un faux presse-papiers
+  qu'on relit avec `navigator.clipboard.readText()`.
+- **Comment le penser** : tester la **capacité** (« le pointeur est-il un doigt ? », « `share` existe-t-il ? »)
+  plutôt que deviner l'appareil d'après son nom. Et toujours prévoir le cas où l'action est refusée.
