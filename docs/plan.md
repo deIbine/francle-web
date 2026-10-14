@@ -38,16 +38,22 @@ angle de rotation, et les valeurs de ses tests.
 | Technologie | **TypeScript, comme Worldle**, site statique sans serveur. Le Java ne sert que de référence. |
 | Code de Worldle | **Réécrire en s'en inspirant**, avec des outils actuels, en suivant son organisation et ses idées. Mention MIT de teuteuf si on reprend des morceaux. |
 | Outils | **Vite + React + TypeScript**, tests avec **Vitest**, mise en ligne sur **GitHub Pages** par **GitHub Actions** (adresse prévue : `https://deibine.github.io/francle-web/`). |
-| Images | **SVG**, générées par un script à partir des contours officiels (comme `outils/generer_images.py` du projet Java, adapté pour produire du SVG). |
+| Mise en forme | **Tailwind** (décidé à web.2), avec les couleurs du jeu Java déclarées dans `@theme` (`src/index.css`). |
+| Textes de l'écran | Tous dans **`src/textes.ts`** dès web.2, pour que web.5 n'ait plus qu'à ajouter l'anglais. |
+| Images | **SVG**, générées par un script **Python** à partir des contours officiels (`outils/generer_images.py`, adapté du Java ; il écrit le SVG lui-même, sans bibliothèque). La carte de fin est **un seul fichier de contours par époque**, dessiné par React, avec l'outre-mer en encadrés. |
 | Partie du jour | Les **18 nouvelles régions** (depuis 2016), la même pour tout le monde. |
 | Partie libre | Les **deux époques**, au choix : anciennes régions ou nouvelles régions. |
 | Essais | **6**, comme Worldle (le Java en a 5). |
-| Partage | Le résultat en **carrés emoji**, avec un bouton pour le copier. |
+| Partage | Le résultat en **carrés emoji**, avec un bouton pour le copier, et le **menu de partage du téléphone** quand il existe (Web Share). **Pas d'indices** dans le texte partagé (décidé à web.3). |
+| Statistiques | Calculées à partir de l'historique des parties. Une **série** demande des **jours consécutifs** : un jour sauté la remet à zéro (décidé à web.3). |
+| Fin de partie et statistiques | Dans une **fenêtre** par-dessus le jeu (`<dialog>`), comme Worldle (décidé à web.3). |
 | Indices | **On les garde** (superficie, spécialité, personnalité, capitale) : c'est la particularité de Francle. **Plus un 5e, le monument** (décidé à web.1), révélé après le 5e essai raté. |
 | Région du jour | **La même que le Java**, au bit près (même hasard, même premier jour, le 13 octobre 2026). Le jour change **à minuit chez le joueur** (décidé à web.1). |
 | Langues | **Français et anglais**, au choix du joueur. |
 | Noms en anglais | Noms des régions **et** indices traduits (Brittany, Normandy, Corsica, Burgundy…). À la saisie, on **accepte les deux** noms, quelle que soit la langue. |
-| Directions | **8** (comme Francle), pas 16 : les distances sont courtes en France. |
+| Directions | **8** (comme Francle), pas 16 : les distances sont courtes en France. Affichées en **emoji** (⬆️ ↗️ … 🎉), dans le tableau comme dans le partage (décidé à web.2). |
+| Abandon | Un bouton **Abandonner**, avec confirmation (web.2). Une partie abandonnée compte comme une **défaite** dans les statistiques (web.3). |
+| Région déjà proposée | Refusée avec un message, **sans coûter d'essai** (web.2, à valider). |
 | Proximité | La **formule de Francle** (pensée pour la France). Celle de Worldle, rapportée au tour de la Terre, donnerait 95 à 100 % partout. |
 | Mode « image cachée » 🙈 | La case « Silhouette de la région » de Francle devient ce mode, avec son emoji dans le partage (comme 🌀 pour la rotation). |
 | Licence | **MIT**, comme Worldle. |
@@ -74,7 +80,7 @@ angle de rotation, et les valeurs de ses tests.
 
 ## Où on en est (mis à jour le 14 octobre 2026)
 
-**Faites : web.0 et web.1.** Prochaine étape : **web.2 Un jeu jouable**.
+**Faites : web.0, web.1 et web.2.** Prochaine étape : **web.3 La partie du jour complète**.
 
 - **web.0** (PR #1, étiquette `web-0`) : dépôt public `deIbine/francle-web`, Vite + React + TypeScript, Vitest, lint
   oxlint, CI `.github/workflows/ci.yml` (tâche `verifier` sur chaque PR et sur `main`, tâche `publier` vers GitHub
@@ -87,10 +93,15 @@ angle de rotation, et les valeurs de ses tests.
     (région et angle du jour identiques au Java, minuit chez le joueur) ;
   - 98 tests, dont `reference-java.test.ts` qui compare tout au fichier `reference-java.json` produit par
     `outils/ReferenceJava.java` (mode d'emploi dans son en-tête).
-- **Ce que web.2 réutilise** : `regionDuJour()`, `angleDuJour()`, `nouvellePartie()`, `proposer()`,
-  `indicesReveles()`, `suggestions(saisie, mode, langue)`, `SYMBOLES`. Il restera à produire les images SVG des
-  régions (identifiant de région = nom du fichier, par exemple `bretagne.svg`), à partir de `outils/generer_images.py`
-  du projet Java.
+- **web.2** (PR #3, étiquette `web-2`) : le jeu jouable, partie du jour seulement, sans sauvegarde.
+  - `outils/generer_images.py` produit `src/images/regions/<id>.svg` (36 silhouettes, dont `defaut.svg` pour le mode
+    image cachée) et `src/images/cartes/<mode>.json` (contours pour la carte de fin). Les contours sources
+    (gregoiredavid/france-geojson, licence ouverte Etalab) ne sont pas dans le dépôt : les télécharger à part.
+  - `src/App.tsx` garde la partie (`useState`) ; composants dans `src/composants/` : `Silhouette`, `Saisie`
+    (combobox accessible), `TableauEssais`, `Indices`, `FinDePartie`, `CarteFrance`. Textes dans `src/textes.ts`.
+  - Tests de composants avec Testing Library et `user-event` (`src/preparationTests.ts` vide la page entre deux tests).
+- **Ce que web.3 réutilise** : la partie dans `App` (à sauvegarder et à rejouer avec `proposer()`), `numero()` pour la
+  clé du jour, `EMOJIS` (dans `geographie.ts`) pour le partage, `FinDePartie` à mettre dans une fenêtre.
 - **À faire relire par l'utilisateur** (pas encore validé) : les monuments et les traductions anglaises de
   `regions.ts` ; « le matsidza » (Mayotte) est resté tel quel en anglais.
 
@@ -101,6 +112,7 @@ angle de rotation, et les valeurs de ses tests.
   `export PATH="/c/Program Files/nodejs:$PATH";`.
 - Commandes : `npm run dev` (site en local sur `http://localhost:5173/francle-web/`), `npm test`, `npm run lint`,
   `npm run build`.
+- Python 3.10 est installé, accessible par `py` (pas `python`) : il sert à `outils/generer_images.py`.
 - GitHub CLI (`gh`) est connecté au compte `deIbine`, avec les droits `repo` et `workflow`.
 - Java 21 est installé : il sert à régénérer le fichier de référence du Java si besoin.
 - Branches nommées `web-<n>-<sujet>` (par exemple `web-1-donnees-et-regles`), étiquettes `web-<n>`.

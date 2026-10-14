@@ -184,3 +184,96 @@ commandes), **comment le penser** (la question à se poser la prochaine fois).
   s'affichent et se sauvegardent directement (pas de `name()` / `valueOf()`).
 - **Comment le penser** : une information, un seul endroit. Si deux listes doivent rester d'accord, en déduire une de
   l'autre.
+
+## web.2 Un jeu jouable
+
+### Écrire le SVG à la main plutôt qu'avec une bibliothèque
+
+- **Pourquoi** : le script Java dessinait des PNG avec matplotlib. matplotlib sait aussi produire du SVG, mais
+  bavard (des styles sur chaque tracé, des métadonnées), et à coordonnées pleines de décimales. Un SVG, c'est du
+  texte : `<path d="M10 20l5 3 …z"/>` suffit. En l'écrivant nous-mêmes, une silhouette pèse environ 10 Ko, et le
+  script n'a plus besoin que de Python, sans aucune bibliothèque.
+- **Comment le faire** : projeter (longitude × cos(latitude), −latitude, car l'axe des y du SVG descend), ramener le
+  tout dans un carré de 1000 unités, **arrondir à l'entier**, puis **simplifier** (algorithme de Douglas-Peucker :
+  on retire les points qui s'écartent de moins de 1,2 unité du tracé). Les coordonnées relatives (`l`, « à partir du
+  point précédent ») sont de petits nombres, donc un fichier plus court. Commande :
+  `py outils/generer_images.py <dossier des contours> src/images`.
+- **Comment le penser** : avant d'ajouter une dépendance, regarder ce qu'on produit vraiment. Si c'est un format
+  texte simple, l'écrire directement est souvent plus court, plus léger et plus facile à comprendre.
+
+### Une seule carte dessinée par la page, au lieu de 35 images
+
+- **Pourquoi** : le Java avait une image de carte par région, la réponse en bleu. Dans une page web, un SVG écrit
+  *dans* la page (et non chargé par `<img>`) est fait d'éléments comme le reste du HTML : on peut leur donner une
+  classe, donc une couleur. Un seul fichier de contours par époque suffit ; React dessine chaque région et colore la
+  réponse.
+- **Comment le faire** : le script produit `src/images/cartes/nouvelles.json` (`{ id: tracé }`), le composant
+  `CarteFrance` l'importe (Vite sait importer du JSON) et fait un `<path>` par région, avec la classe
+  `fill-francle-fonce` pour la réponse. Le dernier dessiné passe devant : on trie pour mettre la réponse à la fin.
+- **Comment le penser** : une image est figée, un élément de page est vivant. Si une image ne change que par sa
+  couleur ou par une partie mise en avant, en faire des données et laisser la page la dessiner.
+
+### Tailwind : le CSS écrit dans les classes
+
+- **Pourquoi** : en CSS classique, on invente un nom de classe (`.tableau-ligne`), puis on écrit ses règles dans un
+  autre fichier. Avec Tailwind, chaque classe *est* une règle : `flex` = `display: flex`, `gap-2` = `gap: 0.5rem`,
+  `text-sm` = `font-size: 0.875rem`, `rounded` = `border-radius: 0.25rem`, `p-4` = `padding: 1rem`. On style sur
+  place, sans aller-retour entre deux fichiers, et le CSS final ne contient que les classes réellement utilisées
+  (12 Ko ici).
+- **Comment le faire** : `npm install -D tailwindcss @tailwindcss/vite`, ajouter `tailwindcss()` aux extensions de
+  `vite.config.ts`, et `@import 'tailwindcss';` dans `src/index.css`. Les couleurs du jeu se déclarent dans
+  `@theme { --color-francle-fonce: #3a4bc4; }` et deviennent `bg-francle-fonce`, `fill-francle-fonce`… Les variantes
+  s'écrivent avec deux-points : `hover:bg-gray-100` (au survol), `focus:outline-none` (quand le champ a le focus).
+  Pour retrouver la règle CSS derrière une classe : survoler la classe dans l'éditeur (extension Tailwind CSS
+  IntelliSense) ou chercher dans https://tailwindcss.com/docs.
+- **Comment le penser** : Tailwind ne remplace pas le CSS, il l'abrège. Quand une classe surprend, se demander
+  « quelle propriété CSS écrit-elle ? » : c'est elle qu'il faut comprendre.
+
+### Un composant React, c'est une fonction qui reçoit des données et renvoie l'écran
+
+- **Pourquoi** : en Swing, on crée des composants une fois, puis on les modifie (`label.setText(…)`) à chaque
+  changement. En React, on ne modifie rien à la main : on décrit ce que l'écran doit montrer *pour un état donné*, et
+  React se charge des changements. `App` garde la partie dans `useState` ; à chaque essai, il la remplace par celle
+  que renvoie `proposer()`, et React rappelle `App`, qui redessine.
+- **Comment le faire** : `const [partie, setPartie] = useState(() => nouvellePartie(…))` ; les composants
+  d'affichage (`TableauEssais`, `Indices`…) ne reçoivent que des données en paramètres (les « props ») et ne gardent
+  rien. `useState(() => …)` avec une fonction : elle n'est appelée qu'une fois, au premier affichage (utile pour
+  `new Date()` ou un calcul coûteux).
+- **Comment le penser** : pour chaque donnée, se demander « qui en est le propriétaire ? ». Une seule place la garde
+  (ici `App`), les autres la reçoivent. C'est pourquoi le domaine de web.1 renvoie de nouvelles parties au lieu de
+  les modifier.
+
+### Une liste de suggestions accessible (le modèle « combobox »)
+
+- **Pourquoi** : une liste déroulante faite de `div` est invisible pour un lecteur d'écran, et souvent inutilisable
+  au clavier. Le W3C décrit le modèle à suivre : le champ a `role="combobox"`, la liste `role="listbox"`, chaque
+  suggestion `role="option"`, et `aria-activedescendant` dit au lecteur d'écran quelle suggestion est surlignée.
+- **Comment le faire** : ↓ et ↑ changent la suggestion surlignée (en boucle ; ↑ sans rien de surligné va à la
+  dernière, un bug trouvé par les tests), Entrée propose, Échap ferme. Le clic se fait sur `onMouseDown` et non
+  `onClick` : sinon le champ perd d'abord le focus, la liste se ferme, et le clic tombe dans le vide.
+- **Comment le penser** : avant d'écrire un élément interactif, chercher son modèle dans
+  https://www.w3.org/WAI/ARIA/apg/patterns/ : les rôles, les touches et les cas limites y sont déjà pensés.
+
+### Tester comme un joueur : par les rôles et les textes
+
+- **Pourquoi** : un test qui cherche `.bg-francle-fonce` casse dès qu'on change une couleur. Un test qui cherche
+  « le bouton Abandonner » ou « le champ Ta proposition » ne casse que si le joueur ne peut plus faire ce qu'il
+  faisait. Et si le test ne trouve pas un élément par son rôle, un lecteur d'écran non plus : c'est aussi un test
+  d'accessibilité.
+- **Comment le faire** : `screen.getByRole('button', { name: 'Abandonner' })`, `getByRole('combobox')`,
+  `getByText(…)`. `userEvent` (bibliothèque `@testing-library/user-event`) tape touche par touche et clique comme
+  une personne (focus, `onMouseDown`, `onBlur` compris), là où `fireEvent` n'envoie qu'un seul évènement. Le fichier
+  `src/preparationTests.ts` vide la page après chaque test (`cleanup`).
+- **Comment le penser** : un test doit décrire ce que le joueur fait et voit, pas comment le code est construit.
+  Se demander : « ce test casserait-il si je changeais seulement l'apparence ? » Si oui, il cherche mal.
+
+### Les petites images intégrées au code
+
+- **Pourquoi** : un test vérifiait que chaque silhouette avait une adresse en `.svg` ; celle de la Corse
+  commençait par `data:image/svg+xml,…`. Vite écrit directement dans le JavaScript les fichiers de moins de 4 Ko :
+  une requête de moins pour le navigateur.
+- **Comment le faire** : `import.meta.glob('./images/regions/*.svg', { eager: true, query: '?url', import:
+  'default' })` donne l'adresse (ou le contenu intégré) de chaque fichier, avec une empreinte dans le nom
+  (`bretagne-3fa9c1.svg`) pour que le navigateur ne garde jamais une ancienne version en cache.
+- **Comment le penser** : un outil de construction transforme ce qu'on lui donne. Quand un résultat surprend, le
+  regarder (`npm run build` liste les fichiers produits) avant de supposer un bug.
