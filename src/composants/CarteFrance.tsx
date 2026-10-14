@@ -6,7 +6,7 @@ outils/generer_images.py, donne le contour de chaque région : le composant les 
 réponse. C'est l'avantage d'un SVG écrit dans la page : chaque région est un élément qu'on peut styler.
  */
 import type { Mode } from '../domaine/regions.ts'
-import { textes } from '../textes.ts'
+import { useTextes } from '../textes.ts'
 import anciennes from '../images/cartes/anciennes.json'
 import nouvelles from '../images/cartes/nouvelles.json'
 
@@ -20,6 +20,7 @@ interface Carte {
 const CARTES: Record<Mode, Carte> = { anciennes, nouvelles }
 
 export function CarteFrance({ mode, cible, nom }: { mode: Mode; cible: string; nom: string }) {
+  const textes = useTextes()
   const carte = CARTES[mode]
   // la réponse en dernier : en SVG, le dernier dessiné passe devant, et son trait blanc ne sera pas recouvert
   const ids = Object.keys(carte.regions).sort((a, b) => Number(a === cible) - Number(b === cible))

@@ -429,3 +429,62 @@ commandes), **comment le penser** (la question à se poser la prochaine fois).
   rôle et par nom (`getByRole('heading', { name: … })`) vérifient justement ce nom accessible.
 - **Comment le penser** : ce qu'on voit et ce qu'un lecteur d'écran entend peuvent différer. Un test par rôle et par
   nom est aussi un test d'accessibilité : quand il échoue sans raison visible, c'est souvent un vrai problème.
+
+## web.5 L'anglais
+
+### Deux langues sans bibliothèque, vérifiées par TypeScript
+
+- **Pourquoi** : Worldle utilisait i18next, une bibliothèque de traduction avec des fichiers de clés
+  (`"stats.titre": "…"`). Pour deux langues et une centaine de textes, c'est beaucoup d'outillage, et une clé
+  oubliée ne se voit qu'à l'écran. Avec deux objets TypeScript, l'oubli se voit à la compilation.
+- **Comment le faire** : `const fr = { … }`, puis `type Textes = typeof fr` (le type se **déduit** de l'objet
+  français), puis `const en: Textes = { … }`. Si l'anglais oublie `stats.serie`, ou si sa fonction `fin` n'a pas les
+  mêmes paramètres, `npx tsc -b` refuse. Les textes variables sont des fonctions (`fin(partie)`,
+  `barre(essais, nombre)`), car l'ordre des mots et les pluriels changent d'une langue à l'autre (« 2 victoires en
+  3 essais », « 2 wins in 3 tries »).
+- **Comment le penser** : laisser le compilateur vérifier ce qu'on oublierait. Un type déduit d'une valeur de
+  référence garantit que les autres valeurs ont la même forme, comme une interface Java implémentée deux fois.
+
+### Le contexte React : une valeur pour tout l'arbre
+
+- **Pourquoi** : presque tous les composants affichent du texte. Passer la langue de parent en enfant
+  (`<Plateau langue={…}>` puis `<Saisie langue={…}>`…) alourdit chaque composant, même ceux qui ne font que la
+  transmettre.
+- **Comment le faire** : `const LangueContext = createContext<Langue>('fr')` ; `App` entoure tout de
+  `<LangueContext value={langue}>` ; n'importe quel composant en dessous lit `useContext(LangueContext)`. Nos hooks
+  `useLangue()` et `useTextes()` cachent ce détail. Quand la langue change, React réaffiche tous les composants qui
+  la lisent.
+- **Comment le penser** : un contexte convient à une valeur **lue partout et rarement changée** (langue, thème,
+  utilisateur connecté). Pour le reste, les props restent plus claires : on voit d'où vient chaque donnée.
+
+### Les nombres et les langues
+
+- **Pourquoi** : « 1 025 km » en français, « 1,025 km » en anglais ; « 42 % » avec une espace en français, « 42% »
+  sans espace en anglais. Écrire ces règles à la main, c'est se tromper.
+- **Comment le faire** : `n.toLocaleString('fr-FR')` ou `n.toLocaleString('en-GB')`. Le navigateur connaît les
+  conventions de chaque langue. Le séparateur des milliers en français est une **espace fine insécable** (U+202F) :
+  dans les tests, on compare avec `toLocaleString` plutôt qu'avec une espace tapée au clavier.
+- **Comment le penser** : tout ce qui dépend de la langue (nombres, dates, ordre alphabétique avec `Intl.Collator`,
+  comme à web.1) a déjà une réponse dans `Intl` : la chercher avant d'écrire sa règle.
+
+### La langue du navigateur, et l'attribut lang
+
+- **Pourquoi** : un anglophone qui arrive sur le site ne doit pas avoir à chercher comment passer en anglais. Et un
+  lecteur d'écran lit le texte avec l'accent de la langue annoncée par la page : du français lu « à l'anglaise » est
+  incompréhensible.
+- **Comment le faire** : `navigator.languages[0]` (la langue préférée réglée dans le navigateur) ; `fr`, `fr-FR`,
+  `fr-BE`, `fr-CA` donnent le français, tout le reste l'anglais. `document.documentElement.lang = langue` met à jour
+  `<html lang>`. Le bouton FR / EN porte son propre `lang` : son nom (« Switch to English ») est dans l'autre langue.
+  Dans les tests, jsdom se dit en anglais (`en-US`) : `src/preparationTests.ts` le remet en français.
+- **Comment le penser** : partir de ce que le système sait déjà du joueur (langue, thème sombre…) et le laisser
+  changer d'avis, plutôt que de lui poser la question.
+
+### Un réglage « automatique » tant qu'on n'a pas choisi
+
+- **Pourquoi** : en anglais, les miles sont attendus par défaut. Mais un joueur anglais qui a choisi les
+  kilomètres ne doit pas les perdre en passant en français, puis en revenant à l'anglais.
+- **Comment le faire** : `unite: Unite | undefined` dans les réglages. `undefined` veut dire « pas choisi » :
+  `uniteAffichee()` suit alors la langue. Dès que le joueur choisit, la valeur est enregistrée et l'emporte. Même
+  chose pour la langue : `undefined` = celle du navigateur.
+- **Comment le penser** : distinguer « la valeur par défaut » de « la valeur choisie ». Si on enregistre la valeur
+  par défaut comme un choix, on ne peut plus la faire évoluer.

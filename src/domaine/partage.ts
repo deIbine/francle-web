@@ -1,7 +1,7 @@
 /*
 Le texte à partager à la fin de la partie, à la Worldle : le numéro, le score, et une ligne de carrés par essai.
 
-    #Francle n° 12 3/6        (suivi de 🌀 et/ou 🙈 si la partie a été jouée en mode difficile)
+    #Francle n° 12 3/6        (« #Francle #12 3/6 » en anglais, suivi de 🌀 et/ou 🙈 en mode difficile)
     🟩🟩🟨⬜⬜↗️
     🟩🟩🟩🟩🟨⬅️
     🟩🟩🟩🟩🟩🎉
@@ -13,6 +13,7 @@ moins 10 %, et du blanc pour compléter. Ni les noms des régions, ni les indice
  */
 import { EMOJIS } from './geographie.ts'
 import { ESSAIS_MAX, type Partie } from './partie.ts'
+import type { Langue } from './regions.ts'
 
 // les modes difficiles avec lesquels la partie a été jouée : fixés au premier essai
 export interface ModesDifficiles {
@@ -43,8 +44,18 @@ export function emojisModes(modes: ModesDifficiles): string {
   return (modes.rotation ? '🌀' : '') + (modes.cachee ? '🙈' : '')
 }
 
-export function textePartage(partie: Partie, numero: number, modes: ModesDifficiles = SANS_MODE): string {
+// le numéro de la partie, à la française (« n° 12 ») ou à l'anglaise (« #12 »)
+const NUMERO: Record<Langue, (numero: number) => string> = { fr: (n) => `n° ${n}`, en: (n) => `#${n}` }
+
+export function textePartage(
+  partie: Partie,
+  numero: number,
+  modes: ModesDifficiles = SANS_MODE,
+  langue: Langue = 'fr',
+): string {
   const lignes = partie.essais.map((essai) => carres(essai.proximite) + EMOJIS[essai.direction])
-  const titre = [`#Francle n° ${numero}`, score(partie), emojisModes(modes)].filter((morceau) => morceau !== '')
+  const titre = [`#Francle ${NUMERO[langue](numero)}`, score(partie), emojisModes(modes)].filter(
+    (morceau) => morceau !== '',
+  )
   return [titre.join(' '), ...lignes, ADRESSE].join('\n')
 }

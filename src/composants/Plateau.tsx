@@ -11,7 +11,7 @@ import { abandonner, enCours, indicesReveles, proposer, type Partie } from '../d
 import type { ModesDifficiles } from '../domaine/partage.ts'
 import { chercher } from '../domaine/recherche.ts'
 import type { Unite } from '../reglages.ts'
-import { textes } from '../textes.ts'
+import { useLangue, useTextes } from '../textes.ts'
 import { Indices } from './Indices.tsx'
 import { Saisie } from './Saisie.tsx'
 import { Silhouette } from './Silhouette.tsx'
@@ -29,6 +29,8 @@ interface Props {
 }
 
 export function Plateau({ partie, onChanger, modes, angle, unite, fin }: Props) {
+  const textes = useTextes()
+  const langue = useLangue()
   // le message sous la saisie (« région inconnue »…), vide s'il n'y a rien à dire
   const [message, setMessage] = useState('')
   const [confirmation, setConfirmation] = useState(false)
@@ -37,7 +39,7 @@ export function Plateau({ partie, onChanger, modes, angle, unite, fin }: Props) 
     // une région déjà proposée ne coûte pas d'essai : le joueur s'est sûrement trompé de ligne
     const region = chercher(saisie, partie.mode)
     if (region !== undefined && partie.essais.some((essai) => essai.region === region)) {
-      setMessage(textes.dejaProposee(region.nom.fr))
+      setMessage(textes.dejaProposee(region.nom[langue]))
       return false
     }
     const suite = proposer(partie, saisie)

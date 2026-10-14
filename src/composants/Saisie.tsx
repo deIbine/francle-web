@@ -9,7 +9,7 @@ parcourir les suggestions, Entrée pour proposer, Échap pour fermer la liste.
 import { useId, useState, type FormEvent, type KeyboardEvent } from 'react'
 import { suggestions } from '../domaine/recherche.ts'
 import type { Mode } from '../domaine/regions.ts'
-import { textes } from '../textes.ts'
+import { useLangue, useTextes } from '../textes.ts'
 
 interface Props {
   mode: Mode
@@ -18,6 +18,8 @@ interface Props {
 }
 
 export function Saisie({ mode, onProposer }: Props) {
+  const textes = useTextes()
+  const langue = useLangue()
   // useState : une valeur que React garde d'un affichage à l'autre. Quand on la change avec la fonction set…,
   // React rappelle le composant et met l'écran à jour
   const [texte, setTexte] = useState('')
@@ -28,7 +30,7 @@ export function Saisie({ mode, onProposer }: Props) {
   const idListe = useId()
 
   // recalculée à chaque affichage : 35 régions, c'est instantané
-  const liste = ouverte ? suggestions(texte, mode, 'fr') : []
+  const liste = ouverte ? suggestions(texte, mode, langue) : []
 
   function proposer(saisie: string) {
     if (onProposer(saisie)) {
@@ -41,7 +43,7 @@ export function Saisie({ mode, onProposer }: Props) {
   function envoyer(evenement: FormEvent) {
     // sans cela, le navigateur enverrait le formulaire à un serveur et rechargerait la page
     evenement.preventDefault()
-    proposer(choisie >= 0 && choisie < liste.length ? liste[choisie].nom.fr : texte)
+    proposer(choisie >= 0 && choisie < liste.length ? liste[choisie].nom[langue] : texte)
   }
 
   function touche(evenement: KeyboardEvent) {
@@ -114,11 +116,11 @@ export function Saisie({ mode, onProposer }: Props) {
               // liste, et le clic tomberait dans le vide). preventDefault garde le focus dans le champ
               onMouseDown={(evenement) => {
                 evenement.preventDefault()
-                proposer(region.nom.fr)
+                proposer(region.nom[langue])
               }}
               className={`cursor-pointer px-3 py-2 ${index === choisie ? 'bg-francle-clair text-gray-900' : 'hover:bg-surface'}`}
             >
-              {region.nom.fr}
+              {region.nom[langue]}
             </li>
           ))}
         </ul>

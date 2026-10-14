@@ -86,7 +86,7 @@ angle de rotation, et les valeurs de ses tests.
 
 ## Où on en est (mis à jour le 14 octobre 2026)
 
-**Faites : web.0 à web.4.** Prochaine étape : **web.5 L'anglais**.
+**Faites : web.0 à web.5.** Prochaine étape : **web.6 Les finitions**.
 
 - **web.0** (PR #1, étiquette `web-0`) : dépôt public `deIbine/francle-web`, Vite + React + TypeScript, Vitest, lint
   oxlint, CI `.github/workflows/ci.yml` (tâche `verifier` sur chaque PR et sur `main`, tâche `publier` vers GitHub
@@ -122,9 +122,16 @@ angle de rotation, et les valeurs de ses tests.
     `composants/Plateau.tsx` : le plateau commun. `PartieDuJour.tsx` (ancien `Jeu.tsx`) et `PartieLibre.tsx`.
   - Modes difficiles fixés au premier essai, sauvegardés avec la partie du jour (champ `modes`) et montrés dans le
     partage (« #Francle n° 12 3/6 🌀🙈 »).
-- **Ce que web.5 doit faire** : l'anglais dans `textes.ts` (et `toLocaleString`), la langue dans les réglages
-  (`uniteAffichee` : miles par défaut en anglais si `unite` n'est pas choisie), le bouton FR / EN dans l'en-tête,
-  les noms et indices en anglais (`region.nom[langue]`…), les corrections décidées des indices.
+- **web.5** (PR #6, étiquette `web-5`) : l'anglais.
+  - `src/textes.ts` : `TEXTES.fr` et `TEXTES.en` (type `Textes` déduit du français), `LangueContext`,
+    `useLangue()`, `useTextes()`. Nombres avec `toLocaleString` (`fr-FR`, `en-GB`).
+  - Réglages : `langue` (sinon celle du navigateur, `langueNavigateur()`), unité par défaut selon la langue
+    (`uniteAffichee`). Bouton FR / EN dans l'en-tête ; `<html lang>` à jour (aussi dans le script de `index.html`).
+  - Partage en anglais : « #Francle #12 3/6 ». Données corrigées : mataba, Zéna M'Déré, Montaigne, plus de
+    parenthèses dans les indices anglais.
+- **Ce que web.6 doit faire** : « Comment jouer » (fenêtre ❓, ouverte à la première visite), affichage mobile,
+  vérification de l'accessibilité (axe) dans les tests, crédits en bas de page, README en français, `LICENSE`
+  (« Copyright (c) 2026 deIbine » + mention teuteuf), icône (la France en bleu Francle).
 - **À faire relire par l'utilisateur** (pas encore validé) : les monuments et les traductions anglaises de
   `regions.ts` ; « le matsidza » (Mayotte) est resté tel quel en anglais.
 

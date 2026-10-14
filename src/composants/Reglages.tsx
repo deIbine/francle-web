@@ -1,7 +1,8 @@
 import { useId } from 'react'
+import type { Langue } from '../domaine/regions.ts'
 import type { Reglages as LesReglages, Theme, Unite } from '../reglages.ts'
-import { uniteAffichee } from '../reglages.ts'
-import { textes } from '../textes.ts'
+import { langueAffichee, uniteAffichee } from '../reglages.ts'
+import { useTextes } from '../textes.ts'
 
 interface Props {
   reglages: LesReglages
@@ -56,8 +57,15 @@ function Case(props: { libelle: string; aide: string; coche: boolean; onChanger:
 }
 
 export function Reglages({ reglages, onChanger }: Props) {
+  const textes = useTextes()
   return (
     <div className="flex flex-col gap-4 text-left">
+      <Choix<Langue>
+        titre={textes.reglages.langue}
+        valeur={langueAffichee(reglages)}
+        choix={textes.reglages.langues}
+        onChoisir={(langue) => onChanger({ langue })}
+      />
       <Choix<Theme>
         titre={textes.reglages.theme}
         valeur={reglages.theme}

@@ -7,7 +7,7 @@ React décrit l'écran, mais showModal() et close() sont des ordres à donner à
 l'élément lui-même, et useEffect donne l'ordre après chaque affichage où « ouverte » a changé.
  */
 import { useEffect, useId, useRef, type ReactNode } from 'react'
-import { textes } from '../textes.ts'
+import { useTextes } from '../textes.ts'
 
 interface Props {
   ouverte: boolean
@@ -17,6 +17,7 @@ interface Props {
 }
 
 export function Fenetre({ ouverte, onFermer, titre, children }: Props) {
+  const textes = useTextes()
   const fenetre = useRef<HTMLDialogElement>(null)
   const idTitre = useId()
 

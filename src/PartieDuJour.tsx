@@ -19,7 +19,7 @@ import { statistiques } from './domaine/statistiques.ts'
 import { minuitSuivant } from './domaine/temps.ts'
 import { modesReglages, uniteAffichee, type Reglages } from './reglages.ts'
 import { enregistrer, lire, modesSauves, restaurer, resultats } from './sauvegarde.ts'
-import { textes } from './textes.ts'
+import { useLangue, useTextes } from './textes.ts'
 
 interface Props {
   // le jour de la partie
@@ -32,6 +32,8 @@ interface Props {
 }
 
 export function PartieDuJour({ jour, onJourSuivant, reglages, demandeStats }: Props) {
+  const textes = useTextes()
+  const langue = useLangue()
   const numero = numeroDuJour(jour)
   // toutes les parties sauvées, lues une fois à l'ouverture, puis tenues à jour à chaque changement
   const [parties, setParties] = useState(() => lire())
@@ -83,7 +85,7 @@ export function PartieDuJour({ jour, onJourSuivant, reglages, demandeStats }: Pr
         fin={
           <div className="flex flex-col items-center gap-2">
             <p className="font-semibold">
-              {textes.fin(partie)} {textes.reponse} {partie.cible.nom.fr}
+              {textes.fin(partie)} {textes.reponse} {partie.cible.nom[langue]}
             </p>
             <button
               type="button"
@@ -106,7 +108,7 @@ export function PartieDuJour({ jour, onJourSuivant, reglages, demandeStats }: Pr
             {/* grid-cols-2 : le compte à rebours et le bouton de partage côte à côte */}
             <div className="grid grid-cols-2 items-center gap-2">
               <CompteARebours minuit={minuitSuivant(jour)} onMinuit={onJourSuivant} />
-              <Partager texte={textePartage(partie, numero, modes)} />
+              <Partager texte={textePartage(partie, numero, modes, langue)} />
             </div>
           </FinDePartie>
         )}
