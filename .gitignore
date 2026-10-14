@@ -1,0 +1,10 @@
+# Dépendances installées par npm (recréées par « npm ci »)
+node_modules/
+# Site construit par « npm run build »
+dist/
+# Journaux et fichiers de l'éditeur
+*.log
+.vscode/*
+!.vscode/extensions.json
+.idea/
+.DS_Store
