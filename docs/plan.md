@@ -43,7 +43,8 @@ angle de rotation, et les valeurs de ses tests.
 | Partie libre | Les **deux époques**, au choix : anciennes régions ou nouvelles régions. |
 | Essais | **6**, comme Worldle (le Java en a 5). |
 | Partage | Le résultat en **carrés emoji**, avec un bouton pour le copier. |
-| Indices | **On les garde** (superficie, spécialité, personnalité, capitale) : c'est la particularité de Francle. |
+| Indices | **On les garde** (superficie, spécialité, personnalité, capitale) : c'est la particularité de Francle. **Plus un 5e, le monument** (décidé à web.1), révélé après le 5e essai raté. |
+| Région du jour | **La même que le Java**, au bit près (même hasard, même premier jour, le 13 octobre 2026). Le jour change **à minuit chez le joueur** (décidé à web.1). |
 | Langues | **Français et anglais**, au choix du joueur. |
 | Noms en anglais | Noms des régions **et** indices traduits (Brittany, Normandy, Corsica, Burgundy…). À la saisie, on **accepte les deux** noms, quelle que soit la langue. |
 | Directions | **8** (comme Francle), pas 16 : les distances sont courtes en France. |
