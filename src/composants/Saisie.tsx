@@ -97,34 +97,35 @@ export function Saisie({ mode, onProposer }: Props) {
       <button type="submit" className="rounded bg-francle-fonce px-4 py-2 font-semibold text-white hover:opacity-90">
         {textes.proposer}
       </button>
-      {liste.length > 0 && (
-        <ul
-          id={idListe}
-          role="listbox"
-          aria-label={textes.saisie}
-          // top-full : juste sous le formulaire ; z-10 : au-dessus du tableau
-          className="absolute top-full right-0 left-0 z-10 mt-1 max-h-60 overflow-y-auto rounded border border-bord bg-fond text-left shadow-lg"
-        >
-          {liste.map((region, index) => (
-            <li
-              // key : l'identifiant que React utilise pour reconnaître chaque élément d'une liste d'un affichage à l'autre
-              key={region.id}
-              id={idOption(index)}
-              role="option"
-              aria-selected={index === choisie}
-              // onMouseDown plutôt que onClick : il arrive AVANT que le champ perde le focus (onBlur fermerait la
-              // liste, et le clic tomberait dans le vide). preventDefault garde le focus dans le champ
-              onMouseDown={(evenement) => {
-                evenement.preventDefault()
-                proposer(region.nom[langue])
-              }}
-              className={`cursor-pointer px-3 py-2 ${index === choisie ? 'bg-francle-clair text-gray-900' : 'hover:bg-surface'}`}
-            >
-              {region.nom[langue]}
-            </li>
-          ))}
-        </ul>
-      )}
+      {/* la liste reste toujours dans la page, cachée (hidden) quand elle est vide : aria-controls du champ doit
+          désigner un élément qui existe, comme dans le modèle du W3C */}
+      <ul
+        id={idListe}
+        role="listbox"
+        aria-label={textes.saisie}
+        hidden={liste.length === 0}
+        // top-full : juste sous le formulaire ; z-10 : au-dessus du tableau
+        className="absolute top-full right-0 left-0 z-10 mt-1 max-h-60 overflow-y-auto rounded border border-bord bg-fond text-left shadow-lg"
+      >
+        {liste.map((region, index) => (
+          <li
+            // key : l'identifiant que React utilise pour reconnaître chaque élément d'une liste d'un affichage à l'autre
+            key={region.id}
+            id={idOption(index)}
+            role="option"
+            aria-selected={index === choisie}
+            // onMouseDown plutôt que onClick : il arrive AVANT que le champ perde le focus (onBlur fermerait la
+            // liste, et le clic tomberait dans le vide). preventDefault garde le focus dans le champ
+            onMouseDown={(evenement) => {
+              evenement.preventDefault()
+              proposer(region.nom[langue])
+            }}
+            className={`cursor-pointer px-3 py-2 ${index === choisie ? 'bg-francle-clair text-gray-900' : 'hover:bg-surface'}`}
+          >
+            {region.nom[langue]}
+          </li>
+        ))}
+      </ul>
     </form>
   )
 }
