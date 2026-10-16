@@ -54,7 +54,7 @@ angle de rotation, et les valeurs de ses tests.
 | Modes difficiles 🌀 🙈 | Fixés **au premier essai** : un changement en cours de partie ne compte que pour la partie suivante, pour que l'emoji du partage dise vrai. Rotation : l'angle du jour en partie du jour, un **angle au hasard** en partie libre (décidé avant web.4). |
 | Noms en anglais | Noms des régions **et** indices traduits (Brittany, Normandy, Corsica, Burgundy…). À la saisie, on **accepte les deux** noms, quelle que soit la langue. Le tableau des traductions a été relu avant web.4. À faire à web.5 : Mayotte, « le matsidza » devient **« le mataba »** et Taambati Moussa devient **Zéna M'Déré** ; Nouvelle-Aquitaine, Jacques Ellul devient **Montaigne** ; en anglais, **plus d'explications entre parenthèses** (« matelote », pas « matelote (fish stewed in wine) »). Le web s'écarte alors du Java sur ces indices. |
 | Finitions | « **Comment jouer** » ouvert à la première visite, puis par un bouton ❓ ; **vérification automatique de l'accessibilité** (axe) dans les tests ; **crédits** en bas de page (contours IGN/Etalab, inspiration Worldle, lien vers le code) ; **README en français** ; **aucune statistique de visite** ; icône : la France en bleu Francle ; **pas de jeu installable** pour l'instant (décidé avant web.4). |
-| Nom de domaine | Un domaine à soi, **à web.7** (proposé : `francle.fr`, libre le 14 octobre 2026), acheté par l'utilisateur avant de commencer web.7. Le chemin de base `/francle-web/` deviendra `/` (décidé avant web.4). |
+| Nom de domaine | Un domaine à soi, **à web.8** (proposé : `francle.fr`, libre le 14 octobre 2026), acheté par l'utilisateur avant de commencer web.8. Le chemin de base `/francle-web/` deviendra `/` (décidé avant web.4). |
 | Directions | **8** (comme Francle), pas 16 : les distances sont courtes en France. Affichées en **emoji** (⬆️ ↗️ … 🎉), dans le tableau comme dans le partage (décidé à web.2). |
 | Abandon | Un bouton **Abandonner**, avec confirmation (web.2). Une partie abandonnée compte comme une **défaite** dans les statistiques (web.3). |
 | Région déjà proposée | Refusée avec un message, **sans coûter d’essai** (décidé à web.2). |
@@ -82,13 +82,16 @@ angle de rotation, et les valeurs de ses tests.
 5. **web.5 L'anglais** : tous les textes en deux langues, au choix du joueur.
 6. **web.6 Les finitions** : affichage mobile, accessibilité (clavier, lecteurs d'écran), « comment jouer », README,
    licence.
-7. **web.7 Le domaine et le défi** : d'abord le nom de domaine, puis le défi (un lien à envoyer à un ami pour lui
+7. **web.7 Le bonus des départements** : après une victoire en partie du jour, faire deviner tous les départements
+   de la région trouvée (décidé le 16 octobre 2026, détail plus bas dans « Le bonus des départements »).
+8. **web.8 Le domaine et le défi** (ancien web.7, renuméroté le 16 octobre 2026) : d'abord le nom de domaine, puis le défi (un lien à envoyer à un ami pour lui
    faire deviner une région). Pas d'archives des jours passés (décidé avant web.4).
 
 ## Où on en est (mis à jour le 16 octobre 2026)
 
-**Faites : web.0 à web.6.** Prochaine étape : **web.7 Le domaine et le défi** (l'utilisateur doit d'abord acheter
-le nom de domaine).
+**Faites : web.0 à web.6.** Prochaine étape : **web.7 Le bonus des départements**, d'abord essayé dans le projet Java
+(voir « Le bonus des départements »). Ensuite **web.8 Le domaine et le défi** (l'utilisateur doit d'abord acheter le
+nom de domaine).
 
 - **web.0** (PR #1, étiquette `web-0`) : dépôt public `deIbine/francle-web`, Vite + React + TypeScript, Vitest, lint
   oxlint, CI `.github/workflows/ci.yml` (tâche `verifier` sur chaque PR et sur `main`, tâche `publier` vers GitHub
@@ -140,7 +143,7 @@ le nom de domaine).
     maintenant un troisième argument : `py outils/generer_images.py <contours> src/images public`.
   - Accessibilité : `axe-core` dans les tests (`src/Accessibilite.test.tsx`) ; contrastes vérifiés dans le
     navigateur, en clair et en sombre. Mobile : vérifié à 375 pixels ; espaces insécables dans les textes français.
-- **Ce que web.7 doit faire** : (1) le nom de domaine, une fois acheté par l'utilisateur : `public/CNAME`, réglages
+- **Ce que web.8 doit faire** : (1) le nom de domaine, une fois acheté par l'utilisateur : `public/CNAME`, réglages
   DNS, domaine déclaré dans GitHub Pages, `base: '/'` dans `vite.config.ts`, `ADRESSE` dans `domaine/partage.ts`,
   liens du README ; (2) le défi : un lien à envoyer pour faire deviner une région choisie.
 - **Relu et validé avant web.4** : les monuments et les traductions anglaises de `regions.ts` (corrections faites à
@@ -160,9 +163,77 @@ le nom de domaine).
   dans ⚙️, réglage `liste`), fenêtre gardée par le plateau (`composants/ListeRegions.tsx`), régions du mode joué, un
   clic propose le nom. App garde un compteur de demandes par onglet (`demandeListe`), comme pour 📊. Sur téléphone, les
   boutons de l'en-tête sont plus serrés (`px-1`, `sm:px-2`) pour que le titre tienne sur une ligne.
-- **Pour reprendre** : lire ce plan et `docs/lecons.md`, vérifier que `main` est à jour (`git pull`), puis présenter
-  le découpage de web.7 et ses questions (quel domaine, s'il est acheté ; comment fonctionne le lien du défi : région
-  visible dans le lien ou codée, partie du jour ou libre, époque…). Rien n'est commencé pour web.7.
+- **Pour reprendre** : lire ce plan et `docs/lecons.md`, vérifier que `main` est à jour (`git pull`), puis reprendre
+  « Le bonus des départements » ci-dessous : faire ou finir l'essai dans le projet Java, répondre aux questions
+  encore ouvertes, puis présenter le découpage de web.7.1. Rien n'est commencé dans `francle-web` pour web.7 (seule la
+  phase web.7.0, la mise à jour de ce plan, est faite). Pour web.8 : quel domaine, s'il est acheté ; comment fonctionne
+  le lien du défi (région visible dans le lien ou codée, partie du jour ou libre, époque…).
+
+## Le bonus des départements (web.7)
+
+Idée du 16 octobre 2026 : après une victoire, en bonus, faire deviner les départements de la région trouvée.
+
+### Ce qui existe déjà
+
+- `outils/generer_images.py` lit déjà `departements-avec-outre-mer.geojson` et contient le tableau `DEPARTEMENTS`
+  (région -> départements) **pour les deux époques**. Les silhouettes tracent déjà les limites des départements.
+- La réforme de 2016 a regroupé les régions **sans toucher aux départements** : une seule liste de 101 départements,
+  groupée de deux façons. Noms et numéros sont dans les propriétés du GeoJSON (`code`, `nom`).
+- En anglais, on garde les noms français des départements (« Finistère », « Bouches-du-Rhône »).
+
+### Les décisions (validées le 16 octobre 2026)
+
+| Sujet | Décision |
+|---|---|
+| Quand | **Seulement après une victoire**, en **partie du jour** seulement (pas en partie libre). |
+| Combien | **Tous les départements** de la région : ce n'est pas censé être simple. Une région à un seul département (outre-mer) a un bonus d'**une seule question**. |
+| Forme du jeu | Deux modes programmés : **A. cliquer sur la carte** (« Où est le Finistère ? ») et **B. nommer le département coloré** (saisie avec suggestions). **Seul A est en ligne** ; B reste une option qu'on peut activer de notre côté, sans la montrer aux joueurs. |
+| Île-de-France | Un **zoom** sur Paris et la petite couronne (75, 92, 93, 94), trop petits sinon. |
+| Ce qui compte | Le bonus est **sauvegardé**, compte dans les **statistiques** et apparaît dans le **partage**. |
+| Contours | Générés par `outils/generer_images.py` : **un fichier de contours par région**, chaque département étant un tracé à part, avec son numéro. React les dessine, colore et rend cliquables (comme `CarteFrance`). Ce fichier sert aux deux modes. |
+| Essai d'abord en Java | Avant de commencer `francle-web`, essayer le bonus dans le projet Java `deIbine/francle` pour s'en faire une idée (demandé le 16 octobre 2026 ; découpage à présenter et valider). |
+
+### Les phases (une branche et une PR par phase, étiquettes `web-7.0`, `web-7.1`…)
+
+0. **web.7.0 Le plan à jour** : ce chapitre, et l'ancien web.7 renuméroté web.8. ✅
+1. **web.7.1 Les données des départements**, sans affichage : `src/domaine/departements.ts` (101 départements,
+   numéro, nom, région pour chaque époque). **Une seule source** pour la liste région -> départements, aujourd'hui
+   dans le script Python : par exemple un JSON lu à la fois par le script et par le TypeScript. Tests : 101
+   départements, chacun dans une seule région par époque, aucun oubli, accord avec `regions.ts`.
+2. **web.7.2 Les contours des départements** : le script écrit `src/images/departements/<région>.json` (tracés
+   simplifiés, un par département) et le cadre du zoom de l'Île-de-France. Vérifier le poids des fichiers ; ne
+   charger que la carte de la région du jour.
+3. **web.7.3 Les règles du bonus**, sans affichage (comme `partie.ts`) : `src/domaine/bonus.ts`, les questions,
+   l'ordre (tiré du numéro du jour, le même pour tous), une réponse renvoie un nouveau bonus, le score, la fin.
+   Tests.
+4. **web.7.4 Le bonus jouable, mode A** : composant `CarteDepartements` (carte cliquable, question, réponse montrée
+   juste ou fausse, question suivante), zoom de l'Île-de-France, lancé seulement après une victoire. Accessibilité :
+   chaque département atteignable au clavier, **sans que son nom lu par un lecteur d'écran donne la réponse**.
+5. **web.7.5 Sauvegarde, statistiques, partage** : le bonus sauvegardé avec la partie du jour (champ facultatif, les
+   anciennes sauvegardes restent lisibles, pas de `v2`), repris après fermeture, synchronisé entre onglets
+   (`onglets.ts`) ; nouvelles statistiques ; une ligne dans le partage.
+6. **web.7.6 Le mode B, caché** : saisie avec suggestions (reprise de `Saisie` et `recherche.ts`), limitée aux
+   départements de la région ; un réglage de notre côté pour choisir A ou B.
+7. **web.7.7 Les finitions** : textes FR et EN, « Comment jouer », tests axe, téléphone à 375 pixels, thème sombre,
+   leçons, plan.
+
+### Les questions encore ouvertes (à trancher avant web.7.1)
+
+1. **Essais par département** : un seul clic (juste ou faux, puis on montre la réponse), ou plusieurs (par exemple
+   3, un point seulement au premier) ?
+2. **Régions à un seul département** : en mode A, cliquer le seul département de la carte est gratuit. Proposé : en
+   outre-mer, demander **le numéro** (« Quel est le numéro de la Guadeloupe ? ») ou **le nom**.
+3. **Où se joue le bonus** : dans la fenêtre de fin de partie, ou sur le plateau, à la place de la silhouette ?
+4. **Passer le bonus** : peut-on le passer ? Partager avant de l'avoir fini ? Un bonus commencé puis abandonné
+   compte-t-il ?
+5. **Le partage** : un score (« 🗺️ 9/12 ») ou une ligne de carrés (🟩🟥🟩…) ? 13 départements en Occitanie font
+   une longue ligne.
+6. **Les statistiques** : lesquelles ? Score moyen, nombre de bonus parfaits, pourcentage de départements trouvés ?
+7. **Choisir A ou B de notre côté** : une constante dans le code (une PR pour changer) ou un paramètre caché dans
+   l'adresse (`?bonus=nom`), pratique pour tester en ligne ?
+8. **Mode B** : accepter aussi les numéros (« 29 ») ?
+9. **Anciennes régions** : le bonus n'existe qu'en partie du jour, qui ne joue que les nouvelles régions. Générer
+   quand même les cartes des anciennes régions (même script, presque gratuit), ou attendre d'en avoir besoin ?
 
 ## Les améliorations à reprendre (relevées le 16 octobre 2026)
 
@@ -174,7 +245,7 @@ commencé.
   la même région de suite (1 fois sur 18). Écarté pour l'instant : avec 18 régions, un « sac mélangé » ne vaut pas
   la peine. Si ça gêne, le plus simple : retirer quand on retombe sur la région précédente.
 - **Aperçu des liens partagés** : pas de balises Open Graph (`og:title`, `og:description`, `og:image`) dans
-  `index.html` ; un lien envoyé sur WhatsApp ou Discord s'affiche sans titre ni image. À faire avec le domaine (web.7),
+  `index.html` ; un lien envoyé sur WhatsApp ou Discord s'affiche sans titre ni image. À faire avec le domaine (web.8),
   avec `<meta name="theme-color">` (la barre du navigateur sur téléphone en bleu Francle, en clair et en sombre).
 - **Partie libre, un compteur** : « 7 trouvées sur 9 » pour la visite, sans rien sauvegarder ni compter dans les
   statistiques.
