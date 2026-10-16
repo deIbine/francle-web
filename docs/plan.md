@@ -183,10 +183,6 @@ commencé.
 - **Outre-mer et mode 🙈** : un mode « métropole seulement » en partie libre (les silhouettes d'outre-mer sont très
   reconnaissables) ; en mode image cachée, révéler la silhouette au bout de quelques essais.
 - **Carte de fin** : montrer aussi les régions proposées, en couleur.
-- **Un test qui échoue parfois** : environ une fois sur cinq lancements de toute la suite en local, un test d'écran
-  échoue puis passe à la relance (vu à web.6.2 et web.6.3, par exemple « le thème sombre… reste choisi au retour »).
-  Sans doute un délai dépassé quand la machine est chargée (les tests d'écran tournent en parallèle). À examiner :
-  lire le message d'erreur exact, puis allonger le délai (`testTimeout`) ou alléger le test.
 - **Partie du jour devinable** : chaque région revient une fois par cycle de 18 jours, donc le 18e jour se devine par
   élimination. Changer cela casserait l'égalité avec le Java : à décider.
 

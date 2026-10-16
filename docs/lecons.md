@@ -705,3 +705,35 @@ commandes), **comment le penser** (la question à se poser la prochaine fois).
   téléphone, puis on ajoute pour les écrans plus grands.
 - **Comment le penser** : chaque élément ajouté à une barre prend la place d'un autre. Vérifier à la plus petite
   largeur visée, pas seulement sur l'ordinateur.
+
+## Un test qui échoue parfois : le délai des tests
+
+### Lire le message avant de corriger
+
+- **Pourquoi** : environ un lancement sur cinq de toute la suite, un test d'écran échouait, puis passait à la relance.
+  Un test qui échoue « parfois » a une cause précise (un délai, un ordre d'exécution, une donnée partagée) : il faut
+  la trouver, sinon on corrige au hasard.
+- **Comment le faire** : relancer la suite en boucle en gardant la sortie de chaque lancement
+  (`npx vitest run > run1.txt`). Dix lancements calmes passaient tous ; alors on charge la machine exprès, en lançant
+  deux suites en même temps : l'échec revient à coup sûr, avec le message `Error: Test timed out in 5000ms`. C'est un
+  délai dépassé, pas un élément introuvable. Puis mesurer : `npx vitest run --reporter=json --outputFile=r.json`
+  donne la durée de chaque test ; les plus lents montaient à 4,9 s, pour une limite de 5 s. Enfin, essayer la
+  correction sans toucher au code : `npx vitest run --testTimeout=15000`, toujours sous double charge : plus aucun
+  échec, 6,9 s au pire.
+- **Comment le penser** : un échec intermittent devient reproductible quand on aggrave sa cause supposée (ici, la
+  charge). Et un échec en cache parfois un autre : un test dont le délai expire n'est pas arrêté, il continue de
+  cliquer pendant le test suivant, qui échoue à son tour sur une assertion. Corriger la première erreur, pas la
+  dernière.
+
+### Allonger le délai, ou alléger le test
+
+- **Pourquoi** : les tests d'écran affichent tout le jeu (`<App />`) dans jsdom et tapent les noms lettre par lettre
+  avec user-event : c'est du vrai travail, pas une attente. Leur durée dépend de la machine et de ce qui tourne à
+  côté. Le délai par défaut de Vitest (5 s) est pensé pour des tests unitaires, bien plus courts.
+- **Comment le faire** : `testTimeout: 15_000` dans la partie `test` de `vite.config.ts`, pour toute la suite. Un
+  test seul peut aussi avoir son propre délai : `it('…', async () => { … }, 15_000)`. Le `_` de `15_000` sépare les
+  milliers, comme en Java.
+- **Comment le penser** : le délai d'un test sert à arrêter un test bloqué, pas à mesurer la vitesse. On le règle
+  avec une marge nette au-dessus de la durée mesurée au pire (ici plus du double). Alléger les tests (moins de
+  frappe, des composants plus petits) vaudrait mieux si la suite devenait trop longue à attendre ; ce n'est pas le
+  cas (environ 23 s).
