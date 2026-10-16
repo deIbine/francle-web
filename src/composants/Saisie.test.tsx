@@ -58,6 +58,17 @@ describe('La saisie', () => {
     expect(onProposer).toHaveBeenCalledWith('nor')
   })
 
+  it('aria-controls désigne la liste même fermée : elle reste dans la page, cachée', async () => {
+    const { joueur, champ } = afficher()
+    const liste = () => document.getElementById(champ.getAttribute('aria-controls')!)
+    expect(liste()?.getAttribute('role')).toBe('listbox')
+    expect(liste()?.hidden).toBe(true)
+    expect(champ.getAttribute('aria-expanded')).toBe('false')
+
+    await joueur.type(champ, 'nor')
+    expect(liste()?.hidden).toBe(false)
+  })
+
   it('une saisie refusée reste dans le champ, pour être corrigée', async () => {
     const onProposer = vi.fn(() => false)
     render(<Saisie mode="nouvelles" onProposer={onProposer} />)

@@ -9,6 +9,7 @@ import { cleanup, fireEvent, render, screen, within } from '@testing-library/rea
 import userEvent from '@testing-library/user-event'
 import { describe, expect, it, vi } from 'vitest'
 import App from './App.tsx'
+import { deviner } from './domaine/recherche.ts'
 import { regionDuJour } from './domaine/regionDuJour.ts'
 import { tirables } from './domaine/regions.ts'
 
@@ -63,6 +64,22 @@ describe('Le jeu', () => {
     expect(lignes()).toHaveLength(0)
   })
 
+  it('un début de nom qui n’évoque qu’une région la propose', async () => {
+    const joueur = demarrer()
+    // la première région (autre que celle du jour) que ses quatre premières lettres désignent seules
+    const region = AUTRES.find((autre) => deviner(autre.nom.fr.slice(0, 4), 'nouvelles') === autre)!
+    await proposer(joueur, region.nom.fr.slice(0, 4))
+    expect(lignes()).toHaveLength(1)
+    expect(lignes()[0].textContent).toContain(region.nom.fr)
+  })
+
+  it('un début de nom qui en évoque plusieurs demande de choisir, sans coûter d’essai', async () => {
+    const joueur = demarrer()
+    await proposer(joueur, 'loire')
+    expect(screen.getByText('Plusieurs régions possibles : choisis dans la liste.')).toBeDefined()
+    expect(lignes()).toHaveLength(0)
+  })
+
   it('une ancienne région n’est pas acceptée dans la partie du jour', async () => {
     const joueur = demarrer()
     await proposer(joueur, 'Picardie')
@@ -113,6 +130,28 @@ describe('Le jeu', () => {
     await joueur.click(screen.getByRole('button', { name: 'Oui' }))
     expect(within(screen.getByRole('dialog')).getByText('Partie abandonnée.')).toBeDefined()
     expect(screen.queryByRole('combobox')).toBeNull()
+  })
+
+  it('deux onglets ouverts : l’un reprend ce que l’autre a joué', async () => {
+    const joueur = demarrer()
+    await proposer(joueur, AUTRES[0].nom.fr)
+    // un autre onglet joue un deuxième essai : il écrit la sauvegarde, et le navigateur prévient cet onglet-ci par
+    // l'évènement « storage » (fireEvent l'envoie comme le ferait le navigateur)
+    const cle = 'francle.parties-du-jour.v1'
+    localStorage.setItem(cle, JSON.stringify({ 2: { regions: [AUTRES[0].id, AUTRES[1].id], etat: 'en-cours' } }))
+    fireEvent(window, new StorageEvent('storage', { key: cle }))
+    expect(lignes()).toHaveLength(2)
+
+    // le troisième essai, joué ici, s'ajoute aux deux autres au lieu de les écraser
+    await proposer(joueur, AUTRES[2].nom.fr)
+    expect(JSON.parse(localStorage.getItem(cle)!)[2].regions).toHaveLength(3)
+  })
+
+  it('deux onglets ouverts : un réglage changé dans l’un s’applique à l’autre', () => {
+    demarrer()
+    localStorage.setItem('francle.reglages.v1', JSON.stringify({ theme: 'sombre' }))
+    fireEvent(window, new StorageEvent('storage', { key: 'francle.reglages.v1' }))
+    expect(document.documentElement.classList.contains('dark')).toBe(true)
   })
 
   it('la partie est retrouvée après fermeture de la page', async () => {

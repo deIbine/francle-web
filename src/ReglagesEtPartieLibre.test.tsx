@@ -148,6 +148,32 @@ describe('La partie libre', () => {
     expect(within(screen.getByRole('dialog', { name: 'Résultats' })).getByText(cible.nom.fr)).toBeDefined()
   })
 
+  it('changer d’époque pendant une partie commencée demande confirmation', async () => {
+    const cible = premiereRegion('nouvelles')
+    const joueur = demarrer()
+    await joueur.click(screen.getByRole('tab', { name: 'Partie libre' }))
+    const anciennes = () => screen.getByRole('radio', { name: 'Anciennes régions (avant 2016)' }) as HTMLInputElement
+    // getByText remplace les espaces, insécables comprises, par des espaces simples
+    const question = 'Changer d’époque ? La partie en cours sera perdue.'
+    const essais = () => within(panneau()).queryAllByRole('row').filter((ligne) => ligne.closest('tbody'))
+    await proposer(joueur, tirables('nouvelles').find((r) => r !== cible)!.nom.fr)
+
+    // « Non » : on garde la partie et l'époque
+    await joueur.click(anciennes())
+    expect(anciennes().checked).toBe(false)
+    expect(within(panneau()).getByText(question)).toBeDefined()
+    await joueur.click(within(panneau()).getByRole('button', { name: 'Non' }))
+    expect(within(panneau()).queryByText(question)).toBeNull()
+    expect(essais()).toHaveLength(1)
+
+    // « Oui » : une nouvelle partie, dans l'autre époque
+    await joueur.click(anciennes())
+    expect(within(panneau()).getByText(question)).toBeDefined()
+    await joueur.click(within(panneau()).getByRole('button', { name: 'Oui' }))
+    expect(anciennes().checked).toBe(true)
+    expect(essais()).toHaveLength(0)
+  })
+
   it('perdre une partie libre ne renvoie pas à demain', async () => {
     const cible = premiereRegion('nouvelles')
     const joueur = demarrer()

@@ -602,3 +602,67 @@ commandes), **comment le penser** (la question à se poser la prochaine fois).
 - **Comment le penser** : un test qui dépend de la date, du hasard ou du réseau finit par échouer sans que le code ait
   changé. Tout ce qui varie d'une exécution à l'autre se fixe dans les tests, et une seule source de vérité (une
   seule horloge) vaut mieux qu'un paramètre qui ne couvre qu'une partie du code.
+
+## web.6.2 Les corrections rapides
+
+### Entrée : deviner ce que le joueur veut dire, sans jouer à sa place
+
+- **Pourquoi** : « bret » + Entrée répondait « région inconnue » alors que la Bretagne était la seule suggestion. Mais
+  prendre toujours la première suggestion aurait été pire : « nor » chez les anciennes régions évoque
+  Nord-Pas-de-Calais, Basse- et Haute-Normandie, et Entrée aurait joué l'une d'elles au hasard de l'ordre
+  alphabétique, en coûtant un essai.
+- **Comment le faire** : une règle du domaine, `deviner(saisie, mode)` dans `domaine/recherche.ts` : le nom exact,
+  sinon la seule suggestion, sinon `'plusieurs'` (un message demande de choisir dans la liste, sans coûter d'essai).
+  Le type de retour `Region | 'plusieurs' | undefined` est une « union » : TypeScript oblige le code qui l'appelle à
+  traiter les trois cas, un peu comme un `sealed interface` Java avec un `switch`. La règle vit dans le domaine,
+  testée sans affichage, et le plateau (`Plateau.tsx`) ne fait que l'appliquer.
+- **Comment le penser** : quand on devine l'intention de l'utilisateur, se demander ce que coûte une erreur. Ici, une
+  mauvaise devinette coûte un essai : on ne devine que quand il n'y a aucun doute, et on demande sinon.
+
+### Un bouton radio « contrôlé » qui ne change pas tout de suite
+
+- **Pourquoi** : changer d'époque en partie libre relançait la partie sans prévenir. Il fallait pouvoir demander
+  confirmation… et que le bouton radio reste sur l'ancienne époque en attendant.
+- **Comment le faire** : en React, un champ dont la valeur vient de l'état (`checked={mode === choix}`) est
+  « contrôlé » : après un clic, React remet le bouton dans l'état qu'il calcule. Il suffit donc de ne pas changer
+  `mode` tout de suite : on note l'époque demandée (`epoqueDemandee`), on affiche la question, et seul « Oui » appelle
+  `recommencer`. La question est dans un `aria-live` pour qu'un lecteur d'écran la lise.
+- **Comment le penser** : l'écran n'est que le reflet de l'état. Pour « retenir » un changement, on ne touche pas au
+  bouton : on retarde le changement d'état.
+- **Piège des tests** : `getByText` remplace toutes les espaces, insécables comprises, par des espaces simples. Une
+  phrase française avec ` ` se cherche donc avec une espace simple ; sinon le test ne trouve rien, et l'erreur
+  fait croire à tort que le bouton ne marche pas. Vérifier dans le vrai navigateur a permis de comprendre que le
+  problème venait du test.
+
+### Deux onglets : l'évènement storage
+
+- **Pourquoi** : chaque onglet gardait sa propre copie de la partie du jour en mémoire. On pouvait jouer la partie
+  deux fois, et le dernier onglet à sauvegarder écrasait les essais de l'autre. En Java, une seule fenêtre à la fois :
+  la question ne se posait pas.
+- **Comment le faire** : quand un onglet écrit dans `localStorage`, le navigateur envoie l'évènement `storage` aux
+  AUTRES onglets du même site (pas à celui qui écrit). Le hook `useChangementAilleurs(cle, quandChange)`
+  (`src/onglets.ts`) l'écoute ; la partie du jour relit alors la sauvegarde et rejoue ses essais, les réglages se
+  relisent aussi. `useEffectEvent` donne une fonction qui voit toujours les dernières valeurs du composant sans
+  réinstaller l'écouteur à chaque affichage. Pour le tester : écrire dans `localStorage`, puis
+  `fireEvent(window, new StorageEvent('storage', { key }))`, comme le ferait le navigateur.
+- **Comment le penser** : tout ce qui est gardé dans le navigateur peut être modifié par un autre onglet. Se
+  demander : « que se passe-t-il si le joueur ouvre la page deux fois ? » La source de vérité est la sauvegarde, la
+  mémoire n'en est qu'une copie à tenir à jour.
+
+### Des couleurs par rôle, même pour les boutons
+
+- **Pourquoi** : `bg-red-700` et `bg-green-700` étaient écrits en dur dans deux composants. On ne pouvait pas
+  réutiliser `erreur` : en thème sombre, c'est un rouge clair, et un texte blanc dessus serait illisible.
+- **Comment le faire** : deux rôles dans `@theme` (`src/index.css`), `--color-danger` et `--color-succes`, qui
+  reprennent les couleurs de Tailwind (`var(--color-red-700)`). Les composants utilisent `bg-danger`, `bg-succes`.
+- **Comment le penser** : nommer une couleur par ce qu'elle veut dire (« danger »), pas par ce qu'elle est
+  (« rouge 700 »). Le jour où on la change, on la change à un seul endroit.
+
+### Un élément désigné par aria-controls doit exister
+
+- **Pourquoi** : le champ de saisie disait « je contrôle la liste n° X » (`aria-controls`), mais la liste n'était
+  dans la page que lorsqu'elle était ouverte.
+- **Comment le faire** : garder la `<ul>` toujours présente, avec l'attribut `hidden` quand elle est vide (le
+  navigateur ne l'affiche pas, et les lecteurs d'écran l'ignorent), comme dans le modèle combobox du W3C.
+- **Comment le penser** : un attribut `aria-*` qui désigne un autre élément par son `id` est une référence, comme un
+  pointeur : elle doit toujours mener quelque part.

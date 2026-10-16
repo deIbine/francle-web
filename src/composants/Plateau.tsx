@@ -9,7 +9,7 @@ pour la partie libre) : le même plateau sert aux deux.
 import { useState, type ReactNode } from 'react'
 import { abandonner, enCours, indicesReveles, proposer, type Partie } from '../domaine/partie.ts'
 import type { ModesDifficiles } from '../domaine/partage.ts'
-import { chercher } from '../domaine/recherche.ts'
+import { deviner } from '../domaine/recherche.ts'
 import type { Unite } from '../reglages.ts'
 import { useLangue, useTextes } from '../textes.ts'
 import { Indices } from './Indices.tsx'
@@ -36,13 +36,18 @@ export function Plateau({ partie, onChanger, modes, angle, unite, fin }: Props) 
   const [confirmation, setConfirmation] = useState(false)
 
   function jouer(saisie: string): boolean {
+    // le nom tapé, ou la seule région qu'il évoque (« bret » -> Bretagne). Un refus ne coûte jamais d'essai
+    const region = deviner(saisie, partie.mode)
+    if (region === 'plusieurs') {
+      setMessage(textes.plusieurs)
+      return false
+    }
     // une région déjà proposée ne coûte pas d'essai : le joueur s'est sûrement trompé de ligne
-    const region = chercher(saisie, partie.mode)
     if (region !== undefined && partie.essais.some((essai) => essai.region === region)) {
       setMessage(textes.dejaProposee(region.nom[langue]))
       return false
     }
-    const suite = proposer(partie, saisie)
+    const suite = region === undefined ? undefined : proposer(partie, region.nom.fr)
     if (suite === undefined) {
       setMessage(textes.inconnue)
       return false
@@ -81,7 +86,7 @@ export function Plateau({ partie, onChanger, modes, angle, unite, fin }: Props) 
                 setConfirmation(false)
                 onChanger(abandonner(partie))
               }}
-              className="rounded bg-red-700 px-3 py-1 text-white"
+              className="rounded bg-danger px-3 py-1 text-white"
             >
               {textes.oui}
             </button>
