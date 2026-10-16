@@ -86,7 +86,7 @@ export function Plateau({ partie, onChanger, modes, angle, unite, fin }: Props) 
                 setConfirmation(false)
                 onChanger(abandonner(partie))
               }}
-              className="rounded bg-red-700 px-3 py-1 text-white"
+              className="rounded bg-danger px-3 py-1 text-white"
             >
               {textes.oui}
             </button>

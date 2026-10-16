@@ -44,7 +44,7 @@ export function Partager({ texte }: { texte: string }) {
       <button
         type="button"
         onClick={partager}
-        className="rounded bg-green-700 px-6 py-2 font-semibold text-white hover:opacity-90"
+        className="rounded bg-succes px-6 py-2 font-semibold text-white hover:opacity-90"
       >
         {textes.partager} 📋
       </button>

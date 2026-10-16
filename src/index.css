@@ -20,6 +20,11 @@
   --color-erreur: #b91c1c;
   --color-carte-fond: #fbf9f6;
   --color-carte-trait: #8c98b8;
+
+  /* Les boutons d'action : le texte y est toujours blanc, donc le fond reste foncé dans les deux thèmes (le rouge
+     clair de --color-erreur en sombre rendrait un texte blanc illisible). On reprend les couleurs de Tailwind */
+  --color-danger: var(--color-red-700);
+  --color-succes: var(--color-green-700);
 }
 
 /* En thème sombre, on redéfinit seulement les valeurs des rôles : aucune classe à changer dans les composants.
