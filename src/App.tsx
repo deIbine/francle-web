@@ -5,8 +5,10 @@ partie et le bas de page.
 Les deux parties restent affichées en même temps, l'une cachée (attribut hidden) : passer d'un onglet à l'autre ne
 fait pas perdre la partie en cours de l'autre.
 
-<PartieDuJour key={numero}> : quand le jour change (à minuit, page ouverte), la clé change, et React jette
-l'ancienne partie du jour pour en créer une neuve. Tout son état repart de zéro pour la nouvelle région.
+<PartieDuJour key={numero}> : quand le jour change, la clé change, et React jette l'ancienne partie du jour pour en
+créer une neuve. Tout son état repart de zéro pour la nouvelle région.
+
+C'est App qui surveille le changement de jour, que la partie soit finie ou non (voir useJour).
  */
 import { useEffect, useId, useState, type KeyboardEvent } from 'react'
 import { Aide } from './composants/Aide.tsx'
@@ -14,6 +16,7 @@ import { Credits } from './composants/Credits.tsx'
 import { Fenetre } from './composants/Fenetre.tsx'
 import { Reglages } from './composants/Reglages.tsx'
 import { numero } from './domaine/regionDuJour.ts'
+import { minuitSuivant } from './domaine/temps.ts'
 import { PartieDuJour } from './PartieDuJour.tsx'
 import { PartieLibre } from './PartieLibre.tsx'
 import { aideVue, langueAffichee, marquerAideVue, useReglages, useTheme } from './reglages.ts'
@@ -22,10 +25,55 @@ import { LangueContext, TEXTES } from './textes.ts'
 type Onglet = 'jour' | 'libre'
 const ONGLETS: readonly Onglet[] = ['jour', 'libre']
 
-// la date est un paramètre pour les tests ; sur le site, il est absent et c'est aujourd'hui
-export default function App({ date }: { date?: Date }) {
+// le jour de la partie, tenu à jour. Une page peut rester ouverte des jours (un onglet de téléphone mis en veille) :
+// on regarde si le jour a changé à minuit, et chaque fois que la page revient à l'écran
+function useJour(): Date {
   // new Date() dans une fonction passée à useState : appelée une seule fois, et non à chaque affichage
-  const [jour, setJour] = useState(() => date ?? new Date())
+  const [jour, setJour] = useState(() => new Date())
+
+  useEffect(() => {
+    // vrai si le jour a changé (le jour est alors mis à jour)
+    function verifier(): boolean {
+      const maintenant = new Date()
+      const change = numero(maintenant) !== numero(jour)
+      if (change) {
+        setJour(maintenant)
+      }
+      return change
+    }
+
+    // une minuterie jusqu'à minuit. Si elle sonne un peu trop tôt (un navigateur n'est pas précis à la
+    // milliseconde), on en relance une pour le temps qui reste
+    let minuterie: ReturnType<typeof setTimeout>
+    function programmer() {
+      minuterie = setTimeout(() => {
+        if (!verifier()) {
+          programmer()
+        }
+      }, minuitSuivant(jour).getTime() - Date.now())
+    }
+    programmer()
+
+    // un téléphone en veille endort les minuteries : au réveil, la page redevient visible, et on vérifie
+    function auRetour() {
+      if (document.visibilityState === 'visible') {
+        verifier()
+      }
+    }
+    document.addEventListener('visibilitychange', auRetour)
+
+    // le ménage, quand le jour change ou que la page se ferme (comme retirer un listener en Swing)
+    return () => {
+      clearTimeout(minuterie)
+      document.removeEventListener('visibilitychange', auRetour)
+    }
+  }, [jour])
+
+  return jour
+}
+
+export default function App() {
+  const jour = useJour()
   const [onglet, setOnglet] = useState<Onglet>('jour')
   const [reglages, changerReglages] = useReglages()
   const [fenetreReglages, setFenetreReglages] = useState(false)
@@ -153,7 +201,6 @@ export default function App({ date }: { date?: Date }) {
               <PartieDuJour
                 key={numero(jour)}
                 jour={jour}
-                onJourSuivant={() => setJour(new Date())}
                 reglages={reglages}
                 demandeStats={demandeStats}
               />

@@ -84,7 +84,7 @@ angle de rotation, et les valeurs de ses tests.
 7. **web.7 Le domaine et le défi** : d'abord le nom de domaine, puis le défi (un lien à envoyer à un ami pour lui
    faire deviner une région). Pas d'archives des jours passés (décidé avant web.4).
 
-## Où on en est (mis à jour le 14 octobre 2026)
+## Où on en est (mis à jour le 16 octobre 2026)
 
 **Faites : web.0 à web.6.** Prochaine étape : **web.7 Le domaine et le défi** (l'utilisateur doit d'abord acheter
 le nom de domaine).
@@ -147,9 +147,43 @@ le nom de domaine).
 - **Encore à valider par l'utilisateur, en jouant** (signalé dans les PR #5 à #7) : en partie libre, changer
   d'époque commence aussitôt une nouvelle partie ; les textes anglais de l'interface, « Comment jouer » (FR et EN) et
   les crédits du bas de page (`src/textes.ts`) ; le thème sombre et l'affichage sur téléphone.
+- **Correctif après web.6** (PR #9, étiquette `web-6.1`) : le jour change aussi quand la partie n'est pas finie,
+  et quand la page revient à l'écran (`useJour` dans `App.tsx`) ; l'horloge des tests est arrêtée au 14 octobre 2026
+  (`preparationTests.ts`), et `App` n'a plus de paramètre `date`. Les améliorations relevées en même temps sont
+  plus bas, dans « Les améliorations à reprendre ».
 - **Pour reprendre** : lire ce plan et `docs/lecons.md`, vérifier que `main` est à jour (`git pull`), puis présenter
   le découpage de web.7 et ses questions (quel domaine, s'il est acheté ; comment fonctionne le lien du défi : région
   visible dans le lien ou codée, partie du jour ou libre, époque…). Rien n'est commencé pour web.7.
+
+## Les améliorations à reprendre (relevées le 16 octobre 2026)
+
+Relevées en relisant le code après web.6, à reprendre plus tard (rien n'est commencé). Le bug du changement de jour
+a été corrigé tout de suite (PR #9, étiquette `web-6.1`).
+
+- **Partie libre, le hasard** : `tirer()` est uniforme (vérifié sur 180 000 tirages), mais rien n'empêche deux fois
+  la même région de suite (1 fois sur 18). Écarté pour l'instant : avec 18 régions, un « sac mélangé » ne vaut pas
+  la peine. Si ça gêne, le plus simple : retirer quand on retombe sur la région précédente.
+- **Saisie, la touche Entrée** : « bret » + Entrée répond « région inconnue » alors que Bretagne est la seule
+  suggestion. Entrée devrait prendre la première suggestion quand le texte n'est le nom exact d'aucune région
+  (`envoyer` dans `composants/Saisie.tsx`).
+- **Partie libre, changer d'époque** : relance une partie sans confirmation ; un clic par erreur perd la partie en
+  cours. Demander confirmation dès qu'un essai a été joué.
+- **Aperçu des liens partagés** : pas de balises Open Graph (`og:title`, `og:description`, `og:image`) dans
+  `index.html` ; un lien envoyé sur WhatsApp ou Discord s'affiche sans titre ni image. À faire avec le domaine (web.7).
+- **Partie libre, un compteur** : « 7 trouvées sur 9 » pour la visite, sans rien sauvegarder ni compter dans les
+  statistiques.
+- **Deux onglets ouverts** : chacun garde sa copie de la partie du jour ; on peut la jouer deux fois et l'un écrase
+  la sauvegarde de l'autre. L'évènement `storage` permet de les synchroniser.
+- **Régions voisines** : la distance se mesure entre les centres, donc deux voisines n'affichent pas 0 km. Un repère
+  « voisine » (dans le tableau, voire dans le partage) aiderait : c'est une nouvelle règle, à décider.
+- **Outre-mer et mode 🙈** : un mode « métropole seulement » en partie libre (les silhouettes d'outre-mer sont très
+  reconnaissables) ; en mode image cachée, révéler la silhouette au bout de quelques essais.
+- **Carte de fin** : montrer aussi les régions proposées, en couleur.
+- **Partie du jour devinable** : chaque région revient une fois par cycle de 18 jours, donc le 18e jour se devine par
+  élimination. Changer cela casserait l'égalité avec le Java : à décider.
+- **Détails** : couleurs écrites en dur (`bg-green-700` dans `Partager`, `bg-red-700` dans `Plateau`) au lieu des
+  couleurs par rôle de `index.css` ; dans la saisie, `aria-controls` désigne une liste qui n'existe pas quand elle
+  est fermée (le modèle du W3C la garde présente, cachée).
 
 ## L'environnement de travail
 

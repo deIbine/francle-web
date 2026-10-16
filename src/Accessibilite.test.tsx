@@ -14,6 +14,7 @@ import App from './App.tsx'
 import { regionDuJour } from './domaine/regionDuJour.ts'
 import { CLE_AIDE } from './reglages.ts'
 
+// le jour où l'horloge des tests est arrêtée (voir preparationTests.ts)
 const DATE = new Date(2026, 9, 14, 12)
 
 // les problèmes trouvés par axe dans la page, résumés : « règle : élément fautif »
@@ -28,7 +29,7 @@ describe('Comment jouer', () => {
   it('s’ouvre à la première visite, puis plus jamais tout seul', async () => {
     localStorage.removeItem(CLE_AIDE)
     const joueur = userEvent.setup()
-    render(<App date={DATE} />)
+    render(<App />)
     const aide = screen.getByRole('dialog', { name: 'Comment jouer' })
     // l'exemple est un vrai essai : la Normandie proposée pour la Bretagne
     expect(within(aide).getByText(/Normandie · .*\skm · .* · \d+\s%/)).toBeDefined()
@@ -36,13 +37,13 @@ describe('Comment jouer', () => {
     expect(screen.queryByRole('dialog')).toBeNull()
 
     cleanup()
-    render(<App date={DATE} />)
+    render(<App />)
     expect(screen.queryByRole('dialog')).toBeNull()
   })
 
   it('se rouvre avec le bouton ❓', async () => {
     const joueur = userEvent.setup()
-    render(<App date={DATE} />)
+    render(<App />)
     await joueur.click(screen.getByRole('button', { name: 'Comment jouer' }))
     expect(screen.getByRole('dialog', { name: 'Comment jouer' })).toBeDefined()
   })
@@ -50,7 +51,7 @@ describe('Comment jouer', () => {
 
 describe('Le bas de page', () => {
   it('cite les sources et le code, et dit qu’aucune donnée n’est collectée', () => {
-    render(<App date={DATE} />)
+    render(<App />)
     const pied = screen.getByRole('contentinfo')
     expect(within(pied).getByRole('link', { name: /^Contours des régions\s:\sIGN et INSEE$/ })).toBeDefined()
     expect(within(pied).getByRole('link', { name: 'licence ouverte Etalab' })).toBeDefined()
@@ -77,26 +78,26 @@ describe('L’accessibilité (axe)', () => {
   })
 
   it('la page de départ', async () => {
-    render(<App date={DATE} />)
+    render(<App />)
     expect(await problemes()).toEqual([])
   })
 
   it('« Comment jouer » ouvert', async () => {
     localStorage.removeItem(CLE_AIDE)
-    render(<App date={DATE} />)
+    render(<App />)
     expect(await problemes()).toEqual([])
   })
 
   it('les réglages ouverts', async () => {
     const joueur = userEvent.setup()
-    render(<App date={DATE} />)
+    render(<App />)
     await joueur.click(screen.getByRole('button', { name: 'Ouvrir les réglages' }))
     expect(await problemes()).toEqual([])
   })
 
   it('une partie en cours, avec ses suggestions ouvertes', async () => {
     const joueur = userEvent.setup()
-    render(<App date={DATE} />)
+    render(<App />)
     const champ = screen.getByRole('combobox')
     await joueur.type(champ, 'Normandie{Escape}{Enter}')
     await joueur.type(champ, 'lo{ArrowDown}')
@@ -105,7 +106,7 @@ describe('L’accessibilité (axe)', () => {
 
   it('la fenêtre de résultats, avec la carte et les statistiques', async () => {
     const joueur = userEvent.setup()
-    render(<App date={DATE} />)
+    render(<App />)
     await joueur.type(screen.getByRole('combobox'), `${regionDuJour(DATE).nom.fr}{Escape}{Enter}`)
     expect(screen.getByRole('dialog', { name: 'Résultats' })).toBeDefined()
     expect(await problemes()).toEqual([])
@@ -113,7 +114,7 @@ describe('L’accessibilité (axe)', () => {
 
   it('la partie libre, en anglais', async () => {
     const joueur = userEvent.setup()
-    render(<App date={DATE} />)
+    render(<App />)
     await joueur.click(screen.getByRole('button', { name: 'Switch to English' }))
     await joueur.click(screen.getByRole('tab', { name: 'Free play' }))
     expect(await problemes()).toEqual([])

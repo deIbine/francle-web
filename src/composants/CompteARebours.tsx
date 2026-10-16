@@ -3,9 +3,9 @@ import { duree } from '../domaine/temps.ts'
 import { useTextes } from '../textes.ts'
 
 // le temps qui reste avant la région suivante (à « minuit », le minuit qui suit le jour de la partie), mis à jour
-// chaque seconde. À minuit, prévient le jeu (onMinuit). Si la page est restée ouverte depuis la veille, minuit est
-// déjà passé : le jeu est prévenu tout de suite, et passe à la région du jour
-export function CompteARebours({ minuit, onMinuit }: { minuit: Date; onMinuit: () => void }) {
+// chaque seconde. Il ne fait qu'afficher : c'est App qui passe à la région suivante (useJour dans App.tsx), que la
+// partie soit finie ou non
+export function CompteARebours({ minuit }: { minuit: Date }) {
   const textes = useTextes()
   const [maintenant, setMaintenant] = useState(() => new Date())
   const reste = minuit.getTime() - maintenant.getTime()
@@ -17,12 +17,6 @@ export function CompteARebours({ minuit, onMinuit }: { minuit: Date; onMinuit: (
     // continuerait de tourner pour rien
     return () => clearInterval(minuterie)
   }, [])
-
-  useEffect(() => {
-    if (reste <= 0) {
-      onMinuit()
-    }
-  }, [reste, onMinuit])
 
   return (
     <p className="text-sm">

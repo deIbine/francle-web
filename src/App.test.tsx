@@ -5,21 +5,21 @@ user-event qui tape au clavier et clique comme une vraie personne (touche par to
 On cherche les éléments comme un joueur ou un lecteur d'écran les trouve : par leur rôle (« combobox », « button »)
 et leur texte, jamais par une classe CSS. Le test ne casse donc pas si on change l'apparence.
  */
-import { cleanup, render, screen, within } from '@testing-library/react'
+import { cleanup, fireEvent, render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { afterEach, describe, expect, it, vi } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import App from './App.tsx'
 import { regionDuJour } from './domaine/regionDuJour.ts'
 import { tirables } from './domaine/regions.ts'
 
-// le 14 octobre 2026 : la partie n° 2
+// le 14 octobre 2026, la partie n° 2 : le jour où l'horloge des tests est arrêtée (voir preparationTests.ts)
 const DATE = new Date(2026, 9, 14, 12)
 const CIBLE = regionDuJour(DATE)
 const AUTRES = tirables('nouvelles').filter((region) => region !== CIBLE)
 
 function demarrer() {
   const joueur = userEvent.setup()
-  render(<App date={DATE} />)
+  render(<App />)
   return joueur
 }
 
@@ -121,7 +121,7 @@ describe('Le jeu', () => {
     await proposer(joueur, AUTRES[1].nom.fr)
     // on ferme la page (le composant disparaît)… puis on revient
     cleanup()
-    render(<App date={DATE} />)
+    render(<App />)
     expect(lignes()).toHaveLength(2)
     expect(lignes()[1].textContent).toContain(AUTRES[1].nom.fr)
     expect(screen.getByText('Spécialité')).toBeDefined()
@@ -131,7 +131,7 @@ describe('Le jeu', () => {
     const joueur = demarrer()
     await proposer(joueur, CIBLE.nom.fr)
     cleanup()
-    render(<App date={DATE} />)
+    render(<App />)
     expect(screen.queryByRole('combobox')).toBeNull()
     expect(screen.getByRole('dialog', { name: 'Résultats' })).toBeDefined()
   })
@@ -171,23 +171,30 @@ describe('Le jeu', () => {
     expect(screen.getByText('Résultat copié : il n’y a plus qu’à le coller.')).toBeDefined()
   })
 
-  describe('à minuit', () => {
-    afterEach(() => {
-      vi.useRealTimers()
-    })
-
-    it('la partie finie laisse place à la région du lendemain', async () => {
-      // seule l'horloge (Date) est truquée : les minuteries restent réelles, le compte à rebours tourne vraiment
-      vi.useFakeTimers({ toFake: ['Date'] })
+  describe('le changement de jour', () => {
+    it('à minuit, la partie finie laisse place à la région du lendemain', async () => {
+      // l'horloge est arrêtée (preparationTests.ts) mais les minuteries sont réelles : celle de minuit sonne pour
+      // de bon, à peu près deux secondes plus tard, et voit alors l'heure qu'on vient de poser
       vi.setSystemTime(new Date(2026, 9, 14, 23, 59, 58))
       const joueur = demarrer()
       await proposer(joueur, CIBLE.nom.fr)
-      expect(screen.getByRole('heading', { level: 1 }).textContent).toBe('Francle n°\u00a02')
+      expect(screen.getByRole('heading', { level: 1 }).textContent).toBe('Francle n° 2')
 
       vi.setSystemTime(new Date(2026, 9, 15, 0, 0, 1))
-      // la minuterie du compte à rebours passe chaque seconde : on attend qu'elle voie minuit
-      expect(await screen.findByRole('heading', { name: /^Francle n°\s3$/ }, { timeout: 2000 })).toBeDefined()
+      expect(await screen.findByRole('heading', { name: /^Francle n°\s3$/ }, { timeout: 3000 })).toBeDefined()
       expect(screen.getByRole('combobox')).toBeDefined()
+      expect(lignes()).toHaveLength(0)
+    })
+
+    it('une partie pas finie, retrouvée le lendemain (téléphone sorti de veille), passe à la région du jour', async () => {
+      const joueur = demarrer()
+      await proposer(joueur, AUTRES[0].nom.fr)
+      expect(lignes()).toHaveLength(1)
+
+      // le lendemain matin, la page revient à l'écran : le navigateur envoie « visibilitychange »
+      vi.setSystemTime(new Date(2026, 9, 15, 8))
+      fireEvent(document, new Event('visibilitychange'))
+      expect(await screen.findByRole('heading', { name: /^Francle n°\s3$/ })).toBeDefined()
       expect(lignes()).toHaveLength(0)
     })
   })
