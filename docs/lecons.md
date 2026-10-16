@@ -666,3 +666,42 @@ commandes), **comment le penser** (la question à se poser la prochaine fois).
   navigateur ne l'affiche pas, et les lecteurs d'écran l'ignorent), comme dans le modèle combobox du W3C.
 - **Comment le penser** : un attribut `aria-*` qui désigne un autre élément par son `id` est une référence, comme un
   pointeur : elle doit toujours mener quelque part.
+
+## web.6.3 La liste des régions
+
+### Un bouton dans l'en-tête, une action dans la partie affichée
+
+- **Pourquoi** : le bouton 📃 est dans l'en-tête, qui appartient à `App`, mais la liste doit proposer un nom dans la
+  partie de l'onglet affiché, et montrer les régions de SON époque. Or `App` ne connaît ni la partie du jour ni
+  l'époque de la partie libre : chacune garde son état.
+- **Comment le faire** : comme pour 📊, `App` ne garde qu'un compteur de demandes, un par onglet
+  (`{ jour: 0, libre: 0 }`), et n'augmente que celui de l'onglet affiché. Chaque partie le passe à son plateau, qui
+  ouvre sa propre fenêtre quand le compteur change, et propose le nom avec la même fonction `jouer` que la saisie
+  (mêmes messages, même sauvegarde). Un compteur, et non un booléen « ouvert » : deux clics de suite font deux
+  demandes, même si la fenêtre a été fermée entre-temps.
+- **Comment le penser** : l'état vit là où il sert. Quand un composant du haut doit déclencher une action plus bas,
+  on lui envoie un signal (« une demande de plus »), sans remonter tout l'état. En Java, ce serait un évènement
+  envoyé à un écouteur, plutôt que de rendre la partie publique.
+
+### Comparer par identifiant, pas par objet
+
+- **Pourquoi** : dans le navigateur, après une modification du code, la liste ne barrait plus la région proposée.
+  Le rechargement à chaud de Vite (HMR : le code change sans recharger la page) avait recréé les objets régions,
+  tandis que la partie gardait les anciens. `Set.has` compare les objets par référence, comme `==` en Java sur
+  des objets : deux objets identiques en contenu, mais distincts, ne sont pas égaux.
+- **Comment le faire** : un `Set` des identifiants (`essai.region.id`) au lieu des objets. Un rechargement complet de
+  la page avait montré que ce n'était pas un vrai bug pour le joueur, mais la comparaison par identifiant ne dépend
+  plus de cela.
+- **Comment le penser** : en TypeScript comme en Java, l'égalité d'objets est une égalité de référence. Pour
+  reconnaître « la même région », comparer ce qui l'identifie (l'`id`), comme on écrirait `equals` en Java.
+
+### La place sur un écran de téléphone
+
+- **Pourquoi** : un troisième bouton à droite de l'en-tête faisait passer le numéro du jour sous le titre, sur un
+  écran de 375 pixels.
+- **Comment le faire** : mesurer dans le navigateur, avec la taille d'écran d'un téléphone (la hauteur du `<h1>` :
+  36 pixels pour une ligne, 72 pour deux), puis serrer les boutons sur les petits écrans seulement :
+  `px-1 sm:px-2`. Avec Tailwind, `sm:` veut dire « à partir de 640 pixels de large » : on écrit d'abord pour le
+  téléphone, puis on ajoute pour les écrans plus grands.
+- **Comment le penser** : chaque élément ajouté à une barre prend la place d'un autre. Vérifier à la plus petite
+  largeur visée, pas seulement sur l'ordinateur.

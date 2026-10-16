@@ -40,9 +40,11 @@ interface Props {
   reglages: Reglages
   // augmente de 1 à chaque clic sur 📊 (dans l'en-tête, qui appartient à App) : la fenêtre s'ouvre alors
   demandeStats: number
+  // de même pour 📃, la liste des régions (gardée par le plateau)
+  demandeListe: number
 }
 
-export function PartieDuJour({ jour, reglages, demandeStats }: Props) {
+export function PartieDuJour({ jour, reglages, demandeStats, demandeListe }: Props) {
   const textes = useTextes()
   const langue = useLangue()
   const numero = numeroDuJour(jour)
@@ -96,6 +98,7 @@ export function PartieDuJour({ jour, reglages, demandeStats }: Props) {
         modes={modes}
         angle={angleDuJour(jour)}
         unite={uniteAffichee(reglages)}
+        demandeListe={demandeListe}
         fin={
           <div className="flex flex-col items-center gap-2">
             <p className="font-semibold">

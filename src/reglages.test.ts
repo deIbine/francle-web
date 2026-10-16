@@ -9,7 +9,7 @@ describe('Les réglages', () => {
   })
 
   it('se retrouvent tels qu’enregistrés', () => {
-    const reglages = { langue: 'en', theme: 'sombre', unite: 'mi', rotation: true, cachee: false } as const
+    const reglages = { langue: 'en', theme: 'sombre', unite: 'mi', rotation: true, cachee: false, liste: false } as const
     enregistrerReglages(reglages)
     expect(lireReglages()).toEqual(reglages)
   })

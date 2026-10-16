@@ -12,6 +12,7 @@ import axe from 'axe-core'
 import { describe, expect, it } from 'vitest'
 import App from './App.tsx'
 import { regionDuJour } from './domaine/regionDuJour.ts'
+import { tirables } from './domaine/regions.ts'
 import { CLE_AIDE } from './reglages.ts'
 
 // le jour où l'horloge des tests est arrêtée (voir preparationTests.ts)
@@ -101,6 +102,16 @@ describe('L’accessibilité (axe)', () => {
     const champ = screen.getByRole('combobox')
     await joueur.type(champ, 'Normandie{Escape}{Enter}')
     await joueur.type(champ, 'lo{ArrowDown}')
+    expect(await problemes()).toEqual([])
+  })
+
+  it('la liste des régions ouverte, avec une région déjà proposée', async () => {
+    const joueur = userEvent.setup()
+    render(<App />)
+    const autre = tirables('nouvelles').find((region) => region !== regionDuJour(DATE))!
+    await joueur.type(screen.getByRole('combobox'), `${autre.nom.fr}{Escape}{Enter}`)
+    await joueur.click(screen.getByRole('button', { name: 'Voir la liste des régions' }))
+    expect(screen.getByRole('dialog', { name: 'Liste des régions' })).toBeDefined()
     expect(await problemes()).toEqual([])
   })
 

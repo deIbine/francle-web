@@ -95,6 +95,15 @@ export function Reglages({ reglages, onChanger }: Props) {
         />
         <p className="text-sm text-discret">{textes.reglages.plusTard}</p>
       </fieldset>
+      <fieldset className="flex flex-col gap-2">
+        <legend className="mb-1 font-semibold">{textes.reglages.liste}</legend>
+        <Case
+          libelle={textes.reglages.listeBouton}
+          aide={textes.reglages.listeAide}
+          coche={reglages.liste}
+          onChanger={(liste) => onChanger({ liste })}
+        />
+      </fieldset>
     </div>
   )
 }
