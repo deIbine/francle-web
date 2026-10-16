@@ -185,6 +185,14 @@ commencé.
 - **Carte de fin** : montrer aussi les régions proposées, en couleur.
 - **Partie du jour devinable** : chaque région revient une fois par cycle de 18 jours, donc le 18e jour se devine par
   élimination. Changer cela casserait l'égalité avec le Java : à décider.
+- **Des tests plus rapides** : le délai des tests est passé à 15 s (PR #12), mais les tests d'écran restent lents
+  (jusqu'à 5 s chacun, 23 s pour toute la suite). Deux pistes, à mesurer avant de choisir :
+  - créer le faux navigateur (jsdom) une fois par processus et non une fois par fichier : il prend 40 à 48 % du
+    temps, et Vitest le suggère lui-même (`pool: 'vmThreads'`, qui garde chaque fichier isolé) ;
+  - faire taper user-event sans pause entre les lettres : `userEvent.setup({ delay: null })`.
+- **Le bruit dans la sortie des tests** : « Not implemented: HTMLCanvasElement's getContext() » s'affiche 7 fois,
+  car jsdom n'a pas de canvas. Trouver quel code l'appelle (sans doute axe-core, dans les tests d'accessibilité),
+  puis le taire, par exemple en remplaçant `getContext` par une fonction vide dans `preparationTests.ts`.
 
 ## L'environnement de travail
 
