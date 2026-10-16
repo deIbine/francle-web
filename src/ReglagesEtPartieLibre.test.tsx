@@ -8,6 +8,7 @@ import App from './App.tsx'
 import { angleDuJour, regionDuJour } from './domaine/regionDuJour.ts'
 import { tirables } from './domaine/regions.ts'
 
+// le jour où l'horloge des tests est arrêtée (voir preparationTests.ts)
 const DATE = new Date(2026, 9, 14, 12)
 const CIBLE = regionDuJour(DATE)
 const AUTRES = tirables('nouvelles').filter((region) => region !== CIBLE)
@@ -16,7 +17,7 @@ type Joueur = ReturnType<typeof userEvent.setup>
 
 function demarrer() {
   const joueur = userEvent.setup()
-  render(<App date={DATE} />)
+  render(<App />)
   return joueur
 }
 
@@ -48,7 +49,7 @@ describe('Les réglages', () => {
     expect(document.documentElement.classList.contains('dark')).toBe(true)
 
     cleanup()
-    render(<App date={DATE} />)
+    render(<App />)
     expect(document.documentElement.classList.contains('dark')).toBe(true)
     await regler(userEvent.setup(), 'Clair')
     expect(document.documentElement.classList.contains('dark')).toBe(false)

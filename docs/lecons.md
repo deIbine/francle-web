@@ -570,3 +570,35 @@ commandes), **comment le penser** (la question à se poser la prochaine fois).
   `git push --force-with-lease` (qui refuse d'écraser un travail que l'on n'a pas vu).
 - **Comment le penser** : des conflits sur des fichiers qu'on n'a pas touchés, c'est le signe que git rejoue des
   commits qu'il ne devrait pas. S'arrêter, annuler, et vérifier le point de départ plutôt que de résoudre.
+
+## Correctif après web.6 : le changement de jour
+
+### Une page web peut rester ouverte des jours
+
+- **Pourquoi** : le passage à la région suivante ne se faisait que par le compte à rebours, or celui-ci n'est affiché
+  qu'à la fin d'une partie. Une partie commencée le soir et pas finie restait donc sur la région de la veille le
+  lendemain matin, dans un onglet de téléphone gardé ouvert. En Java, l'application de bureau était relancée chaque
+  jour : la question ne se posait pas. Sur le web, une page vit aussi longtemps que l'onglet, et un téléphone en
+  veille endort ses minuteries (`setTimeout`, `setInterval`).
+- **Comment le faire** : la surveillance du jour est remontée dans `App` (le hook `useJour`), qui existe toujours,
+  que la partie soit finie ou non : une minuterie jusqu'à minuit, plus l'évènement `visibilitychange`, que le
+  navigateur envoie quand la page revient à l'écran (`document.visibilityState === 'visible'`). Le compte à rebours
+  ne fait plus qu'afficher. Le `return` de `useEffect` retire l'écouteur et la minuterie, comme on retire un
+  listener en Swing.
+- **Comment le penser** : une tâche qui doit toujours se faire ne doit pas dépendre d'un composant qui n'est affiché
+  que parfois. Se demander : « que se passe-t-il si la page reste ouverte longtemps, ou revient après une veille ? »
+
+### Des tests qui dépendaient du vrai jour
+
+- **Pourquoi** : les tests donnaient le 14 octobre à `App`, mais le compte à rebours, lui, lisait la vraie horloge.
+  Ils passaient le 14 octobre, et échouaient tous depuis le lendemain (10 sur 178) : une bombe à retardement, que la
+  CI n'a vue qu'à la PR suivante.
+- **Comment le faire** : arrêter l'horloge dans `src/preparationTests.ts` : `vi.useFakeTimers({ toFake: ['Date'] })`
+  puis `vi.setSystemTime(...)`, une première fois avant que les fichiers de test ne calculent leur région, puis
+  avant chaque test. Seule `Date` est truquée : les minuteries restent réelles (user-event en a besoin). Le paramètre
+  `date` de `App`, qui ne servait qu'aux tests, disparaît : tout le code lit la même horloge. Pour prouver qu'un
+  nouveau test attrape bien le bug, le lancer une fois sur l'ancien code (`git show main:src/App.tsx > src/App.tsx`)
+  et le voir échouer.
+- **Comment le penser** : un test qui dépend de la date, du hasard ou du réseau finit par échouer sans que le code ait
+  changé. Tout ce qui varie d'une exécution à l'autre se fixe dans les tests, et une seule source de vérité (une
+  seule horloge) vaut mieux qu'un paramètre qui ne couvre qu'une partie du code.

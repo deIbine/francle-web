@@ -1,6 +1,18 @@
 // lancé par Vitest avant chaque fichier de test (voir setupFiles dans vite.config.ts)
 import { cleanup } from '@testing-library/react'
-import { afterEach, beforeEach } from 'vitest'
+import { afterEach, beforeEach, vi } from 'vitest'
+
+// l'horloge des tests est arrêtée le 14 octobre 2026 à midi (la partie n° 2) : sans cela, le jeu prendrait le vrai
+// jour, et un test écrit pour la partie n° 2 échouerait dès le lendemain. Seule la date (Date) est truquée : les
+// minuteries (setTimeout) restent réelles, user-event en a besoin pour taper. Posée ici une première fois, avant que
+// les fichiers de test ne calculent leur région, puis avant chaque test (un test peut avancer l'horloge)
+const JOUR_DES_TESTS = new Date(2026, 9, 14, 12)
+function arreterHorloge() {
+  vi.useFakeTimers({ toFake: ['Date'] })
+  vi.setSystemTime(JOUR_DES_TESTS)
+}
+arreterHorloge()
+beforeEach(arreterHorloge)
 
 // après chaque test, on retire de la page ce que le test y a affiché : sinon les composants s'empileraient d'un test
 // à l'autre, et un test trouverait les boutons du précédent

@@ -8,6 +8,7 @@ import App from './App.tsx'
 import { regionDuJour } from './domaine/regionDuJour.ts'
 import { REGIONS, tirables } from './domaine/regions.ts'
 
+// le jour où l'horloge des tests est arrêtée (voir preparationTests.ts)
 const DATE = new Date(2026, 9, 14, 12)
 const CIBLE = regionDuJour(DATE)
 const AUTRE = tirables('nouvelles').find((region) => region !== CIBLE)!
@@ -22,7 +23,7 @@ function navigateurEn(langue: string) {
 
 function demarrer() {
   const joueur = userEvent.setup()
-  render(<App date={DATE} />)
+  render(<App />)
   return joueur
 }
 

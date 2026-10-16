@@ -24,14 +24,12 @@ import { useLangue, useTextes } from './textes.ts'
 interface Props {
   // le jour de la partie
   jour: Date
-  // appelé à minuit, quand une nouvelle région est disponible
-  onJourSuivant: () => void
   reglages: Reglages
   // augmente de 1 à chaque clic sur 📊 (dans l'en-tête, qui appartient à App) : la fenêtre s'ouvre alors
   demandeStats: number
 }
 
-export function PartieDuJour({ jour, onJourSuivant, reglages, demandeStats }: Props) {
+export function PartieDuJour({ jour, reglages, demandeStats }: Props) {
   const textes = useTextes()
   const langue = useLangue()
   const numero = numeroDuJour(jour)
@@ -107,7 +105,7 @@ export function PartieDuJour({ jour, onJourSuivant, reglages, demandeStats }: Pr
           <FinDePartie partie={partie} message={textes.fin(partie)}>
             {/* grid-cols-2 : le compte à rebours et le bouton de partage côte à côte */}
             <div className="grid grid-cols-2 items-center gap-2">
-              <CompteARebours minuit={minuitSuivant(jour)} onMinuit={onJourSuivant} />
+              <CompteARebours minuit={minuitSuivant(jour)} />
               <Partager texte={textePartage(partie, numero, modes, langue)} />
             </div>
           </FinDePartie>
