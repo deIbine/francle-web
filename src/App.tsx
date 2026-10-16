@@ -1,5 +1,5 @@
 /*
-L'application : l'en-tête (titre, onglets, boutons ❓ ⚙️ FR/EN 📊), « Comment jouer », les réglages, les deux sortes de
+L'application : l'en-tête (titre, onglets, boutons ❓ ⚙️ FR/EN 📃 📊), « Comment jouer », les réglages, les deux sortes de
 partie et le bas de page.
 
 Les deux parties restent affichées en même temps, l'une cachée (attribut hidden) : passer d'un onglet à l'autre ne
@@ -81,6 +81,9 @@ export default function App() {
   const [fenetreAide, setFenetreAide] = useState(() => !aideVue())
   // chaque clic sur 📊 augmente ce compteur : la partie du jour, qui garde la fenêtre des statistiques, l'ouvre
   const [demandeStats, setDemandeStats] = useState(0)
+  // de même pour 📃, la liste des régions : un compteur par onglet, et seule la partie affichée ouvre sa liste
+  // (celle de son époque)
+  const [demandeListe, setDemandeListe] = useState<Record<Onglet, number>>({ jour: 0, libre: 0 })
   const id = useId()
   useTheme(reglages.theme)
   const langue = langueAffichee(reglages)
@@ -99,7 +102,9 @@ export default function App() {
     }
   }
 
-  const boutonIcone = 'rounded px-2 text-2xl hover:bg-surface'
+  // px-1 sur téléphone, px-2 à partir de 640 pixels (sm:) : avec trois boutons à droite, le titre et son numéro
+  // tiennent ainsi sur une ligne même sur un écran de 375 pixels
+  const boutonIcone = 'rounded px-1 text-2xl hover:bg-surface sm:px-2'
 
   return (
     // la langue choisie, transmise à tous les composants en dessous (voir LangueContext dans textes.ts)
@@ -147,6 +152,16 @@ export default function App() {
             >
               {textes.autreLangue.court}
             </button>
+            {reglages.liste && (
+              <button
+                type="button"
+                onClick={() => setDemandeListe((avant) => ({ ...avant, [onglet]: avant[onglet] + 1 }))}
+                aria-label={textes.liste.ouvrir}
+                className={boutonIcone}
+              >
+                📃
+              </button>
+            )}
             <button
               type="button"
               onClick={() => {
@@ -203,9 +218,10 @@ export default function App() {
                 jour={jour}
                 reglages={reglages}
                 demandeStats={demandeStats}
+                demandeListe={demandeListe.jour}
               />
             ) : (
-              <PartieLibre reglages={reglages} />
+              <PartieLibre reglages={reglages} demandeListe={demandeListe.libre} />
             )}
           </section>
         ))}

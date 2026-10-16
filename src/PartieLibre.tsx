@@ -18,7 +18,8 @@ function tirage(mode: Mode, numero: number): { partie: Partie; angle: number; nu
   return { partie: nouvellePartie(tirer(mode), mode), angle: Math.floor(Math.random() * 360), numero }
 }
 
-export function PartieLibre({ reglages }: { reglages: Reglages }) {
+// demandeListe : augmente de 1 à chaque clic sur 📃 dans l'en-tête (voir PartieDuJour.tsx)
+export function PartieLibre({ reglages, demandeListe }: { reglages: Reglages; demandeListe: number }) {
   const textes = useTextes()
   const langue = useLangue()
   const [mode, setMode] = useState<Mode>('nouvelles')
@@ -105,6 +106,7 @@ export function PartieLibre({ reglages }: { reglages: Reglages }) {
         modes={modes}
         angle={angle}
         unite={uniteAffichee(reglages)}
+        demandeListe={demandeListe}
         fin={
           <div className="flex flex-col items-center gap-2">
             <p className="font-semibold">

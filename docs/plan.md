@@ -63,6 +63,7 @@ angle de rotation, et les valeurs de ses tests.
 | Licence | **MIT**, comme Worldle : « Copyright (c) 2026 deIbine », plus la mention « Copyright (c) 2022 teuteuf » pour ce qui s'inspire de Worldle (décidé avant web.4). |
 | Mode de travail | **Claude code et explique** ; des **leçons** dans `docs/lecons.md` (format pourquoi / comment le faire / comment le penser), y compris pour les notions web (HTML, CSS, React, navigateur). |
 | Git | **Itératif, une PR par étape.** |
+| Liste des régions | Reprise du Java (menu « Liste des régions », Ctrl+L). Un **bouton dans l'en-tête** ouvre la liste ; elle montre les régions **du mode joué** (les 18 nouvelles en partie du jour, l'époque choisie en partie libre) ; **cliquer un nom le propose** ; un **réglage** permet de masquer le bouton Bouton **📃** à droite de l'en-tête, liste dans une fenêtre `<dialog>`, bouton affiché par défaut, régions déjà proposées barrées, plus rien ne se propose quand la partie est finie (décidé le 16 octobre 2026, fait à web.6.3). |
 
 ## Le découpage en étapes (une PR par étape)
 
@@ -155,6 +156,10 @@ le nom de domaine).
   `domaine/recherche.ts`, sinon « Plusieurs régions possibles ») ; confirmation avant de changer d'époque en partie
   libre ; partie du jour et réglages synchronisés entre onglets (évènement `storage`, `src/onglets.ts`) ; couleurs
   par rôle `danger` et `succes` ; la liste des suggestions reste dans la page, cachée.
+- **La liste des régions** (PR web.6.3, étiquette `web-6.3`), reprise du Java : bouton 📃 dans l'en-tête (masquable
+  dans ⚙️, réglage `liste`), fenêtre gardée par le plateau (`composants/ListeRegions.tsx`), régions du mode joué, un
+  clic propose le nom. App garde un compteur de demandes par onglet (`demandeListe`), comme pour 📊. Sur téléphone, les
+  boutons de l'en-tête sont plus serrés (`px-1`, `sm:px-2`) pour que le titre tienne sur une ligne.
 - **Pour reprendre** : lire ce plan et `docs/lecons.md`, vérifier que `main` est à jour (`git pull`), puis présenter
   le découpage de web.7 et ses questions (quel domaine, s'il est acheté ; comment fonctionne le lien du défi : région
   visible dans le lien ou codée, partie du jour ou libre, époque…). Rien n'est commencé pour web.7.
@@ -178,6 +183,10 @@ commencé.
 - **Outre-mer et mode 🙈** : un mode « métropole seulement » en partie libre (les silhouettes d'outre-mer sont très
   reconnaissables) ; en mode image cachée, révéler la silhouette au bout de quelques essais.
 - **Carte de fin** : montrer aussi les régions proposées, en couleur.
+- **Un test qui échoue parfois** : environ une fois sur cinq lancements de toute la suite en local, un test d'écran
+  échoue puis passe à la relance (vu à web.6.2 et web.6.3, par exemple « le thème sombre… reste choisi au retour »).
+  Sans doute un délai dépassé quand la machine est chargée (les tests d'écran tournent en parallèle). À examiner :
+  lire le message d'erreur exact, puis allonger le délai (`testTimeout`) ou alléger le test.
 - **Partie du jour devinable** : chaque région revient une fois par cycle de 18 jours, donc le 18e jour se devine par
   élimination. Changer cela casserait l'égalité avec le Java : à décider.
 

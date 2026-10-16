@@ -115,6 +115,14 @@ const fr = {
   epoques: { nouvelles: 'Régions actuelles (depuis 2016)', anciennes: 'Anciennes régions (avant 2016)' },
   nouvellePartie: 'Nouvelle partie',
 
+  liste: {
+    titre: 'Liste des régions',
+    ouvrir: 'Voir la liste des régions',
+    aide: 'Clique sur une région pour la proposer.',
+    finie: 'La partie est finie.',
+    dejaProposee: 'déjà proposée',
+  },
+
   stats: {
     titre: 'Statistiques',
     ouvrir: 'Voir les statistiques',
@@ -167,6 +175,9 @@ const fr = {
     cachee: 'Image cachée 🙈',
     cacheeAide: 'Pas de silhouette\u00a0: seulement les distances, les flèches et les indices.',
     plusTard: 'Ils sont fixés au premier essai\u00a0: dans une partie commencée, un changement compte pour la suivante.',
+    liste: 'Liste des régions',
+    listeBouton: 'Bouton 📃 dans l’en-tête',
+    listeAide: 'Il ouvre la liste des régions du jeu\u00a0: un clic sur un nom le propose.',
   },
 }
 
@@ -248,6 +259,14 @@ const en: Textes = {
   epoques: { nouvelles: 'Current regions (since 2016)', anciennes: 'Former regions (before 2016)' },
   nouvellePartie: 'New game',
 
+  liste: {
+    titre: 'List of regions',
+    ouvrir: 'See the list of regions',
+    aide: 'Click a region to guess it.',
+    finie: 'The game is over.',
+    dejaProposee: 'already guessed',
+  },
+
   stats: {
     titre: 'Statistics',
     ouvrir: 'See statistics',
@@ -300,6 +319,9 @@ const en: Textes = {
     cachee: 'Hidden image 🙈',
     cacheeAide: 'No outline: only distances, arrows and clues.',
     plusTard: 'They are set at the first guess: in a game already started, a change applies to the next one.',
+    liste: 'List of regions',
+    listeBouton: '📃 button in the header',
+    listeAide: 'It opens the list of the game’s regions: click a name to guess it.',
   },
 }
 

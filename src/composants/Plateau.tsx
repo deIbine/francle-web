@@ -1,6 +1,6 @@
 /*
 Le plateau de jeu, commun à la partie du jour et à la partie libre : la silhouette, la saisie, le tableau des
-essais, les indices et le bouton « Abandonner ».
+essais, les indices, le bouton « Abandonner » et la fenêtre de la liste des régions.
 
 Le plateau ne garde pas la partie : il la reçoit, et demande à son parent de la remplacer (onChanger) quand le
 joueur propose ou abandonne. C'est le parent qui sait quoi faire ensuite (sauvegarder pour la partie du jour, rien
@@ -12,7 +12,9 @@ import type { ModesDifficiles } from '../domaine/partage.ts'
 import { deviner } from '../domaine/recherche.ts'
 import type { Unite } from '../reglages.ts'
 import { useLangue, useTextes } from '../textes.ts'
+import { Fenetre } from './Fenetre.tsx'
 import { Indices } from './Indices.tsx'
+import { ListeRegions } from './ListeRegions.tsx'
 import { Saisie } from './Saisie.tsx'
 import { Silhouette } from './Silhouette.tsx'
 import { TableauEssais } from './TableauEssais.tsx'
@@ -26,14 +28,24 @@ interface Props {
   unite: Unite
   // ce qui s'affiche à la place de la saisie quand la partie est finie
   fin: ReactNode
+  // augmente de 1 à chaque clic sur 📃 (dans l'en-tête, qui appartient à App) : la liste des régions s'ouvre alors
+  demandeListe: number
 }
 
-export function Plateau({ partie, onChanger, modes, angle, unite, fin }: Props) {
+export function Plateau({ partie, onChanger, modes, angle, unite, fin, demandeListe }: Props) {
   const textes = useTextes()
   const langue = useLangue()
   // le message sous la saisie (« région inconnue »…), vide s'il n'y a rien à dire
   const [message, setMessage] = useState('')
   const [confirmation, setConfirmation] = useState(false)
+  const [liste, setListe] = useState(false)
+
+  // 📃 a été cliqué : on ouvre la liste (même façon de faire que pour 📊, voir PartieDuJour.tsx)
+  const [demandeVue, setDemandeVue] = useState(demandeListe)
+  if (demandeVue !== demandeListe) {
+    setDemandeVue(demandeListe)
+    setListe(true)
+  }
 
   function jouer(saisie: string): boolean {
     // le nom tapé, ou la seule région qu'il évoque (« bret » -> Bretagne). Un refus ne coûte jamais d'essai
@@ -103,6 +115,17 @@ export function Plateau({ partie, onChanger, modes, angle, unite, fin }: Props) 
             {textes.abandonner}
           </button>
         ))}
+
+      <Fenetre ouverte={liste} onFermer={() => setListe(false)} titre={textes.liste.titre}>
+        <ListeRegions
+          partie={partie}
+          onProposer={(nom) => {
+            // la liste se ferme d'abord : si la partie se termine, la fenêtre des résultats s'ouvre ensuite
+            setListe(false)
+            jouer(nom)
+          }}
+        />
+      </Fenetre>
     </>
   )
 }

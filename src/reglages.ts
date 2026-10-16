@@ -19,9 +19,11 @@ export interface Reglages {
   // les modes difficiles : la silhouette tournée (🌀), ou pas de silhouette du tout (🙈)
   readonly rotation: boolean
   readonly cachee: boolean
+  // le bouton 📃 de l'en-tête, qui ouvre la liste des régions (affiché sauf si le joueur le masque)
+  readonly liste: boolean
 }
 
-export const PAR_DEFAUT: Reglages = { langue: undefined, theme: 'auto', unite: undefined, rotation: false, cachee: false }
+export const PAR_DEFAUT: Reglages = { langue: undefined, theme: 'auto', unite: undefined, rotation: false, cachee: false, liste: true }
 
 export const CLE_REGLAGES = 'francle.reglages.v1'
 
@@ -36,6 +38,7 @@ export function lireReglages(stockage: Storage = localStorage): Reglages {
       unite: lu.unite === 'km' || lu.unite === 'mi' ? lu.unite : undefined,
       rotation: lu.rotation === true,
       cachee: lu.cachee === true,
+      liste: lu.liste !== false,
     }
   } catch {
     return PAR_DEFAUT
