@@ -82,16 +82,18 @@ angle de rotation, et les valeurs de ses tests.
 5. **web.5 L'anglais** : tous les textes en deux langues, au choix du joueur.
 6. **web.6 Les finitions** : affichage mobile, accessibilité (clavier, lecteurs d'écran), « comment jouer », README,
    licence.
-7. **web.7 Le bonus des départements** : après une victoire en partie du jour, faire deviner tous les départements
-   de la région trouvée (décidé le 16 octobre 2026, détail plus bas dans « Le bonus des départements »).
+7. **web.7 Le bonus des départements** : après chaque victoire (partie du jour et partie libre), faire deviner tous
+   les départements de la région trouvée (décidé le 16 octobre 2026, étendu à la partie libre le 17 octobre 2026,
+   détail plus bas dans « Le bonus des départements »).
 8. **web.8 Le domaine et le défi** (ancien web.7, renuméroté le 16 octobre 2026) : d'abord le nom de domaine, puis le défi (un lien à envoyer à un ami pour lui
    faire deviner une région). Pas d'archives des jours passés (décidé avant web.4).
 
-## Où on en est (mis à jour le 16 octobre 2026)
+## Où on en est (mis à jour le 17 octobre 2026)
 
-**Faites : web.0 à web.6.** Prochaine étape : **web.7 Le bonus des départements**, d'abord fait **en entier** dans le
-projet Java (sa phase 9), puis ici (voir « Le bonus des départements »). Ensuite **web.8 Le domaine et le défi** (l'utilisateur doit d'abord acheter le
-nom de domaine).
+**Faites : web.0 à web.6**, et pour web.7 les phases **web.7.0** et **web.7.0.1** (le plan). Le bonus est **fini dans
+le projet Java** (phase 9, PR deIbine/francle#34, étiquette `phase-9`) et ses réponses sont reportées plus bas.
+Prochaine étape : **web.7.1 Les données des départements** (voir « Le bonus des départements »). Ensuite **web.8 Le
+domaine et le défi** (l'utilisateur doit d'abord acheter le nom de domaine).
 
 - **web.0** (PR #1, étiquette `web-0`) : dépôt public `deIbine/francle-web`, Vite + React + TypeScript, Vitest, lint
   oxlint, CI `.github/workflows/ci.yml` (tâche `verifier` sur chaque PR et sur `main`, tâche `publier` vers GitHub
@@ -164,12 +166,11 @@ nom de domaine).
   clic propose le nom. App garde un compteur de demandes par onglet (`demandeListe`), comme pour 📊. Sur téléphone, les
   boutons de l'en-tête sont plus serrés (`px-1`, `sm:px-2`) pour que le titre tienne sur une ligne.
 - **Pour reprendre** : lire ce plan et `docs/lecons.md`, vérifier que `main` est à jour (`git pull`), puis reprendre
-  « Le bonus des départements » ci-dessous. **D'abord la phase 9 du projet Java** (son plan est dans
-  `docs/feuille-de-route.md` de `deIbine/francle`) : la faire ou la finir, en tranchant les questions ouvertes en
-  jouant. **Ensuite seulement** web.7 ici : reporter dans ce plan ce que le Java a décidé, puis présenter le découpage
-  de web.7.1. Rien n'est commencé dans `francle-web` pour web.7 (seule la
-  phase web.7.0, la mise à jour de ce plan, est faite). Pour web.8 : quel domaine, s'il est acheté ; comment fonctionne
-  le lien du défi (région visible dans le lien ou codée, partie du jour ou libre, époque…).
+  « Le bonus des départements » ci-dessous : présenter le découpage de **web.7.1** et poser ses questions. Le code
+  Java de la phase 9 sert de référence (fichiers cités dans « Ce qui existe déjà »). Aucun code n'est encore écrit
+  dans `francle-web` pour web.7 : seules les phases web.7.0 et web.7.0.1, les mises à jour de ce plan, sont faites.
+  Pour web.8 : quel domaine, s'il est acheté ; comment fonctionne le lien du défi (région visible dans le lien ou
+  codée, partie du jour ou libre, époque…).
 
 ## Le bonus des départements (web.7)
 
@@ -179,63 +180,75 @@ Idée du 16 octobre 2026 : après une victoire, en bonus, faire deviner les dép
 
 - `outils/generer_images.py` lit déjà `departements-avec-outre-mer.geojson` et contient le tableau `DEPARTEMENTS`
   (région -> départements) **pour les deux époques**. Les silhouettes tracent déjà les limites des départements.
+- **Le projet Java a fait tout le bonus** (phase 9, PR deIbine/francle#34). Ce qui en sert ici :
+  - `src/main/resources/departements/departements.json` : la **source unique** des données, avec deux parties,
+    `departements` (numéro -> nom, 101 départements, « 2A » et « 2B » pour la Corse, « 971 » à « 976 » pour
+    l'outre-mer) et `regions` (identifiant de région -> numéros, **les 35 régions des deux époques**). Le script
+    Python du Java le lit au lieu d'avoir sa propre liste ;
+  - `src/main/resources/departements/<région>.json` : les contours, un fichier par région (35, environ 1 Mo en
+    tout), `{"largeur", "hauteur", "zoom" (Île-de-France seulement : x, y, largeur, hauteur du cadre de Paris et de
+    la petite couronne), "departements": [{"code", "contours": [[x, y, x, y…], …]}]}`, simplifiés par
+    Douglas-Peucker, trous compris ;
+  - les règles dans `jeu/Bonus.java` (avec `ReponseBonus`, `Tentative`), l'affichage dans `ui/CarteDepartements.java`
+    et `ui/Contours.java`, la sauvegarde dans `stats/Resultat.java` (champ `bonus`), le partage dans `ui/Partage.java`.
+  - **L'ordre du jour** : `Collections.shuffle(liste, new Random(SEL + numéroDuJour))`, où `SEL = 0x426F6E7573L`
+    (les octets ASCII de « Bonus ») et la liste de départ est celle de `regions` dans `departements.json`, dans cet
+    ordre. Un sel à part, pour ne pas reprendre la suite de nombres de l'angle du jour.
 - La réforme de 2016 a regroupé les régions **sans toucher aux départements** : une seule liste de 101 départements,
   groupée de deux façons. Noms et numéros sont dans les propriétés du GeoJSON (`code`, `nom`).
 - En anglais, on garde les noms français des départements (« Finistère », « Bouches-du-Rhône »).
 
-### Les décisions (validées le 16 octobre 2026)
+### Les décisions (validées le 16 octobre 2026, complétées le 17 octobre 2026 avec les réponses du Java)
 
 | Sujet | Décision |
 |---|---|
-| Quand | **Seulement après une victoire**, en **partie du jour** seulement (pas en partie libre). |
+| Quand | **Après chaque victoire**, en partie du jour **comme en partie libre** : le bonus commence de lui-même (comme dans le Java, après le test du jeu ; d'abord prévu pour la partie du jour seulement). Le bonus d'une partie libre n'est **ni sauvegardé, ni compté, ni partagé**, comme la partie libre elle-même, et ses départements sont **dans un ordre au hasard**, ceux de l'**époque jouée**. |
 | Combien | **Tous les départements** de la région : ce n'est pas censé être simple. Une région à un seul département (outre-mer) a un bonus d'**une seule question**. |
-| Forme du jeu | Deux modes programmés : **A. cliquer sur la carte** (« Où est le Finistère ? ») et **B. nommer le département coloré** (saisie avec suggestions). **Seul A est en ligne** ; B reste une option qu'on peut activer de notre côté, sans la montrer aux joueurs. |
-| Île-de-France | Un **zoom** sur Paris et la petite couronne (75, 92, 93, 94), trop petits sinon. |
-| Ce qui compte | Le bonus est **sauvegardé**, compte dans les **statistiques** et apparaît dans le **partage**. |
-| Contours | Générés par `outils/generer_images.py` : **un fichier de contours par région**, chaque département étant un tracé à part, avec son numéro. React les dessine, colore et rend cliquables (comme `CarteFrance`). Ce fichier sert aux deux modes. |
-| D'abord en Java | Le bonus est fait **en entier dans les deux projets**, **d'abord dans le projet Java** `deIbine/francle` (sa **phase 9**, plan dans son `docs/feuille-de-route.md`), puis ici en web.7. Le Java sert à trancher les questions ouvertes en jouant ; ses réponses s'appliquent ensuite au web (décidé le 16 octobre 2026). |
+| Ordre | En partie du jour, **le même ordre que le Java, au bit près** (voir « L'ordre du jour » plus haut), vérifié par `reference-java.json`. |
+| Essais | **Un seul par département** : juste ou faux, on montre la réponse (vert ou rouge) et on passe au suivant. |
+| Forme du jeu | Deux modes programmés : **A. cliquer sur la carte** (« Où est le Finistère ? ») et **B. nommer le département coloré** (saisie avec suggestions, **nom ou numéro** acceptés, « 29 »). **Seul A est en ligne** ; B se choisit par une **constante dans le code** (comme `Bonus.MODE` du Java), sans le montrer aux joueurs. |
+| Outre-mer | Une région à un seul département : cliquer serait gratuit, donc on demande **le numéro** (« Quel est le numéro de : Guadeloupe ? »). |
+| Où | **Sur le plateau, à la place de la silhouette**. Le bonus commence à la fermeture de la fenêtre de fin d'une victoire. |
+| Passer | Un bouton **« Passer »**. Passé **avant toute réponse**, le bonus n'a pas commencé : il reste à jouer. |
+| Reprise (**propre au web**) | Un bonus du jour commencé (au moins une réponse) puis quitté (page fermée, onglet rechargé) **reprend là où il en était** au retour, avec les réponses déjà données. Le Java, lui, le compte comme joué avec son score partiel, **sans reprise**. Écart décidé le 17 octobre 2026 : sur le web, fermer un onglet par erreur arrive souvent. **« Passer »** un bonus commencé le termine (score partiel), comme dans le Java. Noté aussi dans la feuille de route du Java. |
+| Île-de-France | Un **zoom** sur Paris et la petite couronne (75, 92, 93, 94), trop petits sinon : le cadre `zoom` du fichier de contours. |
+| Ce qui compte | Le bonus du jour est **sauvegardé**, compte dans les **statistiques** (**score moyen**, moyenne des pourcentages de départements trouvés, et **nombre de bonus**) et apparaît dans le **partage**. |
+| Partage | Une ligne de **score** : « 🗺️ 9/12 ». **Aucune ligne 🗺️** tant que le bonus n'est pas fini (pas commencé, ou en cours). |
+| Données | **Copie** de `departements.json` du Java dans le web (les deux dépôts sont séparés). Le script web le lit, comme celui du Java. |
+| Contours | Générés par `outils/generer_images.py`, en y **reportant les changements du script Java** : **un fichier de contours par région** (les 35, anciennes régions comprises), chaque département étant un tracé à part, avec son numéro. React les dessine, colore et rend cliquables (comme `CarteFrance`). Ce fichier sert aux deux modes. |
+| D'abord en Java | Le bonus est fait **en entier dans les deux projets**, **d'abord dans le projet Java** `deIbine/francle` (sa **phase 9**, plan dans son `docs/feuille-de-route.md`), puis ici en web.7. Le Java a tranché les questions ouvertes en jouant ; ses réponses s'appliquent au web, sauf la reprise (décidé le 16 octobre 2026). |
 
 ### Les phases (une branche et une PR par phase, étiquettes `web-7.0`, `web-7.1`…)
 
 0. **web.7.0 Le plan à jour** : ce chapitre, et l'ancien web.7 renuméroté web.8. ✅
-1. **web.7.1 Les données des départements**, sans affichage : `src/domaine/departements.ts` (101 départements,
-   numéro, nom, région pour chaque époque). **Une seule source** pour la liste région -> départements, aujourd'hui
-   dans le script Python : par exemple un JSON lu à la fois par le script et par le TypeScript. Tests : 101
-   départements, chacun dans une seule région par époque, aucun oubli, accord avec `regions.ts`.
-2. **web.7.2 Les contours des départements** : le script écrit `src/images/departements/<région>.json` (tracés
-   simplifiés, un par département) et le cadre du zoom de l'Île-de-France. Vérifier le poids des fichiers ; ne
-   charger que la carte de la région du jour.
-3. **web.7.3 Les règles du bonus**, sans affichage (comme `partie.ts`) : `src/domaine/bonus.ts`, les questions,
-   l'ordre (tiré du numéro du jour, le même pour tous), une réponse renvoie un nouveau bonus, le score, la fin.
-   Tests.
-4. **web.7.4 Le bonus jouable, mode A** : composant `CarteDepartements` (carte cliquable, question, réponse montrée
-   juste ou fausse, question suivante), zoom de l'Île-de-France, lancé seulement après une victoire. Accessibilité :
-   chaque département atteignable au clavier, **sans que son nom lu par un lecteur d'écran donne la réponse**.
-5. **web.7.5 Sauvegarde, statistiques, partage** : le bonus sauvegardé avec la partie du jour (champ facultatif, les
-   anciennes sauvegardes restent lisibles, pas de `v2`), repris après fermeture, synchronisé entre onglets
-   (`onglets.ts`) ; nouvelles statistiques ; une ligne dans le partage.
+   **web.7.0.1 Les réponses du Java** : les décisions du Java reportées ici, avec l'écart de la reprise (le
+   17 octobre 2026). ✅
+1. **web.7.1 Les données des départements**, sans affichage : copier `departements.json` du Java (par exemple dans
+   `src/domaine/departements.json`), `src/domaine/departements.ts` (101 départements, numéro, nom, région pour chaque
+   époque), et le script Python le lit au lieu de son tableau `DEPARTEMENTS`. Tests : 101 départements, chacun dans
+   une seule région par époque, aucun oubli, accord avec `regions.ts`.
+2. **web.7.2 Les contours des départements** : reporter dans le script les changements du Java ; il écrit
+   `src/images/departements/<région>.json` (les 35 régions, tracés simplifiés, un par département) et le cadre du
+   zoom de l'Île-de-France. Vérifier le poids des fichiers ; ne charger que la carte de la région jouée.
+3. **web.7.3 Les règles du bonus**, sans affichage (comme `partie.ts`) : `src/domaine/bonus.ts`, les questions
+   (carte, nom, numéro), l'ordre du jour identique au Java (ajouté à `reference-java.json` par
+   `outils/ReferenceJava.java`) ou au hasard en partie libre, une réponse renvoie un nouveau bonus, passer, le score,
+   la fin. Tests.
+4. **web.7.4 Le bonus jouable, mode A** : composant `CarteDepartements` (carte cliquable à la place de la
+   silhouette, question, réponse montrée juste ou fausse, question suivante, bouton « Passer »), zoom de
+   l'Île-de-France, question du numéro en outre-mer, lancé après chaque victoire. Accessibilité : chaque département
+   atteignable au clavier, **sans que son nom lu par un lecteur d'écran donne la réponse**.
+5. **web.7.5 Sauvegarde, statistiques, partage** : le bonus du jour sauvegardé avec la partie du jour à chaque
+   réponse (champ facultatif, les anciennes sauvegardes restent lisibles, pas de `v2`), **repris après fermeture**,
+   synchronisé entre onglets (`onglets.ts`) ; score moyen et nombre de bonus dans les statistiques ; la ligne
+   « 🗺️ 9/12 » dans le partage, une fois le bonus fini.
 6. **web.7.6 Le mode B, caché** : saisie avec suggestions (reprise de `Saisie` et `recherche.ts`), limitée aux
-   départements de la région ; un réglage de notre côté pour choisir A ou B.
+   départements de la région, nom ou numéro ; une constante dans le code pour choisir A ou B.
 7. **web.7.7 Les finitions** : textes FR et EN, « Comment jouer », tests axe, téléphone à 375 pixels, thème sombre,
    leçons, plan.
 
-### Les questions encore ouvertes (à trancher pendant la phase 9 du Java, avant web.7.1)
-
-1. **Essais par département** : un seul clic (juste ou faux, puis on montre la réponse), ou plusieurs (par exemple
-   3, un point seulement au premier) ?
-2. **Régions à un seul département** : en mode A, cliquer le seul département de la carte est gratuit. Proposé : en
-   outre-mer, demander **le numéro** (« Quel est le numéro de la Guadeloupe ? ») ou **le nom**.
-3. **Où se joue le bonus** : dans la fenêtre de fin de partie, ou sur le plateau, à la place de la silhouette ?
-4. **Passer le bonus** : peut-on le passer ? Partager avant de l'avoir fini ? Un bonus commencé puis abandonné
-   compte-t-il ?
-5. **Le partage** : un score (« 🗺️ 9/12 ») ou une ligne de carrés (🟩🟥🟩…) ? 13 départements en Occitanie font
-   une longue ligne.
-6. **Les statistiques** : lesquelles ? Score moyen, nombre de bonus parfaits, pourcentage de départements trouvés ?
-7. **Choisir A ou B de notre côté** : une constante dans le code (une PR pour changer) ou un paramètre caché dans
-   l'adresse (`?bonus=nom`), pratique pour tester en ligne ?
-8. **Mode B** : accepter aussi les numéros (« 29 ») ?
-9. **Anciennes régions** : le bonus n'existe qu'en partie du jour, qui ne joue que les nouvelles régions. Générer
-   quand même les cartes des anciennes régions (même script, presque gratuit), ou attendre d'en avoir besoin ?
+Ce découpage reste à confirmer phase par phase (décidé le 17 octobre 2026 : faire web.7.0.1, puis voir si toutes
+les phases sont nécessaires ou si certaines se regroupent).
 
 ## Les améliorations à reprendre (relevées le 16 octobre 2026)
 

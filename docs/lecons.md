@@ -737,3 +737,18 @@ commandes), **comment le penser** (la question à se poser la prochaine fois).
   avec une marge nette au-dessus de la durée mesurée au pire (ici plus du double). Alléger les tests (moins de
   frappe, des composants plus petits) vaudrait mieux si la suite devenait trop longue à attendre ; ce n'est pas le
   cas (environ 23 s).
+
+## web.7.0.1 Les réponses du Java
+
+### Deux projets, une seule liste de décisions
+
+- **Pourquoi** : le bonus a été fait d'abord en Java, et ses réponses ont changé une décision du web (le bonus aussi
+  en partie libre). Si chaque projet garde ses décisions dans son coin, on finit par programmer ici une règle
+  abandonnée là-bas, sans le savoir.
+- **Comment le faire** : avant de coder, comparer les deux plans (`docs/plan.md` ici, `docs/feuille-de-route.md` du
+  Java), relever chaque différence et la trancher. Puis écrire la réponse **dans les deux** : la règle commune ici, et
+  l'écart voulu (la reprise du bonus) des deux côtés, avec sa raison. `git log` et `git show --stat <commit>` dans
+  l'autre dépôt montrent vite ce qui a été fait.
+- **Comment le penser** : un écart entre deux versions n'est pas un défaut s'il est écrit et expliqué. Ce qui coûte
+  cher, c'est l'écart qu'on découvre plus tard. Ici, le web s'écarte parce qu'un navigateur se ferme plus facilement
+  qu'une application de bureau : une même règle peut mal convenir à un autre support.
