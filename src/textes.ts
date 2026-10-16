@@ -52,7 +52,7 @@ const fr = {
   saisieExemple: 'Une région…',
   proposer: 'Proposer',
   inconnue: 'Cette région n’existe pas, ou n’est pas dans le jeu.',
-  plusieurs: 'Plusieurs régions possibles : choisis dans la liste.',
+  plusieurs: 'Plusieurs régions possibles\u00a0: choisis dans la liste.',
   dejaProposee: (nom: string) => `${nom}\u00a0: déjà proposée.`,
 
   tableau: 'Tes essais',
@@ -111,6 +111,7 @@ const fr = {
   prochaine: 'Prochaine région dans',
 
   epoque: 'Époque',
+  confirmerEpoque: 'Changer d’époque\u00a0? La partie en cours sera perdue.',
   epoques: { nouvelles: 'Régions actuelles (depuis 2016)', anciennes: 'Anciennes régions (avant 2016)' },
   nouvellePartie: 'Nouvelle partie',
 
@@ -243,6 +244,7 @@ const en: Textes = {
   prochaine: 'Next region in',
 
   epoque: 'Era',
+  confirmerEpoque: 'Change era? The current game will be lost.',
   epoques: { nouvelles: 'Current regions (since 2016)', anciennes: 'Former regions (before 2016)' },
   nouvellePartie: 'New game',
 

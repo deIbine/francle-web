@@ -27,6 +27,8 @@ export function PartieLibre({ reglages }: { reglages: Reglages }) {
   const [modesFixes, setModesFixes] = useState<ModesDifficiles | undefined>(undefined)
   const modes = modesFixes ?? modesReglages(reglages)
   const [fenetre, setFenetre] = useState(false)
+  // l'époque choisie pendant une partie commencée, en attente de confirmation (undefined : rien à confirmer)
+  const [epoqueDemandee, setEpoqueDemandee] = useState<Mode | undefined>(undefined)
   const nomGroupe = useId()
 
   function changer(suite: Partie) {
@@ -39,16 +41,27 @@ export function PartieLibre({ reglages }: { reglages: Reglages }) {
 
   // une nouvelle partie, dans l'époque donnée : les modes ne sont plus fixés, la fenêtre se ferme
   function recommencer(nouveauMode: Mode) {
+    setEpoqueDemandee(undefined)
     setMode(nouveauMode)
     setTirage(tirage(nouveauMode, numero + 1))
     setModesFixes(undefined)
     setFenetre(false)
   }
 
+  // changer d'époque perd la partie en cours : on demande confirmation dès qu'un essai a été joué. Le bouton radio,
+  // « contrôlé » par React (checked={mode === choix}), reste alors sur l'ancienne époque tant qu'on n'a pas dit oui
+  function choisirEpoque(choix: Mode) {
+    if (enCours(partie) && partie.essais.length > 0) {
+      setEpoqueDemandee(choix)
+    } else {
+      recommencer(choix)
+    }
+  }
+
   return (
     <>
       {/* fieldset + legend : un groupe de choix avec son titre, que les lecteurs d'écran annoncent ensemble.
-          Changer d'époque commence une nouvelle partie */}
+          Changer d'époque commence une nouvelle partie (après confirmation si la partie est commencée) */}
       <fieldset className="flex flex-wrap justify-center gap-x-4 gap-y-1 text-sm">
         <legend className="sr-only">{textes.epoque}</legend>
         {(['nouvelles', 'anciennes'] as const).map((choix) => (
@@ -57,13 +70,32 @@ export function PartieLibre({ reglages }: { reglages: Reglages }) {
               type="radio"
               name={nomGroupe}
               checked={mode === choix}
-              onChange={() => recommencer(choix)}
+              onChange={() => choisirEpoque(choix)}
               className="accent-francle-fonce"
             />
             {textes.epoques[choix]}
           </label>
         ))}
       </fieldset>
+      {/* aria-live : un lecteur d'écran lit la question dès qu'elle apparaît */}
+      <div aria-live="polite">
+        {epoqueDemandee !== undefined && (
+          <div className="flex flex-wrap items-center justify-center gap-2 text-sm">
+            {/* basis-full : la question sur sa propre ligne, les deux boutons ensemble en dessous */}
+            <span className="basis-full text-center">{textes.confirmerEpoque}</span>
+            <button
+              type="button"
+              onClick={() => recommencer(epoqueDemandee)}
+              className="rounded bg-danger px-3 py-1 text-white"
+            >
+              {textes.oui}
+            </button>
+            <button type="button" onClick={() => setEpoqueDemandee(undefined)} className="rounded border px-3 py-1">
+              {textes.non}
+            </button>
+          </div>
+        )}
+      </div>
 
       <Plateau
         // key : une nouvelle partie remet le plateau à zéro (message, confirmation d'abandon)
