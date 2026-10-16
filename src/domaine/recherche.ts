@@ -73,3 +73,20 @@ export function suggestions(
   const alphabetique = (a: Region, b: Region) => ordre.compare(a.nom[langue], b.nom[langue])
   return [...parNom.sort(alphabetique), ...parMot.sort(alphabetique)]
 }
+
+// la région que le joueur veut dire quand il appuie sur Entrée sans choisir dans la liste : le nom exact s'il l'a
+// tapé, sinon la seule suggestion (« bret » -> Bretagne). « plusieurs » si la saisie en évoque plusieurs (« nor » chez
+// les anciennes régions : Nord-Pas-de-Calais, Basse- et Haute-Normandie) : mieux vaut demander que jouer au hasard
+// l'une d'elles et faire perdre un essai. undefined si elle n'en évoque aucune
+export function deviner(saisie: string, mode: Mode): Region | 'plusieurs' | undefined {
+  const exacte = chercher(saisie, mode)
+  if (exacte !== undefined) {
+    return exacte
+  }
+  // la langue ne change que l'ordre des suggestions, pas leur nombre
+  const liste = suggestions(saisie, mode, 'fr')
+  if (liste.length === 0) {
+    return undefined
+  }
+  return liste.length === 1 ? liste[0] : 'plusieurs'
+}

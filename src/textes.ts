@@ -52,6 +52,7 @@ const fr = {
   saisieExemple: 'Une région…',
   proposer: 'Proposer',
   inconnue: 'Cette région n’existe pas, ou n’est pas dans le jeu.',
+  plusieurs: 'Plusieurs régions possibles : choisis dans la liste.',
   dejaProposee: (nom: string) => `${nom}\u00a0: déjà proposée.`,
 
   tableau: 'Tes essais',
@@ -185,6 +186,7 @@ const en: Textes = {
   saisieExemple: 'A region…',
   proposer: 'Guess',
   inconnue: 'This region doesn’t exist, or isn’t in the game.',
+  plusieurs: 'Several regions match: pick one from the list.',
   dejaProposee: (nom: string) => `${nom}: already guessed.`,
 
   tableau: 'Your guesses',

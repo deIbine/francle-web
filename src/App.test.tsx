@@ -9,6 +9,7 @@ import { cleanup, fireEvent, render, screen, within } from '@testing-library/rea
 import userEvent from '@testing-library/user-event'
 import { describe, expect, it, vi } from 'vitest'
 import App from './App.tsx'
+import { deviner } from './domaine/recherche.ts'
 import { regionDuJour } from './domaine/regionDuJour.ts'
 import { tirables } from './domaine/regions.ts'
 
@@ -60,6 +61,22 @@ describe('Le jeu', () => {
     const joueur = demarrer()
     await proposer(joueur, 'Atlantide')
     expect(screen.getByText('Cette région n’existe pas, ou n’est pas dans le jeu.')).toBeDefined()
+    expect(lignes()).toHaveLength(0)
+  })
+
+  it('un début de nom qui n’évoque qu’une région la propose', async () => {
+    const joueur = demarrer()
+    // la première région (autre que celle du jour) que ses quatre premières lettres désignent seules
+    const region = AUTRES.find((autre) => deviner(autre.nom.fr.slice(0, 4), 'nouvelles') === autre)!
+    await proposer(joueur, region.nom.fr.slice(0, 4))
+    expect(lignes()).toHaveLength(1)
+    expect(lignes()[0].textContent).toContain(region.nom.fr)
+  })
+
+  it('un début de nom qui en évoque plusieurs demande de choisir, sans coûter d’essai', async () => {
+    const joueur = demarrer()
+    await proposer(joueur, 'loire')
+    expect(screen.getByText('Plusieurs régions possibles : choisis dans la liste.')).toBeDefined()
     expect(lignes()).toHaveLength(0)
   })
 

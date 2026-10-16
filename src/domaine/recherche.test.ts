@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { chercher, simplifier, suggestions } from './recherche.ts'
+import { chercher, deviner, simplifier, suggestions } from './recherche.ts'
 import { parId, REGIONS, tirables, type Langue, type Mode } from './regions.ts'
 
 const ids = (saisie: string, mode: Mode, langue: Langue = 'fr') =>
@@ -106,5 +106,28 @@ describe('suggestions', () => {
         expect(region.epoque, `${lettre} → ${region.id}`).not.toBe(interdite)
       }
     }
+  })
+})
+
+describe('deviner', () => {
+  it('le nom exact, même s’il commence aussi un autre nom', () => {
+    expect(deviner('Centre', 'anciennes')).toBe(parId('centre'))
+    expect(deviner('brittany', 'nouvelles')).toBe(parId('bretagne'))
+  })
+
+  it('sinon la seule suggestion', () => {
+    expect(deviner('bret', 'nouvelles')).toBe(parId('bretagne'))
+    // « Centre » n'existe que chez les anciennes régions : chez les nouvelles, une seule région commence ainsi
+    expect(deviner('centre', 'nouvelles')).toBe(parId('centre-val-de-loire'))
+  })
+
+  it('« plusieurs » quand la saisie évoque plusieurs régions', () => {
+    expect(deviner('nor', 'anciennes')).toBe('plusieurs')
+    expect(deviner('loire', 'nouvelles')).toBe('plusieurs')
+  })
+
+  it('rien quand la saisie n’évoque aucune région', () => {
+    expect(deviner('Atlantide', 'nouvelles')).toBeUndefined()
+    expect(deviner('', 'nouvelles')).toBeUndefined()
   })
 })
