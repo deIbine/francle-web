@@ -89,8 +89,8 @@ angle de rotation, et les valeurs de ses tests.
 
 ## Où on en est (mis à jour le 16 octobre 2026)
 
-**Faites : web.0 à web.6.** Prochaine étape : **web.7 Le bonus des départements**, d'abord essayé dans le projet Java
-(voir « Le bonus des départements »). Ensuite **web.8 Le domaine et le défi** (l'utilisateur doit d'abord acheter le
+**Faites : web.0 à web.6.** Prochaine étape : **web.7 Le bonus des départements**, d'abord fait **en entier** dans le
+projet Java (sa phase 9), puis ici (voir « Le bonus des départements »). Ensuite **web.8 Le domaine et le défi** (l'utilisateur doit d'abord acheter le
 nom de domaine).
 
 - **web.0** (PR #1, étiquette `web-0`) : dépôt public `deIbine/francle-web`, Vite + React + TypeScript, Vitest, lint
@@ -164,8 +164,10 @@ nom de domaine).
   clic propose le nom. App garde un compteur de demandes par onglet (`demandeListe`), comme pour 📊. Sur téléphone, les
   boutons de l'en-tête sont plus serrés (`px-1`, `sm:px-2`) pour que le titre tienne sur une ligne.
 - **Pour reprendre** : lire ce plan et `docs/lecons.md`, vérifier que `main` est à jour (`git pull`), puis reprendre
-  « Le bonus des départements » ci-dessous : faire ou finir l'essai dans le projet Java, répondre aux questions
-  encore ouvertes, puis présenter le découpage de web.7.1. Rien n'est commencé dans `francle-web` pour web.7 (seule la
+  « Le bonus des départements » ci-dessous. **D'abord la phase 9 du projet Java** (son plan est dans
+  `docs/feuille-de-route.md` de `deIbine/francle`) : la faire ou la finir, en tranchant les questions ouvertes en
+  jouant. **Ensuite seulement** web.7 ici : reporter dans ce plan ce que le Java a décidé, puis présenter le découpage
+  de web.7.1. Rien n'est commencé dans `francle-web` pour web.7 (seule la
   phase web.7.0, la mise à jour de ce plan, est faite). Pour web.8 : quel domaine, s'il est acheté ; comment fonctionne
   le lien du défi (région visible dans le lien ou codée, partie du jour ou libre, époque…).
 
@@ -191,7 +193,7 @@ Idée du 16 octobre 2026 : après une victoire, en bonus, faire deviner les dép
 | Île-de-France | Un **zoom** sur Paris et la petite couronne (75, 92, 93, 94), trop petits sinon. |
 | Ce qui compte | Le bonus est **sauvegardé**, compte dans les **statistiques** et apparaît dans le **partage**. |
 | Contours | Générés par `outils/generer_images.py` : **un fichier de contours par région**, chaque département étant un tracé à part, avec son numéro. React les dessine, colore et rend cliquables (comme `CarteFrance`). Ce fichier sert aux deux modes. |
-| Essai d'abord en Java | Avant de commencer `francle-web`, essayer le bonus dans le projet Java `deIbine/francle` pour s'en faire une idée (demandé le 16 octobre 2026 ; découpage à présenter et valider). |
+| D'abord en Java | Le bonus est fait **en entier dans les deux projets**, **d'abord dans le projet Java** `deIbine/francle` (sa **phase 9**, plan dans son `docs/feuille-de-route.md`), puis ici en web.7. Le Java sert à trancher les questions ouvertes en jouant ; ses réponses s'appliquent ensuite au web (décidé le 16 octobre 2026). |
 
 ### Les phases (une branche et une PR par phase, étiquettes `web-7.0`, `web-7.1`…)
 
@@ -217,7 +219,7 @@ Idée du 16 octobre 2026 : après une victoire, en bonus, faire deviner les dép
 7. **web.7.7 Les finitions** : textes FR et EN, « Comment jouer », tests axe, téléphone à 375 pixels, thème sombre,
    leçons, plan.
 
-### Les questions encore ouvertes (à trancher avant web.7.1)
+### Les questions encore ouvertes (à trancher pendant la phase 9 du Java, avant web.7.1)
 
 1. **Essais par département** : un seul clic (juste ou faux, puis on montre la réponse), ou plusieurs (par exemple
    3, un point seulement au premier) ?
@@ -279,7 +281,8 @@ commencé.
 
 ## Où trouver le reste
 
-- Projet Java : `C:\Users\cleme\Desktop\Claude\francle` (dépôt `deIbine/francle`, étiquette `phase-6`).
+- Projet Java : `C:\Users\cleme\Desktop\Claude\francle` (dépôt `deIbine/francle`, étiquettes `phase-6`, `phase-8`).
+  - son plan, dont la phase 9 (le bonus des départements) : `docs/feuille-de-route.md` ;
   - les données des régions : `src/main/java/fr/francle/donnees/RegionFr.java` et `docs/indices.md` ;
   - les règles : `src/main/java/fr/francle/jeu/` (`Partie`, `Direction`, `RegionDuJour`) ;
   - le script des images et la source des contours : `outils/generer_images.py` ;
