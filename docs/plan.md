@@ -90,7 +90,7 @@ angle de rotation, et les valeurs de ses tests.
 
 ## Où on en est (mis à jour le 17 octobre 2026)
 
-**Faites : web.0 à web.6**, et pour web.7 les phases **web.7.0** et **web.7.0.1** (le plan). Le bonus est **fini dans
+**Faites : web.0 à web.6**, et pour web.7 les phases **web.7.0**, **web.7.0.1** et **web.7.0.2** (le plan). Le bonus est **fini dans
 le projet Java** (phase 9, PR deIbine/francle#34, étiquette `phase-9`) et ses réponses sont reportées plus bas.
 Prochaine étape : **web.7.1 Les données des départements** (voir « Le bonus des départements »). Ensuite **web.8 Le
 domaine et le défi** (l'utilisateur doit d'abord acheter le nom de domaine).
@@ -165,11 +165,23 @@ domaine et le défi** (l'utilisateur doit d'abord acheter le nom de domaine).
   dans ⚙️, réglage `liste`), fenêtre gardée par le plateau (`composants/ListeRegions.tsx`), régions du mode joué, un
   clic propose le nom. App garde un compteur de demandes par onglet (`demandeListe`), comme pour 📊. Sur téléphone, les
   boutons de l'en-tête sont plus serrés (`px-1`, `sm:px-2`) pour que le titre tienne sur une ligne.
-- **Pour reprendre** : lire ce plan et `docs/lecons.md`, vérifier que `main` est à jour (`git pull`), puis reprendre
-  « Le bonus des départements » ci-dessous : présenter le découpage de **web.7.1** et poser ses questions. Le code
-  Java de la phase 9 sert de référence (fichiers cités dans « Ce qui existe déjà »). Aucun code n'est encore écrit
-  dans `francle-web` pour web.7 : seules les phases web.7.0 et web.7.0.1, les mises à jour de ce plan, sont faites.
-  Pour web.8 : quel domaine, s'il est acheté ; comment fonctionne le lien du défi (région visible dans le lien ou
+- **Pour reprendre (arrêté le 17 octobre 2026, reprise prévue le 18)** : lire ce plan et `docs/lecons.md`, vérifier
+  que `main` est à jour (`git pull`, dans les deux dépôts), puis reprendre « Le bonus des départements » ci-dessous.
+  Aucun code n'est encore écrit dans `francle-web` pour web.7 : seules les phases web.7.0, web.7.0.1 et web.7.0.2
+  (les mises à jour de ce plan) sont faites. Le code Java de la phase 9 sert de référence (fichiers cités dans « Ce
+  qui existe déjà »).
+  - **Décidé le 17 octobre 2026 : toutes les phases web.7.1 à web.7.7 seront lancées en même temps**, à la suite,
+    une branche et une PR par phase, empilées, fusionnées à la fin (comme web.2-web.3 et web.4-web.6, voir la leçon
+    sur le rebase des branches empilées). **Avant de lancer** : présenter d'un coup le découpage de toutes les phases
+    (en proposant de regrouper celles qui peuvent l'être) et les petites questions qui restent, puis attendre
+    l'accord. Les petits choix faits en route vont dans une liste « À valider » de chaque PR.
+  - **Ce qu'il faudra** : les contours sources, **absents du disque** (ni dans `francle-web`, ni dans `francle`) :
+    télécharger `departements-avec-outre-mer.geojson`, `regions.geojson` et
+    `regions-avant-redecoupage-2015.geojson` depuis https://github.com/gregoiredavid/france-geojson, hors du dépôt
+    (par exemple dans le dossier temporaire), pour web.7.2. Pour l'ordre du jour (web.7.3) : compiler le Java et
+    relancer `outils/ReferenceJava.java` (mode d'emploi dans son en-tête, à étendre à `Bonus.ordre`, qui est de
+    paquet comme les autres méthodes appelées). Node : `export PATH="/c/Program Files/nodejs:$PATH";` dans le Bash.
+  - Pour web.8 : quel domaine, s'il est acheté ; comment fonctionne le lien du défi (région visible dans le lien ou
   codée, partie du jour ou libre, époque…).
 
 ## Le bonus des départements (web.7)
@@ -223,6 +235,7 @@ Idée du 16 octobre 2026 : après une victoire, en bonus, faire deviner les dép
 0. **web.7.0 Le plan à jour** : ce chapitre, et l'ancien web.7 renuméroté web.8. ✅
    **web.7.0.1 Les réponses du Java** : les décisions du Java reportées ici, avec l'écart de la reprise (le
    17 octobre 2026). ✅
+   **web.7.0.2 Le point de reprise** : où on en est, ce qu'il faudra, et la décision de tout lancer ensemble. ✅
 1. **web.7.1 Les données des départements**, sans affichage : copier `departements.json` du Java (par exemple dans
    `src/domaine/departements.json`), `src/domaine/departements.ts` (101 départements, numéro, nom, région pour chaque
    époque), et le script Python le lit au lieu de son tableau `DEPARTEMENTS`. Tests : 101 départements, chacun dans
@@ -247,8 +260,8 @@ Idée du 16 octobre 2026 : après une victoire, en bonus, faire deviner les dép
 7. **web.7.7 Les finitions** : textes FR et EN, « Comment jouer », tests axe, téléphone à 375 pixels, thème sombre,
    leçons, plan.
 
-Ce découpage reste à confirmer phase par phase (décidé le 17 octobre 2026 : faire web.7.0.1, puis voir si toutes
-les phases sont nécessaires ou si certaines se regroupent).
+Ces phases seront **lancées toutes ensemble**, en PR empilées (décidé le 17 octobre 2026, voir « Pour reprendre »).
+Avant de lancer, voir si certaines se regroupent (par exemple 7.1 et 7.2, qui touchent toutes deux le script).
 
 ## Les améliorations à reprendre (relevées le 16 octobre 2026)
 
