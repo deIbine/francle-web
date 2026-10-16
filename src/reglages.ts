@@ -2,6 +2,7 @@
 Les réglages du joueur, gardés dans le navigateur comme les parties (voir sauvegarde.ts), sous leur propre clé.
  */
 import { useEffect, useState } from 'react'
+import { useChangementAilleurs } from './onglets.ts'
 import type { ModesDifficiles } from './domaine/partage.ts'
 import type { Langue } from './domaine/regions.ts'
 
@@ -76,6 +77,9 @@ export function modesReglages(reglages: Reglages): ModesDifficiles {
 export function useReglages(): [Reglages, (changement: Partial<Reglages>) => void] {
   const [reglages, setReglages] = useState(() => lireReglages())
   useEffect(() => enregistrerReglages(reglages), [reglages])
+  // changés dans un autre onglet : on les relit. Réenregistrer la même valeur ne prévient pas l'autre onglet en
+  // retour (le navigateur ne signale que les vrais changements) : pas de ping-pong entre les deux
+  useChangementAilleurs(CLE_REGLAGES, () => setReglages(lireReglages()))
   return [reglages, (changement) => setReglages((avant) => ({ ...avant, ...changement }))]
 }
 

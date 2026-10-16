@@ -132,6 +132,28 @@ describe('Le jeu', () => {
     expect(screen.queryByRole('combobox')).toBeNull()
   })
 
+  it('deux onglets ouverts : l’un reprend ce que l’autre a joué', async () => {
+    const joueur = demarrer()
+    await proposer(joueur, AUTRES[0].nom.fr)
+    // un autre onglet joue un deuxième essai : il écrit la sauvegarde, et le navigateur prévient cet onglet-ci par
+    // l'évènement « storage » (fireEvent l'envoie comme le ferait le navigateur)
+    const cle = 'francle.parties-du-jour.v1'
+    localStorage.setItem(cle, JSON.stringify({ 2: { regions: [AUTRES[0].id, AUTRES[1].id], etat: 'en-cours' } }))
+    fireEvent(window, new StorageEvent('storage', { key: cle }))
+    expect(lignes()).toHaveLength(2)
+
+    // le troisième essai, joué ici, s'ajoute aux deux autres au lieu de les écraser
+    await proposer(joueur, AUTRES[2].nom.fr)
+    expect(JSON.parse(localStorage.getItem(cle)!)[2].regions).toHaveLength(3)
+  })
+
+  it('deux onglets ouverts : un réglage changé dans l’un s’applique à l’autre', () => {
+    demarrer()
+    localStorage.setItem('francle.reglages.v1', JSON.stringify({ theme: 'sombre' }))
+    fireEvent(window, new StorageEvent('storage', { key: 'francle.reglages.v1' }))
+    expect(document.documentElement.classList.contains('dark')).toBe(true)
+  })
+
   it('la partie est retrouvée après fermeture de la page', async () => {
     const joueur = demarrer()
     await proposer(joueur, AUTRES[0].nom.fr)

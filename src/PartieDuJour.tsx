@@ -18,8 +18,21 @@ import { angleDuJour, MODE_DU_JOUR, numero as numeroDuJour, regionDuJour } from 
 import { statistiques } from './domaine/statistiques.ts'
 import { minuitSuivant } from './domaine/temps.ts'
 import { modesReglages, uniteAffichee, type Reglages } from './reglages.ts'
-import { enregistrer, lire, modesSauves, restaurer, resultats } from './sauvegarde.ts'
+import { useChangementAilleurs } from './onglets.ts'
+import { CLE, enregistrer, lire, modesSauves, restaurer, resultats, type PartieSauvee } from './sauvegarde.ts'
 import { useLangue, useTextes } from './textes.ts'
+
+// la partie du jour : celle qu'on avait commencée (rejouée depuis la sauvegarde), sinon une nouvelle
+function partieDuJour(sauvee: PartieSauvee | undefined, jour: Date): Partie {
+  const cible = regionDuJour(jour)
+  return sauvee === undefined ? nouvellePartie(cible, MODE_DU_JOUR) : restaurer(sauvee, cible, MODE_DU_JOUR)
+}
+
+// les modes difficiles, fixés au premier essai (undefined tant que la partie n'est pas commencée)
+function modesFixesDe(sauvee: PartieSauvee | undefined): ModesDifficiles | undefined {
+  const commencee = sauvee !== undefined && (sauvee.regions.length > 0 || sauvee.etat !== 'en-cours')
+  return commencee ? modesSauves(sauvee) : undefined
+}
 
 interface Props {
   // le jour de la partie
@@ -36,18 +49,21 @@ export function PartieDuJour({ jour, reglages, demandeStats }: Props) {
   // toutes les parties sauvées, lues une fois à l'ouverture, puis tenues à jour à chaque changement
   const [parties, setParties] = useState(() => lire())
   const sauvee = parties.get(numero)
-  // la partie du jour : celle qu'on avait commencée (rejouée depuis la sauvegarde), sinon une nouvelle
-  const [partie, setPartie] = useState(() => {
-    const cible = regionDuJour(jour)
-    return sauvee === undefined ? nouvellePartie(cible, MODE_DU_JOUR) : restaurer(sauvee, cible, MODE_DU_JOUR)
-  })
+  const [partie, setPartie] = useState(() => partieDuJour(sauvee, jour))
   // les modes difficiles, fixés au premier essai. Avant, la partie suit les réglages du moment
-  const [modesFixes, setModesFixes] = useState<ModesDifficiles | undefined>(() =>
-    sauvee !== undefined && (sauvee.regions.length > 0 || sauvee.etat !== 'en-cours') ? modesSauves(sauvee) : undefined,
-  )
+  const [modesFixes, setModesFixes] = useState(() => modesFixesDe(sauvee))
   const modes = modesFixes ?? modesReglages(reglages)
   // la fenêtre des résultats : ouverte d'emblée si on revient sur une partie déjà finie
   const [fenetre, setFenetre] = useState(() => !enCours(partie))
+
+  // un autre onglet a joué : on reprend sa sauvegarde, la dernière écrite fait foi. Les deux onglets montrent ainsi
+  // la même partie, et aucun n'écrase les essais de l'autre
+  useChangementAilleurs(CLE, () => {
+    const toutes = lire()
+    setParties(toutes)
+    setPartie(partieDuJour(toutes.get(numero), jour))
+    setModesFixes(modesFixesDe(toutes.get(numero)))
+  })
 
   // 📊 a été cliqué : on ouvre la fenêtre. On compare à la dernière demande vue PENDANT l'affichage, plutôt que
   // dans un useEffect : React le recommande pour « ajuster un état quand une prop change », sans affichage de trop
