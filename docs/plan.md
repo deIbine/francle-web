@@ -327,7 +327,7 @@ département, puis on écrit son nom**, comme on écrit une région.
 1. ✅ **web.7.5 Le bonus juste après la victoire** (fait, `src/pause.ts` pour la pause) : `PartieDuJour` et `PartieLibre` (plus de fenêtre à la victoire,
    le bonus tout de suite, la fenêtre à la fin du bonus ou à « Passer » avant toute réponse, les cas du retour sur
    la page), tests (`Bonus.test.tsx`, `App.test.tsx`…), « Comment jouer » si besoin, leçons.
-2. **web.7.6 Les règles du mode C**, sans affichage : `bonus.ts` (la question `'choix'` ou un nom à décider,
+2. ✅ **web.7.6 Les règles du mode C**, sans affichage (fait ; `MODE_BONUS` passe à C seulement à web.7.7, pour que le jeu reste jouable entre les deux) : `bonus.ts` (la question `'choix'` ou un nom à décider,
    répondre avec le département cliqué et le département écrit, refus d'un département déjà trouvé, `MODE_BONUS`
    passe à C), `sauvegarde.ts` (des paires, l'ancien format toujours lisible), tests dont la relecture d'une
    ancienne sauvegarde.

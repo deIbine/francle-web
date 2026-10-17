@@ -9,11 +9,16 @@ import {
   passer,
   rang,
   rejouer,
+  rejouerPaires,
   repondre,
+  repondreChoix,
   repondreSaisie,
+  repondreSaisieChoix,
+  restants,
   score,
   tentativeDe,
   total,
+  trouve,
   type Bonus,
 } from './bonus.ts'
 import { departementsDe, parCode, type Departement } from './departements.ts'
@@ -129,5 +134,87 @@ describe('Rejouer une sauvegarde', () => {
   it('s’arrête à un numéro inconnu, ou quand le bonus est fini', () => {
     expect(rejouer(bonusBretagne(), ['22', 'zz', '35']).tentatives).toHaveLength(1)
     expect(rejouer(bonusBretagne(), ['22', '29', '35', '56', '22']).etat).toBe('termine')
+  })
+})
+
+describe('Le mode C : choisir un département, puis le nommer', () => {
+  // la Bretagne, en mode C : le joueur choisit l'ordre
+  const bonusC = () => nouveauBonus(BRETAGNE, departementsDe(BRETAGNE), 'choix')
+
+  // la réponse attendue est un bonus (et non un refus)
+  function joue(bonus: Bonus, choisi: string, donne: string): Bonus {
+    const suite = repondreChoix(bonus, dep(choisi), dep(donne))
+    if (suite === 'deja-trouve') throw new Error('refusé')
+    return suite
+  }
+
+  it('pas de question imposée : le joueur répond dans l’ordre qu’il veut', () => {
+    const bonus = bonusC()
+    expect(bonus.question).toBe('choix')
+    expect(() => demande(bonus)).toThrow()
+    const suite = joue(bonus, '56', '56')
+    expect(tentativeDe(suite, dep('56'))).toEqual({ demande: dep('56'), donne: dep('56') })
+    expect(restants(suite).map((departement) => departement.code)).toEqual(['22', '29', '35'])
+    expect(score(suite)).toBe(1)
+    expect(rang(suite)).toBe(2)
+  })
+
+  it('une réponse fausse compte, même un département d’une autre région', () => {
+    const suite = joue(joue(bonusC(), '29', '22'), '35', '33')
+    expect(score(suite)).toBe(0)
+    expect(suite.tentatives).toHaveLength(2)
+  })
+
+  it('un département déjà trouvé est refusé sans rien coûter ; un nom donné à tort reste possible', () => {
+    const bonus = joue(bonusC(), '29', '29')
+    expect(trouve(bonus, dep('29'))).toBe(true)
+    expect(repondreChoix(bonus, dep('22'), dep('29'))).toBe('deja-trouve')
+    // 56 donné à tort pour 22, puis 56 donné au bon endroit
+    const suite = joue(joue(bonus, '22', '56'), '56', '56')
+    expect(score(suite)).toBe(2)
+  })
+
+  it('se termine quand chaque département a sa réponse', () => {
+    const fini = joue(joue(joue(joue(bonusC(), '35', '35'), '22', '22'), '56', '29'), '29', '56')
+    expect(fini.etat).toBe('termine')
+    expect(score(fini)).toBe(2)
+    expect(total(fini)).toBe(4)
+  })
+
+  it('choisir un département hors de la région ou déjà répondu est une erreur de programmation', () => {
+    const bonus = joue(bonusC(), '29', '29')
+    expect(() => repondreChoix(bonus, dep('29'), dep('22'))).toThrow()
+    expect(() => repondreChoix(bonus, dep('33'), dep('22'))).toThrow()
+    expect(() => repondreChoix(bonusBretagne(), dep('22'), dep('22'))).toThrow()
+  })
+
+  it('la réponse écrite : nom ou numéro des 101 départements ; une saisie inconnue ne coûte rien', () => {
+    const bonus = bonusC()
+    expect(repondreSaisieChoix(bonus, dep('29'), 'Atlantide')).toBe('inconnu')
+    const parNom = repondreSaisieChoix(bonus, dep('29'), 'finistere') as Bonus
+    expect(score(parNom)).toBe(1)
+    const parNumero = repondreSaisieChoix(parNom, dep('22'), '33') as Bonus
+    expect(tentativeDe(parNumero, dep('22'))?.donne.code).toBe('33')
+    expect(repondreSaisieChoix(parNumero, dep('35'), '29')).toBe('deja-trouve')
+  })
+
+  it('une région d’un seul département garde la question du numéro', () => {
+    const guadeloupe = parId('guadeloupe')
+    expect(nouveauBonus(guadeloupe, departementsDe(guadeloupe), 'choix').question).toBe('numero')
+  })
+
+  it('les paires sauvegardées se rejouent ; les réponses d’un bonus A se reprennent en mode C', () => {
+    const rejoue = rejouerPaires(bonusC(), [
+      ['56', '56'],
+      ['22', '29'],
+    ])
+    expect(rejoue).toEqual(joue(joue(bonusC(), '56', '56'), '22', '29'))
+    // un bonus A commencé (22 puis 29 demandés, dans l'ordre des numéros) continue en mode C, avec ses réponses
+    const repris = rejouer(bonusC(), ['22', '35'])
+    expect(repris.question).toBe('choix')
+    expect(repris.tentatives).toEqual([
+      { demande: dep('22'), donne: dep('22') },
+      { demande: dep('29'), donne: dep('35') },
+    ])
   })
 })

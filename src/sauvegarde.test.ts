@@ -73,8 +73,44 @@ describe('La sauvegarde du bonus', () => {
   it('un bonus commencé se retrouve tel quel, avec ses réponses', () => {
     enregistrer(1, gagnee())
     enregistrerBonus(1, repondu('76', '14'))
-    expect(lire().get(1)!.bonus).toEqual({ reponses: ['76', '14'], etat: 'en-cours' })
+    // des paires [demandé, donné] : 76 demandé, 76 donné ; puis 27 demandé, 14 donné
+    expect(lire().get(1)!.bonus).toEqual({
+      paires: [
+        ['76', '76'],
+        ['27', '14'],
+      ],
+      etat: 'en-cours',
+    })
     expect(restaurerBonus(1, lire().get(1))).toEqual(repondu('76', '14'))
+  })
+
+  it('une sauvegarde de web.7 (les numéros donnés, sans paires) se relit avec l’ordre du jour', () => {
+    localStorage.setItem(
+      CLE,
+      JSON.stringify({ 1: { regions: ['normandie'], etat: 'gagnee', bonus: { reponses: ['76', '14'], etat: 'en-cours' } } }),
+    )
+    expect(restaurerBonus(1, lire().get(1))).toEqual(repondu('76', '14'))
+  })
+
+  it('une paire impossible (département hors de la région, ou déjà répondu) arrête la relecture', () => {
+    localStorage.setItem(
+      CLE,
+      JSON.stringify({
+        1: {
+          regions: ['normandie'],
+          etat: 'gagnee',
+          bonus: {
+            paires: [
+              ['76', '76'],
+              ['76', '14'],
+              ['27', '27'],
+            ],
+            etat: 'en-cours',
+          },
+        },
+      }),
+    )
+    expect(restaurerBonus(1, lire().get(1))!.tentatives).toHaveLength(1)
   })
 
   it('un bonus pas commencé n’est pas sauvé : il reste à jouer', () => {
@@ -102,7 +138,7 @@ describe('La sauvegarde du bonus', () => {
     enregistrer(1, gagnee())
     enregistrerBonus(1, repondu('76'))
     enregistrer(1, gagnee())
-    expect(lire().get(1)!.bonus?.reponses).toEqual(['76'])
+    expect(lire().get(1)!.bonus?.paires).toEqual([['76', '76']])
   })
 
   it('une sauvegarde d’avant web.7 (sans bonus) reste lisible ; un bonus abîmé rend la partie illisible', () => {
@@ -111,6 +147,7 @@ describe('La sauvegarde du bonus', () => {
       JSON.stringify({
         1: { regions: ['normandie'], etat: 'gagnee' },
         2: { regions: ['corse'], etat: 'gagnee', bonus: { reponses: 'non', etat: 'termine' } },
+        3: { regions: ['corse'], etat: 'gagnee', bonus: { paires: [['2A']], etat: 'termine' } },
       }),
     )
     expect([...lire().keys()]).toEqual([1])

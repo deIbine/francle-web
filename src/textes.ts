@@ -144,6 +144,7 @@ const fr = {
     jouer: '🗺️ Jouer le bonus',
     // la question, selon sa sorte (voir domaine/bonus.ts)
     carte: (nom: string) => `Clique sur\u00a0: ${nom}`,
+    choisir: 'Clique sur un département de la carte',
     nom: 'Quel est ce département, en bleu foncé\u00a0?',
     numero: (nom: string) => `Quel est le numéro de\u00a0: ${nom}\u00a0?`,
     avancement: (rang: number, total: number) => `Département ${rang} sur ${total}`,
@@ -326,6 +327,7 @@ const en: Textes = {
     titre: 'Bonus: the departments',
     jouer: '🗺️ Play the bonus',
     carte: (nom: string) => `Click on: ${nom}`,
+    choisir: 'Click on a department on the map',
     nom: 'Which department is this, in dark blue?',
     numero: (nom: string) => `What is the number of: ${nom}?`,
     avancement: (rang: number, total: number) => `Department ${rang} of ${total}`,
