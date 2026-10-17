@@ -90,10 +90,10 @@ angle de rotation, et les valeurs de ses tests.
 
 ## Où on en est (mis à jour le 17 octobre 2026)
 
-**Faites : web.0 à web.7.** Le bonus des départements est programmé, en quatre PR empilées (web.7.1 à web.7.4,
-détail plus bas dans « Le bonus des départements »), **à relire et fusionner** par l'utilisateur, avec leurs listes
-« À valider ». Prochaine étape : **web.8 Le domaine et le défi** (l'utilisateur doit d'abord acheter le nom de
-domaine).
+**Faites : web.0 à web.7.** Le bonus des départements est en ligne depuis le 17 octobre 2026 : quatre PR (#17 à
+#20), relues par l'utilisateur (testées en local) et fusionnées, étiquettes `web-7.1` à `web-7.4` et `web-7` (détail
+plus bas dans « Le bonus des départements »). Prochaine étape : **web.8 Le domaine et le défi**, dont le découpage
+reste à valider (l'utilisateur doit d'abord acheter le nom de domaine).
 
 - **web.0** (PR #1, étiquette `web-0`) : dépôt public `deIbine/francle-web`, Vite + React + TypeScript, Vitest, lint
   oxlint, CI `.github/workflows/ci.yml` (tâche `verifier` sur chaque PR et sur `main`, tâche `publier` vers GitHub
@@ -165,9 +165,13 @@ domaine).
   dans ⚙️, réglage `liste`), fenêtre gardée par le plateau (`composants/ListeRegions.tsx`), régions du mode joué, un
   clic propose le nom. App garde un compteur de demandes par onglet (`demandeListe`), comme pour 📊. Sur téléphone, les
   boutons de l'en-tête sont plus serrés (`px-1`, `sm:px-2`) pour que le titre tienne sur une ligne.
-- **Pour reprendre (après web.7, le 17 octobre 2026)** : lire ce plan et `docs/lecons.md`. Les quatre PR de web.7
-  attendent la relecture de l'utilisateur ; une fois fusionnées (en squash, dans l'ordre, voir la leçon sur le rebase
-  des branches empilées), poser les étiquettes `web-7.1` à `web-7.4` et `web-7`.
+- **Le bonus des départements** (PR #17 à #20, étiquettes `web-7.1` à `web-7.4`, et `web-7`) : voir « Le bonus des
+  départements » plus bas. Les choix faits en route (listes « À valider » des PR) ont été acceptés tels quels.
+- **Pour reprendre (après web.7, le 17 octobre 2026)** : lire ce plan et `docs/lecons.md`, puis présenter le
+  découpage de web.8 et ses questions, et attendre l'accord.
+  - **Reste à faire côté Java** (proposé, pas encore fait) : noter dans `docs/feuille-de-route.md` du projet Java
+    (phase 9) trois choix propres au web : pas de minuterie entre deux questions du bonus ; en mode B, Entrée sur un
+    début de nom joue le seul département évoqué ; un bonus pas commencé attend son bouton jusqu'à minuit.
   - Les contours sources ne sont pas dans le dépôt : pour régénérer les images, télécharger
     `departements-avec-outre-mer.geojson`, `regions.geojson` et `regions-avant-redecoupage-2015.geojson` depuis
     https://github.com/gregoiredavid/france-geojson, hors du dépôt. Node : `export PATH="/c/Program Files/nodejs:$PATH";`
