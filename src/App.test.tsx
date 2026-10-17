@@ -94,10 +94,13 @@ describe('Le jeu', () => {
     expect(lignes()).toHaveLength(1)
   })
 
-  it('trouver la région termine la partie, et ouvre les résultats avec la carte', async () => {
+  it('trouver la région termine la partie ; les résultats montrent la carte', async () => {
     const joueur = demarrer()
     await proposer(joueur, AUTRES[0].nom.fr)
     await proposer(joueur, CIBLE.nom.fr)
+    // une victoire lance le bonus des départements (voir Bonus.test.tsx) : les résultats s'ouvrent par leur bouton
+    expect(screen.queryByRole('dialog', { name: 'Résultats' })).toBeNull()
+    await joueur.click(screen.getByRole('button', { name: 'Voir les résultats' }))
     const resultats = screen.getByRole('dialog', { name: 'Résultats' })
     expect(within(resultats).getByText('Bravo, trouvé en 2 essais !')).toBeDefined()
     expect(within(resultats).getByRole('img', { name: `Carte de France, la région ${CIBLE.nom.fr} en bleu` })).toBeDefined()
@@ -179,6 +182,7 @@ describe('Le jeu', () => {
     const joueur = demarrer()
     await proposer(joueur, AUTRES[0].nom.fr)
     await proposer(joueur, CIBLE.nom.fr)
+    await joueur.click(screen.getByRole('button', { name: 'Voir les résultats' }))
     const resultats = screen.getByRole('dialog', { name: 'Résultats' })
     const chiffre = (nom: string) => within(resultats).getByText(nom).nextElementSibling?.textContent
     // dt puis dd dans le HTML : la valeur suit son nom
@@ -203,6 +207,7 @@ describe('Le jeu', () => {
     const joueur = demarrer()
     await proposer(joueur, AUTRES[0].nom.fr)
     await proposer(joueur, CIBLE.nom.fr)
+    await joueur.click(screen.getByRole('button', { name: 'Voir les résultats' }))
     await joueur.click(screen.getByRole('button', { name: /Partager/ }))
     const copie = await navigator.clipboard.readText()
     expect(copie.split('\n')[0]).toBe('#Francle n° 2 2/6')

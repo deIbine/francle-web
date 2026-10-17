@@ -1,10 +1,12 @@
 /*
 La partie libre : une région tirée au hasard, dans l'époque choisie, autant de fois qu'on veut. C'est de
 l'entraînement : rien n'est sauvegardé, compté ni partagé. Le bonus des départements non plus : après une victoire,
-il commence à la fermeture de la fenêtre des résultats, avec les départements de l'époque jouée, dans un ordre au
-hasard ; passé avant toute réponse, il reste à jouer jusqu'à la partie suivante.
+il commence tout de suite, avec les départements de l'époque jouée, dans un ordre au hasard, et la fenêtre des
+résultats s'ouvre à sa fin (comme pour la partie du jour) ; passé avant toute réponse, il reste à jouer jusqu'à la
+partie suivante.
  */
 import { useId, useState } from 'react'
+import { usePause } from './pause.ts'
 import { BoutonBonus } from './composants/BoutonBonus.tsx'
 import { Fenetre } from './composants/Fenetre.tsx'
 import { FinDePartie } from './composants/FinDePartie.tsx'
@@ -36,32 +38,37 @@ export function PartieLibre({ reglages, demandeListe }: { reglages: Reglages; de
   // l'époque choisie pendant une partie commencée, en attente de confirmation (undefined : rien à confirmer)
   const [epoqueDemandee, setEpoqueDemandee] = useState<Mode | undefined>(undefined)
   const nomGroupe = useId()
-  // le bonus des départements, et s'il doit commencer à la fermeture de la fenêtre (voir PartieDuJour.tsx)
+  // le bonus des départements, le focus sur son titre quand le joueur vient de le lancer, et la pause avant les
+  // résultats (voir PartieDuJour.tsx)
   const [bonus, setBonus] = useState<Bonus | undefined>(undefined)
-  const [bonusAVenir, setBonusAVenir] = useState(false)
+  const [focusBonus, setFocusBonus] = useState(false)
+  const pause = usePause(() => setFenetre(true))
 
+  // une victoire lance le bonus ; une défaite (ou un abandon) ouvre les résultats
   function changer(suite: Partie) {
     setTirage({ partie: suite, angle, numero })
     setModesFixes(modes)
-    if (!enCours(suite)) {
+    if (suite.etat === 'gagnee') {
+      lancerBonus(suite)
+    } else if (!enCours(suite)) {
       setFenetre(true)
     }
-    if (suite.etat === 'gagnee') {
-      setBonusAVenir(true)
-    }
   }
 
-  function fermerFenetre() {
-    setFenetre(false)
-    if (bonusAVenir) {
-      setBonusAVenir(false)
-      setBonus(bonusAuHasard(partie.cible))
-    }
+  function lancerBonus(gagnee: Partie) {
+    setBonus(bonusAuHasard(gagnee.cible))
+    setFocusBonus(true)
   }
 
-  // passé avant toute réponse, le bonus n'a pas commencé : on revient à la silhouette, il reste à jouer
+  // passé avant toute réponse, le bonus n'a pas commencé : on revient à la silhouette, il reste à jouer. Dans tous
+  // les cas où il n'y a plus rien à jouer, les résultats s'ouvrent, après une pause pour la dernière réponse
   function changerBonus(suite: Bonus) {
     setBonus(commence(suite) ? suite : undefined)
+    if (suite.etat === 'termine') {
+      pause.lancer()
+    } else if (!commence(suite) || suite.etat === 'passe') {
+      setFenetre(true)
+    }
   }
 
   // une nouvelle partie, dans l'époque donnée : les modes ne sont plus fixés, la fenêtre se ferme
@@ -72,7 +79,8 @@ export function PartieLibre({ reglages, demandeListe }: { reglages: Reglages; de
     setModesFixes(undefined)
     setFenetre(false)
     setBonus(undefined)
-    setBonusAVenir(false)
+    // une pause en cours ouvrirait les résultats de la partie d'avant
+    pause.annuler()
   }
 
   // changer d'époque perd la partie en cours : on demande confirmation dès qu'un essai a été joué. Le bouton radio,
@@ -133,7 +141,7 @@ export function PartieLibre({ reglages, demandeListe }: { reglages: Reglages; de
         angle={angle}
         unite={uniteAffichee(reglages)}
         demandeListe={demandeListe}
-        bonus={bonus && <JeuBonus bonus={bonus} onChanger={changerBonus} />}
+        bonus={bonus && <JeuBonus bonus={bonus} onChanger={changerBonus} focaliser={focusBonus} />}
         fin={
           <div className="flex flex-col items-center gap-2">
             <p className="font-semibold">
@@ -147,13 +155,13 @@ export function PartieLibre({ reglages, demandeListe }: { reglages: Reglages; de
               {textes.nouvellePartie}
             </button>
             {partie.etat === 'gagnee' && bonus === undefined && (
-              <BoutonBonus onJouer={() => setBonus(bonusAuHasard(partie.cible))} />
+              <BoutonBonus onJouer={() => lancerBonus(partie)} />
             )}
           </div>
         }
       />
 
-      <Fenetre ouverte={fenetre} onFermer={fermerFenetre} titre={textes.resultats}>
+      <Fenetre ouverte={fenetre} onFermer={() => setFenetre(false)} titre={textes.resultats}>
         {!enCours(partie) && (
           <FinDePartie partie={partie} message={textes.fin(partie, true)}>
             <button

@@ -80,6 +80,7 @@ describe('Le jeu en anglais', () => {
     expect(within(panneau()).getByText('Area')).toBeDefined()
 
     await proposer(joueur, CIBLE.nom.en)
+    await joueur.click(within(panneau()).getByRole('button', { name: 'See results' }))
     const resultats = screen.getByRole('dialog', { name: 'Results' })
     expect(within(resultats).getByText('Well done, found in 2 tries!')).toBeDefined()
     await joueur.click(within(resultats).getByRole('button', { name: /Share/ }))
@@ -90,7 +91,6 @@ describe('Le jeu en anglais', () => {
     navigateurEn('en-GB')
     const joueur = demarrer()
     await proposer(joueur, CIBLE.nom.en)
-    await joueur.click(within(screen.getByRole('dialog', { name: 'Results' })).getByRole('button', { name: 'Close' }))
     const ordre = ordreDuJour(CIBLE, numero(DATE))
     const carte = await within(panneau()).findByRole(
       'group',

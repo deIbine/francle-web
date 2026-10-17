@@ -9,7 +9,7 @@ Pas de minuterie entre deux questions, contrairement au Java : la question suiva
 réponse reste visible (en couleur sur la carte, et en toutes lettres sous la carte). Un joueur lent ne perd rien, et
 un lecteur d'écran lit la réponse puis la nouvelle question.
  */
-import { useId, useState } from 'react'
+import { useEffect, useId, useRef, useState } from 'react'
 import {
   bonusEnCours,
   demande,
@@ -30,12 +30,22 @@ import { Saisie } from './Saisie.tsx'
 interface Props {
   bonus: Bonus
   onChanger: (suite: Bonus) => void
+  // vrai quand le joueur vient de lancer le bonus (victoire ou bouton) : le focus du clavier va sur le titre. Ce qu'il
+  // venait d'utiliser (la saisie de la région, le bouton) a disparu, et sans cela le focus retomberait sur la page
+  focaliser?: boolean
 }
 
-export function JeuBonus({ bonus, onChanger }: Props) {
+export function JeuBonus({ bonus, onChanger, focaliser = false }: Props) {
   const textes = useTextes()
   const langue = useLangue()
   const idTitre = useId()
+  const titre = useRef<HTMLHeadingElement>(null)
+  // à l'apparition du bonus seulement : ensuite, le joueur va où il veut
+  useEffect(() => {
+    if (focaliser) {
+      titre.current?.focus()
+    }
+  }, [focaliser])
   // le message d'une saisie refusée (mode B), vide s'il n'y a rien à dire
   const [message, setMessage] = useState('')
   const enCours = bonusEnCours(bonus)
@@ -94,7 +104,8 @@ export function JeuBonus({ bonus, onChanger }: Props) {
 
   return (
     <section aria-labelledby={idTitre} className="flex flex-col gap-2 text-center">
-      <h2 id={idTitre} className="text-lg font-bold">
+      {/* tabIndex -1 : le titre peut recevoir le focus par le code, sans devenir une étape de Tab */}
+      <h2 id={idTitre} ref={titre} tabIndex={-1} className="text-lg font-bold focus:outline-none">
         {textes.bonus.titre}
       </h2>
       {enCours && (
