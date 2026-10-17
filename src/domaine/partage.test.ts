@@ -12,6 +12,13 @@ function jouer(cible: string, ...propositions: string[]): Partie {
 }
 
 describe('Le partage', () => {
+  it('le score du bonus des départements, une fois fini, après les carrés', () => {
+    const partie = jouer('bretagne', 'Normandie', 'Bretagne')
+    const lignes = textePartage(partie, 12, undefined, 'fr', { score: 3, total: 4 }).split('\n')
+    expect(lignes.slice(-2)).toEqual(['🗺️ 3/4', 'https://deibine.github.io/francle-web/'])
+    expect(textePartage(partie, 12)).not.toContain('🗺️')
+  })
+
   it.each([
     [100, '🟩🟩🟩🟩🟩'],
     [99, '🟩🟩🟩🟩🟨'],

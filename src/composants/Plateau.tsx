@@ -1,6 +1,7 @@
 /*
-Le plateau de jeu, commun à la partie du jour et à la partie libre : la silhouette, la saisie, le tableau des
-essais, les indices, le bouton « Abandonner » et la fenêtre de la liste des régions.
+Le plateau de jeu, commun à la partie du jour et à la partie libre : la silhouette (ou, après une victoire, le bonus
+des départements), la saisie, le tableau des essais, les indices, le bouton « Abandonner » et la fenêtre de la liste
+des régions.
 
 Le plateau ne garde pas la partie : il la reçoit, et demande à son parent de la remplacer (onChanger) quand le
 joueur propose ou abandonne. C'est le parent qui sait quoi faire ensuite (sauvegarder pour la partie du jour, rien
@@ -9,7 +10,7 @@ pour la partie libre) : le même plateau sert aux deux.
 import { useState, type ReactNode } from 'react'
 import { abandonner, enCours, indicesReveles, proposer, type Partie } from '../domaine/partie.ts'
 import type { ModesDifficiles } from '../domaine/partage.ts'
-import { deviner } from '../domaine/recherche.ts'
+import { deviner, suggestions } from '../domaine/recherche.ts'
 import type { Unite } from '../reglages.ts'
 import { useLangue, useTextes } from '../textes.ts'
 import { Fenetre } from './Fenetre.tsx'
@@ -30,9 +31,11 @@ interface Props {
   fin: ReactNode
   // augmente de 1 à chaque clic sur 📃 (dans l'en-tête, qui appartient à App) : la liste des régions s'ouvre alors
   demandeListe: number
+  // le bonus des départements, affiché à la place de la silhouette quand il a commencé (rien sinon)
+  bonus?: ReactNode
 }
 
-export function Plateau({ partie, onChanger, modes, angle, unite, fin, demandeListe }: Props) {
+export function Plateau({ partie, onChanger, modes, angle, unite, fin, demandeListe, bonus }: Props) {
   const textes = useTextes()
   const langue = useLangue()
   // le message sous la saisie (« région inconnue »…), vide s'il n'y a rien à dire
@@ -71,11 +74,16 @@ export function Plateau({ partie, onChanger, modes, angle, unite, fin, demandeLi
 
   return (
     <>
-      <Silhouette region={partie.cible} angle={modes.rotation ? angle : 0} cachee={modes.cachee} />
+      {bonus ?? <Silhouette region={partie.cible} angle={modes.rotation ? angle : 0} cachee={modes.cachee} />}
 
       {enCours(partie) ? (
         <>
-          <Saisie mode={partie.mode} onProposer={jouer} />
+          <Saisie
+            suggerer={(texte) =>
+              suggestions(texte, partie.mode, langue).map((region) => ({ cle: region.id, nom: region.nom[langue] }))
+            }
+            onProposer={jouer}
+          />
           {/* aria-live : un lecteur d'écran lit le message dès qu'il change ; min-h garde la place réservée */}
           <p aria-live="polite" className="min-h-5 text-sm text-erreur">
             {message}

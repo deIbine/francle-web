@@ -133,6 +133,44 @@ const fr = {
     repartition: 'Victoires par nombre d’essais',
     barre: (essais: number, nombre: number) =>
       `${nombre} victoire${nombre > 1 ? 's' : ''} en ${essais} essai${essais > 1 ? 's' : ''}`,
+    bonus: 'Bonus des départements',
+    bonusJoues: 'Bonus joués',
+    scoreMoyenBonus: 'Score moyen',
+    pourcentage: (p: number) => `${p}\u00a0%`,
+  },
+
+  bonus: {
+    titre: 'Bonus\u00a0: les départements',
+    jouer: '🗺️ Jouer le bonus',
+    // la question, selon sa sorte (voir domaine/bonus.ts)
+    carte: (nom: string) => `Clique sur\u00a0: ${nom}`,
+    nom: 'Quel est ce département, en bleu foncé\u00a0?',
+    numero: (nom: string) => `Quel est le numéro de\u00a0: ${nom}\u00a0?`,
+    avancement: (rang: number, total: number) => `Département ${rang} sur ${total}`,
+    // « Finistère (29) »
+    departement: (nom: string, code: string) => `${nom} (${code})`,
+    juste: (demande: string) => `Juste\u00a0: ${demande}.`,
+    faux: (demande: string, donne: string) => `Raté\u00a0: c’était ${demande}, en rouge sur la carte (ta réponse\u00a0: ${donne}).`,
+    // la carte et ses zones : pendant le bonus, un lecteur d'écran ne doit pas lire les noms (ce serait la réponse)
+    carteRegion: 'Carte des départements de la région',
+    zone: (rang: number, total: number) => `Zone ${rang} sur ${total}`,
+    zoom: 'Paris et la petite couronne, agrandis',
+    trouve: 'trouvé',
+    manque: 'manqué',
+    survol: 'Survole un département, ou va dessus au clavier, pour voir son nom.',
+    saisie: 'Ta réponse',
+    saisieExemple: 'Un nom ou un numéro…',
+    saisieNumero: 'Un numéro…',
+    repondre: 'Répondre',
+    inconnu: 'Ce n’est pas un département.',
+    plusieurs: 'Plusieurs départements possibles\u00a0: choisis dans la liste.',
+    pasUnNumero: 'Écris un numéro de département, par exemple 971.',
+    passer: 'Passer',
+    fini: (score: number, total: number) =>
+      `Bonus terminé\u00a0: ${score} département${score > 1 ? 's' : ''} trouvé${score > 1 ? 's' : ''} sur ${total}.`,
+    arrete: (score: number, total: number) =>
+      `Bonus arrêté\u00a0: ${score} département${score > 1 ? 's' : ''} trouvé${score > 1 ? 's' : ''} sur ${total}.`,
+    chargement: 'Chargement de la carte…',
   },
 
   aide: {
@@ -277,6 +315,41 @@ const en: Textes = {
     repartition: 'Wins by number of tries',
     barre: (essais: number, nombre: number) =>
       `${nombre} win${nombre === 1 ? '' : 's'} in ${essais} ${essais === 1 ? 'try' : 'tries'}`,
+    bonus: 'Departments bonus',
+    bonusJoues: 'Bonuses played',
+    scoreMoyenBonus: 'Average score',
+    pourcentage: (p: number) => `${p}%`,
+  },
+
+  bonus: {
+    titre: 'Bonus: the departments',
+    jouer: '🗺️ Play the bonus',
+    carte: (nom: string) => `Click on: ${nom}`,
+    nom: 'Which department is this, in dark blue?',
+    numero: (nom: string) => `What is the number of: ${nom}?`,
+    avancement: (rang: number, total: number) => `Department ${rang} of ${total}`,
+    departement: (nom: string, code: string) => `${nom} (${code})`,
+    juste: (demande: string) => `Correct: ${demande}.`,
+    faux: (demande: string, donne: string) => `Wrong: it was ${demande}, in red on the map (your answer: ${donne}).`,
+    carteRegion: 'Map of the region’s departments',
+    zone: (rang: number, total: number) => `Area ${rang} of ${total}`,
+    zoom: 'Paris and its inner suburbs, enlarged',
+    trouve: 'found',
+    manque: 'missed',
+    survol: 'Hover over a department, or move to it with the keyboard, to see its name.',
+    saisie: 'Your answer',
+    saisieExemple: 'A name or a number…',
+    saisieNumero: 'A number…',
+    repondre: 'Answer',
+    inconnu: 'This is not a department.',
+    plusieurs: 'Several departments match: pick one from the list.',
+    pasUnNumero: 'Type a department number, for example 971.',
+    passer: 'Skip',
+    fini: (score: number, total: number) =>
+      `Bonus over: ${score} department${score === 1 ? '' : 's'} found out of ${total}.`,
+    arrete: (score: number, total: number) =>
+      `Bonus stopped: ${score} department${score === 1 ? '' : 's'} found out of ${total}.`,
+    chargement: 'Loading the map…',
   },
 
   aide: {

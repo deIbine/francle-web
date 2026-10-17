@@ -10,6 +10,14 @@ import { ESSAIS_MAX, type Etat } from './partie.ts'
 export interface Resultat {
   readonly etat: Etat
   readonly essais: number
+  // le bonus des départements, s'il est fini (terminé, ou passé après au moins une réponse)
+  readonly bonus?: ScoreBonus
+}
+
+// les départements trouvés, sur le nombre de départements de la région
+export interface ScoreBonus {
+  readonly score: number
+  readonly total: number
 }
 
 export interface Statistiques {
@@ -21,6 +29,11 @@ export interface Statistiques {
   readonly meilleureSerie: number
   // repartition[n - 1] : le nombre de victoires en n essais, de 1 à 6
   readonly repartition: readonly number[]
+  // le nombre de bonus des départements finis, et la moyenne de leurs pourcentages de départements trouvés,
+  // arrondie (0 si aucun bonus). Une moyenne des pourcentages, et non des départements : 2 sur 2 en Corse pèse
+  // autant que 13 sur 13 en Occitanie (comme le Java)
+  readonly bonusJoues: number
+  readonly scoreMoyenBonus: number
 }
 
 // historique : le numéro de chaque partie du jour -> son résultat. aujourdhui : le numéro du jour
@@ -37,6 +50,8 @@ export function statistiques(historique: ReadonlyMap<number, Resultat>, aujourdh
       repartition[resultat.essais - 1]++
     }
   }
+  const bonus = [...historique.values()].flatMap((resultat) => (resultat.bonus === undefined ? [] : [resultat.bonus]))
+  const sommePourcentages = bonus.reduce((somme, { score, total }) => somme + (score * 100) / total, 0)
   return {
     jouees,
     victoires,
@@ -44,6 +59,8 @@ export function statistiques(historique: ReadonlyMap<number, Resultat>, aujourdh
     serie: serieEnCours(historique, aujourdhui),
     meilleureSerie: meilleureSerie(historique),
     repartition,
+    bonusJoues: bonus.length,
+    scoreMoyenBonus: bonus.length === 0 ? 0 : Math.round(sommePourcentages / bonus.length),
   }
 }
 
