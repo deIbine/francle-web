@@ -868,3 +868,18 @@ commandes), **comment le penser** (la question à se poser la prochaine fois).
   (`...parties.get(numero)`) pour ne pas effacer le bonus.
 - **Comment le penser** : faire évoluer un format, c'est d'abord se demander comment se lisent les données d'hier.
   Un champ facultatif, et un test qui relit une sauvegarde d'avant (`sauvegarde.test.ts`), y suffisent souvent.
+
+## web.7.4 Les finitions du bonus
+
+### Une fonction n'est finie que quand on peut la découvrir
+
+- **Pourquoi** : un bonus qui arrive sans prévenir après une victoire surprend ; un joueur qui lit « Comment jouer »
+  doit le connaître, et le README doit le citer. Les crédits aussi changent : les contours des départements viennent
+  de la même source que ceux des régions.
+- **Comment le faire** : un paragraphe dans « Comment jouer » (`aide.bonus` dans `textes.ts`, en français et en
+  anglais), les crédits et le README mis à jour, un test qui joue le bonus en anglais (`Anglais.test.tsx`), et
+  `npm run build` pour vérifier que chaque région a bien son petit fichier de contours à part (17 à 30 Ko, 5 à 9 Ko
+  compressés), chargé seulement au début du bonus.
+- **Comment le penser** : avant de dire « c'est fait », relire la liste de ce qui touche le joueur : l'aide, les
+  textes dans chaque langue, le téléphone, le thème sombre, les crédits. Et vérifier dans un vrai navigateur ce que
+  jsdom ne sait pas montrer : la mise en page, les couleurs, le survol.

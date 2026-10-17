@@ -82,7 +82,7 @@ angle de rotation, et les valeurs de ses tests.
 5. **web.5 L'anglais** : tous les textes en deux langues, au choix du joueur.
 6. **web.6 Les finitions** : affichage mobile, accessibilité (clavier, lecteurs d'écran), « comment jouer », README,
    licence.
-7. **web.7 Le bonus des départements** : après chaque victoire (partie du jour et partie libre), faire deviner tous
+7. ✅ **web.7 Le bonus des départements** : après chaque victoire (partie du jour et partie libre), faire deviner tous
    les départements de la région trouvée (décidé le 16 octobre 2026, étendu à la partie libre le 17 octobre 2026,
    détail plus bas dans « Le bonus des départements »).
 8. **web.8 Le domaine et le défi** (ancien web.7, renuméroté le 16 octobre 2026) : d'abord le nom de domaine, puis le défi (un lien à envoyer à un ami pour lui
@@ -90,10 +90,10 @@ angle de rotation, et les valeurs de ses tests.
 
 ## Où on en est (mis à jour le 17 octobre 2026)
 
-**Faites : web.0 à web.6**, et pour web.7 les phases **web.7.0**, **web.7.0.1** et **web.7.0.2** (le plan). Le bonus est **fini dans
-le projet Java** (phase 9, PR deIbine/francle#34, étiquette `phase-9`) et ses réponses sont reportées plus bas.
-Prochaine étape : **web.7.1 Les données des départements** (voir « Le bonus des départements »). Ensuite **web.8 Le
-domaine et le défi** (l'utilisateur doit d'abord acheter le nom de domaine).
+**Faites : web.0 à web.7.** Le bonus des départements est programmé, en quatre PR empilées (web.7.1 à web.7.4,
+détail plus bas dans « Le bonus des départements »), **à relire et fusionner** par l'utilisateur, avec leurs listes
+« À valider ». Prochaine étape : **web.8 Le domaine et le défi** (l'utilisateur doit d'abord acheter le nom de
+domaine).
 
 - **web.0** (PR #1, étiquette `web-0`) : dépôt public `deIbine/francle-web`, Vite + React + TypeScript, Vitest, lint
   oxlint, CI `.github/workflows/ci.yml` (tâche `verifier` sur chaque PR et sur `main`, tâche `publier` vers GitHub
@@ -165,22 +165,13 @@ domaine et le défi** (l'utilisateur doit d'abord acheter le nom de domaine).
   dans ⚙️, réglage `liste`), fenêtre gardée par le plateau (`composants/ListeRegions.tsx`), régions du mode joué, un
   clic propose le nom. App garde un compteur de demandes par onglet (`demandeListe`), comme pour 📊. Sur téléphone, les
   boutons de l'en-tête sont plus serrés (`px-1`, `sm:px-2`) pour que le titre tienne sur une ligne.
-- **Pour reprendre (arrêté le 17 octobre 2026, reprise prévue le 18)** : lire ce plan et `docs/lecons.md`, vérifier
-  que `main` est à jour (`git pull`, dans les deux dépôts), puis reprendre « Le bonus des départements » ci-dessous.
-  Aucun code n'est encore écrit dans `francle-web` pour web.7 : seules les phases web.7.0, web.7.0.1 et web.7.0.2
-  (les mises à jour de ce plan) sont faites. Le code Java de la phase 9 sert de référence (fichiers cités dans « Ce
-  qui existe déjà »).
-  - **Décidé le 17 octobre 2026 : toutes les phases web.7.1 à web.7.7 seront lancées en même temps**, à la suite,
-    une branche et une PR par phase, empilées, fusionnées à la fin (comme web.2-web.3 et web.4-web.6, voir la leçon
-    sur le rebase des branches empilées). **Avant de lancer** : présenter d'un coup le découpage de toutes les phases
-    (en proposant de regrouper celles qui peuvent l'être) et les petites questions qui restent, puis attendre
-    l'accord. Les petits choix faits en route vont dans une liste « À valider » de chaque PR.
-  - **Ce qu'il faudra** : les contours sources, **absents du disque** (ni dans `francle-web`, ni dans `francle`) :
-    télécharger `departements-avec-outre-mer.geojson`, `regions.geojson` et
-    `regions-avant-redecoupage-2015.geojson` depuis https://github.com/gregoiredavid/france-geojson, hors du dépôt
-    (par exemple dans le dossier temporaire), pour web.7.2. Pour l'ordre du jour (web.7.3) : compiler le Java et
-    relancer `outils/ReferenceJava.java` (mode d'emploi dans son en-tête, à étendre à `Bonus.ordre`, qui est de
-    paquet comme les autres méthodes appelées). Node : `export PATH="/c/Program Files/nodejs:$PATH";` dans le Bash.
+- **Pour reprendre (après web.7, le 17 octobre 2026)** : lire ce plan et `docs/lecons.md`. Les quatre PR de web.7
+  attendent la relecture de l'utilisateur ; une fois fusionnées (en squash, dans l'ordre, voir la leçon sur le rebase
+  des branches empilées), poser les étiquettes `web-7.1` à `web-7.4` et `web-7`.
+  - Les contours sources ne sont pas dans le dépôt : pour régénérer les images, télécharger
+    `departements-avec-outre-mer.geojson`, `regions.geojson` et `regions-avant-redecoupage-2015.geojson` depuis
+    https://github.com/gregoiredavid/france-geojson, hors du dépôt. Node : `export PATH="/c/Program Files/nodejs:$PATH";`
+    dans le Bash.
   - Pour web.8 : quel domaine, s'il est acheté ; comment fonctionne le lien du défi (région visible dans le lien ou
   codée, partie du jour ou libre, époque…).
 
@@ -232,36 +223,56 @@ Idée du 16 octobre 2026 : après une victoire, en bonus, faire deviner les dép
 
 ### Les phases (une branche et une PR par phase, étiquettes `web-7.0`, `web-7.1`…)
 
+Prévues en sept phases (ci-dessous), **faites en quatre PR** le 17 octobre 2026, avec l'accord de l'utilisateur :
+
+- **web.7.1 Les données et les contours** (phases 1 et 2) : `src/domaine/departements.json` (copie du Java),
+  `departements.ts` (101 départements, recherche par nom ou numéro, suggestions) ; le script lit cette liste et écrit
+  `src/images/departements/<région>.json` (un chemin SVG par département, 2000 unités, trous compris, zoom de
+  l'Île-de-France). 656 Ko pour les 35 régions, 30 Ko au plus pour une.
+- **web.7.2 Les règles** (phase 3) : `src/domaine/bonus.ts` ; l'ordre du jour comparé au Java sur 1501 jours
+  (`reference-java.json`, régénéré : les suggestions y comparent maintenant les noms des deux langues, comme le Java
+  depuis sa phase 8).
+- **web.7.3 Le bonus jouable** (phases 4, 5 et 6) : `composants/JeuBonus.tsx`, `CarteDepartements.tsx`,
+  `BoutonBonus.tsx`, `contours.ts` (chargement à la demande) ; sauvegarde (`bonus` facultatif dans chaque partie du
+  jour), reprise, onglets, statistiques, partage ; mode B derrière `MODE_BONUS` ; `Saisie` reçoit ses suggestions
+  en paramètre.
+- **web.7.4 Les finitions** (phase 7) : « Comment jouer », crédits, README, test en anglais, ce plan.
+
+Décisions prises avant de lancer (le 17 octobre 2026) : un bonus pas commencé (pas lancé au retour sur la page, ou
+passé avant toute réponse) **reste à jouer jusqu'à minuit** par un bouton « 🗺️ Jouer le bonus », sans repartir tout
+seul au retour ; en partie libre, jusqu'à la partie suivante. Les **noms au survol** une fois le bonus fini, et au
+clavier. Le score partiel d'un bonus passé en cours de route apparaît dans le partage. Deux cases dans les
+statistiques : « Bonus joués » et « Score moyen ».
+
 0. **web.7.0 Le plan à jour** : ce chapitre, et l'ancien web.7 renuméroté web.8. ✅
    **web.7.0.1 Les réponses du Java** : les décisions du Java reportées ici, avec l'écart de la reprise (le
    17 octobre 2026). ✅
    **web.7.0.2 Le point de reprise** : où on en est, ce qu'il faudra, et la décision de tout lancer ensemble. ✅
-1. **web.7.1 Les données des départements**, sans affichage : copier `departements.json` du Java (par exemple dans
+1. ✅ **web.7.1 Les données des départements**, sans affichage : copier `departements.json` du Java (par exemple dans
    `src/domaine/departements.json`), `src/domaine/departements.ts` (101 départements, numéro, nom, région pour chaque
    époque), et le script Python le lit au lieu de son tableau `DEPARTEMENTS`. Tests : 101 départements, chacun dans
    une seule région par époque, aucun oubli, accord avec `regions.ts`.
-2. **web.7.2 Les contours des départements** : reporter dans le script les changements du Java ; il écrit
+2. ✅ **web.7.2 Les contours des départements** : reporter dans le script les changements du Java ; il écrit
    `src/images/departements/<région>.json` (les 35 régions, tracés simplifiés, un par département) et le cadre du
    zoom de l'Île-de-France. Vérifier le poids des fichiers ; ne charger que la carte de la région jouée.
-3. **web.7.3 Les règles du bonus**, sans affichage (comme `partie.ts`) : `src/domaine/bonus.ts`, les questions
+3. ✅ **web.7.3 Les règles du bonus**, sans affichage (comme `partie.ts`) : `src/domaine/bonus.ts`, les questions
    (carte, nom, numéro), l'ordre du jour identique au Java (ajouté à `reference-java.json` par
    `outils/ReferenceJava.java`) ou au hasard en partie libre, une réponse renvoie un nouveau bonus, passer, le score,
    la fin. Tests.
-4. **web.7.4 Le bonus jouable, mode A** : composant `CarteDepartements` (carte cliquable à la place de la
+4. ✅ **web.7.4 Le bonus jouable, mode A** : composant `CarteDepartements` (carte cliquable à la place de la
    silhouette, question, réponse montrée juste ou fausse, question suivante, bouton « Passer »), zoom de
    l'Île-de-France, question du numéro en outre-mer, lancé après chaque victoire. Accessibilité : chaque département
    atteignable au clavier, **sans que son nom lu par un lecteur d'écran donne la réponse**.
-5. **web.7.5 Sauvegarde, statistiques, partage** : le bonus du jour sauvegardé avec la partie du jour à chaque
+5. ✅ **web.7.5 Sauvegarde, statistiques, partage** : le bonus du jour sauvegardé avec la partie du jour à chaque
    réponse (champ facultatif, les anciennes sauvegardes restent lisibles, pas de `v2`), **repris après fermeture**,
    synchronisé entre onglets (`onglets.ts`) ; score moyen et nombre de bonus dans les statistiques ; la ligne
    « 🗺️ 9/12 » dans le partage, une fois le bonus fini.
-6. **web.7.6 Le mode B, caché** : saisie avec suggestions (reprise de `Saisie` et `recherche.ts`), limitée aux
+6. ✅ **web.7.6 Le mode B, caché** : saisie avec suggestions (reprise de `Saisie` et `recherche.ts`), limitée aux
    départements de la région, nom ou numéro ; une constante dans le code pour choisir A ou B.
-7. **web.7.7 Les finitions** : textes FR et EN, « Comment jouer », tests axe, téléphone à 375 pixels, thème sombre,
+7. ✅ **web.7.7 Les finitions** : textes FR et EN, « Comment jouer », tests axe, téléphone à 375 pixels, thème sombre,
    leçons, plan.
 
-Ces phases seront **lancées toutes ensemble**, en PR empilées (décidé le 17 octobre 2026, voir « Pour reprendre »).
-Avant de lancer, voir si certaines se regroupent (par exemple 7.1 et 7.2, qui touchent toutes deux le script).
+(Numérotation d'origine des sept phases ; les PR suivent le regroupement en quatre décrit plus haut.)
 
 ## Les améliorations à reprendre (relevées le 16 octobre 2026)
 

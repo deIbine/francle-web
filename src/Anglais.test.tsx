@@ -5,7 +5,8 @@ import { cleanup, render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { afterEach, describe, expect, it } from 'vitest'
 import App from './App.tsx'
-import { regionDuJour } from './domaine/regionDuJour.ts'
+import { ordreDuJour } from './domaine/bonus.ts'
+import { numero, regionDuJour } from './domaine/regionDuJour.ts'
 import { REGIONS, tirables } from './domaine/regions.ts'
 
 // le jour où l'horloge des tests est arrêtée (voir preparationTests.ts)
@@ -83,6 +84,25 @@ describe('Le jeu en anglais', () => {
     expect(within(resultats).getByText('Well done, found in 2 tries!')).toBeDefined()
     await joueur.click(within(resultats).getByRole('button', { name: /Share/ }))
     expect((await navigator.clipboard.readText()).split('\n')[0]).toBe('#Francle #2 2/6')
+  })
+
+  it('le bonus en anglais, les départements gardant leur nom français', async () => {
+    navigateurEn('en-GB')
+    const joueur = demarrer()
+    await proposer(joueur, CIBLE.nom.en)
+    await joueur.click(within(screen.getByRole('dialog', { name: 'Results' })).getByRole('button', { name: 'Close' }))
+    const ordre = ordreDuJour(CIBLE, numero(DATE))
+    const carte = await within(panneau()).findByRole(
+      'group',
+      { name: 'Map of the region’s departments' },
+      { timeout: 5000 },
+    )
+    expect(within(panneau()).getByRole('heading', { name: 'Bonus: the departments' })).toBeDefined()
+    expect(within(panneau()).getByText(`Department 1 of ${ordre.length}`)).toBeDefined()
+    expect(within(panneau()).getByText(`Click on: ${ordre[0].nom}`)).toBeDefined()
+    expect(within(carte).getAllByRole('button')[0].getAttribute('aria-label')).toBe(`Area 1 of ${ordre.length}`)
+    await joueur.click(within(panneau()).getByRole('button', { name: 'Skip' }))
+    expect(within(panneau()).getByRole('button', { name: '🗺️ Play the bonus' })).toBeDefined()
   })
 })
 

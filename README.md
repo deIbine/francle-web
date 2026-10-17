@@ -7,13 +7,17 @@ Devine la région française du jour, en six essais.
 Francle est un jeu de devinettes inspiré de [Worldle](https://worldle.teuteuf.fr/) : on voit la silhouette d'une
 région française, et l'on propose des régions jusqu'à trouver la bonne. Après chaque essai, le jeu donne la distance
 entre les deux capitales régionales, la direction à suivre et un pourcentage de proximité. Après chaque essai raté,
-un indice apparaît : la superficie, une spécialité, une personnalité, la capitale, puis un monument.
+un indice apparaît : la superficie, une spécialité, une personnalité, la capitale, puis un monument. Après une
+victoire, un bonus : retrouver sur la carte chaque département de la région trouvée.
 
 ## Ce qu'on peut faire
 
 - **La partie du jour** : la même région pour tout le monde, parmi les 18 régions actuelles. Elle change à minuit.
   La partie est retrouvée si l'on ferme la page ; les statistiques (parties, victoires, séries) sont gardées.
-- **Le partage** : le résultat en carrés 🟩🟨⬜, sans dévoiler la réponse.
+- **Le bonus des départements** : après une victoire, chaque département de la région est demandé à son tour
+  (« Clique sur : Finistère »), une seule réponse par département. Le bonus du jour est retrouvé si l'on ferme la
+  page, et compte dans les statistiques (score moyen).
+- **Le partage** : le résultat en carrés 🟩🟨⬜, sans dévoiler la réponse, et le score du bonus (🗺️ 9/12).
 - **La partie libre** : autant de parties qu'on veut, avec les régions actuelles ou les anciennes régions (avant 2016).
 - **Les réglages** : thème clair ou sombre, kilomètres ou miles, et deux modes difficiles : la silhouette tournée 🌀
   ou cachée 🙈.

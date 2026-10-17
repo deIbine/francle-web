@@ -54,7 +54,7 @@ describe('Le bas de page', () => {
   it('cite les sources et le code, et dit qu’aucune donnée n’est collectée', () => {
     render(<App />)
     const pied = screen.getByRole('contentinfo')
-    expect(within(pied).getByRole('link', { name: /^Contours des régions\s:\sIGN et INSEE$/ })).toBeDefined()
+    expect(within(pied).getByRole('link', { name: /^Contours des régions et des départements\s:\sIGN et INSEE$/ })).toBeDefined()
     expect(within(pied).getByRole('link', { name: 'licence ouverte Etalab' })).toBeDefined()
     expect(within(pied).getByRole('link', { name: 'Inspiré de Worldle' })).toBeDefined()
     expect(within(pied).getByRole('link', { name: 'Code source' }).getAttribute('href')).toBe(
