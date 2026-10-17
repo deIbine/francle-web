@@ -5,9 +5,11 @@ Le plateau (silhouette, saisie, tableau, indices) est commun avec la partie libr
 composant ajoute ce qui est propre au jour : la sauvegarde après chaque changement (sauvegarde.ts), et la fenêtre
 des résultats et des statistiques.
 
-Après une victoire, le bonus des départements commence à la fermeture de la fenêtre des résultats. Il est sauvé à
-chaque réponse : commencé puis quitté (page fermée), il reprend là où il en était. Passé avant toute réponse, ou pas
-encore lancé quand on revient sur la page, il reste à jouer jusqu'à minuit, par le bouton « 🗺️ Jouer le bonus ».
+Après une victoire, le bonus des départements commence tout de suite, à la place de la silhouette ; la fenêtre des
+résultats ne s'ouvre qu'à sa fin (après une courte pause, pour voir la dernière réponse), et le partage contient alors
+son score. Il est sauvé à chaque réponse : commencé puis quitté (page fermée), il reprend là où il en était, sans la
+fenêtre par-dessus. Passé avant toute réponse, ou pas encore lancé quand on revient sur la page, il reste à jouer
+jusqu'à minuit, par le bouton « 🗺️ Jouer le bonus ».
  */
 import { useState } from 'react'
 import { BoutonBonus } from './composants/BoutonBonus.tsx'
@@ -24,6 +26,7 @@ import { textePartage, type ModesDifficiles } from './domaine/partage.ts'
 import { angleDuJour, MODE_DU_JOUR, numero as numeroDuJour, regionDuJour } from './domaine/regionDuJour.ts'
 import { statistiques } from './domaine/statistiques.ts'
 import { minuitSuivant } from './domaine/temps.ts'
+import { usePause } from './pause.ts'
 import { modesReglages, uniteAffichee, type Reglages } from './reglages.ts'
 import { useChangementAilleurs } from './onglets.ts'
 import {
@@ -72,13 +75,17 @@ export function PartieDuJour({ jour, reglages, demandeStats, demandeListe }: Pro
   // les modes difficiles, fixés au premier essai. Avant, la partie suit les réglages du moment
   const [modesFixes, setModesFixes] = useState(() => modesFixesDe(sauvee))
   const modes = modesFixes ?? modesReglages(reglages)
-  // la fenêtre des résultats : ouverte d'emblée si on revient sur une partie déjà finie
-  const [fenetre, setFenetre] = useState(() => !enCours(partie))
   // le bonus des départements : celui qu'on avait commencé (rejoué depuis la sauvegarde), sinon aucun
   const [bonus, setBonus] = useState<Bonus | undefined>(() => restaurerBonus(numero, sauvee))
-  // vrai entre une victoire obtenue ici et la fermeture de la fenêtre des résultats, qui lance alors le bonus. Pas en
-  // revenant sur une partie déjà gagnée : le bonus ne surprend pas le joueur, il attend son bouton
-  const [bonusAVenir, setBonusAVenir] = useState(false)
+  // la fenêtre des résultats : ouverte d'emblée si on revient sur une partie déjà finie, sauf si un bonus est en
+  // cours (on le reprend). Un bonus pas commencé, lui, ne surprend pas le joueur : la fenêtre s'ouvre, et le bonus
+  // attend son bouton
+  const [fenetre, setFenetre] = useState(() => !enCours(partie) && (bonus === undefined || !bonusEnCours(bonus)))
+  // vrai quand le bonus vient d'être lancé par le joueur (victoire ou bouton) : le focus du clavier va alors sur son
+  // titre, la saisie ou le bouton qu'il vient d'utiliser ayant disparu. Pas quand on reprend un bonus en revenant
+  const [focusBonus, setFocusBonus] = useState(false)
+  // la fenêtre des résultats, un peu après la dernière réponse du bonus
+  const pause = usePause(() => setFenetre(true))
 
   // un autre onglet a joué : on reprend sa sauvegarde, la dernière écrite fait foi. Les deux onglets montrent ainsi
   // la même partie, et aucun n'écrase les essais de l'autre
@@ -99,41 +106,50 @@ export function PartieDuJour({ jour, reglages, demandeStats, demandeListe }: Pro
     setFenetre(true)
   }
 
-  // la seule façon de changer la partie : on la remplace, on fixe ses modes, on la sauvegarde, et on ouvre les
-  // résultats si elle vient de se terminer. Sauvegarder ici, et non après coup, garantit que les statistiques
-  // affichées dans la fenêtre comptent déjà cette partie
+  // la seule façon de changer la partie : on la remplace, on fixe ses modes, et on la sauvegarde. Une victoire lance
+  // le bonus ; une défaite (ou un abandon) ouvre les résultats. Sauvegarder ici, et non après coup, garantit que les
+  // statistiques affichées dans la fenêtre comptent déjà cette partie
   function changer(suite: Partie) {
     setPartie(suite)
     setModesFixes(modes)
     enregistrer(numero, suite, modes)
     setParties(lire())
-    if (!enCours(suite)) {
+    if (suite.etat === 'gagnee') {
+      lancerBonus(suite)
+    } else if (!enCours(suite)) {
       setFenetre(true)
     }
-    if (suite.etat === 'gagnee') {
-      setBonusAVenir(true)
-    }
   }
 
-  // la fenêtre se ferme (bouton ✕, Échap, clic à côté) : juste après une victoire, le bonus commence
-  function fermerFenetre() {
-    setFenetre(false)
-    if (bonusAVenir) {
-      setBonusAVenir(false)
-      setBonus(bonusDuJour(partie.cible, numero))
-    }
+  // le bonus de la partie gagnée, lancé par la victoire ou par le bouton « 🗺️ Jouer le bonus »
+  function lancerBonus(gagnee: Partie) {
+    setBonus(bonusDuJour(gagnee.cible, numero))
+    setFocusBonus(true)
   }
 
-  // la seule façon de changer le bonus, comme changer() pour la partie
+  // la seule façon de changer le bonus, comme changer() pour la partie. Quand il n'y a plus rien à jouer, les
+  // résultats s'ouvrent : tout de suite si le joueur a passé, après une pause s'il vient de donner sa dernière réponse
   function changerBonus(suite: Bonus) {
     // passé avant toute réponse : il n'a pas commencé, on revient à la silhouette et il reste à jouer
     if (!commence(suite)) {
       setBonus(undefined)
+      setFenetre(true)
       return
     }
     setBonus(suite)
     enregistrerBonus(numero, suite)
     setParties(lire())
+    if (suite.etat === 'termine') {
+      pause.lancer()
+    } else if (suite.etat === 'passe') {
+      setFenetre(true)
+    }
+  }
+
+  // le joueur ouvre les résultats lui-même : la pause en cours, s'il y en a une, n'a plus à les ouvrir
+  function ouvrirFenetre() {
+    pause.annuler()
+    setFenetre(true)
   }
 
   // le score du bonus, pour le partage, une fois le bonus fini
@@ -149,7 +165,7 @@ export function PartieDuJour({ jour, reglages, demandeStats, demandeListe }: Pro
         angle={angleDuJour(jour)}
         unite={uniteAffichee(reglages)}
         demandeListe={demandeListe}
-        bonus={bonus && <JeuBonus bonus={bonus} onChanger={changerBonus} />}
+        bonus={bonus && <JeuBonus bonus={bonus} onChanger={changerBonus} focaliser={focusBonus} />}
         fin={
           <div className="flex flex-col items-center gap-2">
             <p className="font-semibold">
@@ -157,13 +173,13 @@ export function PartieDuJour({ jour, reglages, demandeStats, demandeListe }: Pro
             </p>
             <button
               type="button"
-              onClick={() => setFenetre(true)}
+              onClick={ouvrirFenetre}
               className="rounded bg-francle-fonce px-4 py-2 font-semibold text-white hover:opacity-90"
             >
               {textes.voirResultats}
             </button>
             {partie.etat === 'gagnee' && bonus === undefined && (
-              <BoutonBonus onJouer={() => setBonus(bonusDuJour(partie.cible, numero))} />
+              <BoutonBonus onJouer={() => lancerBonus(partie)} />
             )}
           </div>
         }
@@ -171,7 +187,7 @@ export function PartieDuJour({ jour, reglages, demandeStats, demandeListe }: Pro
 
       <Fenetre
         ouverte={fenetre}
-        onFermer={fermerFenetre}
+        onFermer={() => setFenetre(false)}
         titre={enCours(partie) ? textes.stats.titre : textes.resultats}
       >
         {!enCours(partie) && (

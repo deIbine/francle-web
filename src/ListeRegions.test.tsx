@@ -58,11 +58,10 @@ describe('La liste des régions', () => {
     expect(proposee.disabled).toBe(true)
   })
 
-  it('trouver la région depuis la liste ouvre les résultats ; ensuite plus rien ne se propose', async () => {
+  it('trouver la région depuis la liste lance le bonus ; ensuite plus rien ne se propose', async () => {
     const joueur = demarrer()
     await joueur.click(within(await ouvrirListe(joueur)).getByRole('button', { name: CIBLE.nom.fr }))
-    const resultats = screen.getByRole('dialog', { name: 'Résultats' })
-    await joueur.click(within(resultats).getByRole('button', { name: 'Fermer' }))
+    expect(screen.getByRole('heading', { name: /^Bonus/ })).toBeDefined()
 
     const liste = await ouvrirListe(joueur)
     expect(within(liste).getByText('La partie est finie.')).toBeDefined()

@@ -901,3 +901,43 @@ commandes), **comment le penser** (la question à se poser la prochaine fois).
   utile : « quelle idée du code cette demande contredit-elle ? » (ici : « l'ordre des questions est fixé d'avance »).
   Ce qui ne la contredit pas peut rester tel quel. Et une donnée déjà sauvegardée chez les joueurs est toujours ce
   qui coûte le plus à changer : il faut y penser en premier.
+
+## web.7.5 Le bonus juste après la victoire
+
+### Décider au moment de l'évènement, plutôt que garder un état « en attente »
+
+- **Pourquoi** : avant, une victoire mettait `bonusAVenir` à vrai, et la fermeture de la fenêtre lançait le bonus.
+  Deux états à garder d'accord (la fenêtre, le drapeau), et un oubli possible à chaque nouveau chemin (changer
+  d'époque, minuit). Le bonus devant commencer tout de suite, le drapeau n'a plus de raison d'être.
+- **Comment le faire** : tout se décide dans les deux fonctions qui changent l'état : `changer()` (une victoire lance
+  le bonus, une défaite ouvre la fenêtre) et `changerBonus()` (fini : la fenêtre après une pause ; passé : tout de
+  suite). L'état de départ, au retour sur la page, se déduit de ce qui est sauvé : fenêtre ouverte si la partie est
+  finie, sauf si un bonus est en cours.
+- **Comment le penser** : un drapeau qui dit « il faudra faire X plus tard » est un signal. Se demander si l'on peut
+  faire X au moment où l'on sait qu'il faut le faire. C'est comme en Java : mieux vaut agir dans le
+  `actionPerformed` que poser un booléen lu par un autre écouteur.
+
+### Une minuterie dans React : un état et un effet
+
+- **Pourquoi** : la fenêtre doit s'ouvrir 1,5 s après la dernière réponse. Un `setTimeout` lancé dans le clic
+  continuerait de tourner si le composant disparaît (minuit, nouvelle partie) et ouvrirait la fenêtre d'une partie
+  qui n'existe plus.
+- **Comment le faire** : `usePause` (`src/pause.ts`) garde un état « en attente » ; un `useEffect` lance la
+  minuterie quand il passe à vrai, et rend une fonction qui l'arrête (`clearTimeout`). React appelle cette fonction
+  si l'état change (`annuler()`, appelé par « Nouvelle partie ») ou si le composant disparaît. Testé seul avec de
+  fausses minuteries (`vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] })` et
+  `vi.advanceTimersByTime`), et une fois pour de vrai dans `Bonus.test.tsx`.
+- **Comment le penser** : tout ce qui continue après le clic (minuterie, téléchargement, écouteur) doit savoir
+  s'arrêter. La question à se poser : « que se passe-t-il si le composant disparaît pendant ce temps ? ». En
+  Swing, c'est le `javax.swing.Timer` qu'on oublie d'arrêter en fermant une fenêtre.
+
+### Rendre le focus quand ce qu'on utilisait disparaît
+
+- **Pourquoi** : le joueur tape la région, appuie sur Entrée, et la saisie disparaît (la partie est finie). Le focus
+  du clavier retombe alors sur la page : un joueur au clavier ou avec un lecteur d'écran ne sait plus où il est.
+- **Comment le faire** : le titre du bonus reçoit le focus à son apparition (`ref`, `tabIndex={-1}` pour qu'il
+  puisse le recevoir sans devenir une étape de Tab, et `focus()` dans un `useEffect`). Seulement quand le joueur
+  vient de lancer le bonus, pas quand il le retrouve en revenant sur la page. Le test vérifie
+  `document.activeElement`.
+- **Comment le penser** : à chaque élément qui disparaît après une action, se demander où va le focus. La fenêtre
+  `<dialog>` le gère toute seule ; le reste de la page, non.

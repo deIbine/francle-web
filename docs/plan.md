@@ -324,7 +324,7 @@ département, puis on écrit son nom**, comme on écrit une région.
 ### Les étapes (une branche et une PR chacune)
 
 0. ✅ **web.7.5.0 Le plan** : ce chapitre.
-1. **web.7.5 Le bonus juste après la victoire** : `PartieDuJour` et `PartieLibre` (plus de fenêtre à la victoire,
+1. ✅ **web.7.5 Le bonus juste après la victoire** (fait, `src/pause.ts` pour la pause) : `PartieDuJour` et `PartieLibre` (plus de fenêtre à la victoire,
    le bonus tout de suite, la fenêtre à la fin du bonus ou à « Passer » avant toute réponse, les cas du retour sur
    la page), tests (`Bonus.test.tsx`, `App.test.tsx`…), « Comment jouer » si besoin, leçons.
 2. **web.7.6 Les règles du mode C**, sans affichage : `bonus.ts` (la question `'choix'` ou un nom à décider,

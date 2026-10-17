@@ -81,6 +81,7 @@ describe('Les réglages', () => {
     await regler(joueur, 'Image cachée')
     expect(silhouette().getAttribute('alt')).toBe('La silhouette de la région à deviner')
     await proposer(joueur, CIBLE.nom.fr)
+    await joueur.click(screen.getByRole('button', { name: 'Voir les résultats' }))
     await joueur.click(screen.getByRole('button', { name: /Partager/ }))
     expect((await navigator.clipboard.readText()).split('\n')[0]).toBe('#Francle n° 2 2/6')
   })
@@ -95,6 +96,7 @@ describe('Les réglages', () => {
     const joueur2 = demarrer()
     expect(silhouette().getAttribute('alt')).toMatch(/^Silhouette cachée/)
     await proposer(joueur2, CIBLE.nom.fr)
+    await joueur2.click(screen.getByRole('button', { name: 'Voir les résultats' }))
     await joueur2.click(screen.getByRole('button', { name: /Partager/ }))
     expect((await navigator.clipboard.readText()).split('\n')[0]).toBe('#Francle n° 2 2/6 🌀🙈')
   })
@@ -120,6 +122,8 @@ describe('La partie libre', () => {
     expect(screen.getByRole('heading', { level: 1 }).textContent).toBe('Francle')
     expect(within(panneau()).queryAllByRole('row').filter((ligne) => ligne.closest('tbody'))).toHaveLength(0)
     await proposer(joueur, cible.nom.fr)
+    // une victoire lance le bonus ; « Passer » avant toute réponse ouvre les résultats
+    await joueur.click(within(panneau()).getByRole('button', { name: 'Passer' }))
     const resultats = screen.getByRole('dialog', { name: 'Résultats' })
     expect(within(resultats).getByText('Bravo, trouvé du premier coup !')).toBeDefined()
     // ni partage ni compte à rebours en partie libre
@@ -145,7 +149,8 @@ describe('La partie libre', () => {
     const cible = premiereRegion('anciennes')
     await joueur.click(screen.getByRole('radio', { name: 'Anciennes régions (avant 2016)' }))
     await proposer(joueur, cible.nom.fr)
-    expect(within(screen.getByRole('dialog', { name: 'Résultats' })).getByText(cible.nom.fr)).toBeDefined()
+    // le message de victoire, sous le bonus qui vient de commencer
+    expect(within(panneau()).getByText(new RegExp(`La réponse : ${cible.nom.fr}$`))).toBeDefined()
   })
 
   it('changer d’époque pendant une partie commencée demande confirmation', async () => {
