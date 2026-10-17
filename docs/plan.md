@@ -93,12 +93,13 @@ angle de rotation, et les valeurs de ses tests.
 
 ## Où on en est (mis à jour le 17 octobre 2026)
 
-**Faites : web.0 à web.7.** Le bonus des départements est en ligne depuis le 17 octobre 2026 : quatre PR (#17 à
-#20), relues par l'utilisateur (testées en local) et fusionnées, étiquettes `web-7.1` à `web-7.4` et `web-7` (détail
-plus bas dans « Le bonus des départements »). **Le bonus revu (web.7.5 à web.7.7)**, décidé le 17 octobre 2026
-après les retours des joueurs, est fait : trois PR empilées (#24, #25, #26), **à tester par l'utilisateur avant la
-fusion** (voir « Le bonus revu » plus bas). Ensuite, **web.8 Le domaine et le défi**, dont le découpage reste à valider
-(l'utilisateur doit d'abord acheter le nom de domaine).
+**Faites : web.0 à web.7, et le bonus revu (web.7.5 à web.7.7).** Le bonus des départements est en ligne depuis le
+17 octobre 2026 : quatre PR (#17 à #20), étiquettes `web-7.1` à `web-7.4` et `web-7` (détail plus bas dans « Le bonus
+des départements »). **Le bonus revu**, décidé le même jour après les retours des joueurs, est en ligne lui aussi :
+trois PR empilées (#24, #25, #26), fusionnées en squash le 17 octobre 2026 sur l'accord de l'utilisateur (sans test
+en local de sa part), étiquettes `web-7.5`, `web-7.6`, `web-7.7` (détail plus bas dans « Le bonus revu »). Prochaine
+étape : **web.8 Le domaine et le défi**, dont le découpage reste à valider (l'utilisateur doit d'abord acheter le nom
+de domaine).
 
 - **web.0** (PR #1, étiquette `web-0`) : dépôt public `deIbine/francle-web`, Vite + React + TypeScript, Vitest, lint
   oxlint, CI `.github/workflows/ci.yml` (tâche `verifier` sur chaque PR et sur `main`, tâche `publier` vers GitHub
@@ -172,15 +173,21 @@ fusion** (voir « Le bonus revu » plus bas). Ensuite, **web.8 Le domaine et le 
   boutons de l'en-tête sont plus serrés (`px-1`, `sm:px-2`) pour que le titre tienne sur une ligne.
 - **Le bonus des départements** (PR #17 à #20, étiquettes `web-7.1` à `web-7.4`, et `web-7`) : voir « Le bonus des
   départements » plus bas. Les choix faits en route (listes « À valider » des PR) ont été acceptés tels quels.
-- **Pour reprendre (le 17 octobre 2026, après les trois PR du bonus revu)** : lire ce plan et `docs/lecons.md`,
-  vérifier que `main` est à jour (`git pull`). Les trois phases du **bonus revu** sont faites, en PR empilées : #24
-  (web.7.5, base `main`), #25 (web.7.6, base la branche de #24), #26 (web.7.7, base la branche de #25). Elles
-  attendent que l'utilisateur les teste en local (`npm run dev` sur la branche de #26) et dise de fusionner : alors
-  fusionner #24 en squash, puis rebaser chaque branche suivante sur `main` depuis l'ancienne pointe de la précédente
-  (`git rebase --onto main <ancienne pointe> <branche>`, voir la leçon dans `lecons.md`), changer sa base en `main`,
-  fusionner, et ainsi de suite ; étiquettes `web-7.5`, `web-7.6`, `web-7.7`. Le découpage de web.8 et ses douze questions ont été présentés le 17 octobre 2026 (voir
-  « Le domaine et le défi (web.8) » plus bas) : **l'utilisateur n'a pas encore répondu**, à reprendre après le bonus
-  revu.
+- **Pour reprendre (le 17 octobre 2026, après la fusion du bonus revu)** : lire ce plan et `docs/lecons.md`,
+  vérifier que `main` est à jour (`git pull`) et que la PR de ce point de reprise (web.7.7.1) est fusionnée. Le bonus
+  revu est fini et en ligne (275 tests). Deux suites possibles, à proposer à l'utilisateur :
+  - **web.8** : le découpage et ses douze questions ont été présentés le 17 octobre 2026 (voir « Le domaine et le
+    défi (web.8) » plus bas) ; **l'utilisateur n'a pas encore répondu**. Les lui rappeler, attendre ses réponses puis
+    son « tu peux lancer ».
+  - **Le Java (phase 10)**, dans une conversation ouverte sur le dossier du projet Java : voir « À reporter dans le
+    Java » dans « Le bonus revu ».
+  - **Encore à vérifier par l'utilisateur, en jouant** : le mode C sur un vrai téléphone (à 375 × 812, la saisie
+    commence à 496 pixels : le clavier devrait la laisser visible) et en thème sombre (les captures du navigateur
+    intégré ne se dessinaient pas ; vérifié par script seulement).
+  - Méthode suivie pour le bonus revu, à reprendre : toutes les questions de toutes les phases posées d'un coup,
+    recommandation à chaque fois ; les décisions notées dans le plan par une petite PR avant de coder ; puis les
+    phases enchaînées en PR empilées, fusionnées à la fin (`git rebase --onto main <ancienne pointe> <branche>`,
+    base changée en `main`, arbres comparés à chaque fusion).
   - **Reste à faire côté Java**, plus tard et dans une autre conversation (décidé le 17 octobre 2026) : voir « À
     reporter dans le Java » dans « Le bonus revu ».
   - Les contours sources ne sont pas dans le dépôt : pour régénérer les images, télécharger
@@ -326,15 +333,15 @@ département, puis on écrit son nom**, comme on écrit une région.
 
 ### Les étapes (une branche et une PR chacune)
 
-0. ✅ **web.7.5.0 Le plan** : ce chapitre.
-1. ✅ **web.7.5 Le bonus juste après la victoire** (fait, `src/pause.ts` pour la pause) : `PartieDuJour` et `PartieLibre` (plus de fenêtre à la victoire,
+0. ✅ **web.7.5.0 Le plan** : ce chapitre (PR #22), puis **web.7.5.0.1** les décisions des phases (PR #23).
+1. ✅ **web.7.5 Le bonus juste après la victoire** (PR #24, `src/pause.ts` pour la pause) : `PartieDuJour` et `PartieLibre` (plus de fenêtre à la victoire,
    le bonus tout de suite, la fenêtre à la fin du bonus ou à « Passer » avant toute réponse, les cas du retour sur
    la page), tests (`Bonus.test.tsx`, `App.test.tsx`…), « Comment jouer » si besoin, leçons.
-2. ✅ **web.7.6 Les règles du mode C**, sans affichage (fait ; `MODE_BONUS` passe à C seulement à web.7.7, pour que le jeu reste jouable entre les deux) : `bonus.ts` (la question `'choix'` ou un nom à décider,
+2. ✅ **web.7.6 Les règles du mode C**, sans affichage (PR #25 ; `MODE_BONUS` passe à C seulement à web.7.7, pour que le jeu reste jouable entre les deux) : `bonus.ts` (la question `'choix'` ou un nom à décider,
    répondre avec le département cliqué et le département écrit, refus d'un département déjà trouvé, `MODE_BONUS`
    passe à C), `sauvegarde.ts` (des paires, l'ancien format toujours lisible), tests dont la relecture d'une
    ancienne sauvegarde.
-3. ✅ **web.7.7 Le mode C jouable** (fait ; `MODE_BONUS` passe à C ici) : `CarteDepartements` (un clic sélectionne, le choisi est mis en évidence, le zoom
+3. ✅ **web.7.7 Le mode C jouable** (PR #26 ; `MODE_BONUS` passe à C ici) : `CarteDepartements` (un clic sélectionne, le choisi est mis en évidence, le zoom
    de l'Île-de-France se clique aussi ; au clavier, Tab puis Entrée sélectionne et donne le focus à la saisie, les
    zones toujours sans leur nom), `JeuBonus` (la saisie sous la carte, suggestions des 101 départements), textes FR
    et EN, « Comment jouer », tests axe, téléphone à 375 pixels (le clavier du téléphone peut cacher la carte), thème
