@@ -1,9 +1,10 @@
 /*
 Les valeurs du Francle Java, toutes comparées : distances, directions et pourcentages pour chaque paire de régions,
-région et angle du jour pour 1501 jours passés, suggestions pour 944 saisies dans chaque mode.
+région, angle et ordre du bonus des départements pour 1501 jours passés, suggestions pour 472 saisies dans chaque mode.
 Le fichier reference-java.json est produit par outils/ReferenceJava.java (voir son en-tête).
  */
 import { describe, expect, it } from 'vitest'
+import { ordreDuJour } from './bonus.ts'
 import { azimut, direction, distance, proximite } from './geographie.ts'
 import { suggestions } from './recherche.ts'
 import { angleDuJour, numero, regionDuJour } from './regionDuJour.ts'
@@ -48,10 +49,17 @@ describe('Comparaison avec le Francle Java', () => {
     }
   })
 
-  it('mêmes suggestions, en ne cherchant que les noms français (le Java ne connaît pas les noms anglais)', () => {
+  it('même ordre des départements pour le bonus du jour', () => {
+    for (const jour of reference.jours) {
+      const ordre = ordreDuJour(parId(jour.region), jour.numero).map((departement) => departement.code)
+      expect(ordre, jour.date).toEqual(jour.bonus)
+    }
+  })
+
+  it('mêmes suggestions, noms français et anglais compris (le Java les cherche aussi depuis sa phase 8)', () => {
     for (const cas of reference.suggestions) {
       const mode = cas.mode.toLowerCase() as Mode
-      const ids = suggestions(cas.saisie, mode, 'fr', ['fr']).map((region) => region.id)
+      const ids = suggestions(cas.saisie, mode, 'fr').map((region) => region.id)
       expect(ids, `« ${cas.saisie} » en mode ${mode}`).toEqual(cas.regions)
     }
   })

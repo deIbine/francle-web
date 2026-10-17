@@ -41,14 +41,8 @@ export function mots(nom: string): string[] {
 // les régions à proposer pendant la frappe, parmi celles acceptées dans ce mode : d'abord celles dont un NOM
 // commence par la saisie (« nor » -> Normandie), puis celles dont un MOT commence par elle (« loire » -> Pays de la
 // Loire) ; chaque groupe par ordre alphabétique du nom dans la langue du joueur. Les deux noms, français et anglais,
-// sont cherchés : « bri » trouve la Bretagne (Brittany) même en français.
-// nomsCherches ne sert qu'aux tests : le Java ne connaît que les noms français
-export function suggestions(
-  saisie: string,
-  mode: Mode,
-  langue: Langue,
-  nomsCherches: readonly Langue[] = ['fr', 'en'],
-): Region[] {
+// sont cherchés : « bri » trouve la Bretagne (Brittany) même en français (comme le Java depuis sa phase 8)
+export function suggestions(saisie: string, mode: Mode, langue: Langue): Region[] {
   const debut = simplifier(saisie)
   if (debut === '') {
     return []
@@ -59,7 +53,7 @@ export function suggestions(
     if (!estDansLeMode(region, mode)) {
       continue
     }
-    const noms = nomsCherches.map((langueDuNom) => region.nom[langueDuNom])
+    const noms = [region.nom.fr, region.nom.en]
     if (noms.some((nom) => simplifier(nom).startsWith(debut))) {
       parNom.push(region)
     } else if (noms.some((nom) => mots(nom).some((mot) => mot.startsWith(debut)))) {
