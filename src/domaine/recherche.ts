@@ -31,7 +31,7 @@ const SEPARATEURS = /[\s\-'’]+/
 
 // les mots du nom, simplifiés, sans les petits mots (« de », « la », « d’ ») : « Provence-Alpes-Côte d’Azur » ->
 // provence, alpes, cote, azur. Sinon « d » ou « de » ferait apparaître la moitié des régions
-function mots(nom: string): string[] {
+export function mots(nom: string): string[] {
   return nom
     .split(SEPARATEURS)
     .map(simplifier)

@@ -7,7 +7,12 @@ Adapté de outils/generer_images.py du projet Java (deIbine/francle), qui produi
     src/images/regions/defaut.svg   la France métropolitaine et un point d'interrogation (mode « image cachée »)
     src/images/cartes/<mode>.json   les contours des régions de chaque époque, pour la carte de fin de partie :
                                     le composant React les dessine et colore la réponse lui-même
+    src/images/departements/<id>.json  les contours de chaque département de la région, pour le bonus des
+                                    départements : le composant React les dessine, les colore et les rend cliquables
     public/favicon.svg              l'icône du site : la France métropolitaine en bleu Francle
+
+Les départements de chaque région ne sont pas écrits ici : ils sont lus dans src/domaine/departements.json, le
+fichier dont se sert aussi le jeu.
 
 Les contours viennent du dépôt https://github.com/gregoiredavid/france-geojson (données IGN et INSEE, licence ouverte
 Etalab). Ils ne sont pas dans le dépôt (près de 6 Mo) : les télécharger dans un dossier à part.
@@ -23,47 +28,9 @@ import math
 import sys
 from pathlib import Path
 
-# l'identifiant de la région (celui de regions.ts) -> ses départements
-DEPARTEMENTS = {
-    # nouvelles régions (2016)
-    "hauts-de-france": ["02", "59", "60", "62", "80"],
-    "normandie": ["14", "27", "50", "61", "76"],
-    "grand-est": ["08", "10", "51", "52", "54", "55", "57", "67", "68", "88"],
-    "bourgogne-franche-comte": ["21", "25", "39", "58", "70", "71", "89", "90"],
-    "auvergne-rhone-alpes": ["01", "03", "07", "15", "26", "38", "42", "43", "63", "69", "73", "74"],
-    "nouvelle-aquitaine": ["16", "17", "19", "23", "24", "33", "40", "47", "64", "79", "86", "87"],
-    "occitanie": ["09", "11", "12", "30", "31", "32", "34", "46", "48", "65", "66", "81", "82"],
-    "centre-val-de-loire": ["18", "28", "36", "37", "41", "45"],
-    # régions qui n'ont pas changé en 2016
-    "bretagne": ["22", "29", "35", "56"],
-    "pays-de-la-loire": ["44", "49", "53", "72", "85"],
-    "ile-de-france": ["75", "77", "78", "91", "92", "93", "94", "95"],
-    "provence-alpes-cote-dazur": ["04", "05", "06", "13", "83", "84"],
-    "corse": ["2A", "2B"],
-    "guadeloupe": ["971"],
-    "martinique": ["972"],
-    "guyane": ["973"],
-    "la-reunion": ["974"],
-    "mayotte": ["976"],
-    # anciennes régions (avant 2016)
-    "nord-pas-de-calais": ["59", "62"],
-    "picardie": ["02", "60", "80"],
-    "haute-normandie": ["27", "76"],
-    "basse-normandie": ["14", "50", "61"],
-    "poitou-charentes": ["16", "17", "79", "86"],
-    "centre": ["18", "28", "36", "37", "41", "45"],
-    "champagne-ardenne": ["08", "10", "51", "52"],
-    "lorraine": ["54", "55", "57", "88"],
-    "alsace": ["67", "68"],
-    "bourgogne": ["21", "58", "71", "89"],
-    "franche-comte": ["25", "39", "70", "90"],
-    "rhone-alpes": ["01", "07", "26", "38", "42", "69", "73", "74"],
-    "auvergne": ["03", "15", "43", "63"],
-    "limousin": ["19", "23", "87"],
-    "aquitaine": ["24", "33", "40", "47", "64"],
-    "midi-pyrenees": ["09", "12", "31", "32", "46", "65", "81", "82"],
-    "languedoc-roussillon": ["11", "30", "34", "48", "66"],
-}
+# la liste des départements et ceux de chaque région : le même fichier que celui du jeu (src/domaine/departements.ts),
+# copié du projet Java. Une seule liste pour le jeu et pour les images : ils ne peuvent pas se contredire
+LISTE = Path(__file__).parent.parent / "src" / "domaine" / "departements.json"
 
 # le nom de la région dans les fichiers de contours -> son identifiant, pour les cartes de fin de partie
 NOUVELLES = {
@@ -234,6 +201,69 @@ def silhouette(fichier, departements):
     ))
 
 
+# les contours des départements, pour le bonus : sur 2000 unités au plus grand côté, et non 1000 comme les
+# silhouettes, pour le zoom de l'Île-de-France (Paris y est agrandi quatre fois : à 1000 unités, ses limites
+# seraient en marches d'escalier). Les mêmes valeurs que le script du projet Java
+COTE_CONTOURS = 2000
+TOLERANCE_CONTOURS = 1.0
+# l'Île-de-France est vue en entier, plus un zoom sur Paris et la petite couronne, trop petits sinon
+ZOOM = {"ile-de-france": ["75", "92", "93", "94"]}
+
+
+def tous_les_anneaux(geometrie):
+    """Tous les contours d'un Polygon ou d'un MultiPolygon, trous compris : l'enclave des Papes (Vaucluse) est un trou
+    dans la Drôme. Sans lui, un clic dans l'enclave tomberait dans les deux départements. Le navigateur sait dessiner
+    les trous : c'est la règle « evenodd » (un point entouré deux fois est dehors), que le composant React demande."""
+    polygones = [geometrie["coordinates"]] if geometrie["type"] == "Polygon" else geometrie["coordinates"]
+    return [anneau for polygone in polygones for anneau in polygone]
+
+
+def aire(points):
+    """L'aire d'un polygone (formule du lacet), pour écarter les îlots trop petits pour être vus ou cliqués."""
+    return abs(sum(x1 * y2 - x2 * y1 for (x1, y1), (x2, y2) in zip(points, points[1:] + points[:1]))) / 2
+
+
+def contours(fichier, departements, codes_zoom):
+    """Les contours des départements d'une région, en JSON : { largeur, hauteur, zoom?, departements: [{ code, d }] },
+    d étant l'attribut « d » d'un <path> SVG. Une liste et non un objet { code: d } : en JavaScript, les clés qui
+    ressemblent à des nombres (« 971 ») passent devant les autres, et l'ordre du fichier serait perdu.
+    Le Java écrit des listes de points ; ici, des chemins SVG relatifs, environ deux fois plus légers."""
+    par_code = {d["properties"]["code"]: tous_les_anneaux(d["geometry"]) for d in departements}
+    tous = [anneau for liste in par_code.values() for anneau in liste]
+    latitude = sum(lat for anneau in tous for _, lat in anneau) / sum(len(anneau) for anneau in tous)
+    projetes = {code: [projeter(anneau, latitude) for anneau in liste] for code, liste in par_code.items()}
+    rectangle = cadre([anneau for liste in projetes.values() for anneau in liste], 0)
+    lignes = []
+    points_ecrits = 0
+    for code, liste in projetes.items():
+        ramenes, largeur, hauteur = ramener(liste, rectangle, COTE_CONTOURS)
+        morceaux = []
+        for anneau in ramenes:
+            # simplifier d'abord, arrondir ensuite (comme le Java) ; le dernier point répète le premier : Z le fera
+            points = [(round(x), round(y)) for x, y in simplifier(anneau, TOLERANCE_CONTOURS)[:-1]]
+            points = [p for i, p in enumerate(points) if i == 0 or p != points[i - 1]]
+            if len(points) < 3 or aire(points) < 4:
+                continue  # un îlot de moins de 2 unités sur 2 : invisible, et impossible à viser
+            x, y = points[0]
+            relatifs = " ".join(f"{bx - ax} {by - ay}" for (ax, ay), (bx, by) in zip(points, points[1:]))
+            morceaux.append(f"M{x} {y}l{relatifs}z")
+            points_ecrits += len(points)
+        lignes.append(json.dumps({"code": code, "d": "".join(morceaux)}, separators=(",", ":")))
+
+    entete = {"largeur": largeur, "hauteur": hauteur}
+    if codes_zoom:
+        # le cadre qui entoure ces départements, avec une marge
+        zoomes = [p for code in codes_zoom for anneau in ramener(projetes[code], rectangle, COTE_CONTOURS)[0]
+                  for p in anneau]
+        x0, x1 = min(x for x, _ in zoomes), max(x for x, _ in zoomes)
+        y0, y1 = min(y for _, y in zoomes), max(y for _, y in zoomes)
+        marge = 0.06 * max(x1 - x0, y1 - y0)
+        entete["zoom"] = [round(x0 - marge), round(y0 - marge), round(x1 - x0 + 2 * marge), round(y1 - y0 + 2 * marge)]
+    # un département par ligne : un fichier lisible, et un diff qui montre quel département a changé
+    ecrire(fichier, json.dumps(entete)[:-1] + ',\n"departements":[\n' + ",\n".join(lignes) + "\n]}\n")
+    return points_ecrits
+
+
 def decalage(nom):
     return DECALAGE_CORSE if nom == "Corse" else (0, 0)
 
@@ -301,21 +331,32 @@ def carte(fichier, regions, noms, departements):
 
 
 def main():
-    contours, sortie, public = Path(sys.argv[1]), Path(sys.argv[2]), Path(sys.argv[3])
-    departements = charger(contours, "departements-avec-outre-mer.geojson")
-    nouvelles = charger(contours, "regions.geojson")
-    anciennes = charger(contours, "regions-avant-redecoupage-2015.geojson")
+    dossier, sortie, public = Path(sys.argv[1]), Path(sys.argv[2]), Path(sys.argv[3])
+    departements = charger(dossier, "departements-avec-outre-mer.geojson")
+    nouvelles = charger(dossier, "regions.geojson")
+    anciennes = charger(dossier, "regions-avant-redecoupage-2015.geojson")
 
-    for identifiant, codes in DEPARTEMENTS.items():
-        choisis = [d for d in departements if d["properties"]["code"] in codes]
+    with open(LISTE, encoding="utf8") as f:
+        liste = json.load(f)
+    par_code = {d["properties"]["code"]: d for d in departements}
+
+    points = 0
+    for identifiant, codes in liste["regions"].items():
+        # dans l'ordre de la liste, celui des numéros
+        choisis = [par_code[code] for code in codes if code in par_code]
         if len(choisis) != len(codes):
             raise ValueError(f"{identifiant} : département introuvable parmi {codes}")
+        for d in choisis:
+            if d["properties"]["nom"] != liste["departements"][d["properties"]["code"]]:
+                raise ValueError(f"{d['properties']['code']} : le nom diffère de celui de {LISTE.name}")
         silhouette(sortie / "regions" / f"{identifiant}.svg", choisis)
+        points += contours(sortie / "departements" / f"{identifiant}.json", choisis, ZOOM.get(identifiant))
     defaut(sortie / "regions" / "defaut.svg", nouvelles)
     carte(sortie / "cartes" / "nouvelles.json", nouvelles, NOUVELLES, departements)
     carte(sortie / "cartes" / "anciennes.json", anciennes, ANCIENNES, departements)
     favicon(public / "favicon.svg", nouvelles)
-    print(f"{len(DEPARTEMENTS) + 1} silhouettes, 2 cartes, 1 icône")
+    print(f"{len(liste['regions']) + 1} silhouettes, 2 cartes, 1 icône, "
+          f"{len(liste['regions'])} fichiers de contours ({points} points)")
 
 
 main()

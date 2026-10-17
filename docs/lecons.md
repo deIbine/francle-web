@@ -752,3 +752,42 @@ commandes), **comment le penser** (la question à se poser la prochaine fois).
 - **Comment le penser** : un écart entre deux versions n'est pas un défaut s'il est écrit et expliqué. Ce qui coûte
   cher, c'est l'écart qu'on découvre plus tard. Ici, le web s'écarte parce qu'un navigateur se ferme plus facilement
   qu'une application de bureau : une même règle peut mal convenir à un autre support.
+
+## web.7.1 Les données et les contours des départements
+
+### Une seule liste pour le jeu et pour les images
+
+- **Pourquoi** : le script Python avait son propre tableau `DEPARTEMENTS`, et le jeu allait en avoir besoin aussi.
+  Deux copies de la même liste finissent toujours par se contredire (un département ajouté d'un côté, oublié de
+  l'autre). Le Java avait déjà réglé la question avec `departements.json`, lu par le jeu **et** par le script.
+- **Comment le faire** : copier le fichier du Java dans `src/domaine/departements.json`, l'importer dans
+  `departements.ts` (`import donnees from './departements.json'` : Vite en fait un objet JavaScript au moment de
+  construire le site), et le lire dans le script avec `json.load`. Le script vérifie au passage que chaque nom du
+  fichier est celui des contours officiels. Les tests vérifient le reste : 101 départements, chacun dans une seule
+  région par époque.
+- **Comment le penser** : une donnée = un endroit. Quand deux programmes (ici, un en Python, un en TypeScript) en ont
+  besoin, on choisit un format que les deux savent lire (JSON) plutôt que de la recopier dans chaque langage.
+
+### L'ordre des clés d'un objet JavaScript
+
+- **Pourquoi** : `Object.entries({"10": …, "01": …, "2A": …, "971": …})` ne rend **pas** l'ordre du fichier.
+  JavaScript range d'abord les clés qui s'écrivent comme des entiers (« 10 », « 971 »), par ordre croissant, puis les
+  autres (« 01 », « 2A »), dans l'ordre d'écriture. En Java, `LinkedHashMap` garde l'ordre ; un objet JavaScript, pas
+  tout à fait.
+- **Comment le faire** : trier soi-même (`rang()` dans `departements.ts` : « 2A » vaut 20,1) ; et dans les fichiers
+  de contours, écrire une **liste** `[{ "code", "d" }]` plutôt qu'un objet `{ code: d }`.
+- **Comment le penser** : un objet JavaScript est fait pour chercher par clé, pas pour garder un ordre. Si l'ordre
+  compte, c'est une liste (ou une `Map`, qui garde l'ordre d'ajout).
+
+### Des contours SVG cliquables, trous compris
+
+- **Pourquoi** : pour le bonus, chaque département doit être dessiné et cliqué séparément. Le Java écrit des listes de
+  points et teste lui-même « ce clic est-il dans cette forme ? » (`Shape.contains`). Dans un navigateur, un `<path>`
+  SVG sait déjà le faire : il reçoit le clic s'il tombe dans sa forme.
+- **Comment le faire** : le script écrit `src/images/departements/<région>.json`, un chemin SVG par département, sur
+  2000 unités (le double des silhouettes, pour que Paris reste net une fois zoomé), simplifié par Douglas-Peucker,
+  sans les îlots minuscules. Les trous sont gardés (l'enclave des Papes, du Vaucluse, dans la Drôme) : avec
+  `fill-rule="evenodd"`, le navigateur sait qu'un point entouré deux fois est dehors. Poids : 656 Ko pour les 35
+  régions, 30 Ko au plus pour une seule ; le jeu ne chargera que celle de la région trouvée.
+- **Comment le penser** : avant de recoder ce que faisait le Java (le test du clic), se demander ce que la plateforme
+  fait déjà. Ici, le navigateur fait le dessin, le clic, le survol et le clavier : on lui donne juste les formes.
