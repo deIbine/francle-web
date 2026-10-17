@@ -45,15 +45,16 @@ Chaque fusion dans `main` publie le site sur GitHub Pages (`.github/workflows/ci
 | `src/App.tsx`, `src/PartieDuJour.tsx`, `src/PartieLibre.tsx` | L'écran du jeu et les deux sortes de partie. |
 | `src/textes.ts` | Tous les textes, en français et en anglais. |
 | `src/sauvegarde.ts`, `src/reglages.ts` | Ce qui est gardé dans le navigateur. |
-| `src/images/` | Les silhouettes (SVG) et les contours des cartes, produits par `outils/generer_images.py`. |
+| `src/images/` | Les silhouettes (SVG), les contours des cartes et ceux des départements, produits par `outils/generer_images.py`. |
 | `outils/` | Le script des images, et `ReferenceJava.java`, qui produit les valeurs de référence du jeu Java. |
 | `docs/plan.md`, `docs/lecons.md` | Le plan du projet et les leçons apprises à chaque étape. |
 
 ### Les images
 
-Les silhouettes, les cartes et l'icône sont produites à partir des contours officiels des départements et des
+Les silhouettes, les cartes, les contours des départements et l'icône sont produits à partir des contours officiels des départements et des
 régions ([france-geojson](https://github.com/gregoiredavid/france-geojson), données IGN et INSEE, licence ouverte
-Etalab). Pour les refaire, télécharger les trois fichiers GeoJSON dans un dossier, puis, avec Python 3 :
+Etalab). La liste des départements de chaque région est lue dans `src/domaine/departements.json`, copié du projet
+Java. Pour les refaire, télécharger les trois fichiers GeoJSON dans un dossier, puis, avec Python 3 :
 
 ```bash
 py outils/generer_images.py <dossier des contours> src/images public
