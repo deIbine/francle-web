@@ -172,9 +172,10 @@ défi**, dont le découpage reste à valider (l'utilisateur doit d'abord acheter
 - **Le bonus des départements** (PR #17 à #20, étiquettes `web-7.1` à `web-7.4`, et `web-7`) : voir « Le bonus des
   départements » plus bas. Les choix faits en route (listes « À valider » des PR) ont été acceptés tels quels.
 - **Pour reprendre (le 17 octobre 2026, après la PR du bonus revu)** : lire ce plan et `docs/lecons.md`, vérifier
-  que `main` est à jour (`git pull`) et que la PR de ce plan (web.7.5.0) est fusionnée. Les décisions du **bonus
-  revu** sont toutes prises (voir « Le bonus revu » plus bas) : présenter web.7.5 à l'utilisateur et attendre son
-  accord avant de lancer. Le découpage de web.8 et ses douze questions ont été présentés le 17 octobre 2026 (voir
+  que `main` est à jour (`git pull`) et que les PR de ce plan (web.7.5.0 et web.7.5.0.1) sont fusionnées. Les
+  décisions du **bonus revu** sont toutes prises, phases comprises (voir « Le bonus revu » et « Les décisions des
+  phases » plus bas) : les trois phases web.7.5 à web.7.7 s'enchaînent en PR empilées, fusionnées à la fin avec
+  l'accord de l'utilisateur, une fois qu'il a dit de lancer. Le découpage de web.8 et ses douze questions ont été présentés le 17 octobre 2026 (voir
   « Le domaine et le défi (web.8) » plus bas) : **l'utilisateur n'a pas encore répondu**, à reprendre après le bonus
   revu.
   - **Reste à faire côté Java**, plus tard et dans une autre conversation (décidé le 17 octobre 2026) : voir « À
@@ -336,7 +337,31 @@ département, puis on écrit son nom**, comme on écrit une région.
    et EN, « Comment jouer », tests axe, téléphone à 375 pixels (le clavier du téléphone peut cacher la carte), thème
    sombre, leçons, plan.
 
+### Les décisions des phases (validées le 17 octobre 2026)
+
+Posées toutes ensemble pour enchaîner les trois phases ; toutes les recommandations ont été acceptées.
+
+| Phase | Sujet | Décision |
+|---|---|---|
+| 7.5 | La dernière réponse | La fenêtre des résultats s'ouvre après **une courte pause** (environ 1,5 s), pour voir la couleur de la dernière réponse. La seule minuterie du bonus, testée avec les fausses horloges de Vitest. |
+| 7.5 | Le focus | À la victoire, la saisie de la région disparaît : le focus va sur le **titre du bonus**. |
+| 7.5 | Sous le bonus | Le message de victoire et « Voir les résultats » (partie du jour) ou « Nouvelle partie » (partie libre, qui abandonne le bonus sans confirmation, rien n'étant compté) restent affichés. |
+| 7.6 | Sauvegarde | Des **paires** (cliqué -> écrit) à la place de la liste des numéros donnés ; l'ancien format se relit avec l'ordre du jour. |
+| 7.6 | Bonus A en cours | Un bonus du mode A commencé et pas fini (seulement le jour de la mise en ligne) **continue en mode C**, avec ses réponses. |
+| 7.6 | Autre région | Un département d'une autre région écrit en réponse est une **réponse fausse**, qui compte. |
+| 7.6 | Refus sans coût | Seul un département **déjà trouvé** est refusé ; un nom déjà donné à tort ailleurs reste possible. |
+| 7.6 | Entrée | Un début de nom qui n'évoque qu'**un** département des 101 le joue (« fin » -> Finistère) ; plusieurs : on demande de choisir. |
+| 7.7 | Avant le clic | La saisie est **grisée** tant qu'aucun département n'est sélectionné, avec « Clique d'abord sur un département ». |
+| 7.7 | La saisie | **Sous la carte** ; elle reçoit le focus au clic sur un département (vérifier à 375 pixels que le clavier du téléphone ne cache pas tout). |
+| 7.7 | La carte | Sélectionné en **bleu foncé** ; répondus en vert ou rouge, plus sélectionnables ; les autres foncent au survol. |
+| 7.7 | Les textes | « Clique sur un département de la carte », puis « Quel est ce département ? » ; « 3 réponses sur 12 » ; « Juste » et « Raté » inchangés. En anglais aussi. |
+| 7.7 | Comment jouer | « Après une victoire, un bonus 🗺️ : clique sur chaque département de la région, puis écris son nom ou son numéro. Une seule réponse par département, et ton score s'ajoute au partage. » En anglais aussi. |
+| — | Regroupement | **Trois PR** (7.5, 7.6, 7.7), empilées. |
+
 ### À reporter dans le Java (phase 10, plus tard, dans une autre conversation)
+
+Les décisions des phases ci-dessus valent aussi pour le Java (la pause avant la fenêtre, le focus, les paires, la
+saisie grisée avant le clic…), sauf ce qui est propre au navigateur (fausses horloges, 375 pixels).
 
 Dans `docs/feuille-de-route.md` de `deIbine/francle`, puis dans le code, avec les décisions du tableau plus haut :
 
