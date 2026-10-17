@@ -791,3 +791,31 @@ commandes), **comment le penser** (la question à se poser la prochaine fois).
   régions, 30 Ko au plus pour une seule ; le jeu ne chargera que celle de la région trouvée.
 - **Comment le penser** : avant de recoder ce que faisait le Java (le test du clic), se demander ce que la plateforme
   fait déjà. Ici, le navigateur fait le dessin, le clic, le survol et le clavier : on lui donne juste les formes.
+
+## web.7.2 Les règles du bonus
+
+### Reprendre un mélange au bit près
+
+- **Pourquoi** : le bonus du jour doit poser les départements dans le même ordre que le Java, pour tout le monde. Le
+  Java mélange avec `Collections.shuffle(liste, new Random(SEL + numéroDuJour))`. Comme pour la région du jour, il
+  suffit de rejouer le même générateur (`HasardJava`, déjà écrit à web.1) avec la même graine, sur la même liste de
+  départ (celle de `departements.json`, dans l'ordre des numéros).
+- **Comment le faire** : `ordreDuJour()` dans `src/domaine/bonus.ts`, avec le sel `0x426f6e7573n` (« Bonus » en
+  ASCII, un `BigInt` car il dépasse 32 bits). Pour le vérifier, on a étendu `outils/ReferenceJava.java` : il écrit
+  maintenant l'ordre du bonus de chacun des 1501 jours de `reference-java.json`, et un test les compare tous. Depuis la
+  phase 9, le Java lit un fichier JSON avec Jackson : il faut ajouter ses bibliothèques au classpath
+  (`mvnw dependency:build-classpath`, mode d'emploi dans l'en-tête du fichier).
+- **Comment le penser** : un sel différent pour chaque usage du hasard (« Francle » pour la région, « Angle », «
+  Bonus ») évite que deux tirages du même jour soient liés. Et pour garantir que deux programmes donnent le même
+  résultat, on ne relit pas le code en se disant « ça a l'air pareil » : on compare des centaines de valeurs.
+
+### Régénérer une référence, et regarder ce qui change
+
+- **Pourquoi** : en régénérant `reference-java.json`, les suggestions avaient changé : le Java cherche maintenant
+  aussi les noms anglais (sa phase 8 a repris la règle du web). Le test du web cherchait exprès les seuls noms
+  français pour imiter l'ancien Java ; il compare maintenant la vraie règle, et le paramètre `nomsCherches`, qui ne
+  servait qu'à ce test, a disparu.
+- **Comment le faire** : après avoir régénéré un fichier de référence, lire `git diff` **avant** de lancer les
+  tests : chaque ligne changée doit avoir une raison connue.
+- **Comment le penser** : une référence qui change n'est pas forcément une erreur ; c'est une question à poser. Ici,
+  la réponse a permis de supprimer du code fait seulement pour les tests.

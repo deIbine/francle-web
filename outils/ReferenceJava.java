@@ -16,11 +16,11 @@ import java.util.Set;
 import java.util.StringJoiner;
 
 /*
-Produit src/domaine/reference-java.json : les valeurs calculées par le Francle Java (deIbine/francle, étiquette phase-6),
-que les tests TypeScript doivent retrouver à l'identique.
+Produit src/domaine/reference-java.json : les valeurs calculées par le Francle Java (deIbine/francle, étiquette phase-6,
+puis phase-9 pour l'ordre du bonus des départements), que les tests TypeScript doivent retrouver à l'identique.
 
 Ce fichier se compile CONTRE le projet Java : il est dans le paquet fr.francle.jeu pour pouvoir appeler les méthodes
-de paquet (Direction.azimut, Partie.pourcentage). Depuis le dossier francle-web, sous PowerShell :
+de paquet (Direction.azimut, Partie.pourcentage, Bonus.ordre). Depuis le dossier francle-web, sous PowerShell :
 
   ..\francle\mvnw.cmd -q -f ..\francle\pom.xml compile
   javac -encoding UTF-8 -cp ..\francle\target\classes -d $env:TEMP\reference-java outils\ReferenceJava.java
@@ -58,8 +58,12 @@ public final class ReferenceJava {
         StringJoiner jours = new StringJoiner(",\n");
         for (int i = NOMBRE_DE_JOURS; i >= 0; i--) {
             LocalDate date = DERNIER_JOUR.minusDays(i);
-            jours.add(String.format(Locale.ROOT, "    {\"date\": \"%s\", \"numero\": %d, \"region\": \"%s\", \"angle\": %d}",
-                    date, RegionDuJour.numero(date), id(RegionDuJour.pour(date)), RegionDuJour.angle(date)));
+            // l'ordre des départements du bonus de ce jour-là, par leurs numéros
+            StringJoiner bonus = new StringJoiner(", ", "[", "]");
+            Bonus.ordre(RegionDuJour.pour(date), date).forEach(departement -> bonus.add("\"" + departement.code() + "\""));
+            jours.add(String.format(Locale.ROOT,
+                    "    {\"date\": \"%s\", \"numero\": %d, \"region\": \"%s\", \"angle\": %d, \"bonus\": %s}",
+                    date, RegionDuJour.numero(date), id(RegionDuJour.pour(date)), RegionDuJour.angle(date), bonus));
         }
         json.append(jours).append("\n  ],\n");
 
