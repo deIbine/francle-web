@@ -8,6 +8,10 @@ remplacer (onChanger). Le parent sait quoi en faire : le sauvegarder (partie du 
 Pas de minuterie entre deux questions, contrairement au Java : la question suivante arrive tout de suite, et la
 réponse reste visible (en couleur sur la carte, et en toutes lettres sous la carte). Un joueur lent ne perd rien, et
 un lecteur d'écran lit la réponse puis la nouvelle question.
+
+En mode C (celui des joueurs), le joueur choisit un département sur la carte, puis écrit son nom dans la saisie, qui
+reste grisée tant qu'aucun département n'est choisi. Le département choisi est un état d'affichage, gardé ici, et non
+dans le bonus : il ne compte pour rien tant que le joueur n'a pas répondu.
  */
 import { useEffect, useId, useRef, useState } from 'react'
 import {
@@ -17,12 +21,20 @@ import {
   passer,
   rang,
   repondre,
+  repondreChoix,
   repondreSaisie,
+  restants,
   score,
   total,
   type Bonus,
 } from '../domaine/bonus.ts'
-import { departementsDe, suggestionsDepartements, type Departement } from '../domaine/departements.ts'
+import {
+  chercherDepartement,
+  DEPARTEMENTS,
+  departementsDe,
+  suggestionsDepartements,
+  type Departement,
+} from '../domaine/departements.ts'
 import { useLangue, useTextes } from '../textes.ts'
 import { CarteDepartements } from './CarteDepartements.tsx'
 import { Saisie } from './Saisie.tsx'
@@ -46,9 +58,16 @@ export function JeuBonus({ bonus, onChanger, focaliser = false }: Props) {
       titre.current?.focus()
     }
   }, [focaliser])
-  // le message d'une saisie refusée (mode B), vide s'il n'y a rien à dire
+  // le message d'une saisie refusée (modes B et C), vide s'il n'y a rien à dire
   const [message, setMessage] = useState('')
   const enCours = bonusEnCours(bonus)
+  // mode C : le département cliqué sur la carte. Seulement s'il attend encore sa réponse : un autre onglet a pu y
+  // répondre entre-temps
+  const [choix, setChoix] = useState<Departement | undefined>(undefined)
+  const choisi = choix !== undefined && enCours && restants(bonus).includes(choix) ? choix : undefined
+  // augmente à chaque choix : la saisie prend alors le focus, prête pour le nom
+  const [demandeFocus, setDemandeFocus] = useState(0)
+  const modeChoix = bonus.question === 'choix'
   const nom = (departement: Departement) => textes.bonus.departement(departement.nom, departement.code)
 
   // ce qui s'est passé à la dernière réponse : déduit du bonus lui-même, rien à garder à part
@@ -65,14 +84,49 @@ export function JeuBonus({ bonus, onChanger, focaliser = false }: Props) {
     onChanger(repondre(bonus, departement))
   }
 
-  // les départements de la région que la saisie évoque (mode B ; aucun pour la question du numéro)
+  // mode C : un département choisi sur la carte (un autre clic change d'avis)
+  function choisir(departement: Departement) {
+    setChoix(departement)
+    setMessage('')
+    setDemandeFocus((avant) => avant + 1)
+  }
+
+  // les départements que la saisie évoque : parmi les 101 en mode C (limitées à la région, les suggestions
+  // donneraient la réponse), parmi ceux de la région en mode B, aucun pour la question du numéro
   const suggerer = (texte: string) =>
-    bonus.question === 'numero' ? [] : suggestionsDepartements(texte, departementsDe(bonus.region), langue)
+    bonus.question === 'numero'
+      ? []
+      : suggestionsDepartements(texte, modeChoix ? DEPARTEMENTS : departementsDe(bonus.region), langue)
+
+  // mode C, la réponse écrite pour le département choisi. Comme pour les régions : un début de nom qui n'évoque qu'un
+  // département le joue, plusieurs demandent de choisir, rien ne coûte de réponse ; un département déjà trouvé est
+  // refusé, lui aussi sans rien coûter
+  function repondreChoixTexte(choisi: Departement, saisie: string): boolean {
+    const liste = suggerer(saisie)
+    const donne = chercherDepartement(saisie) ?? (liste.length === 1 ? liste[0] : undefined)
+    if (donne === undefined) {
+      setMessage(liste.length > 1 ? textes.bonus.plusieurs : textes.bonus.inconnu)
+      return false
+    }
+    const suite = repondreChoix(bonus, choisi, donne)
+    if (suite === 'deja-trouve') {
+      setMessage(textes.bonus.dejaTrouve(nom(donne)))
+      return false
+    }
+    setMessage('')
+    setChoix(undefined)
+    onChanger(suite)
+    return true
+  }
 
   // la réponse écrite (mode B, ou le numéro en outre-mer) ; une saisie inconnue ne coûte rien. Comme pour les
   // régions, un début de nom qui n'évoque qu'un département le joue (« fin » -> Finistère), et s'il en évoque
   // plusieurs, on demande de choisir
   function repondreTexte(saisie: string): boolean {
+    if (modeChoix) {
+      // la saisie est grisée tant que rien n'est choisi : ce cas n'arrive pas
+      return choisi === undefined ? false : repondreChoixTexte(choisi, saisie)
+    }
     const liste = suggerer(saisie)
     const suite = repondreSaisie(bonus, saisie) ?? (liste.length === 1 ? repondre(bonus, liste[0]) : undefined)
     if (suite === undefined) {
@@ -91,9 +145,9 @@ export function JeuBonus({ bonus, onChanger, focaliser = false }: Props) {
   }
 
   function question(): string {
-    // mode C : pas de question imposée, le joueur choisit un département
-    if (bonus.question === 'choix') {
-      return textes.bonus.choisir
+    // mode C : pas de question imposée, le joueur choisit un département, puis le nomme
+    if (modeChoix) {
+      return choisi === undefined ? textes.bonus.choisir : textes.bonus.choix
     }
     const departement = demande(bonus)
     switch (bonus.question) {
@@ -115,12 +169,16 @@ export function JeuBonus({ bonus, onChanger, focaliser = false }: Props) {
       {enCours && (
         // aria-live : un lecteur d'écran lit chaque nouvelle question
         <div aria-live="polite">
-          <p className="text-sm text-discret">{textes.bonus.avancement(rang(bonus), total(bonus))}</p>
+          <p className="text-sm text-discret">
+            {modeChoix
+              ? textes.bonus.reponses(bonus.tentatives.length, total(bonus))
+              : textes.bonus.avancement(rang(bonus), total(bonus))}
+          </p>
           <p className="font-semibold">{question()}</p>
         </div>
       )}
 
-      <CarteDepartements bonus={bonus} onRepondre={repondreClic} />
+      <CarteDepartements bonus={bonus} onRepondre={repondreClic} choisi={choisi} onChoisir={choisir} />
 
       {enCours && bonus.question !== 'carte' && (
         <Saisie
@@ -129,8 +187,16 @@ export function JeuBonus({ bonus, onChanger, focaliser = false }: Props) {
           }
           onProposer={repondreTexte}
           etiquette={textes.bonus.saisie}
-          exemple={bonus.question === 'numero' ? textes.bonus.saisieNumero : textes.bonus.saisieExemple}
+          exemple={
+            bonus.question === 'numero'
+              ? textes.bonus.saisieNumero
+              : modeChoix && choisi === undefined
+                ? textes.bonus.cliqueDabord
+                : textes.bonus.saisieExemple
+          }
           bouton={textes.bonus.repondre}
+          desactive={modeChoix && choisi === undefined}
+          demandeFocus={demandeFocus}
         />
       )}
 

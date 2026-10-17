@@ -1,6 +1,8 @@
 /*
 La carte des départements de la région trouvée, pour le bonus : chaque département est un <path> SVG, coloré selon
-la réponse (vert : trouvé, rouge : manqué) et, en mode A, cliquable.
+la réponse (vert : trouvé, rouge : manqué) et cliquable : en mode A, un clic répond ; en mode C, un clic choisit le
+département (en bleu foncé), que le joueur nomme ensuite dans la saisie. En mode C, un département déjà répondu ne se
+choisit plus.
 
 Le Java dessinait lui-même (Path2D) et testait « ce clic est-il dans cette forme ? » (Shape.contains). Ici, le
 navigateur le fait : un <path> reçoit le clic s'il tombe dans sa forme, trous compris (fill-rule evenodd : l'enclave
@@ -8,8 +10,9 @@ des Papes, du Vaucluse, n'appartient pas à la Drôme qui l'entoure).
 
 Accessibilité : chaque département est atteignable au clavier (Tab, puis Entrée ou Espace). Pendant le bonus, un
 lecteur d'écran ne lit pas son nom, ce serait donner la réponse : seulement « Zone 3 sur 12 », les zones étant
-numérotées du haut vers le bas de la carte, et non dans l'ordre des numéros (qui serait un indice). Une fois le
-bonus fini, chaque département dit son nom et s'il a été trouvé, et le nom s'affiche au survol ou au clavier.
+numérotées du haut vers le bas de la carte, et non dans l'ordre des numéros (qui serait un indice). Un département
+déjà répondu (mode C), ou tous une fois le bonus fini, dit son nom et s'il a été trouvé ; une fois le bonus fini, le
+nom s'affiche aussi au survol ou au clavier.
 
 Les contours sont téléchargés au premier affichage (useContours, dans contours.ts) : en attendant, un message.
  */
@@ -23,27 +26,43 @@ interface Props {
   bonus: Bonus
   // le département cliqué, en mode A
   onRepondre: (departement: Departement) => void
+  // mode C : le département choisi (en bleu foncé), et le clic qui en choisit un
+  choisi?: Departement
+  onChoisir?: (departement: Departement) => void
 }
 
-export function CarteDepartements({ bonus, onRepondre }: Props) {
+export function CarteDepartements(props: Props) {
   const textes = useTextes()
-  const contours = useContours(bonus.region.id)
+  const contours = useContours(props.bonus.region.id)
   if (contours === undefined) {
     return <p className="flex h-56 items-center justify-center">{textes.bonus.chargement}</p>
   }
-  return <Carte bonus={bonus} onRepondre={onRepondre} contours={contours} />
+  return <Carte {...props} contours={contours} />
 }
 
 // la carte elle-même, une fois les contours arrivés. Un composant à part : les « hooks » de React (useState,
 // useMemo…) doivent être appelés à chaque affichage, dans le même ordre, donc jamais après un « return » anticipé
-function Carte({ bonus, onRepondre, contours }: Props & { contours: Contours }) {
+function Carte({ bonus, onRepondre, choisi, onChoisir, contours }: Props & { contours: Contours }) {
   const textes = useTextes()
   // le département sous la souris ou sous le focus du clavier, pour afficher son nom une fois le bonus fini
   const [survole, setSurvole] = useState<Departement | undefined>(undefined)
   const fini = !bonusEnCours(bonus)
-  const cliquable = !fini && bonus.question === 'carte'
-  // le département demandé, colorié en mode B (et pour la question du numéro)
-  const colorie = fini || bonus.question === 'carte' ? undefined : demande(bonus)
+  const choix = !fini && bonus.question === 'choix'
+  // en bleu foncé : le département choisi (mode C), ou le département demandé (mode B, et question du numéro)
+  const colorie = fini || bonus.question === 'carte' ? undefined : choix ? choisi : demande(bonus)
+
+  // un clic sur ce département fait-il quelque chose ? En mode A, partout ; en mode C, sur ceux sans réponse
+  function cliquable(departement: Departement): boolean {
+    return !fini && (bonus.question === 'carte' || (choix && tentativeDe(bonus, departement) === undefined))
+  }
+
+  function cliquer(departement: Departement) {
+    if (bonus.question === 'carte') {
+      onRepondre(departement)
+    } else {
+      onChoisir?.(departement)
+    }
+  }
 
   // les départements, du haut vers le bas de la carte (puis de gauche à droite) : l'ordre du clavier et des zones.
   // useMemo : calculé une fois par fichier de contours, pas à chaque affichage
@@ -66,15 +85,18 @@ function Carte({ bonus, onRepondre, contours }: Props & { contours: Contours }) 
       return juste(tentative) ? 'fill-succes' : 'fill-danger'
     }
     if (departement === colorie) {
-      return 'fill-francle-fonce'
+      return choix ? 'fill-francle-fonce cursor-pointer' : 'fill-francle-fonce'
     }
-    // en mode A, un département sans réponse fonce au survol, pour montrer ce qu'on va cliquer
-    return cliquable ? 'fill-francle-clair cursor-pointer hover:fill-francle-fonce' : 'fill-francle-clair'
+    // un département qu'on peut cliquer fonce au survol, pour montrer ce qu'on va cliquer
+    return cliquable(departement)
+      ? 'fill-francle-clair cursor-pointer hover:fill-francle-fonce'
+      : 'fill-francle-clair'
   }
 
-  // ce que lit un lecteur d'écran : la zone pendant le bonus, le nom et le résultat ensuite
+  // ce que lit un lecteur d'écran : la zone tant qu'on peut la cliquer, le nom et le résultat ensuite (bonus fini, ou
+  // département déjà répondu en mode C)
   function etiquette(departement: Departement, rang: number): string {
-    if (!fini) {
+    if (cliquable(departement)) {
       return textes.bonus.zone(rang, zones.length)
     }
     const tentative = tentativeDe(bonus, departement)
@@ -86,9 +108,9 @@ function Carte({ bonus, onRepondre, contours }: Props & { contours: Contours }) 
 
   function touche(evenement: KeyboardEvent, departement: Departement) {
     // Entrée ou Espace, comme sur un vrai bouton
-    if (cliquable && (evenement.key === 'Enter' || evenement.key === ' ')) {
+    if (cliquable(departement) && (evenement.key === 'Enter' || evenement.key === ' ')) {
       evenement.preventDefault() // sinon Espace fait défiler la page
-      onRepondre(departement)
+      cliquer(departement)
     }
   }
 
@@ -96,7 +118,9 @@ function Carte({ bonus, onRepondre, contours }: Props & { contours: Contours }) 
   // et lue par les lecteurs d'écran : l'agrandissement n'est qu'une aide pour les yeux et la souris
   function traces(principale: boolean) {
     return zones.map(({ departement, d }, index) => {
-      const actif = principale && (cliquable || fini)
+      const bouton = cliquable(departement)
+      // atteignable au clavier et lu : ce qu'on peut cliquer, et ce dont on peut dire le nom (répondu ou bonus fini)
+      const actif = principale && (bouton || fini || tentativeDe(bonus, departement) !== undefined)
       return (
         <path
           key={departement.code}
@@ -110,10 +134,12 @@ function Carte({ bonus, onRepondre, contours }: Props & { contours: Contours }) 
           strokeLinejoin="round"
           // stroke-fond : un trait de la couleur du fond sépare les départements, en clair comme en sombre
           className={`stroke-fond stroke-[1.5] ${couleur(departement)} focus:outline-none focus-visible:stroke-texte focus-visible:stroke-[3]`}
-          role={actif ? (cliquable ? 'button' : 'img') : undefined}
+          role={actif ? (bouton ? 'button' : 'img') : undefined}
           tabIndex={actif ? 0 : undefined}
           aria-label={actif ? etiquette(departement, index + 1) : undefined}
-          onClick={cliquable ? () => onRepondre(departement) : undefined}
+          // mode C : le département choisi est un bouton « enfoncé »
+          aria-pressed={actif && choix && bouton ? departement === choisi : undefined}
+          onClick={bouton ? () => cliquer(departement) : undefined}
           onKeyDown={actif ? (evenement) => touche(evenement, departement) : undefined}
           onMouseEnter={() => setSurvole(departement)}
           onMouseLeave={() => setSurvole(undefined)}

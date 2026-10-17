@@ -105,8 +105,8 @@ describe('Le jeu', () => {
     expect(within(resultats).getByText('Bravo, trouvé en 2 essais !')).toBeDefined()
     expect(within(resultats).getByRole('img', { name: `Carte de France, la région ${CIBLE.nom.fr} en bleu` })).toBeDefined()
     expect(lignes()[1].textContent).toContain('100\u00a0%')
-    // plus de saisie ni de bouton « Abandonner » une fois la partie finie
-    expect(screen.queryByRole('combobox')).toBeNull()
+    // plus de saisie de région ni de bouton « Abandonner » une fois la partie finie (le bonus a sa propre saisie)
+    expect(screen.queryByRole('combobox', { name: 'Ta proposition' })).toBeNull()
     expect(screen.queryByRole('button', { name: 'Abandonner' })).toBeNull()
   })
 

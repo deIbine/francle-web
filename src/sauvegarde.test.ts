@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { bonusDuJour, passer, repondre } from './domaine/bonus.ts'
+import { bonusDuJour, passer, repondreChoix, type Bonus } from './domaine/bonus.ts'
 import { parCode } from './domaine/departements.ts'
 import { SANS_MODE } from './domaine/partage.ts'
 import { abandonner, nouvellePartie, proposer, type Partie } from './domaine/partie.ts'
@@ -67,12 +67,16 @@ describe('La sauvegarde du bonus', () => {
   // la partie n° 1 : la Normandie, dont le bonus du jour demande 76, 27, 50, 61 puis 14 (voir reference-java.json)
   const NORMANDIE = regionDuNumero(1)
   const gagnee = () => proposer(nouvellePartie(NORMANDIE, 'nouvelles'), 'Normandie')!
-  const repondu = (...codes: string[]) =>
-    codes.reduce((bonus, code) => repondre(bonus, parCode(code)!), bonusDuJour(NORMANDIE, 1))
+  // le bonus du jour (mode C), après ces réponses : [département choisi, département donné]
+  const repondu = (...paires: [string, string][]) =>
+    paires.reduce(
+      (bonus, [choisi, donne]) => repondreChoix(bonus, parCode(choisi)!, parCode(donne)!) as Bonus,
+      bonusDuJour(NORMANDIE, 1),
+    )
 
   it('un bonus commencé se retrouve tel quel, avec ses réponses', () => {
     enregistrer(1, gagnee())
-    enregistrerBonus(1, repondu('76', '14'))
+    enregistrerBonus(1, repondu(['76', '76'], ['27', '14']))
     // des paires [demandé, donné] : 76 demandé, 76 donné ; puis 27 demandé, 14 donné
     expect(lire().get(1)!.bonus).toEqual({
       paires: [
@@ -81,7 +85,7 @@ describe('La sauvegarde du bonus', () => {
       ],
       etat: 'en-cours',
     })
-    expect(restaurerBonus(1, lire().get(1))).toEqual(repondu('76', '14'))
+    expect(restaurerBonus(1, lire().get(1))).toEqual(repondu(['76', '76'], ['27', '14']))
   })
 
   it('une sauvegarde de web.7 (les numéros donnés, sans paires) se relit avec l’ordre du jour', () => {
@@ -89,7 +93,8 @@ describe('La sauvegarde du bonus', () => {
       CLE,
       JSON.stringify({ 1: { regions: ['normandie'], etat: 'gagnee', bonus: { reponses: ['76', '14'], etat: 'en-cours' } } }),
     )
-    expect(restaurerBonus(1, lire().get(1))).toEqual(repondu('76', '14'))
+    // 76 puis 27 demandés dans l'ordre du jour ; le bonus continue en mode C (web.7.6)
+    expect(restaurerBonus(1, lire().get(1))).toEqual(repondu(['76', '76'], ['27', '14']))
   })
 
   it('une paire impossible (département hors de la région, ou déjà répondu) arrête la relecture', () => {
@@ -122,7 +127,7 @@ describe('La sauvegarde du bonus', () => {
 
   it('passé après une réponse, il est fini avec son score partiel, et compte dans les résultats', () => {
     enregistrer(1, gagnee())
-    enregistrerBonus(1, passer(repondu('76')))
+    enregistrerBonus(1, passer(repondu(['76', '76'])))
     const bonus = restaurerBonus(1, lire().get(1))!
     expect(bonus.etat).toBe('passe')
     expect(resultats(lire()).get(1)).toEqual({ etat: 'gagnee', essais: 1, bonus: { score: 1, total: 5 } })
@@ -130,13 +135,13 @@ describe('La sauvegarde du bonus', () => {
 
   it('un bonus en cours ne compte pas encore dans les résultats', () => {
     enregistrer(1, gagnee())
-    enregistrerBonus(1, repondu('76'))
+    enregistrerBonus(1, repondu(['76', '76']))
     expect(resultats(lire()).get(1)).toEqual({ etat: 'gagnee', essais: 1 })
   })
 
   it('réenregistrer la partie garde le bonus', () => {
     enregistrer(1, gagnee())
-    enregistrerBonus(1, repondu('76'))
+    enregistrerBonus(1, repondu(['76', '76']))
     enregistrer(1, gagnee())
     expect(lire().get(1)!.bonus?.paires).toEqual([['76', '76']])
   })

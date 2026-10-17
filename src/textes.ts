@@ -145,9 +145,12 @@ const fr = {
     // la question, selon sa sorte (voir domaine/bonus.ts)
     carte: (nom: string) => `Clique sur\u00a0: ${nom}`,
     choisir: 'Clique sur un département de la carte',
+    choix: 'Quel est ce département\u00a0?',
     nom: 'Quel est ce département, en bleu foncé\u00a0?',
     numero: (nom: string) => `Quel est le numéro de\u00a0: ${nom}\u00a0?`,
     avancement: (rang: number, total: number) => `Département ${rang} sur ${total}`,
+    // mode C : le nombre de réponses déjà données
+    reponses: (nombre: number, total: number) => `${nombre} réponse${nombre > 1 ? 's' : ''} sur ${total}`,
     // « Finistère (29) »
     departement: (nom: string, code: string) => `${nom} (${code})`,
     juste: (demande: string) => `Juste\u00a0: ${demande}.`,
@@ -162,10 +165,12 @@ const fr = {
     saisie: 'Ta réponse',
     saisieExemple: 'Un nom ou un numéro…',
     saisieNumero: 'Un numéro…',
+    cliqueDabord: 'Clique d’abord sur un département',
     repondre: 'Répondre',
     inconnu: 'Ce n’est pas un département.',
     plusieurs: 'Plusieurs départements possibles\u00a0: choisis dans la liste.',
     pasUnNumero: 'Écris un numéro de département, par exemple 971.',
+    dejaTrouve: (nom: string) => `${nom}\u00a0: déjà trouvé ailleurs sur la carte.`,
     passer: 'Passer',
     fini: (score: number, total: number) =>
       `Bonus terminé\u00a0: ${score} département${score > 1 ? 's' : ''} trouvé${score > 1 ? 's' : ''} sur ${total}.`,
@@ -188,7 +193,7 @@ const fr = {
     jour: 'La partie du jour est la même pour tout le monde, et change à minuit. Partage ton résultat\u00a0: il ne dévoile pas la réponse.',
     libre: 'En partie libre, joue autant que tu veux, avec les régions actuelles ou celles d’avant 2016.',
     modes: 'Dans les réglages ⚙️, essaie les modes difficiles\u00a0: la silhouette tournée 🌀, ou cachée 🙈.',
-    bonus: 'Après une victoire, un bonus 🗺️\u00a0: retrouve chaque département de la région sur sa carte. Une seule réponse par département, et ton score s’ajoute au partage.',
+    bonus: 'Après une victoire, un bonus 🗺️\u00a0: clique sur chaque département de la région, puis écris son nom ou son numéro. Une seule réponse par département, et ton score s’ajoute au partage.',
     jouer: 'Jouer',
   },
 
@@ -328,9 +333,11 @@ const en: Textes = {
     jouer: '🗺️ Play the bonus',
     carte: (nom: string) => `Click on: ${nom}`,
     choisir: 'Click on a department on the map',
+    choix: 'Which department is this?',
     nom: 'Which department is this, in dark blue?',
     numero: (nom: string) => `What is the number of: ${nom}?`,
     avancement: (rang: number, total: number) => `Department ${rang} of ${total}`,
+    reponses: (nombre: number, total: number) => `${nombre} answer${nombre === 1 ? '' : 's'} of ${total}`,
     departement: (nom: string, code: string) => `${nom} (${code})`,
     juste: (demande: string) => `Correct: ${demande}.`,
     faux: (demande: string, donne: string) => `Wrong: it was ${demande}, in red on the map (your answer: ${donne}).`,
@@ -343,10 +350,12 @@ const en: Textes = {
     saisie: 'Your answer',
     saisieExemple: 'A name or a number…',
     saisieNumero: 'A number…',
+    cliqueDabord: 'Click on a department first',
     repondre: 'Answer',
     inconnu: 'This is not a department.',
     plusieurs: 'Several departments match: pick one from the list.',
     pasUnNumero: 'Type a department number, for example 971.',
+    dejaTrouve: (nom: string) => `${nom}: already found elsewhere on the map.`,
     passer: 'Skip',
     fini: (score: number, total: number) =>
       `Bonus over: ${score} department${score === 1 ? '' : 's'} found out of ${total}.`,
@@ -369,7 +378,7 @@ const en: Textes = {
     jour: 'The daily game is the same for everyone, and changes at midnight. Share your result: it doesn’t give the answer away.',
     libre: 'In free play, play as much as you like, with the current regions or those from before 2016.',
     modes: 'In the settings ⚙️, try the hard modes: the outline rotated 🌀, or hidden 🙈.',
-    bonus: 'After a win, a bonus 🗺️: find each department of the region on its map. One answer per department, and your score is added to what you share.',
+    bonus: 'After a win, a bonus 🗺️: click on each department of the region, then type its name or number. One answer per department, and your score is added to what you share.',
     jouer: 'Play',
   },
 
