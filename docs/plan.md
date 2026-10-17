@@ -85,6 +85,9 @@ angle de rotation, et les valeurs de ses tests.
 7. ✅ **web.7 Le bonus des départements** : après chaque victoire (partie du jour et partie libre), faire deviner tous
    les départements de la région trouvée (décidé le 16 octobre 2026, étendu à la partie libre le 17 octobre 2026,
    détail plus bas dans « Le bonus des départements »).
+   **web.7.5 à web.7.7 Le bonus revu**, après les retours des joueurs : le bonus juste après la victoire, et un
+   mode C « cliquer un département, puis écrire son nom » (décidé le 17 octobre 2026, détail plus bas dans « Le
+   bonus revu »). Avant web.8.
 8. **web.8 Le domaine et le défi** (ancien web.7, renuméroté le 16 octobre 2026) : d'abord le nom de domaine, puis le défi (un lien à envoyer à un ami pour lui
    faire deviner une région). Pas d'archives des jours passés (décidé avant web.4).
 
@@ -92,8 +95,9 @@ angle de rotation, et les valeurs de ses tests.
 
 **Faites : web.0 à web.7.** Le bonus des départements est en ligne depuis le 17 octobre 2026 : quatre PR (#17 à
 #20), relues par l'utilisateur (testées en local) et fusionnées, étiquettes `web-7.1` à `web-7.4` et `web-7` (détail
-plus bas dans « Le bonus des départements »). Prochaine étape : **web.8 Le domaine et le défi**, dont le découpage
-reste à valider (l'utilisateur doit d'abord acheter le nom de domaine).
+plus bas dans « Le bonus des départements »). Prochaine étape : **le bonus revu (web.7.5 à web.7.7)**, décidé le
+17 octobre 2026 après les retours des joueurs (voir « Le bonus revu » plus bas), puis **web.8 Le domaine et le
+défi**, dont le découpage reste à valider (l'utilisateur doit d'abord acheter le nom de domaine).
 
 - **web.0** (PR #1, étiquette `web-0`) : dépôt public `deIbine/francle-web`, Vite + React + TypeScript, Vitest, lint
   oxlint, CI `.github/workflows/ci.yml` (tâche `verifier` sur chaque PR et sur `main`, tâche `publier` vers GitHub
@@ -167,14 +171,14 @@ reste à valider (l'utilisateur doit d'abord acheter le nom de domaine).
   boutons de l'en-tête sont plus serrés (`px-1`, `sm:px-2`) pour que le titre tienne sur une ligne.
 - **Le bonus des départements** (PR #17 à #20, étiquettes `web-7.1` à `web-7.4`, et `web-7`) : voir « Le bonus des
   départements » plus bas. Les choix faits en route (listes « À valider » des PR) ont été acceptés tels quels.
-- **Pour reprendre (après web.7, le 17 octobre 2026)** : lire ce plan et `docs/lecons.md`, vérifier que `main` est à
-  jour (`git pull`) et que cette mise à jour du plan (PR #21) est fusionnée. Le découpage de web.8 et ses douze
-  questions ont été présentés le 17 octobre 2026 (voir « Le domaine et le défi (web.8) » plus bas) : **l'utilisateur
-  n'a pas encore répondu**. Reprendre en lui rappelant les questions, et attendre ses réponses puis son « tu peux
-  lancer ».
-  - **Reste à faire côté Java** (proposé, pas encore fait) : noter dans `docs/feuille-de-route.md` du projet Java
-    (phase 9) trois choix propres au web : pas de minuterie entre deux questions du bonus ; en mode B, Entrée sur un
-    début de nom joue le seul département évoqué ; un bonus pas commencé attend son bouton jusqu'à minuit.
+- **Pour reprendre (le 17 octobre 2026, après la PR du bonus revu)** : lire ce plan et `docs/lecons.md`, vérifier
+  que `main` est à jour (`git pull`) et que la PR de ce plan (web.7.5.0) est fusionnée. Les décisions du **bonus
+  revu** sont toutes prises (voir « Le bonus revu » plus bas) : présenter web.7.5 à l'utilisateur et attendre son
+  accord avant de lancer. Le découpage de web.8 et ses douze questions ont été présentés le 17 octobre 2026 (voir
+  « Le domaine et le défi (web.8) » plus bas) : **l'utilisateur n'a pas encore répondu**, à reprendre après le bonus
+  revu.
+  - **Reste à faire côté Java**, plus tard et dans une autre conversation (décidé le 17 octobre 2026) : voir « À
+    reporter dans le Java » dans « Le bonus revu ».
   - Les contours sources ne sont pas dans le dépôt : pour régénérer les images, télécharger
     `departements-avec-outre-mer.geojson`, `regions.geojson` et `regions-avant-redecoupage-2015.geojson` depuis
     https://github.com/gregoiredavid/france-geojson, hors du dépôt. Node : `export PATH="/c/Program Files/nodejs:$PATH";`
@@ -280,6 +284,73 @@ statistiques : « Bonus joués » et « Score moyen ».
    leçons, plan.
 
 (Numérotation d'origine des sept phases ; les PR suivent le regroupement en quatre décrit plus haut.)
+
+## Le bonus revu (web.7.5 à web.7.7)
+
+Retours des joueurs, le 17 octobre 2026 : (1) le bonus doit s'afficher **juste après la victoire**, au lieu de la
+fenêtre des statistiques ; (2) plutôt que de chercher sur la carte un département nommé, on **clique sur un
+département, puis on écrit son nom**, comme on écrit une région.
+
+### Ce que ça change
+
+- Aujourd'hui, une victoire ouvre la fenêtre des résultats, et le bonus commence à sa fermeture (`fermerFenetre()`
+  et `bonusAVenir` dans `PartieDuJour.tsx` et `PartieLibre.tsx`). Il faut donc un autre moment pour ouvrir la
+  fenêtre : la fin du bonus. Effet heureux : le partage contient alors déjà la ligne « 🗺️ 9/12 ».
+- Le mode C, c'est le mode B dont le joueur choisit l'ordre. Il n'a pas besoin de l'ordre du jour (gardé pour le
+  mode A, avec sa comparaison au Java). La `Tentative` tient toujours : `demande` est le département cliqué, `donne`
+  celui qui est écrit ; score, statistiques et partage ne changent pas.
+- La **sauvegarde** change : elle ne garde que les numéros donnés, dans l'ordre du jour connu d'avance. Avec un ordre
+  libre, il faut des **paires** (cliqué -> écrit). Les anciennes sauvegardes se relisent comme aujourd'hui, en les
+  rejouant avec l'ordre du jour.
+
+### Les décisions (validées le 17 octobre 2026)
+
+| Sujet | Décision |
+|---|---|
+| Après une victoire | **Plus de fenêtre** : le bonus prend tout de suite la place de la silhouette. La fenêtre des résultats s'ouvre **à la fin du bonus** (terminé ou passé), avec son score dans le partage. Le bouton « Voir les résultats » reste là pendant le bonus. |
+| Passer avant toute réponse | Retour à la silhouette, la fenêtre des résultats s'ouvre, et le bonus reste à jouer par « 🗺️ Jouer le bonus » (jusqu'à minuit ; en partie libre, jusqu'à la partie suivante). Le bonus n'existe toujours **qu'après une victoire**. |
+| Retour sur la page | Un bonus **en cours** s'affiche directement, sans la fenêtre par-dessus. Un bonus **pas commencé** attend son bouton, et la fenêtre s'ouvre (comme à web.7). |
+| Partie libre | Le même enchaînement. |
+| Mode C | **Un nouveau mode**, celui des joueurs : on clique un département (mis en évidence ; on peut changer d'avis avant d'écrire), puis on écrit son nom ou son **numéro** (« 29 »). **A et B restent dans le code**, cachés, choisis par `MODE_BONUS`. |
+| Suggestions | Parmi les **101 départements** (comme les régions, parmi toutes celles du mode) : limitées à la région, elles donneraient la réponse. |
+| Essais | **Une seule réponse par département** : faux, il devient rouge, le bon nom est montré, et il ne se rejoue plus. |
+| Déjà trouvé | Écrire un département déjà trouvé ailleurs sur la carte est refusé avec un message, **sans coûter de réponse**. |
+| Après une réponse | **Aucune sélection automatique** : le joueur clique le suivant. |
+| Outre-mer | Toujours la question du **numéro**, le seul département étant déjà sélectionné. |
+| Numérotation | **web.7.5 à web.7.7**, avant web.8. Une PR par étape, étiquettes `web-7.5`…, et `web-7.5.0` pour ce plan. |
+| Java | **Le web d'abord**, dans cette conversation ; le Java **plus tard, dans une autre conversation**, avec les mêmes décisions (voir « À reporter dans le Java »). |
+
+### Les étapes (une branche et une PR chacune)
+
+0. ✅ **web.7.5.0 Le plan** : ce chapitre.
+1. **web.7.5 Le bonus juste après la victoire** : `PartieDuJour` et `PartieLibre` (plus de fenêtre à la victoire,
+   le bonus tout de suite, la fenêtre à la fin du bonus ou à « Passer » avant toute réponse, les cas du retour sur
+   la page), tests (`Bonus.test.tsx`, `App.test.tsx`…), « Comment jouer » si besoin, leçons.
+2. **web.7.6 Les règles du mode C**, sans affichage : `bonus.ts` (la question `'choix'` ou un nom à décider,
+   répondre avec le département cliqué et le département écrit, refus d'un département déjà trouvé, `MODE_BONUS`
+   passe à C), `sauvegarde.ts` (des paires, l'ancien format toujours lisible), tests dont la relecture d'une
+   ancienne sauvegarde.
+3. **web.7.7 Le mode C jouable** : `CarteDepartements` (un clic sélectionne, le choisi est mis en évidence, le zoom
+   de l'Île-de-France se clique aussi ; au clavier, Tab puis Entrée sélectionne et donne le focus à la saisie, les
+   zones toujours sans leur nom), `JeuBonus` (la saisie sous la carte, suggestions des 101 départements), textes FR
+   et EN, « Comment jouer », tests axe, téléphone à 375 pixels (le clavier du téléphone peut cacher la carte), thème
+   sombre, leçons, plan.
+
+### À reporter dans le Java (phase 10, plus tard, dans une autre conversation)
+
+Dans `docs/feuille-de-route.md` de `deIbine/francle`, puis dans le code, avec les décisions du tableau plus haut :
+
+- **10.1 L'enchaînement** : `Fenetre.java`, une victoire du jour lance `jouerBonus()` tout de suite (comme la partie
+  libre aujourd'hui) ; `statistiquesEnFinDuJour()` est appelé à la fin du bonus, ou à « Passer » avant toute réponse.
+- **10.2 Les règles** : `Bonus.java`, `Question.CHOIX` (ou un nom à décider), `repondre(cliqué, saisie)`, refus d'un
+  département déjà trouvé, `MODE` passe à C (A et B restent) ; `Resultat.bonus` en paires, l'ancien format toujours
+  lisible ; tests JUnit.
+- **10.3 L'affichage** : `CarteDepartements` sélectionne au clic au lieu de répondre ; la saisie (`Autocompletion`)
+  sur les 101 départements ; la minuterie entre deux questions n'a plus d'objet en mode C, à retirer comme dans le
+  web.
+- **La note restée en attente depuis web.7** : trois choix propres au web (pas de minuterie entre deux questions ;
+  en mode B, Entrée sur un début de nom joue le seul département évoqué ; un bonus pas commencé attend son bouton
+  jusqu'à minuit), à noter dans la phase 9 de la feuille de route.
 
 ## Le domaine et le défi (web.8)
 

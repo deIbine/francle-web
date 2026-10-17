@@ -883,3 +883,21 @@ commandes), **comment le penser** (la question à se poser la prochaine fois).
 - **Comment le penser** : avant de dire « c'est fait », relire la liste de ce qui touche le joueur : l'aide, les
   textes dans chaque langue, le téléphone, le thème sombre, les crédits. Et vérifier dans un vrai navigateur ce que
   jsdom ne sait pas montrer : la mise en page, les couleurs, le survol.
+
+## web.7.5.0 Le bonus revu : partir des retours des joueurs
+
+### Avant de coder, chercher ce qui change et ce qui tient
+
+- **Pourquoi** : deux retours de joueurs (« le bonus juste après la victoire », « cliquer puis écrire ») semblaient
+  demander de tout refaire. En lisant le code, la plus grande partie tient : la `Tentative` (`demande`, `donne`)
+  convient telle quelle au mode C, donc le score, les statistiques et le partage ne bougent pas. Ce qui change vraiment
+  se limite à trois endroits : le moment où s'ouvre la fenêtre des résultats, ce qu'un clic veut dire sur la carte, et
+  le format de la sauvegarde (des paires, puisque l'ordre n'est plus connu d'avance).
+- **Comment le faire** : pour chaque retour, suivre le chemin dans le code (ici `changer()` puis `fermerFenetre()`
+  dans `PartieDuJour.tsx`, et `repondre()` dans `bonus.ts`), noter ce qui suppose l'ancien fonctionnement (l'ordre
+  imposé, `bonusAVenir`), et poser une question pour chaque cas que le retour ne tranche pas (passer avant toute
+  réponse, retour sur la page, suggestions de la région ou de toute la France).
+- **Comment le penser** : une demande d'utilisateur décrit ce qu'il voit, pas ce qu'il faut changer. La question
+  utile : « quelle idée du code cette demande contredit-elle ? » (ici : « l'ordre des questions est fixé d'avance »).
+  Ce qui ne la contredit pas peut rester tel quel. Et une donnée déjà sauvegardée chez les joueurs est toujours ce
+  qui coûte le plus à changer : il faut y penser en premier.
