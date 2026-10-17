@@ -167,8 +167,11 @@ reste à valider (l'utilisateur doit d'abord acheter le nom de domaine).
   boutons de l'en-tête sont plus serrés (`px-1`, `sm:px-2`) pour que le titre tienne sur une ligne.
 - **Le bonus des départements** (PR #17 à #20, étiquettes `web-7.1` à `web-7.4`, et `web-7`) : voir « Le bonus des
   départements » plus bas. Les choix faits en route (listes « À valider » des PR) ont été acceptés tels quels.
-- **Pour reprendre (après web.7, le 17 octobre 2026)** : lire ce plan et `docs/lecons.md`, puis présenter le
-  découpage de web.8 et ses questions, et attendre l'accord.
+- **Pour reprendre (après web.7, le 17 octobre 2026)** : lire ce plan et `docs/lecons.md`, vérifier que `main` est à
+  jour (`git pull`) et que cette mise à jour du plan (PR #21) est fusionnée. Le découpage de web.8 et ses douze
+  questions ont été présentés le 17 octobre 2026 (voir « Le domaine et le défi (web.8) » plus bas) : **l'utilisateur
+  n'a pas encore répondu**. Reprendre en lui rappelant les questions, et attendre ses réponses puis son « tu peux
+  lancer ».
   - **Reste à faire côté Java** (proposé, pas encore fait) : noter dans `docs/feuille-de-route.md` du projet Java
     (phase 9) trois choix propres au web : pas de minuterie entre deux questions du bonus ; en mode B, Entrée sur un
     début de nom joue le seul département évoqué ; un bonus pas commencé attend son bouton jusqu'à minuit.
@@ -277,6 +280,56 @@ statistiques : « Bonus joués » et « Score moyen ».
    leçons, plan.
 
 (Numérotation d'origine des sept phases ; les PR suivent le regroupement en quatre décrit plus haut.)
+
+## Le domaine et le défi (web.8)
+
+Découpage et questions présentés le 17 octobre 2026, **en attente des réponses de l'utilisateur**. Entre parenthèses,
+la recommandation de Claude.
+
+### Le découpage proposé (3 PR)
+
+1. **web.8.1 Le défi** : un lien à envoyer pour faire deviner une région, son affichage, textes FR/EN, tests. Il ne
+   dépend pas du domaine : le lien se fabrique à partir de l'adresse de la page (`location`), pas d'une constante.
+   D'abord, donc, en attendant l'achat du domaine.
+2. **web.8.2 Le domaine** : `public/CNAME`, `base: '/'` dans `vite.config.ts`, `ADRESSE` dans `domaine/partage.ts`
+   (et son test), liens du README et du bas de page ; les réglages DNS et GitHub Pages, faits par l'utilisateur avec
+   la liste exacte donnée par Claude.
+3. **web.8.3 L'aperçu des liens** : balises Open Graph (`og:title`, `og:description`, `og:image`, qui demande une
+   adresse complète, donc le domaine) et `<meta name="theme-color">`.
+
+### Les questions
+
+Le domaine :
+
+1. Le domaine est-il acheté, et lequel ? (`francle.fr`, libre le 14 octobre 2026, environ 7 à 10 € par an chez OVH,
+   Gandi, Infomaniak… ; l'achat est fait par l'utilisateur.)
+2. Avec ou sans `www` ? (`francle.fr`, et `www.francle.fr` qui y renvoie : 4 enregistrements A et AAAA vers GitHub,
+   un CNAME `www` vers `deibine.github.io`.)
+3. Vérifier le domaine dans les réglages GitHub (enregistrement TXT), pour que personne d'autre ne puisse le servir ?
+   (Oui.)
+4. **Les parties sauvées seront perdues** : `localStorage` est propre à chaque adresse, et GitHub renverra
+   `deibine.github.io/francle-web` vers le nouveau domaine sans les données. a. accepter la perte, b. une page de
+   transfert temporaire. (a : le jeu n'en est qu'à la partie n° 5.)
+
+Le défi :
+
+5. Qui choisit la région ? (Les deux : « Défier un ami » à la fin d'une partie libre, et un choix libre dans la
+   liste 📃. Pas la partie du jour, déjà partagée.)
+6. La région lisible dans le lien (`?defi=bretagne`) ou codée (`?defi=k3x9`) ? (Codée : pas un vrai secret, mais la
+   surprise n'est pas gâchée.)
+7. Ce que porte le lien en plus : l'époque (oui, indispensable pour une ancienne région), les modes difficiles (non :
+   les réglages de celui qui reçoit), le score de celui qui défie (oui, facultatif, montré seulement à la fin).
+8. Où se joue le défi ? (Dans l'onglet « Partie libre », avec un bandeau « Défi : trouve la région choisie par ton
+   ami » ; ni sauvegardé ni compté, bonus après une victoire ; « Nouvelle partie » revient au hasard.)
+9. Répondre au défi : un partage « #Francle défi 3/6 » en carrés, avec le lien du même défi ? (Oui.)
+10. Un nom dans le défi (« Défi de Clément ») ? (Non : aucune donnée personnelle dans les liens.)
+
+Le reste :
+
+11. Ajouter à web.8 une amélioration en attente (compteur de la partie libre, repère « voisine », mode « métropole
+    seulement ») ? (Non : web.8 reste court, elles auront leur étape.)
+12. La note dans le plan du Java (les trois choix propres au web pour le bonus, voir « Pour reprendre ») : maintenant,
+    dans une PR du dépôt Java, ou plus tard ?
 
 ## Les améliorations à reprendre (relevées le 16 octobre 2026)
 
