@@ -10,9 +10,15 @@ Ce qu'on garde de chaque partie : les régions proposées (leurs identifiants) e
 pourcentages : on rejoue les propositions avec proposer(), qui les recalcule. Si une règle change, les anciennes
 parties se rejouent avec la nouvelle règle, sans sauvegarde à convertir.
 
-De même pour le bonus des départements (depuis web.7) : les numéros donnés et son état, rejoués avec rejouer(). Le
-champ est facultatif : les sauvegardes d'avant web.7 restent lisibles, sans nouvelle clé « v2 ». Seul un bonus
-commencé (au moins une réponse) est sauvé : passé avant toute réponse, il n'a pas commencé et reste à jouer.
+De même pour le bonus des départements (depuis web.7) : ses réponses et son état, rejouées au retour. Le champ est
+facultatif : les sauvegardes d'avant web.7 restent lisibles, sans nouvelle clé « v2 ». Seul un bonus commencé (au
+moins une réponse) est sauvé : passé avant toute réponse, il n'a pas commencé et reste à jouer.
+
+Les réponses du bonus, deux formats :
+    reponses  (web.7) les numéros donnés, dans l'ordre du jour : le département demandé s'en déduit (mode A)
+    paires    (depuis web.7.6) [numéro demandé, numéro donné] : en mode C, le joueur choisit l'ordre, il faut donc
+              garder aussi le département qu'il a choisi
+On n'écrit plus que des paires ; les deux se lisent.
  */
 import {
   bonusDuJour,
@@ -20,6 +26,7 @@ import {
   commence,
   passer,
   rejouer,
+  rejouerPaires,
   score,
   total,
   type Bonus,
@@ -43,8 +50,11 @@ export interface PartieSauvee {
 }
 
 export interface BonusSauve {
-  // les numéros des départements donnés, dans l'ordre des réponses
-  readonly reponses: readonly string[]
+  // depuis web.7.6 : [numéro du département demandé (choisi en mode C), numéro du département donné], dans l'ordre
+  // des réponses
+  readonly paires?: readonly (readonly [string, string])[]
+  // web.7 : les numéros des départements donnés, dans l'ordre du jour (absent depuis web.7.6)
+  readonly reponses?: readonly string[]
   readonly etat: EtatBonus
 }
 
@@ -90,10 +100,16 @@ function estBonusSauve(valeur: unknown): valeur is BonusSauve {
   return (
     typeof valeur === 'object' &&
     valeur !== null &&
-    Array.isArray(bonus.reponses) &&
-    bonus.reponses.every((code) => typeof code === 'string') &&
+    // l'un des deux formats de réponses (voir en haut du fichier)
+    (estListeDeCodes(bonus.reponses) ||
+      (Array.isArray(bonus.paires) &&
+        bonus.paires.every((paire) => Array.isArray(paire) && paire.length === 2 && estListeDeCodes(paire)))) &&
     ['en-cours', 'termine', 'passe'].includes(bonus.etat)
   )
+}
+
+function estListeDeCodes(valeur: unknown): valeur is string[] {
+  return Array.isArray(valeur) && valeur.every((code) => typeof code === 'string')
 }
 
 export function enregistrer(
@@ -122,7 +138,10 @@ export function enregistrerBonus(numero: number, bonus: Bonus, stockage: Storage
   }
   parties.set(numero, {
     ...partie,
-    bonus: { reponses: bonus.tentatives.map((tentative) => tentative.donne.code), etat: bonus.etat },
+    bonus: {
+      paires: bonus.tentatives.map((tentative) => [tentative.demande.code, tentative.donne.code] as const),
+      etat: bonus.etat,
+    },
   })
   ecrire(parties, stockage)
 }
@@ -160,7 +179,9 @@ export function restaurerBonus(numero: number, sauvee: PartieSauvee | undefined)
   if (sauvee?.bonus === undefined) {
     return undefined
   }
-  const bonus = rejouer(bonusDuJour(regionDuNumero(numero), numero), sauvee.bonus.reponses)
+  const neuf = bonusDuJour(regionDuNumero(numero), numero)
+  const { paires, reponses } = sauvee.bonus
+  const bonus = paires !== undefined ? rejouerPaires(neuf, paires) : rejouer(neuf, reponses ?? [])
   if (!commence(bonus)) {
     return undefined
   }

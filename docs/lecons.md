@@ -941,3 +941,29 @@ commandes), **comment le penser** (la question à se poser la prochaine fois).
   `document.activeElement`.
 - **Comment le penser** : à chaque élément qui disparaît après une action, se demander où va le focus. La fenêtre
   `<dialog>` le gère toute seule ; le reste de la page, non.
+
+## web.7.6 Les règles du mode C
+
+### Garder ce qui décrit le jeu, changer ce qui le contraint
+
+- **Pourquoi** : le mode C laisse le joueur choisir l'ordre. Une `Tentative` (`demande`, `donne`) le décrit déjà ;
+  ce qui supposait un ordre imposé, c'est `demande(bonus)` (« la question en cours ») et `repondre()`, qui s'en
+  servait. Récrire tout le bonus aurait cassé le mode A, ses tests et la comparaison avec le Java.
+- **Comment le faire** : une fonction interne `ajouter(bonus, demande, donne)` fait le travail commun ; `repondre()`
+  (modes A et B) lui passe la question en cours, `repondreChoix()` (mode C) le département choisi. `demande()` refuse
+  le mode C par une erreur : l'appeler serait une erreur de programmation, pas une action du joueur. Le refus d'un
+  département déjà trouvé est une valeur rendue (`'deja-trouve'`), puisque le joueur peut le provoquer.
+- **Comment le penser** : distinguer l'erreur du joueur (une valeur, à afficher) de l'erreur du programmeur (une
+  exception, qui doit faire échouer un test). C'est la différence, en Java, entre une valeur de retour comme
+  `Optional` ou un `sealed interface` de résultats, et une `IllegalStateException`.
+
+### Un format de sauvegarde de plus, sans perdre l'ancien
+
+- **Pourquoi** : en mode C, l'ordre des réponses ne dit plus quel département était demandé. Les numéros donnés ne
+  suffisent plus : il faut des paires (demandé, donné). Mais des joueurs ont déjà des bonus sauvés au format de web.7.
+- **Comment le faire** : deux champs facultatifs, `reponses` (web.7) et `paires` (web.7.6). On n'écrit plus que
+  `paires` ; à la lecture, `paires` sinon `reponses`, rejouées avec l'ordre du jour comme avant. La vérification
+  (`estBonusSauve`) accepte l'un ou l'autre. Un test relit une sauvegarde de web.7 écrite à la main, un autre une
+  paire abîmée.
+- **Comment le penser** : une sauvegarde est une promesse faite aux données d'hier. Avant de changer un format, écrire
+  le test qui relit l'ancien ; et nommer chaque format dans un commentaire, avec la version qui l'a introduit.

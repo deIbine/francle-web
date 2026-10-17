@@ -91,6 +91,10 @@ export function JeuBonus({ bonus, onChanger, focaliser = false }: Props) {
   }
 
   function question(): string {
+    // mode C : pas de question imposée, le joueur choisit un département
+    if (bonus.question === 'choix') {
+      return textes.bonus.choisir
+    }
     const departement = demande(bonus)
     switch (bonus.question) {
       case 'carte':
