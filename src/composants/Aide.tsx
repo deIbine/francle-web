@@ -35,6 +35,7 @@ export function Aide({ onJouer }: { onJouer: () => void }) {
       <p>{textes.aide.indices}</p>
       <p>{textes.aide.jour}</p>
       <p>{textes.aide.libre}</p>
+      <p>{textes.aide.bonus}</p>
       <p>{textes.aide.modes}</p>
       <button
         type="button"

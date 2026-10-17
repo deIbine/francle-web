@@ -187,11 +187,12 @@ const fr = {
     jour: 'La partie du jour est la même pour tout le monde, et change à minuit. Partage ton résultat\u00a0: il ne dévoile pas la réponse.',
     libre: 'En partie libre, joue autant que tu veux, avec les régions actuelles ou celles d’avant 2016.',
     modes: 'Dans les réglages ⚙️, essaie les modes difficiles\u00a0: la silhouette tournée 🌀, ou cachée 🙈.',
+    bonus: 'Après une victoire, un bonus 🗺️\u00a0: retrouve chaque département de la région sur sa carte. Une seule réponse par département, et ton score s’ajoute au partage.',
     jouer: 'Jouer',
   },
 
   credits: {
-    contours: 'Contours des régions\u00a0: IGN et INSEE',
+    contours: 'Contours des régions et des départements\u00a0: IGN et INSEE',
     licence: 'licence ouverte Etalab',
     inspiration: 'Inspiré de Worldle',
     code: 'Code source',
@@ -366,11 +367,12 @@ const en: Textes = {
     jour: 'The daily game is the same for everyone, and changes at midnight. Share your result: it doesn’t give the answer away.',
     libre: 'In free play, play as much as you like, with the current regions or those from before 2016.',
     modes: 'In the settings ⚙️, try the hard modes: the outline rotated 🌀, or hidden 🙈.',
+    bonus: 'After a win, a bonus 🗺️: find each department of the region on its map. One answer per department, and your score is added to what you share.',
     jouer: 'Play',
   },
 
   credits: {
-    contours: 'Region outlines: IGN and INSEE',
+    contours: 'Region and department outlines: IGN and INSEE',
     licence: 'Etalab open licence',
     inspiration: 'Inspired by Worldle',
     code: 'Source code',
