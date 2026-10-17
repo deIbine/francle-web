@@ -967,3 +967,40 @@ commandes), **comment le penser** (la question à se poser la prochaine fois).
   paire abîmée.
 - **Comment le penser** : une sauvegarde est une promesse faite aux données d'hier. Avant de changer un format, écrire
   le test qui relit l'ancien ; et nommer chaque format dans un commentaire, avec la version qui l'a introduit.
+
+## web.7.7 Le mode C jouable
+
+### Un état d'affichage n'appartient pas aux règles
+
+- **Pourquoi** : en mode C, le joueur clique un département avant de le nommer. Ce choix ne compte pour rien tant
+  qu'il n'a pas répondu, et il peut changer d'avis. Le mettre dans le `Bonus` l'aurait fait sauvegarder et comparer
+  dans les tests des règles, pour une information qui ne vit que le temps d'un clic.
+- **Comment le faire** : un `useState` dans `JeuBonus` (`choix`) ; la carte le reçoit (`choisi`) et prévient d'un clic
+  (`onChoisir`). Le département choisi n'est utilisé que s'il attend encore sa réponse
+  (`restants(bonus).includes(choix)`) : un autre onglet a pu y répondre entre-temps. On le déduit à chaque affichage,
+  plutôt que de le corriger dans un effet.
+- **Comment le penser** : se demander « si je ferme la page maintenant, est-ce que je veux retrouver cette
+  information ? ». Si oui, c'est une donnée du jeu (le domaine, la sauvegarde) ; sinon, c'est un état de l'écran,
+  gardé par le composant qui l'affiche. En Swing, la même différence sépare le modèle de la sélection d'une `JList`.
+
+### Donner le focus à un champ qui vient de cesser d'être grisé
+
+- **Pourquoi** : un clic sur un département doit donner le focus à la saisie, pour taper le nom tout de suite. Mais
+  au moment du clic, la saisie est encore grisée (`disabled`), et un champ grisé refuse le focus.
+- **Comment le faire** : le parent incrémente un compteur (`demandeFocus`), et la saisie appelle `focus()` dans un
+  `useEffect` qui dépend de ce compteur : l'effet passe après l'affichage, quand le champ n'est plus grisé. Un
+  compteur plutôt qu'un booléen : deux clics de suite font deux demandes, même si la valeur « vrai » ne change pas.
+  C'est la même façon de faire que pour les boutons de l'en-tête (`demandeStats`, `demandeListe`).
+- **Comment le penser** : ce qui touche à l'élément lui-même (focus, mesure, défilement) se fait après l'affichage,
+  donc dans un effet. La question : « l'élément est-il déjà dans l'état où je le veux, au moment où j'agis ? ».
+
+### Un test qui dépend des données du jour
+
+- **Pourquoi** : un test supposait au moins trois départements dans la région du jour des tests ; c'est la Corse,
+  qui n'en a que deux (et le bonus était fini après la deuxième réponse). Un autre truquait `Math.random` après
+  l'ouverture du jeu, alors que la première partie libre est tirée à l'ouverture.
+- **Comment le faire** : lire le message d'erreur (« reading 'nom' » d'un `undefined`, « Unable to find » la carte),
+  vérifier la donnée en cause, puis écrire le test pour qu'il tienne quelle que soit la région (une réponse fausse
+  prise hors de la région, « Gironde ») et truquer le hasard avant `render`.
+- **Comment le penser** : un test ne doit supposer des données que ce qu'il vérifie lui-même. Quand il en suppose
+  plus, le dire dans un commentaire, ou mieux, choisir des données qui ne peuvent pas manquer.

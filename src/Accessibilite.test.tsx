@@ -130,9 +130,16 @@ describe('L’accessibilité (axe)', () => {
     await joueur.type(screen.getByRole('combobox'), `${regionDuJour(DATE).nom.fr}{Escape}{Enter}`)
     const carte = await screen.findByRole('group', { name: 'Carte des départements de la région' }, { timeout: 5000 })
     expect(await problemes()).toEqual([])
-    // une réponse à chaque zone : le bonus est fini, les départements disent leur nom
-    for (const zone of within(carte).getAllByRole('button')) {
-      await joueur.click(zone)
+    // un département choisi : la saisie du bonus est active
+    await joueur.click(within(carte).getAllByRole('button')[0])
+    expect(await problemes()).toEqual([])
+    // une réponse (son numéro) à chaque zone : le bonus est fini, les départements disent leur nom
+    const champ = () => screen.getByRole('combobox', { name: 'Ta réponse' })
+    let zones = within(carte).queryAllByRole('button')
+    while (zones.length > 0) {
+      await joueur.click(zones[0])
+      await joueur.type(champ(), `${zones[0].getAttribute('data-code')}{Escape}{Enter}`)
+      zones = within(carte).queryAllByRole('button')
     }
     expect(within(carte).queryAllByRole('button')).toHaveLength(0)
     // axe se lance avant la fin de la pause : la fenêtre des résultats n'est pas encore ouverte par-dessus

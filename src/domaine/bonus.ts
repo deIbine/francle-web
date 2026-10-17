@@ -24,7 +24,7 @@ export type Question = 'carte' | 'nom' | 'choix' | 'numero'
 
 // A, B ou C : choisi de notre côté, dans le code, sans le montrer aux joueurs (comme Bonus.MODE en Java).
 // Mettre 'nom' pour essayer le mode B, 'choix' pour le mode C
-export const MODE_BONUS: Exclude<Question, 'numero'> = 'carte'
+export const MODE_BONUS: Exclude<Question, 'numero'> = 'choix'
 
 // termine : tous les départements ont eu leur réponse ; passe : le joueur a arrêté avant (bouton « Passer »).
 // Les deux comptent dans les statistiques, avec les réponses données

@@ -95,9 +95,10 @@ angle de rotation, et les valeurs de ses tests.
 
 **Faites : web.0 à web.7.** Le bonus des départements est en ligne depuis le 17 octobre 2026 : quatre PR (#17 à
 #20), relues par l'utilisateur (testées en local) et fusionnées, étiquettes `web-7.1` à `web-7.4` et `web-7` (détail
-plus bas dans « Le bonus des départements »). Prochaine étape : **le bonus revu (web.7.5 à web.7.7)**, décidé le
-17 octobre 2026 après les retours des joueurs (voir « Le bonus revu » plus bas), puis **web.8 Le domaine et le
-défi**, dont le découpage reste à valider (l'utilisateur doit d'abord acheter le nom de domaine).
+plus bas dans « Le bonus des départements »). **Le bonus revu (web.7.5 à web.7.7)**, décidé le 17 octobre 2026
+après les retours des joueurs, est fait : trois PR empilées (#24, #25, #26), **à tester par l'utilisateur avant la
+fusion** (voir « Le bonus revu » plus bas). Ensuite, **web.8 Le domaine et le défi**, dont le découpage reste à valider
+(l'utilisateur doit d'abord acheter le nom de domaine).
 
 - **web.0** (PR #1, étiquette `web-0`) : dépôt public `deIbine/francle-web`, Vite + React + TypeScript, Vitest, lint
   oxlint, CI `.github/workflows/ci.yml` (tâche `verifier` sur chaque PR et sur `main`, tâche `publier` vers GitHub
@@ -171,11 +172,13 @@ défi**, dont le découpage reste à valider (l'utilisateur doit d'abord acheter
   boutons de l'en-tête sont plus serrés (`px-1`, `sm:px-2`) pour que le titre tienne sur une ligne.
 - **Le bonus des départements** (PR #17 à #20, étiquettes `web-7.1` à `web-7.4`, et `web-7`) : voir « Le bonus des
   départements » plus bas. Les choix faits en route (listes « À valider » des PR) ont été acceptés tels quels.
-- **Pour reprendre (le 17 octobre 2026, après la PR du bonus revu)** : lire ce plan et `docs/lecons.md`, vérifier
-  que `main` est à jour (`git pull`) et que les PR de ce plan (web.7.5.0 et web.7.5.0.1) sont fusionnées. Les
-  décisions du **bonus revu** sont toutes prises, phases comprises (voir « Le bonus revu » et « Les décisions des
-  phases » plus bas) : les trois phases web.7.5 à web.7.7 s'enchaînent en PR empilées, fusionnées à la fin avec
-  l'accord de l'utilisateur, une fois qu'il a dit de lancer. Le découpage de web.8 et ses douze questions ont été présentés le 17 octobre 2026 (voir
+- **Pour reprendre (le 17 octobre 2026, après les trois PR du bonus revu)** : lire ce plan et `docs/lecons.md`,
+  vérifier que `main` est à jour (`git pull`). Les trois phases du **bonus revu** sont faites, en PR empilées : #24
+  (web.7.5, base `main`), #25 (web.7.6, base la branche de #24), #26 (web.7.7, base la branche de #25). Elles
+  attendent que l'utilisateur les teste en local (`npm run dev` sur la branche de #26) et dise de fusionner : alors
+  fusionner #24 en squash, puis rebaser chaque branche suivante sur `main` depuis l'ancienne pointe de la précédente
+  (`git rebase --onto main <ancienne pointe> <branche>`, voir la leçon dans `lecons.md`), changer sa base en `main`,
+  fusionner, et ainsi de suite ; étiquettes `web-7.5`, `web-7.6`, `web-7.7`. Le découpage de web.8 et ses douze questions ont été présentés le 17 octobre 2026 (voir
   « Le domaine et le défi (web.8) » plus bas) : **l'utilisateur n'a pas encore répondu**, à reprendre après le bonus
   revu.
   - **Reste à faire côté Java**, plus tard et dans une autre conversation (décidé le 17 octobre 2026) : voir « À
@@ -331,7 +334,7 @@ département, puis on écrit son nom**, comme on écrit une région.
    répondre avec le département cliqué et le département écrit, refus d'un département déjà trouvé, `MODE_BONUS`
    passe à C), `sauvegarde.ts` (des paires, l'ancien format toujours lisible), tests dont la relecture d'une
    ancienne sauvegarde.
-3. **web.7.7 Le mode C jouable** : `CarteDepartements` (un clic sélectionne, le choisi est mis en évidence, le zoom
+3. ✅ **web.7.7 Le mode C jouable** (fait ; `MODE_BONUS` passe à C ici) : `CarteDepartements` (un clic sélectionne, le choisi est mis en évidence, le zoom
    de l'Île-de-France se clique aussi ; au clavier, Tab puis Entrée sélectionne et donne le focus à la saisie, les
    zones toujours sans leur nom), `JeuBonus` (la saisie sous la carte, suggestions des 101 départements), textes FR
    et EN, « Comment jouer », tests axe, téléphone à 375 pixels (le clavier du téléphone peut cacher la carte), thème

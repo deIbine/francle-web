@@ -5,8 +5,8 @@ import { cleanup, render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { afterEach, describe, expect, it } from 'vitest'
 import App from './App.tsx'
-import { ordreDuJour } from './domaine/bonus.ts'
-import { numero, regionDuJour } from './domaine/regionDuJour.ts'
+import { departementsDe, parCode } from './domaine/departements.ts'
+import { regionDuJour } from './domaine/regionDuJour.ts'
 import { REGIONS, tirables } from './domaine/regions.ts'
 
 // le jour où l'horloge des tests est arrêtée (voir preparationTests.ts)
@@ -91,17 +91,39 @@ describe('Le jeu en anglais', () => {
     navigateurEn('en-GB')
     const joueur = demarrer()
     await proposer(joueur, CIBLE.nom.en)
-    const ordre = ordreDuJour(CIBLE, numero(DATE))
+    const total = departementsDe(CIBLE).length
     const carte = await within(panneau()).findByRole(
       'group',
       { name: 'Map of the region’s departments' },
       { timeout: 5000 },
     )
     expect(within(panneau()).getByRole('heading', { name: 'Bonus: the departments' })).toBeDefined()
-    expect(within(panneau()).getByText(`Department 1 of ${ordre.length}`)).toBeDefined()
-    expect(within(panneau()).getByText(`Click on: ${ordre[0].nom}`)).toBeDefined()
-    expect(within(carte).getAllByRole('button')[0].getAttribute('aria-label')).toBe(`Area 1 of ${ordre.length}`)
+    expect(within(panneau()).getByText(`0 answers of ${total}`)).toBeDefined()
+    expect(within(panneau()).getByText('Click on a department on the map')).toBeDefined()
+    const zone = within(carte).getAllByRole('button')[0]
+    expect(zone.getAttribute('aria-label')).toBe(`Area 1 of ${total}`)
+    // le département choisi, nommé en français : son nom ne se traduit pas
+    await joueur.click(zone)
+    expect(within(panneau()).getByText('Which department is this?')).toBeDefined()
+    const departement = parCode(zone.getAttribute('data-code')!)!
+    await joueur.type(
+      within(panneau()).getByRole('combobox', { name: 'Your answer' }),
+      `${departement.nom}{Escape}{Enter}`,
+    )
+    expect(within(panneau()).getByText(`Correct: ${departement.nom} (${departement.code}).`)).toBeDefined()
+    // une réponse donnée : « Skip » termine le bonus, avec son score partiel
     await joueur.click(within(panneau()).getByRole('button', { name: 'Skip' }))
+    await joueur.click(within(screen.getByRole('dialog', { name: 'Results' })).getByRole('button', { name: 'Close' }))
+    expect(within(panneau()).queryByRole('button', { name: '🗺️ Play the bonus' })).toBeNull()
+  })
+
+  it('« Skip » avant toute réponse : le bonus reste à jouer', async () => {
+    navigateurEn('en-GB')
+    const joueur = demarrer()
+    await proposer(joueur, CIBLE.nom.en)
+    await within(panneau()).findByRole('group', { name: 'Map of the region’s departments' }, { timeout: 5000 })
+    await joueur.click(within(panneau()).getByRole('button', { name: 'Skip' }))
+    await joueur.click(within(screen.getByRole('dialog', { name: 'Results' })).getByRole('button', { name: 'Close' }))
     expect(within(panneau()).getByRole('button', { name: '🗺️ Play the bonus' })).toBeDefined()
   })
 })
