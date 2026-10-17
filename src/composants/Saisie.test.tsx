@@ -1,12 +1,17 @@
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { describe, expect, it, vi } from 'vitest'
+import { suggestions } from '../domaine/recherche.ts'
 import { Saisie } from './Saisie.tsx'
+
+// les suggestions de la partie : les régions actuelles, noms en français
+const regions = (texte: string) =>
+  suggestions(texte, 'nouvelles', 'fr').map((region) => ({ cle: region.id, nom: region.nom.fr }))
 
 // vi.fn() : une fausse fonction qui retient ses appels (comme un mock Mockito) ; elle accepte toute saisie
 function afficher() {
   const onProposer = vi.fn(() => true)
-  render(<Saisie mode="nouvelles" onProposer={onProposer} />)
+  render(<Saisie suggerer={regions} onProposer={onProposer} />)
   return { joueur: userEvent.setup(), onProposer, champ: screen.getByRole('combobox') }
 }
 
@@ -71,7 +76,7 @@ describe('La saisie', () => {
 
   it('une saisie refusée reste dans le champ, pour être corrigée', async () => {
     const onProposer = vi.fn(() => false)
-    render(<Saisie mode="nouvelles" onProposer={onProposer} />)
+    render(<Saisie suggerer={regions} onProposer={onProposer} />)
     const champ = screen.getByRole('combobox') as HTMLInputElement
     await userEvent.setup().type(champ, 'Atlantide{Enter}')
     expect(champ.value).toBe('Atlantide')

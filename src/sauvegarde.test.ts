@@ -1,8 +1,11 @@
 import { describe, expect, it } from 'vitest'
+import { bonusDuJour, passer, repondre } from './domaine/bonus.ts'
+import { parCode } from './domaine/departements.ts'
 import { SANS_MODE } from './domaine/partage.ts'
 import { abandonner, nouvellePartie, proposer, type Partie } from './domaine/partie.ts'
 import { parId } from './domaine/regions.ts'
-import { CLE, enregistrer, lire, restaurer, resultats } from './sauvegarde.ts'
+import { regionDuNumero } from './domaine/regionDuJour.ts'
+import { CLE, enregistrer, enregistrerBonus, lire, restaurer, restaurerBonus, resultats } from './sauvegarde.ts'
 
 const BRETAGNE = parId('bretagne')
 
@@ -57,5 +60,59 @@ describe('La sauvegarde', () => {
   it('une région inconnue dans la sauvegarde est sautée', () => {
     const partie = restaurer({ regions: ['atlantide', 'corse'], etat: 'en-cours' }, BRETAGNE, 'nouvelles')
     expect(partie.essais.map((essai) => essai.region.id)).toEqual(['corse'])
+  })
+})
+
+describe('La sauvegarde du bonus', () => {
+  // la partie n° 1 : la Normandie, dont le bonus du jour demande 76, 27, 50, 61 puis 14 (voir reference-java.json)
+  const NORMANDIE = regionDuNumero(1)
+  const gagnee = () => proposer(nouvellePartie(NORMANDIE, 'nouvelles'), 'Normandie')!
+  const repondu = (...codes: string[]) =>
+    codes.reduce((bonus, code) => repondre(bonus, parCode(code)!), bonusDuJour(NORMANDIE, 1))
+
+  it('un bonus commencé se retrouve tel quel, avec ses réponses', () => {
+    enregistrer(1, gagnee())
+    enregistrerBonus(1, repondu('76', '14'))
+    expect(lire().get(1)!.bonus).toEqual({ reponses: ['76', '14'], etat: 'en-cours' })
+    expect(restaurerBonus(1, lire().get(1))).toEqual(repondu('76', '14'))
+  })
+
+  it('un bonus pas commencé n’est pas sauvé : il reste à jouer', () => {
+    enregistrer(1, gagnee())
+    enregistrerBonus(1, passer(bonusDuJour(NORMANDIE, 1)))
+    expect(lire().get(1)!.bonus).toBeUndefined()
+    expect(restaurerBonus(1, lire().get(1))).toBeUndefined()
+  })
+
+  it('passé après une réponse, il est fini avec son score partiel, et compte dans les résultats', () => {
+    enregistrer(1, gagnee())
+    enregistrerBonus(1, passer(repondu('76')))
+    const bonus = restaurerBonus(1, lire().get(1))!
+    expect(bonus.etat).toBe('passe')
+    expect(resultats(lire()).get(1)).toEqual({ etat: 'gagnee', essais: 1, bonus: { score: 1, total: 5 } })
+  })
+
+  it('un bonus en cours ne compte pas encore dans les résultats', () => {
+    enregistrer(1, gagnee())
+    enregistrerBonus(1, repondu('76'))
+    expect(resultats(lire()).get(1)).toEqual({ etat: 'gagnee', essais: 1 })
+  })
+
+  it('réenregistrer la partie garde le bonus', () => {
+    enregistrer(1, gagnee())
+    enregistrerBonus(1, repondu('76'))
+    enregistrer(1, gagnee())
+    expect(lire().get(1)!.bonus?.reponses).toEqual(['76'])
+  })
+
+  it('une sauvegarde d’avant web.7 (sans bonus) reste lisible ; un bonus abîmé rend la partie illisible', () => {
+    localStorage.setItem(
+      CLE,
+      JSON.stringify({
+        1: { regions: ['normandie'], etat: 'gagnee' },
+        2: { regions: ['corse'], etat: 'gagnee', bonus: { reponses: 'non', etat: 'termine' } },
+      }),
+    )
+    expect([...lire().keys()]).toEqual([1])
   })
 })

@@ -819,3 +819,52 @@ commandes), **comment le penser** (la question à se poser la prochaine fois).
   tests : chaque ligne changée doit avoir une raison connue.
 - **Comment le penser** : une référence qui change n'est pas forcément une erreur ; c'est une question à poser. Ici,
   la réponse a permis de supprimer du code fait seulement pour les tests.
+
+## web.7.3 Le bonus jouable
+
+### Un <path> SVG comme bouton, sans donner la réponse
+
+- **Pourquoi** : en mode A, on clique sur un département de la carte. Il doit aussi se jouer au clavier, et un lecteur
+  d'écran doit pouvoir l'annoncer, mais pas par son nom (« Finistère » serait la réponse).
+- **Comment le faire** : chaque `<path>` reçoit `role="button"`, `tabIndex={0}` (atteignable par Tab), un
+  `onKeyDown` pour Entrée et Espace, et `aria-label="Zone 3 sur 4"`. Les zones sont numérotées du haut vers le bas de
+  la carte (`centre()` dans `contours.ts`), pas dans l'ordre des numéros, qui serait un indice. Une fois le bonus
+  fini, le rôle devient `img` et l'étiquette dit le nom et le résultat ; le nom s'affiche aussi sous la carte au
+  survol, au clavier, et au doigt sur téléphone (toucher un élément atteignable lui donne le focus). axe vérifie les
+  deux états (`Accessibilite.test.tsx`).
+- **Comment le penser** : l'accessibilité n'est pas « tout dire » : c'est donner au lecteur d'écran la même chose
+  qu'aux yeux. Pendant le bonus, les yeux voient des formes sans nom ; le lecteur d'écran entend des zones sans nom.
+
+### Une fonction en paramètre pour réutiliser un composant
+
+- **Pourquoi** : le mode B a besoin du même champ que la partie (suggestions, flèches, Entrée), mais pour des
+  départements. Copier `Saisie` aurait fait deux composants à corriger à chaque fois.
+- **Comment le faire** : `Saisie` ne connaît plus les régions : elle reçoit `suggerer(texte)`, qui renvoie des
+  `{ cle, nom }`. Le plateau lui passe les régions, le bonus les départements. Et la règle d'Entrée de web.6.2 (un
+  début de nom qui n'évoque qu'une réponse la joue) vaut aussi pour les départements : le test l'a montré.
+- **Comment le penser** : c'est l'injection d'une stratégie, comme une interface Java passée au constructeur. Avant de
+  dupliquer un composant, se demander ce qui change vraiment entre les deux usages, et en faire un paramètre.
+
+### Charger un fichier à la demande : use() ou useEffect ?
+
+- **Pourquoi** : les contours (656 Ko) ne sont téléchargés qu'au début du bonus (`import.meta.glob` sans `eager` :
+  un fichier par région, à part du site). Le premier essai, avec `use(promesse)` et `<Suspense>` (React 19), marchait
+  dans le navigateur mais pas dans un test : React a prévenu « A component suspended inside an act scope » et n'a
+  jamais réaffiché la carte.
+- **Comment le faire** : un petit hook, `useContours()` : `useEffect` lance le téléchargement après l'affichage, et
+  `setState` fait réafficher le composant à l'arrivée ; un indicateur `actif` ignore une réponse arrivée trop tard.
+  Les contours déjà arrivés sont gardés dans une `Map`, et s'affichent ensuite tout de suite.
+- **Comment le penser** : lire les avertissements de la console des tests, ils disent souvent la cause. Et préférer
+  l'outil le plus simple qui suffit : `use()` est fait pour des données gérées par un cadre (un routeur, un cache) ;
+  pour un fichier chargé une fois, `useEffect` est plus simple à suivre et à tester.
+
+### Sauver le bonus sans casser les anciennes sauvegardes
+
+- **Pourquoi** : le bonus du jour doit survivre à la fermeture de la page. Changer de clé (`v2`) obligerait à
+  convertir les anciennes parties.
+- **Comment le faire** : un champ **facultatif** `bonus?: { reponses, etat }` dans chaque partie sauvée ; une
+  ancienne sauvegarde ne l'a pas, et reste valable. Comme pour la partie, on garde les réponses et on les rejoue
+  (`rejouer()`), sans garder le score. `enregistrer()` reprend ce qui était déjà sauvé de ce jour
+  (`...parties.get(numero)`) pour ne pas effacer le bonus.
+- **Comment le penser** : faire évoluer un format, c'est d'abord se demander comment se lisent les données d'hier.
+  Un champ facultatif, et un test qui relit une sauvegarde d'avant (`sauvegarde.test.ts`), y suffisent souvent.

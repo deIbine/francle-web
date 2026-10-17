@@ -45,7 +45,13 @@ const REGIONS_DU_JOUR: readonly Region[] = tirables(MODE_DU_JOUR).sort((a, b) =>
 })
 
 export function regionDuJour(date: Date = new Date()): Region {
-  const jour = numero(date) - 1 // 0 le premier jour
+  return regionDuNumero(numero(date))
+}
+
+// la région de la partie n° numeroDuJour : sert aux statistiques, qui retrouvent la région de chaque jour sauvé
+// pour compter les départements de son bonus
+export function regionDuNumero(numeroDuJour: number): Region {
+  const jour = numeroDuJour - 1 // 0 le premier jour
   const taille = REGIONS_DU_JOUR.length
   // Math.floor et un modulo corrigé, et non / et % seuls : avant le premier jour, jour est négatif, et -1 % 18 vaut
   // -1 en JavaScript comme en Java (un index invalide), alors qu'on veut 17 (le dernier jour du cycle précédent)

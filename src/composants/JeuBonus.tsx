@@ -1,0 +1,141 @@
+/*
+Le bonus des départements, à la place de la silhouette : la question, la carte, la réponse précédente (juste ou
+fausse), le bouton « Passer », puis le score une fois fini.
+
+Comme le plateau pour la partie, ce composant ne garde pas le bonus : il le reçoit, et demande à son parent de le
+remplacer (onChanger). Le parent sait quoi en faire : le sauvegarder (partie du jour) ou non (partie libre).
+
+Pas de minuterie entre deux questions, contrairement au Java : la question suivante arrive tout de suite, et la
+réponse reste visible (en couleur sur la carte, et en toutes lettres sous la carte). Un joueur lent ne perd rien, et
+un lecteur d'écran lit la réponse puis la nouvelle question.
+ */
+import { useId, useState } from 'react'
+import {
+  bonusEnCours,
+  demande,
+  juste,
+  passer,
+  rang,
+  repondre,
+  repondreSaisie,
+  score,
+  total,
+  type Bonus,
+} from '../domaine/bonus.ts'
+import { departementsDe, suggestionsDepartements, type Departement } from '../domaine/departements.ts'
+import { useLangue, useTextes } from '../textes.ts'
+import { CarteDepartements } from './CarteDepartements.tsx'
+import { Saisie } from './Saisie.tsx'
+
+interface Props {
+  bonus: Bonus
+  onChanger: (suite: Bonus) => void
+}
+
+export function JeuBonus({ bonus, onChanger }: Props) {
+  const textes = useTextes()
+  const langue = useLangue()
+  const idTitre = useId()
+  // le message d'une saisie refusée (mode B), vide s'il n'y a rien à dire
+  const [message, setMessage] = useState('')
+  const enCours = bonusEnCours(bonus)
+  const nom = (departement: Departement) => textes.bonus.departement(departement.nom, departement.code)
+
+  // ce qui s'est passé à la dernière réponse : déduit du bonus lui-même, rien à garder à part
+  const derniere = bonus.tentatives.at(-1)
+  const retour =
+    derniere === undefined
+      ? ''
+      : juste(derniere)
+        ? textes.bonus.juste(nom(derniere.demande))
+        : textes.bonus.faux(nom(derniere.demande), nom(derniere.donne))
+
+  function repondreClic(departement: Departement) {
+    setMessage('')
+    onChanger(repondre(bonus, departement))
+  }
+
+  // les départements de la région que la saisie évoque (mode B ; aucun pour la question du numéro)
+  const suggerer = (texte: string) =>
+    bonus.question === 'numero' ? [] : suggestionsDepartements(texte, departementsDe(bonus.region), langue)
+
+  // la réponse écrite (mode B, ou le numéro en outre-mer) ; une saisie inconnue ne coûte rien. Comme pour les
+  // régions, un début de nom qui n'évoque qu'un département le joue (« fin » -> Finistère), et s'il en évoque
+  // plusieurs, on demande de choisir
+  function repondreTexte(saisie: string): boolean {
+    const liste = suggerer(saisie)
+    const suite = repondreSaisie(bonus, saisie) ?? (liste.length === 1 ? repondre(bonus, liste[0]) : undefined)
+    if (suite === undefined) {
+      setMessage(
+        bonus.question === 'numero'
+          ? textes.bonus.pasUnNumero
+          : liste.length > 1
+            ? textes.bonus.plusieurs
+            : textes.bonus.inconnu,
+      )
+      return false
+    }
+    setMessage('')
+    onChanger(suite)
+    return true
+  }
+
+  function question(): string {
+    const departement = demande(bonus)
+    switch (bonus.question) {
+      case 'carte':
+        return textes.bonus.carte(departement.nom)
+      case 'nom':
+        return textes.bonus.nom
+      case 'numero':
+        return textes.bonus.numero(departement.nom)
+    }
+  }
+
+  return (
+    <section aria-labelledby={idTitre} className="flex flex-col gap-2 text-center">
+      <h2 id={idTitre} className="text-lg font-bold">
+        {textes.bonus.titre}
+      </h2>
+      {enCours && (
+        // aria-live : un lecteur d'écran lit chaque nouvelle question
+        <div aria-live="polite">
+          <p className="text-sm text-discret">{textes.bonus.avancement(rang(bonus), total(bonus))}</p>
+          <p className="font-semibold">{question()}</p>
+        </div>
+      )}
+
+      <CarteDepartements bonus={bonus} onRepondre={repondreClic} />
+
+      {enCours && bonus.question !== 'carte' && (
+        <Saisie
+          suggerer={(texte) =>
+            suggerer(texte).map((departement) => ({ cle: departement.code, nom: departement.nom }))
+          }
+          onProposer={repondreTexte}
+          etiquette={textes.bonus.saisie}
+          exemple={bonus.question === 'numero' ? textes.bonus.saisieNumero : textes.bonus.saisieExemple}
+          bouton={textes.bonus.repondre}
+        />
+      )}
+
+      <p aria-live="polite" className={`min-h-5 text-sm ${message === '' ? '' : 'text-erreur'}`}>
+        {message === '' ? retour : message}
+      </p>
+
+      {enCours ? (
+        <button
+          type="button"
+          onClick={() => onChanger(passer(bonus))}
+          className="self-center text-sm text-discret underline hover:text-texte"
+        >
+          {textes.bonus.passer}
+        </button>
+      ) : (
+        <p className="font-semibold">
+          {(bonus.etat === 'termine' ? textes.bonus.fini : textes.bonus.arrete)(score(bonus), total(bonus))}
+        </p>
+      )}
+    </section>
+  )
+}

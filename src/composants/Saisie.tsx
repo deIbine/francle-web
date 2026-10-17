@@ -5,21 +5,33 @@ Worldle utilisait la bibliothèque react-autosuggest, abandonnée depuis. On sui
 le W3C (https://www.w3.org/WAI/ARIA/apg/patterns/combobox/) : un champ de texte, une liste d'options, et des
 attributs aria-* qui disent aux lecteurs d'écran ce qui est ouvert et ce qui est choisi. Au clavier : ↓ et ↑ pour
 parcourir les suggestions, Entrée pour proposer, Échap pour fermer la liste.
+
+Le même champ sert aux régions (la partie) et aux départements (le mode B du bonus) : il ne sait pas ce qu'il
+propose, c'est la fonction « suggerer » qui le lui dit. Comme une interface Java passée en paramètre.
  */
 import { useId, useState, type FormEvent, type KeyboardEvent } from 'react'
-import { suggestions } from '../domaine/recherche.ts'
-import type { Mode } from '../domaine/regions.ts'
-import { useLangue, useTextes } from '../textes.ts'
+import { useTextes } from '../textes.ts'
 
-interface Props {
-  mode: Mode
-  // joue la saisie ; renvoie true si elle a été acceptée (le champ se vide alors)
-  onProposer: (saisie: string) => boolean
+// une suggestion : une clé (unique dans la liste, pour React) et le nom à afficher, qui sera proposé
+export interface Suggestion {
+  readonly cle: string
+  readonly nom: string
 }
 
-export function Saisie({ mode, onProposer }: Props) {
+interface Props {
+  // les suggestions pour le texte tapé
+  suggerer: (texte: string) => Suggestion[]
+  // joue la saisie ; renvoie true si elle a été acceptée (le champ se vide alors)
+  onProposer: (saisie: string) => boolean
+  // le nom du champ (lu par les lecteurs d'écran), l'exemple écrit dedans et le texte du bouton : ceux de la partie
+  // par défaut
+  etiquette?: string
+  exemple?: string
+  bouton?: string
+}
+
+export function Saisie({ suggerer, onProposer, etiquette, exemple, bouton }: Props) {
   const textes = useTextes()
-  const langue = useLangue()
   // useState : une valeur que React garde d'un affichage à l'autre. Quand on la change avec la fonction set…,
   // React rappelle le composant et met l'écran à jour
   const [texte, setTexte] = useState('')
@@ -29,8 +41,8 @@ export function Saisie({ mode, onProposer }: Props) {
   // useId : un identifiant unique dans la page, pour relier le champ à sa liste (aria-controls)
   const idListe = useId()
 
-  // recalculée à chaque affichage : 35 régions, c'est instantané
-  const liste = ouverte ? suggestions(texte, mode, langue) : []
+  // recalculée à chaque affichage : 35 régions ou 13 départements au plus, c'est instantané
+  const liste = ouverte ? suggerer(texte) : []
 
   function proposer(saisie: string) {
     if (onProposer(saisie)) {
@@ -43,7 +55,7 @@ export function Saisie({ mode, onProposer }: Props) {
   function envoyer(evenement: FormEvent) {
     // sans cela, le navigateur enverrait le formulaire à un serveur et rechargerait la page
     evenement.preventDefault()
-    proposer(choisie >= 0 && choisie < liste.length ? liste[choisie].nom[langue] : texte)
+    proposer(choisie >= 0 && choisie < liste.length ? liste[choisie].nom : texte)
   }
 
   function touche(evenement: KeyboardEvent) {
@@ -76,12 +88,12 @@ export function Saisie({ mode, onProposer }: Props) {
       <input
         type="text"
         role="combobox"
-        aria-label={textes.saisie}
+        aria-label={etiquette ?? textes.saisie}
         aria-autocomplete="list"
         aria-expanded={liste.length > 0}
         aria-controls={idListe}
         aria-activedescendant={choisie >= 0 && choisie < liste.length ? idOption(choisie) : undefined}
-        placeholder={textes.saisieExemple}
+        placeholder={exemple ?? textes.saisieExemple}
         autoComplete="off"
         value={texte}
         onChange={(evenement) => {
@@ -95,22 +107,22 @@ export function Saisie({ mode, onProposer }: Props) {
         className="min-w-0 flex-1 rounded border border-bord px-3 py-2 focus:border-francle-fonce focus:outline-none"
       />
       <button type="submit" className="rounded bg-francle-fonce px-4 py-2 font-semibold text-white hover:opacity-90">
-        {textes.proposer}
+        {bouton ?? textes.proposer}
       </button>
       {/* la liste reste toujours dans la page, cachée (hidden) quand elle est vide : aria-controls du champ doit
           désigner un élément qui existe, comme dans le modèle du W3C */}
       <ul
         id={idListe}
         role="listbox"
-        aria-label={textes.saisie}
+        aria-label={etiquette ?? textes.saisie}
         hidden={liste.length === 0}
         // top-full : juste sous le formulaire ; z-10 : au-dessus du tableau
         className="absolute top-full right-0 left-0 z-10 mt-1 max-h-60 overflow-y-auto rounded border border-bord bg-fond text-left shadow-lg"
       >
-        {liste.map((region, index) => (
+        {liste.map((suggestion, index) => (
           <li
             // key : l'identifiant que React utilise pour reconnaître chaque élément d'une liste d'un affichage à l'autre
-            key={region.id}
+            key={suggestion.cle}
             id={idOption(index)}
             role="option"
             aria-selected={index === choisie}
@@ -118,11 +130,11 @@ export function Saisie({ mode, onProposer }: Props) {
             // liste, et le clic tomberait dans le vide). preventDefault garde le focus dans le champ
             onMouseDown={(evenement) => {
               evenement.preventDefault()
-              proposer(region.nom[langue])
+              proposer(suggestion.nom)
             }}
             className={`cursor-pointer px-3 py-2 ${index === choisie ? 'bg-francle-clair text-gray-900' : 'hover:bg-surface'}`}
           >
-            {region.nom[langue]}
+            {suggestion.nom}
           </li>
         ))}
       </ul>

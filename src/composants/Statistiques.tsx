@@ -1,7 +1,8 @@
 import type { Statistiques as Stats } from '../domaine/statistiques.ts'
 import { useTextes } from '../textes.ts'
 
-// les statistiques : quatre nombres, puis la répartition des victoires par nombre d'essais, en barres.
+// les statistiques : quatre nombres, la répartition des victoires par nombre d'essais, en barres, puis le bonus des
+// départements (combien de bonus finis, et leur score moyen).
 // « dernier » : le nombre d'essais de la victoire du jour, dont la barre est mise en avant (comme Wordle)
 export function Statistiques({ stats, dernier }: { stats: Stats; dernier?: number }) {
   const textes = useTextes()
@@ -44,6 +45,22 @@ export function Statistiques({ stats, dernier }: { stats: Stats; dernier?: numbe
             </li>
           ))}
         </ol>
+      </div>
+      <div>
+        <h3 className="mb-2 font-semibold">{textes.stats.bonus}</h3>
+        <dl className="grid grid-cols-2 gap-2">
+          {(
+            [
+              [textes.stats.bonusJoues, stats.bonusJoues],
+              [textes.stats.scoreMoyenBonus, textes.stats.pourcentage(stats.scoreMoyenBonus)],
+            ] as const
+          ).map(([nom, valeur]) => (
+            <div key={nom} className="flex flex-col-reverse">
+              <dt className="text-xs text-discret">{nom}</dt>
+              <dd className="text-2xl font-bold tabular-nums">{valeur}</dd>
+            </div>
+          ))}
+        </dl>
       </div>
     </section>
   )

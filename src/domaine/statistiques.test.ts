@@ -23,7 +23,22 @@ describe('Les statistiques', () => {
       serie: 0,
       meilleureSerie: 0,
       repartition: [0, 0, 0, 0, 0, 0],
+      bonusJoues: 0,
+      scoreMoyenBonus: 0,
     })
+  })
+
+  it('le bonus : le nombre de bonus finis et la moyenne de leurs pourcentages', () => {
+    const avecBonus = new Map<number, Resultat>([
+      [1, { etat: 'gagnee', essais: 2, bonus: { score: 2, total: 2 } }],
+      [2, { etat: 'gagnee', essais: 3, bonus: { score: 1, total: 4 } }],
+      [3, { etat: 'gagnee', essais: 1 }],
+      [4, { etat: 'perdue', essais: 6 }],
+    ])
+    const stats = statistiques(avecBonus, 4)
+    expect(stats.bonusJoues).toBe(2)
+    // (100 % + 25 %) / 2 = 62,5 %, arrondi
+    expect(stats.scoreMoyenBonus).toBe(63)
   })
 
   it('compte les parties, les victoires et leur répartition par nombre d’essais', () => {

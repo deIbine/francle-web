@@ -123,6 +123,21 @@ describe('L’accessibilité (axe)', () => {
     expect(await problemes()).toEqual([])
   })
 
+  it('le bonus des départements, en cours puis fini', async () => {
+    const joueur = userEvent.setup()
+    render(<App />)
+    await joueur.type(screen.getByRole('combobox'), `${regionDuJour(DATE).nom.fr}{Escape}{Enter}`)
+    await joueur.click(within(screen.getByRole('dialog', { name: 'Résultats' })).getByRole('button', { name: 'Fermer' }))
+    const carte = await screen.findByRole('group', { name: 'Carte des départements de la région' }, { timeout: 5000 })
+    expect(await problemes()).toEqual([])
+    // une réponse à chaque zone : le bonus est fini, les départements disent leur nom
+    for (const zone of within(carte).getAllByRole('button')) {
+      await joueur.click(zone)
+    }
+    expect(within(carte).queryAllByRole('button')).toHaveLength(0)
+    expect(await problemes()).toEqual([])
+  })
+
   it('la partie libre, en anglais', async () => {
     const joueur = userEvent.setup()
     render(<App />)
