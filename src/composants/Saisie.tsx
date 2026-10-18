@@ -12,10 +12,12 @@ propose, c'est la fonction « suggerer » qui le lui dit. Comme une interface Ja
 import { useEffect, useId, useRef, useState, type FormEvent, type KeyboardEvent } from 'react'
 import { useTextes } from '../textes.ts'
 
-// une suggestion : une clé (unique dans la liste, pour React) et le nom à afficher, qui sera proposé
+// une suggestion : une clé (unique dans la liste, pour React), le nom qui sera proposé, et ce qu'affiche la liste
+// s'il diffère du nom (« Finistère (29) » pour le département Finistère)
 export interface Suggestion {
   readonly cle: string
   readonly nom: string
+  readonly libelle?: string
 }
 
 interface Props {
@@ -161,7 +163,7 @@ export function Saisie({ suggerer, onProposer, etiquette, exemple, bouton, desac
             }}
             className={`cursor-pointer px-3 py-2 ${index === choisie ? 'bg-francle-clair text-gray-900' : 'hover:bg-surface'}`}
           >
-            {suggestion.nom}
+            {suggestion.libelle ?? suggestion.nom}
           </li>
         ))}
       </ul>

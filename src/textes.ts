@@ -45,6 +45,16 @@ function enumeration(noms: readonly string[], langue: Langue): string {
   return new Intl.ListFormat(LOCALES[langue], { type: 'conjunction' }).format(noms.toSorted(ordre.compare))
 }
 
+// « de la Guadeloupe », « de La Réunion » : l'article de chaque département d'outre-mer, pour la question du numéro
+// (les noms des données n'en ont pas). Les seuls départements à qui on la pose : ceux des régions d'un seul département
+const DE_OUTRE_MER: Readonly<Record<string, string>> = {
+  '971': 'de la Guadeloupe',
+  '972': 'de la Martinique',
+  '973': 'de la Guyane',
+  '974': 'de La Réunion',
+  '976': 'de Mayotte',
+}
+
 const fr = {
   titre: 'Francle',
   numero: (n: number) => `n°\u00a0${n}`,
@@ -165,7 +175,8 @@ const fr = {
     choisir: 'Clique sur un département de la carte',
     choix: 'Quel est ce département\u00a0?',
     nom: 'Quel est ce département, en bleu foncé\u00a0?',
-    numero: (nom: string) => `Quel est le numéro de\u00a0: ${nom}\u00a0?`,
+    // sans article connu (ce qui n'arrive pas), la tournure d'avant
+    numero: (nom: string, code: string) => `Quel est le numéro ${DE_OUTRE_MER[code] ?? `de\u00a0: ${nom}`}\u00a0?`,
     avancement: (rang: number, total: number) => `Département ${rang} sur ${total}`,
     // mode C : le nombre de réponses déjà données
     reponses: (nombre: number, total: number) => `${nombre} réponse${nombre > 1 ? 's' : ''} sur ${total}`,
@@ -179,7 +190,8 @@ const fr = {
     zoom: 'Paris et la petite couronne, agrandis',
     trouve: 'trouvé',
     manque: 'manqué',
-    survol: 'Survole un département, ou va dessus au clavier, pour voir son nom.',
+    // « clique » : le doigt d'un téléphone n'a pas de survol (le nom s'affiche aussi au clavier)
+    survol: 'Clique ou passe sur un département pour voir son nom.',
     saisie: 'Ta réponse',
     saisieExemple: 'Un nom ou un numéro…',
     saisieNumero: 'Un numéro…',
@@ -359,7 +371,7 @@ const en: Textes = {
     choisir: 'Click on a department on the map',
     choix: 'Which department is this?',
     nom: 'Which department is this, in dark blue?',
-    numero: (nom: string) => `What is the number of: ${nom}?`,
+    numero: (nom: string, _code: string) => `What is the number of ${nom}?`,
     avancement: (rang: number, total: number) => `Department ${rang} of ${total}`,
     reponses: (nombre: number, total: number) => `${nombre} answer${nombre === 1 ? '' : 's'} of ${total}`,
     departement: (nom: string, code: string) => `${nom} (${code})`,
@@ -370,7 +382,7 @@ const en: Textes = {
     zoom: 'Paris and its inner suburbs, enlarged',
     trouve: 'found',
     manque: 'missed',
-    survol: 'Hover over a department, or move to it with the keyboard, to see its name.',
+    survol: 'Click or hover over a department to see its name.',
     saisie: 'Your answer',
     saisieExemple: 'A name or a number…',
     saisieNumero: 'A number…',

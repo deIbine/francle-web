@@ -13,7 +13,7 @@ Quatre sortes de questions :
             caché)
     choix   le joueur choisit lui-même un département sur la carte, puis écrit son nom ou son numéro (mode C, celui des
             joueurs depuis web.7.7) : pas de question imposée, ni d'ordre
-    numero  « Quel est le numéro de : Guadeloupe ? » : pour une région d'un seul département, où cliquer sur le seul
+    numero  « Quel est le numéro de la Guadeloupe ? » : pour une région d'un seul département, où cliquer sur le seul
             département de la carte serait gratuit, comme le choisir puis recopier le nom de la région
  */
 import { chercherDepartement, departementsDe, numero, parCode, type Departement } from './departements.ts'
@@ -153,7 +153,7 @@ export function repondreSaisieChoix(
 }
 
 // la réponse écrite par le joueur. nom : le nom ou le numéro d'un département ; numero : un numéro seulement
-// (« Guadeloupe » à la question « Quel est le numéro de : Guadeloupe ? » ne répond à rien). Une saisie qui n'est
+// (« Guadeloupe » à la question « Quel est le numéro de la Guadeloupe ? » ne répond à rien). Une saisie qui n'est
 // pas un département renvoie undefined et ne coûte rien, comme une région inconnue dans la partie
 export function repondreSaisie(bonus: Bonus, saisie: string): Bonus | undefined {
   verifierEnCours(bonus)

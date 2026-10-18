@@ -51,12 +51,16 @@ export function JeuBonus({ bonus, onChanger, focaliser = false }: Props) {
   const langue = useLangue()
   const idTitre = useId()
   const titre = useRef<HTMLHeadingElement>(null)
+  const section = useRef<HTMLElement>(null)
+  // la question du numéro (outre-mer) attend une réponse écrite tout de suite : le focus va alors dans la saisie
+  // (par demandeFocus, plus bas), sinon sur le titre
+  const numeroDabord = bonus.question === 'numero'
   // à l'apparition du bonus seulement : ensuite, le joueur va où il veut
   useEffect(() => {
-    if (focaliser) {
+    if (focaliser && !numeroDabord) {
       titre.current?.focus()
     }
-  }, [focaliser])
+  }, [focaliser, numeroDabord])
   // le message d'une saisie refusée (modes B et C), vide s'il n'y a rien à dire
   const [message, setMessage] = useState('')
   const enCours = bonusEnCours(bonus)
@@ -64,8 +68,9 @@ export function JeuBonus({ bonus, onChanger, focaliser = false }: Props) {
   // répondre entre-temps
   const [choix, setChoix] = useState<Departement | undefined>(undefined)
   const choisi = choix !== undefined && enCours && restants(bonus).includes(choix) ? choix : undefined
-  // augmente à chaque choix : la saisie prend alors le focus, prête pour le nom
-  const [demandeFocus, setDemandeFocus] = useState(0)
+  // augmente à chaque choix : la saisie prend alors le focus, prête pour le nom. 1 d'emblée pour la question du
+  // numéro, quand le joueur vient de lancer le bonus
+  const [demandeFocus, setDemandeFocus] = useState(() => (focaliser && numeroDabord ? 1 : 0))
   const modeChoix = bonus.question === 'choix'
   const nom = (departement: Departement) => textes.bonus.departement(departement.nom, departement.code)
 
@@ -88,6 +93,12 @@ export function JeuBonus({ bonus, onChanger, focaliser = false }: Props) {
     setChoix(departement)
     setMessage('')
     setDemandeFocus((avant) => avant + 1)
+    // sur un écran tactile, le clavier va s'ouvrir et cacher le bas de la page : on fait d'abord défiler la page
+    // pour mettre le haut du bonus en haut de l'écran. Pas à la souris, où la page ne bougerait que pour rien.
+    // « ?. » : jsdom, le faux navigateur des tests, n'a ni matchMedia ni scrollIntoView
+    if (window.matchMedia?.('(pointer: coarse)').matches) {
+      section.current?.scrollIntoView?.({ block: 'start' })
+    }
   }
 
   // les départements que la saisie évoque : parmi les 101 en mode C (limitées à la région, les suggestions
@@ -155,12 +166,12 @@ export function JeuBonus({ bonus, onChanger, focaliser = false }: Props) {
       case 'nom':
         return textes.bonus.nom
       case 'numero':
-        return textes.bonus.numero(departement.nom)
+        return textes.bonus.numero(departement.nom, departement.code)
     }
   }
 
   return (
-    <section aria-labelledby={idTitre} className="flex flex-col gap-2 text-center">
+    <section ref={section} aria-labelledby={idTitre} className="flex flex-col gap-2 text-center">
       {/* tabIndex -1 : le titre peut recevoir le focus par le code, sans devenir une étape de Tab */}
       <h2 id={idTitre} ref={titre} tabIndex={-1} className="text-lg font-bold focus:outline-none">
         {textes.bonus.titre}
@@ -182,7 +193,8 @@ export function JeuBonus({ bonus, onChanger, focaliser = false }: Props) {
       {enCours && bonus.question !== 'carte' && (
         <Saisie
           suggerer={(texte) =>
-            suggerer(texte).map((departement) => ({ cle: departement.code, nom: departement.nom }))
+            // « Finistère (29) » dans la liste, pour apprendre les numéros en passant ; le nom seul est proposé
+            suggerer(texte).map((departement) => ({ cle: departement.code, nom: departement.nom, libelle: nom(departement) }))
           }
           onProposer={repondreTexte}
           etiquette={textes.bonus.saisie}

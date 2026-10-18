@@ -12,13 +12,14 @@ import { departementsDe } from '../domaine/departements.ts'
 import { parId } from '../domaine/regions.ts'
 import { JeuBonus } from './JeuBonus.tsx'
 
-function Parent({ depart }: { depart: Bonus }) {
+function Parent({ depart, focaliser }: { depart: Bonus; focaliser?: boolean }) {
   const [bonus, setBonus] = useState(depart)
-  return <JeuBonus bonus={bonus} onChanger={setBonus} />
+  return <JeuBonus bonus={bonus} onChanger={setBonus} focaliser={focaliser} />
 }
 
-function afficher(bonus: Bonus) {
-  render(<Parent depart={bonus} />)
+// focaliser : comme quand le joueur vient de lancer le bonus
+function afficher(bonus: Bonus, focaliser = false) {
+  render(<Parent depart={bonus} focaliser={focaliser} />)
   return userEvent.setup()
 }
 
@@ -32,7 +33,7 @@ describe('Le mode B : nommer le département colorié', () => {
     expect(screen.getByText('Quel est ce département, en bleu foncé ?')).toBeDefined()
     const champ = screen.getByRole('combobox', { name: 'Ta réponse' })
     await joueur.type(champ, 'cot')
-    expect(screen.getAllByRole('option').map((option) => option.textContent)).toEqual(["Côtes-d'Armor"])
+    expect(screen.getAllByRole('option').map((option) => option.textContent)).toEqual(["Côtes-d'Armor (22)"])
     await joueur.type(champ, '{Escape}{Enter}')
     expect(screen.getByText("Juste : Côtes-d'Armor (22).")).toBeDefined()
     await joueur.type(champ, '35{Enter}')
@@ -61,12 +62,26 @@ describe('L’outre-mer : le numéro', () => {
 
   it('demande le numéro, pas un clic, et refuse le nom', async () => {
     const joueur = afficher(bonus())
-    expect(screen.getByText('Quel est le numéro de : Guadeloupe ?')).toBeDefined()
+    expect(screen.getByText('Quel est le numéro de la Guadeloupe ?')).toBeDefined()
     const champ = screen.getByRole('combobox', { name: 'Ta réponse' })
     await joueur.type(champ, 'Guadeloupe{Enter}')
     expect(screen.getByText('Écris un numéro de département, par exemple 971.')).toBeDefined()
     await joueur.clear(champ)
     await joueur.type(champ, '971{Enter}')
     expect(screen.getByText('Bonus terminé : 1 département trouvé sur 1.')).toBeDefined()
+  })
+
+  it('lancé par le joueur, le focus va dans la saisie : le numéro se tape tout de suite', () => {
+    afficher(bonus(), true)
+    expect(document.activeElement).toBe(screen.getByRole('combobox', { name: 'Ta réponse' }))
+  })
+
+  it('chaque département d’outre-mer a son article', () => {
+    const question = (id: string) => {
+      const region = parId(id)
+      render(<Parent depart={nouveauBonus(region, departementsDe(region), 'carte')} />)
+      return screen.getByText(/^Quel est le numéro/).textContent
+    }
+    expect(question('la-reunion')).toBe('Quel est le numéro de La Réunion\u00a0?')
   })
 })
