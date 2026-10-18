@@ -44,3 +44,9 @@ if (typeof HTMLDialogElement !== 'undefined' && HTMLDialogElement.prototype.show
     }
   }
 }
+
+// jsdom n'a pas de canvas : getContext() y renvoie null, en écrivant chaque fois « Not implemented:
+// HTMLCanvasElement's getContext() » dans la sortie des tests (10 fois). C'est axe-core qui l'appelle, dans les tests
+// d'accessibilité, pour savoir si un caractère est une icône de police (_isIconLigature). On renvoie le même null,
+// sans le message
+HTMLCanvasElement.prototype.getContext = (() => null) as typeof HTMLCanvasElement.prototype.getContext

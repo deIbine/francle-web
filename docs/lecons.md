@@ -1124,3 +1124,28 @@ commandes), **comment le penser** (la question à se poser la prochaine fois).
   d'abord la souris dessus, et le test aurait réussi même sans le clic.
 - **Comment le penser** : tout ce qui se fait au survol doit pouvoir se faire autrement (clic, clavier). Et un test
   doit pouvoir échouer : si l'outil de test fait déjà ce qu'on veut vérifier, il faut un outil plus bas niveau.
+
+## web.7.11 L'outillage des tests
+
+### Mesurer avant de choisir
+
+- **Pourquoi** : la suite de tests prenait 40 à 50 secondes, et Vitest affichait lui-même une piste (« jsdom was
+  created 24 times… use pool: 'vmThreads' »). Une piste n'est pas une preuve : il fallait voir ce qu'elle rapporte,
+  et si elle ne casse rien.
+- **Comment le faire** : lancer deux fois la suite telle quelle (40,5 s et 39,1 s), puis deux fois avec l'option en
+  ligne de commande, sans rien modifier (`npx vitest run --pool=vmThreads` : 26,9 s et 25,7 s), et vérifier que les
+  287 tests passent toujours. Seulement ensuite, l'écrire dans `vite.config.ts`, avec la mesure en commentaire.
+- **Comment le penser** : une option qui promet d'aller plus vite se juge sur trois questions : combien, sur ma
+  machine, mesuré plusieurs fois ? Qu'est-ce que je perds (ici, rien de visible : chaque fichier reste isolé) ?
+  Puis-je revenir en arrière en une ligne ? Les options en ligne de commande permettent d'essayer sans rien toucher.
+
+### Trouver d'où vient un message avant de le faire taire
+
+- **Pourquoi** : « Not implemented: HTMLCanvasElement's getContext() » s'affichait 10 fois. Le faire taire sans savoir
+  qui appelait `getContext` aurait pu cacher un vrai problème du jeu.
+- **Comment le faire** : remplacer un moment `getContext` par une fonction qui écrit sa pile d'appels dans un
+  fichier (`new Error().stack`) ; un `console.log` ne suffisait pas, il n'apparaissait pas dans la sortie. La pile
+  montre `_isIconLigature` d'axe-core : l'outil des tests d'accessibilité, pas le jeu. On renvoie alors le même `null`
+  que jsdom, sans le message, dans `preparationTests.ts`.
+- **Comment le penser** : un avertissement est une question ; on ne le supprime qu'une fois qu'on a la réponse. La pile
+  d'appels (comme `printStackTrace()` en Java) est le moyen le plus direct de savoir « qui m'appelle ? ».
