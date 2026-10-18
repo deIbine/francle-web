@@ -175,13 +175,16 @@ décidées le même jour (web.7.8 à web.7.10).
   boutons de l'en-tête sont plus serrés (`px-1`, `sm:px-2`) pour que le titre tienne sur une ligne.
 - **Le bonus des départements** (PR #17 à #20, étiquettes `web-7.1` à `web-7.4`, et `web-7`) : voir « Le bonus des
   départements » plus bas. Les choix faits en route (listes « À valider » des PR) ont été acceptés tels quels.
-- **Pour reprendre (le 17 octobre 2026, après la fusion du bonus revu)** : lire ce plan et `docs/lecons.md`,
-  vérifier que `main` est à jour (`git pull`) et que la PR de ce point de reprise (web.7.7.1) est fusionnée. Le bonus
-  revu est fini et en ligne (275 tests). Suites possibles, à proposer à l'utilisateur :
+- **Pour reprendre (le 18 octobre 2026)** : lire ce plan et `docs/lecons.md`, vérifier que `main` est à jour
+  (`git pull`) et que la PR de ce point de reprise (web.7.8.0, #28) est fusionnée. Le bonus revu est fini et en ligne
+  (275 tests). La suite :
   - **Les corrections relevées le 18 octobre 2026** (section du même nom plus bas) : la prochaine étape. Découpage et
-    décisions **validés le 18 octobre 2026** (web.7.8 à web.7.10, puis l'outillage) ; le code attend le « tu peux
-    lancer » de l'utilisateur. Les points communs au Java sont notés dans sa feuille de route
-    (phase 11).
+    décisions **déjà validés** (web.7.8 à web.7.10, puis l'outillage) : ne pas les reposer, seulement rappeler le
+    découpage et attendre le « tu peux lancer » de l'utilisateur.
+  - **Le Java en même temps**, dans une **autre conversation** ouverte sur le dossier du projet Java (décidé le
+    18 octobre 2026) : sa phase 11 (`docs/feuille-de-route.md`, PR deIbine/francle#39) contient les mêmes décisions,
+    adaptées au Java, et son propre point de reprise. Les deux conversations n'ont rien à s'attendre : chacune touche
+    son dépôt.
   - **web.8** : **repoussé** le 18 octobre 2026 (pas de domaine acheté pour l'instant). Le découpage et ses douze
     questions ont été présentés le 17 octobre 2026 (voir « Le domaine et le défi (web.8) » plus bas) ; l'utilisateur
     n'y a pas encore répondu.
@@ -489,7 +492,7 @@ décisions sont notées ici (PR web.7.8.0) avant de coder ; le code attend le «
 | Sujet | Décision |
 |---|---|
 | Découpage | **Trois PR empilées**, avant web.8 : **web.7.8 Les bugs** (1, 2, 3, 4), **web.7.9 La saisie et la fin de partie** (5, 6, 11), **web.7.10 Le bonus** (7, 8, 9, 10). Étiquettes `web-7.8`, `web-7.9`, `web-7.10` ; `web-7.8.0` pour ce plan. Puis une **petite PR d'outillage** (tests plus rapides, canvas). |
-| Java | Les mêmes décisions pour les points communs (1, 4, 5, 6, 7, 8), **plus tard, dans une autre conversation** : phase 11 de la feuille de route du Java (PR deIbine/francle#39). |
+| Java | Les mêmes décisions pour les points communs (1, 4, 5, 6, 7, 8), **en même temps que le web, dans une autre conversation** : phase 11 de la feuille de route du Java (PR deIbine/francle#39), avec son découpage (11.1 à 11.3) et ses décisions adaptées (textes au vouvoiement, focus d'outre-mer déjà bon). |
 | (1) « Plusieurs » | La liste **reste ouverte** sur les régions (ou départements) évoquées, **sans en surligner aucune** : deux Entrée de suite ne jouent pas une région au hasard. |
 | (2) Pourcentages | Par `textes.stats.pourcentage()`, comme ailleurs ; vérifier qu'aucun autre pourcentage n'est écrit à la main. |
 | (3) Nom de l'image | Les silhouettes ont des **noms sans la région** (seulement l'empreinte, par l'option `assetFileNames` de Vite). Arrête la triche d'un appui long, pas celle des outils du navigateur ; en mode développement, les noms restent lisibles. |
