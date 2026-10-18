@@ -1088,3 +1088,39 @@ commandes), **comment le penser** (la question à se poser la prochaine fois).
   rôle (`region`, celui d'une `<section>` qui a un titre).
 - **Comment le penser** : quand un test trouve « plusieurs éléments », ne pas prendre le premier au hasard ; se
   demander lequel le joueur regarde, et le désigner comme lui le trouverait.
+
+## web.7.10 Le bonus
+
+### Séparer ce qu'on montre de ce qu'on envoie
+
+- **Pourquoi** : on voulait « Finistère (29) » dans les suggestions du bonus, pour apprendre les numéros en passant.
+  Mais la saisie proposait le texte affiché : « Finistère (29) » serait devenu la réponse, et la recherche des
+  départements ne l'aurait pas reconnu (elle attend un nom ou un numéro).
+- **Comment le faire** : une suggestion a maintenant un `libelle` facultatif, affiché dans la liste, à côté du `nom`,
+  qui reste ce qui est proposé. Sans `libelle`, rien ne change pour les régions.
+- **Comment le penser** : dès qu'un texte sert à deux choses (être lu, et être traité), se demander s'il doit
+  vraiment être le même. En Swing, c'est la différence entre l'objet d'un `JComboBox` et le texte qu'en fait son
+  `ListCellRenderer`.
+
+### Un comportement réservé aux écrans tactiles
+
+- **Pourquoi** : sur téléphone, toucher un département donne le focus à la saisie, et le clavier qui s'ouvre cache le
+  bas de la carte. On fait d'abord défiler la page pour mettre le haut du bonus en haut de l'écran. À la souris, ce
+  défilement ne servirait à rien et ferait sauter la page à chaque clic.
+- **Comment le faire** : `window.matchMedia('(pointer: coarse)')` dit si le pointeur principal est « grossier » (un
+  doigt) ; c'est la même requête que celles du CSS (`@media (pointer: coarse)`), mais lue en JavaScript. Puis
+  `element.scrollIntoView({ block: 'start' })`. Le faux navigateur des tests n'a ni l'un ni l'autre : `?.` évite
+  l'erreur, et le test qui le vérifie les fournit le temps d'un test (`vi.stubGlobal`).
+- **Comment le penser** : se demander « sur quel appareil ce problème existe-t-il ? », et tester la capacité (un
+  doigt, un clavier virtuel) plutôt que la taille de l'écran : une tablette est large, mais tactile.
+
+### Un clic, pas seulement un survol
+
+- **Pourquoi** : à la fin du bonus, le nom d'un département s'affichait au survol de la souris ou au clavier. Un doigt
+  ne survole pas ; Android imite la souris au toucher, mais Safari sur iPhone ne le fait que sur ce qui lui semble
+  cliquable (un `onClick`, ou `cursor: pointer`).
+- **Comment le faire** : les départements gardent un `onClick` une fois le bonus fini (il affiche le nom), et la
+  classe `cursor-pointer`. Dans le test, `fireEvent.click` n'envoie que le clic, alors que `user-event` passerait
+  d'abord la souris dessus, et le test aurait réussi même sans le clic.
+- **Comment le penser** : tout ce qui se fait au survol doit pouvoir se faire autrement (clic, clavier). Et un test
+  doit pouvoir échouer : si l'outil de test fait déjà ce qu'on veut vérifier, il faut un outil plus bas niveau.

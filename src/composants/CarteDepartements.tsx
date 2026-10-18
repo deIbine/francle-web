@@ -12,7 +12,8 @@ Accessibilité : chaque département est atteignable au clavier (Tab, puis Entr�
 lecteur d'écran ne lit pas son nom, ce serait donner la réponse : seulement « Zone 3 sur 12 », les zones étant
 numérotées du haut vers le bas de la carte, et non dans l'ordre des numéros (qui serait un indice). Un département
 déjà répondu (mode C), ou tous une fois le bonus fini, dit son nom et s'il a été trouvé ; une fois le bonus fini, le
-nom s'affiche aussi au survol ou au clavier.
+nom s'affiche aussi au clic, au survol ou au clavier. Au clic surtout : le doigt n'a pas de survol, et Safari sur
+iPhone n'imite la souris que sur ce qui se clique.
 
 Les contours sont téléchargés au premier affichage (useContours, dans contours.ts) : en attendant, un message.
  */
@@ -44,7 +45,7 @@ export function CarteDepartements(props: Props) {
 // useMemo…) doivent être appelés à chaque affichage, dans le même ordre, donc jamais après un « return » anticipé
 function Carte({ bonus, onRepondre, choisi, onChoisir, contours }: Props & { contours: Contours }) {
   const textes = useTextes()
-  // le département sous la souris ou sous le focus du clavier, pour afficher son nom une fois le bonus fini
+  // le département cliqué, sous la souris ou sous le focus du clavier, pour afficher son nom une fois le bonus fini
   const [survole, setSurvole] = useState<Departement | undefined>(undefined)
   const fini = !bonusEnCours(bonus)
   const choix = !fini && bonus.question === 'choix'
@@ -79,7 +80,12 @@ function Carte({ bonus, onRepondre, choisi, onChoisir, contours }: Props & { con
 
   const nom = (departement: Departement) => textes.bonus.departement(departement.nom, departement.code)
 
+  // la couleur, et la main au survol quand un clic fait quelque chose : répondre, choisir, ou (bonus fini) donner le nom
   function couleur(departement: Departement): string {
+    return fini ? `${teinte(departement)} cursor-pointer` : teinte(departement)
+  }
+
+  function teinte(departement: Departement): string {
     const tentative = tentativeDe(bonus, departement)
     if (tentative !== undefined) {
       return juste(tentative) ? 'fill-succes' : 'fill-danger'
@@ -88,9 +94,7 @@ function Carte({ bonus, onRepondre, choisi, onChoisir, contours }: Props & { con
       return choix ? 'fill-francle-fonce cursor-pointer' : 'fill-francle-fonce'
     }
     // un département qu'on peut cliquer fonce au survol, pour montrer ce qu'on va cliquer
-    return cliquable(departement)
-      ? 'fill-francle-clair cursor-pointer hover:fill-francle-fonce'
-      : 'fill-francle-clair'
+    return cliquable(departement) ? 'fill-francle-clair cursor-pointer hover:fill-francle-fonce' : 'fill-francle-clair'
   }
 
   // ce que lit un lecteur d'écran : la zone tant qu'on peut la cliquer, le nom et le résultat ensuite (bonus fini, ou
@@ -139,7 +143,7 @@ function Carte({ bonus, onRepondre, choisi, onChoisir, contours }: Props & { con
           aria-label={actif ? etiquette(departement, index + 1) : undefined}
           // mode C : le département choisi est un bouton « enfoncé »
           aria-pressed={actif && choix && bouton ? departement === choisi : undefined}
-          onClick={bouton ? () => cliquer(departement) : undefined}
+          onClick={bouton ? () => cliquer(departement) : fini ? () => setSurvole(departement) : undefined}
           onKeyDown={actif ? (evenement) => touche(evenement, departement) : undefined}
           onMouseEnter={() => setSurvole(departement)}
           onMouseLeave={() => setSurvole(undefined)}

@@ -5,7 +5,7 @@ web.7.7, le mode C : on clique un département, puis on écrit son nom (ou son n
 On clique sur un département par son numéro (data-code), que le joueur ne voit pas : un lecteur d'écran n'y lit que
 « Zone 3 sur 12 », pour ne pas donner la réponse.
  */
-import { cleanup, render, screen, within } from '@testing-library/react'
+import { cleanup, fireEvent, render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import App from './App.tsx'
@@ -103,6 +103,24 @@ describe('Le bonus des départements, partie du jour', () => {
     expect(choisi().getAttribute('data-code')).toBe(DEPS[1].code)
   })
 
+  it('sur un écran tactile, choisir un département fait défiler la page jusqu’au haut du bonus', async () => {
+    const joueur = demarrer()
+    await gagner(joueur)
+    // jsdom n'a ni matchMedia ni scrollIntoView : on les fournit le temps du test, l'écran se disant tactile
+    vi.stubGlobal('matchMedia', (requete: string) => ({ matches: requete === '(pointer: coarse)' }))
+    const defiler = vi.fn()
+    Element.prototype.scrollIntoView = defiler
+    try {
+      await cliquer(joueur, DEPS[0].code)
+      expect(defiler).toHaveBeenCalledWith({ block: 'start' })
+      expect(defiler.mock.contexts[0]).toBe(zoneBonus())
+    } finally {
+      vi.unstubAllGlobals()
+      // @ts-expect-error : on retire ce que jsdom n'a pas
+      delete Element.prototype.scrollIntoView
+    }
+  })
+
   it('une réponse juste ou fausse se dit, et le département ne se choisit plus', async () => {
     const joueur = demarrer()
     await gagner(joueur)
@@ -145,7 +163,7 @@ describe('Le bonus des départements, partie du jour', () => {
     await gagner(joueur)
     await cliquer(joueur, DEPS[0].code)
     await joueur.type(reponse(), 'gir')
-    expect(screen.getAllByRole('option').map((option) => option.textContent)).toContain('Gironde')
+    expect(screen.getAllByRole('option').map((option) => option.textContent)).toContain('Gironde (33)')
   })
 
   it('les zones ne disent pas leur nom pendant le bonus, et se choisissent au clavier', async () => {
@@ -210,6 +228,12 @@ describe('Le bonus des départements, partie du jour', () => {
     const zone = within(await carte()).getByRole('img', { name: `${nom(DEPS[0])}, trouvé` })
     await joueur.hover(zone)
     expect(within(panneau()).getByText(`${nom(DEPS[0])}, trouvé`, { selector: 'p' })).toBeDefined()
+    await joueur.unhover(zone)
+    expect(within(panneau()).getByText('Clique ou passe sur un département pour voir son nom.')).toBeDefined()
+    // un clic seul, sans survol (le doigt sur un téléphone) : fireEvent n'envoie que le clic, là où user-event
+    // passerait d'abord la souris dessus
+    fireEvent.click(within(await carte()).getByRole('img', { name: `${nom(DEPS[1])}, trouvé` }))
+    expect(within(panneau()).getByText(`${nom(DEPS[1])}, trouvé`, { selector: 'p' })).toBeDefined()
   })
 
   it('commencé puis quitté, il reprend là où il en était', async () => {
