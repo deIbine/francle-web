@@ -187,7 +187,7 @@ describe('Le jeu', () => {
     const chiffre = (nom: string) => within(resultats).getByText(nom).nextElementSibling?.textContent
     // dt puis dd dans le HTML : la valeur suit son nom
     expect(chiffre('Parties')).toBe('1')
-    expect(chiffre('Victoires')).toBe('100 %')
+    expect(chiffre('Victoires')).toBe('100 %')
     expect(chiffre('Série en cours')).toBe('1')
     expect(within(resultats).getByLabelText('1 victoire en 2 essais')).toBeDefined()
   })

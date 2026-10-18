@@ -8,7 +8,7 @@ export function Statistiques({ stats, dernier }: { stats: Stats; dernier?: numbe
   const textes = useTextes()
   const chiffres = [
     [textes.stats.jouees, stats.jouees],
-    [textes.stats.victoires, `${stats.pourcentage} %`],
+    [textes.stats.victoires, textes.stats.pourcentage(stats.pourcentage)],
     [textes.stats.serie, stats.serie],
     [textes.stats.meilleureSerie, stats.meilleureSerie],
   ] as const
