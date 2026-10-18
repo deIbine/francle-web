@@ -91,7 +91,7 @@ angle de rotation, et les valeurs de ses tests.
 8. **web.8 Le domaine et le défi** (ancien web.7, renuméroté le 16 octobre 2026) : d'abord le nom de domaine, puis le défi (un lien à envoyer à un ami pour lui
    faire deviner une région). Pas d'archives des jours passés (décidé avant web.4).
 
-## Où on en est (mis à jour le 17 octobre 2026)
+## Où on en est (mis à jour le 18 octobre 2026)
 
 **Faites : web.0 à web.7, et le bonus revu (web.7.5 à web.7.7).** Le bonus des départements est en ligne depuis le
 17 octobre 2026 : quatre PR (#17 à #20), étiquettes `web-7.1` à `web-7.4` et `web-7` (détail plus bas dans « Le bonus
@@ -99,7 +99,9 @@ des départements »). **Le bonus revu**, décidé le même jour après les reto
 trois PR empilées (#24, #25, #26), fusionnées en squash le 17 octobre 2026 sur l'accord de l'utilisateur (sans test
 en local de sa part), étiquettes `web-7.5`, `web-7.6`, `web-7.7` (détail plus bas dans « Le bonus revu »). Prochaine
 étape : **web.8 Le domaine et le défi**, dont le découpage reste à valider (l'utilisateur doit d'abord acheter le nom
-de domaine).
+de domaine). **Web.8 est repoussé** (décidé le 18 octobre 2026) : l'utilisateur n'achète pas de domaine pour
+l'instant. En attendant, **les corrections relevées le 18 octobre 2026** (section du même nom plus bas), découpées et
+décidées le même jour (web.7.8 à web.7.10).
 
 - **web.0** (PR #1, étiquette `web-0`) : dépôt public `deIbine/francle-web`, Vite + React + TypeScript, Vitest, lint
   oxlint, CI `.github/workflows/ci.yml` (tâche `verifier` sur chaque PR et sur `main`, tâche `publier` vers GitHub
@@ -173,14 +175,21 @@ de domaine).
   boutons de l'en-tête sont plus serrés (`px-1`, `sm:px-2`) pour que le titre tienne sur une ligne.
 - **Le bonus des départements** (PR #17 à #20, étiquettes `web-7.1` à `web-7.4`, et `web-7`) : voir « Le bonus des
   départements » plus bas. Les choix faits en route (listes « À valider » des PR) ont été acceptés tels quels.
-- **Pour reprendre (le 17 octobre 2026, après la fusion du bonus revu)** : lire ce plan et `docs/lecons.md`,
-  vérifier que `main` est à jour (`git pull`) et que la PR de ce point de reprise (web.7.7.1) est fusionnée. Le bonus
-  revu est fini et en ligne (275 tests). Deux suites possibles, à proposer à l'utilisateur :
-  - **web.8** : le découpage et ses douze questions ont été présentés le 17 octobre 2026 (voir « Le domaine et le
-    défi (web.8) » plus bas) ; **l'utilisateur n'a pas encore répondu**. Les lui rappeler, attendre ses réponses puis
-    son « tu peux lancer ».
-  - **Le Java (phase 10)**, dans une conversation ouverte sur le dossier du projet Java : voir « À reporter dans le
-    Java » dans « Le bonus revu ».
+- **Pour reprendre (le 18 octobre 2026)** : lire ce plan et `docs/lecons.md`, vérifier que `main` est à jour
+  (`git pull`) et que la PR de ce point de reprise (web.7.8.0, #28) est fusionnée. Le bonus revu est fini et en ligne
+  (275 tests). La suite :
+  - **Les corrections relevées le 18 octobre 2026** (section du même nom plus bas) : la prochaine étape. Découpage et
+    décisions **déjà validés** (web.7.8 à web.7.10, puis l'outillage) : ne pas les reposer, seulement rappeler le
+    découpage et attendre le « tu peux lancer » de l'utilisateur.
+  - **Le Java en même temps**, dans une **autre conversation** ouverte sur le dossier du projet Java (décidé le
+    18 octobre 2026) : sa phase 11 (`docs/feuille-de-route.md`, PR deIbine/francle#39) contient les mêmes décisions,
+    adaptées au Java, et son propre point de reprise. Les deux conversations n'ont rien à s'attendre : chacune touche
+    son dépôt.
+  - **web.8** : **repoussé** le 18 octobre 2026 (pas de domaine acheté pour l'instant). Le découpage et ses douze
+    questions ont été présentés le 17 octobre 2026 (voir « Le domaine et le défi (web.8) » plus bas) ; l'utilisateur
+    n'y a pas encore répondu.
+  - **Le Java (phase 10)** : **fait** dans le dépôt Java (PR #36 à #38 de `deIbine/francle`, constaté le 18 octobre
+    2026). La section « À reporter dans le Java » plus bas n'est donc plus à faire.
   - **Encore à vérifier par l'utilisateur, en jouant** : le mode C sur un vrai téléphone (à 375 × 812, la saisie
     commence à 496 pixels : le clavier devrait la laisser visible) et en thème sombre (les captures du navigateur
     intégré ne se dessinaient pas ; vérifié par script seulement).
@@ -188,8 +197,6 @@ de domaine).
     recommandation à chaque fois ; les décisions notées dans le plan par une petite PR avant de coder ; puis les
     phases enchaînées en PR empilées, fusionnées à la fin (`git rebase --onto main <ancienne pointe> <branche>`,
     base changée en `main`, arbres comparés à chaque fusion).
-  - **Reste à faire côté Java**, plus tard et dans une autre conversation (décidé le 17 octobre 2026) : voir « À
-    reporter dans le Java » dans « Le bonus revu ».
   - Les contours sources ne sont pas dans le dépôt : pour régénérer les images, télécharger
     `departements-avec-outre-mer.geojson`, `regions.geojson` et `regions-avant-redecoupage-2015.geojson` depuis
     https://github.com/gregoiredavid/france-geojson, hors du dépôt. Node : `export PATH="/c/Program Files/nodejs:$PATH";`
@@ -370,6 +377,8 @@ Posées toutes ensemble pour enchaîner les trois phases ; toutes les recommanda
 
 ### À reporter dans le Java (phase 10, plus tard, dans une autre conversation)
 
+✅ **Fait** dans le dépôt Java (PR #36 à #38 de `deIbine/francle`, constaté le 18 octobre 2026). Gardé pour mémoire.
+
 Les décisions des phases ci-dessus valent aussi pour le Java (la pause avant la fenêtre, le focus, les paires, la
 saisie grisée avant le clic…), sauf ce qui est propre au navigateur (fausses horloges, 375 pixels).
 
@@ -436,6 +445,68 @@ Le reste :
     seulement ») ? (Non : web.8 reste court, elles auront leur étape.)
 12. La note dans le plan du Java (les trois choix propres au web pour le bonus, voir « Pour reprendre ») : maintenant,
     dans une PR du dépôt Java, ou plus tard ?
+
+## Les corrections relevées le 18 octobre 2026
+
+Le jeu a été testé de bout en bout le 18 octobre 2026, à la demande de l'utilisateur et sans rien modifier : tests
+(275, tous verts), lint, types et construction ; une partie du jour (La Réunion) et des parties libres (Corse,
+Île-de-France) jouées dans le navigateur intégré, sur ordinateur et à 375 × 812 pixels ; puis le code relu aux
+endroits suspects. Chaque point a ensuite été comparé au Java, en lisant son code et en exécutant ses règles dans
+`jshell` : la colonne « Java » le dit, et les points communs sont notés dans la phase 11 de `docs/feuille-de-route.md`
+du dépôt Java. **Rien n'est décidé ni commencé** : découpage et décisions à valider avec l'utilisateur avant de coder.
+
+Pas encore vérifié : le jeu sur un **vrai téléphone** (surtout un iPhone, voir le point 10) et le **thème sombre** à
+l'œil (les captures du navigateur intégré restent rognées ou en retard).
+
+### Les bugs
+
+| # | Problème | Pour le reproduire | Cause | Java |
+|---|---|---|---|---|
+| 1 | « Choisis dans la liste », mais la liste est fermée | Partie libre, anciennes régions : « nor » puis Entrée. Bonus de la Corse : « corse » puis Entrée. Il faut retaper une lettre pour revoir la liste | `proposer()` dans `composants/Saisie.tsx` ferme la liste (`setOuverte(false)`) même quand la saisie est refusée | **Même bug** (`Autocompletion.entree()`) |
+| 2 | « 100 % » coupé sur deux lignes ; « Wins 100 % » en anglais, mais « Average score 100% » | 📊 à 375 pixels ; puis en anglais | `composants/Statistiques.tsx` écrit `` `${stats.pourcentage} %` `` à la main (espace ordinaire, pas traduit) au lieu de `textes.stats.pourcentage()` | Correct |
+| 3 | La réponse se lit dans le nom de l'image | Appui long sur la silhouette, « Ouvrir l'image » : `corse-C5fvIIqz.svg` (clic droit sur ordinateur) | Vite garde le nom du fichier source et n'y ajoute qu'une empreinte. Piste : des noms sans la région (option `build.rollupOptions.output.assetFileNames` de Vite, ou images renommées) | Sans objet |
+| 4 | Une saisie vide est « une région qui n'existe pas » | « Proposer » sans rien écrire | Aucun test du cas vide avant `deviner()` (`composants/Plateau.tsx`). Piste : ne rien faire, ou « Écris le nom d'une région » | **Même bug**, en pire (« «  » n'est pas une région reconnue ») |
+
+### Les soucis d'interface
+
+| # | Problème | Piste | Java |
+|---|---|---|---|
+| 5 | En partie du jour, « Alsace » répond « Cette région n'existe pas » | « L'Alsace est une ancienne région, aujourd'hui dans le Grand Est », sans coûter d'essai ; l'inverse en partie libre, anciennes régions | **Pareil** |
+| 6 | Les indices pas encore révélés restent cachés à la fin : gagné en 4 essais, on ne voit jamais la capitale ni le monument | Tout révéler une fois la partie finie, pour apprendre | **Pareil** |
+| 7 | Bonus d'outre-mer : « Quel est le numéro de : La Réunion ? » (deux-points maladroits), et le focus va sur le titre du bonus : il faut cliquer dans le champ avant de taper « 974 » | L'article de chaque département d'outre-mer (« de la Guadeloupe », « de La Réunion », « de Mayotte »…) ; le focus dans la saisie quand il faut écrire | **Même texte** ; le focus est déjà dans la saisie |
+| 8 | Les suggestions de départements n'ont pas de numéro (« Corse-du-Sud, Haute-Corse ») | « Finistère (29) », pour apprendre les numéros en passant | **Pareil** |
+| 9 | Sur téléphone, en partie libre, la saisie du bonus commence à 572 pixels sur 812 : le clavier cache une partie de la carte | Carte plus petite sur téléphone, ou saisie au-dessus de la carte | Sans objet |
+| 10 | À la fin du bonus, « Survole un département… pour voir son nom » : le survol n'existe pas au doigt. Sur Android, toucher un département devrait marcher (le navigateur imite la souris et donne le focus). **Sur iPhone, peut-être pas** : Safari n'imite la souris que sur ce qui lui semble cliquable, et les départements n'ont plus ni `onClick` ni `cursor-pointer` à la fin | Afficher le nom au **clic** (souris comme doigt), et un texte « Touche ou survole… ». À vérifier sur un iPhone | Sans objet (bulle d'aide à la souris) |
+| 11 | La fenêtre de résultats de la partie libre n'a pas le score du bonus | Le reprendre, comme la partie du jour | Correct (`messageDeFin()` l'ajoute) |
+| 12 | La carte de fin ne colore que la réponse (déjà noté dans « Les améliorations à reprendre ») | Les régions proposées en couleur | **Pareil** |
+
+Notés en passant, déjà dans « Les améliorations à reprendre » : la suite de tests a pris **52 s** ce jour-là (jsdom
+créé 24 fois, 34 % du temps ; Vitest propose encore `pool: 'vmThreads'`), et l'avertissement du canvas s'affiche
+maintenant **10 fois**.
+
+### Les décisions (validées le 18 octobre 2026)
+
+Posées toutes ensemble, avec une recommandation chacune : **toutes les recommandations ont été acceptées**. Les
+décisions sont notées ici (PR web.7.8.0) avant de coder ; le code attend le « tu peux lancer » de l'utilisateur.
+
+| Sujet | Décision |
+|---|---|
+| Découpage | **Trois PR empilées**, avant web.8 : **web.7.8 Les bugs** (1, 2, 3, 4), **web.7.9 La saisie et la fin de partie** (5, 6, 11), **web.7.10 Le bonus** (7, 8, 9, 10). Étiquettes `web-7.8`, `web-7.9`, `web-7.10` ; `web-7.8.0` pour ce plan. Puis une **petite PR d'outillage** (tests plus rapides, canvas). |
+| Java | Les mêmes décisions pour les points communs (1, 4, 5, 6, 7, 8), **en même temps que le web, dans une autre conversation** : phase 11 de la feuille de route du Java (PR deIbine/francle#39), avec son découpage (11.1 à 11.3) et ses décisions adaptées (textes au vouvoiement, focus d'outre-mer déjà bon). |
+| (1) « Plusieurs » | La liste **reste ouverte** sur les régions (ou départements) évoquées, **sans en surligner aucune** : deux Entrée de suite ne jouent pas une région au hasard. |
+| (2) Pourcentages | Par `textes.stats.pourcentage()`, comme ailleurs ; vérifier qu'aucun autre pourcentage n'est écrit à la main. |
+| (3) Nom de l'image | Les silhouettes ont des **noms sans la région** (seulement l'empreinte, par l'option `assetFileNames` de Vite). Arrête la triche d'un appui long, pas celle des outils du navigateur ; en mode développement, les noms restent lisibles. |
+| (4) Saisie vide | **Rien ne se passe**, sans message. |
+| (5) Autre époque | Refusée **sans coûter d'essai**, avec une tournure sans article (les régions n'en ont pas dans les données). Partie du jour : « Alsace : une ancienne région (avant 2016), aujourd'hui dans la région Grand Est. » Partie libre, anciennes régions : « Grand Est : une région d'après 2016, qui regroupe Alsace, Champagne-Ardenne et Lorraine. » Le lien entre les époques est **déduit des départements** (`departements.json`), sans nouvelle donnée. En anglais aussi. |
+| (6) Indices | **Tous montrés** une fois la partie finie (gagnée, perdue ou abandonnée), **sans distinction**. Le partage ne change pas. |
+| (11) Résultats de la partie libre | La phrase de fin du bonus (« Bonus terminé : 1 département trouvé sur 2. »), la même que sur la page, comme le Java. |
+| (7) Question d'outre-mer | Un petit tableau dans `textes.ts` : « Quel est le numéro de la Guadeloupe / de la Martinique / de la Guyane / de La Réunion / de Mayotte ? » ; en anglais « What is the number of Guadeloupe? », sans article. |
+| (7) Focus | Quand le bonus commence par la question du numéro, le focus va **dans la saisie** (comme le Java) ; sinon, sur le titre, comme aujourd'hui. |
+| (8) Suggestions | **« Finistère (29) »**, partout dans le bonus. Ne donne pas la réponse : en mode C, la difficulté est de savoir quelle forme est quel département. |
+| (9) Clavier du téléphone | Au choix d'un département, la page **défile pour mettre le haut du bonus en haut de l'écran** ; si ça ne suffit pas, une carte plus petite sur téléphone. **À vérifier par l'utilisateur sur un vrai téléphone.** |
+| (10) Nom à la fin du bonus | Affiché aussi **au clic** (le doigt sur iPhone comme ailleurs), avec la main au survol. Texte : « Clique ou passe sur un département pour voir son nom. » En anglais aussi. **À vérifier sur un iPhone.** |
+| Outillage | Une **4e petite PR** après web.7.10 : mesurer `pool: 'vmThreads'`, puis taire l'avertissement du canvas. |
+| (12) Carte de fin | **Plus tard**, dans sa propre étape. |
 
 ## Les améliorations à reprendre (relevées le 16 octobre 2026)
 
