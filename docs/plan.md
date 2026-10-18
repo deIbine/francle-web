@@ -101,7 +101,8 @@ en local de sa part), étiquettes `web-7.5`, `web-7.6`, `web-7.7` (détail plus 
 étape : **web.8 Le domaine et le défi**, dont le découpage reste à valider (l'utilisateur doit d'abord acheter le nom
 de domaine). **Web.8 est repoussé** (décidé le 18 octobre 2026) : l'utilisateur n'achète pas de domaine pour
 l'instant. En attendant, **les corrections relevées le 18 octobre 2026** (section du même nom plus bas), découpées et
-décidées le même jour (web.7.8 à web.7.10).
+décidées le même jour, sont codées le même jour aussi : quatre PR empilées, web.7.8 à web.7.11 (voir « Pour
+reprendre »).
 
 - **web.0** (PR #1, étiquette `web-0`) : dépôt public `deIbine/francle-web`, Vite + React + TypeScript, Vitest, lint
   oxlint, CI `.github/workflows/ci.yml` (tâche `verifier` sur chaque PR et sur `main`, tâche `publier` vers GitHub
@@ -176,11 +177,13 @@ décidées le même jour (web.7.8 à web.7.10).
 - **Le bonus des départements** (PR #17 à #20, étiquettes `web-7.1` à `web-7.4`, et `web-7`) : voir « Le bonus des
   départements » plus bas. Les choix faits en route (listes « À valider » des PR) ont été acceptés tels quels.
 - **Pour reprendre (le 18 octobre 2026)** : lire ce plan et `docs/lecons.md`, vérifier que `main` est à jour
-  (`git pull`) et que la PR de ce point de reprise (web.7.8.0, #28) est fusionnée. Le bonus revu est fini et en ligne
-  (275 tests). La suite :
-  - **Les corrections relevées le 18 octobre 2026** (section du même nom plus bas) : la prochaine étape. Découpage et
-    décisions **déjà validés** (web.7.8 à web.7.10, puis l'outillage) : ne pas les reposer, seulement rappeler le
-    découpage et attendre le « tu peux lancer » de l'utilisateur.
+  (`git pull`). La suite :
+  - **Les corrections relevées le 18 octobre 2026** (section du même nom plus bas) : **codées**, en quatre PR
+    empilées, **à fusionner sur l'accord de l'utilisateur** : web.7.8 Les bugs (1 à 4), web.7.9 La saisie et la fin de
+    partie (5, 6, 11), web.7.10 Le bonus (7 à 10), web.7.11 L'outillage (tests en 26 s au lieu de 40, plus
+    d'avertissement du canvas). 287 tests. Étiquettes prévues `web-7.8` à `web-7.11` ; `web-7.11` faute de nom décidé
+    pour la PR d'outillage. Fusion : comme pour le bonus revu (rebase de chaque branche sur `main`, base changée en
+    `main`, arbres comparés).
   - **Le Java en même temps**, dans une **autre conversation** ouverte sur le dossier du projet Java (décidé le
     18 octobre 2026) : sa phase 11 (`docs/feuille-de-route.md`, PR deIbine/francle#39) contient les mêmes décisions,
     adaptées au Java, et son propre point de reprise. Les deux conversations n'ont rien à s'attendre : chacune touche
@@ -192,7 +195,9 @@ décidées le même jour (web.7.8 à web.7.10).
     2026). La section « À reporter dans le Java » plus bas n'est donc plus à faire.
   - **Encore à vérifier par l'utilisateur, en jouant** : le mode C sur un vrai téléphone (à 375 × 812, la saisie
     commence à 496 pixels : le clavier devrait la laisser visible) et en thème sombre (les captures du navigateur
-    intégré ne se dessinaient pas ; vérifié par script seulement).
+    intégré ne se dessinaient pas ; vérifié par script seulement). Depuis web.7.10 : sur téléphone, choisir un
+    département fait défiler la page jusqu'au haut du bonus (point 9), et sur iPhone, toucher un département à la fin
+    du bonus doit afficher son nom (point 10).
   - Méthode suivie pour le bonus revu, à reprendre : toutes les questions de toutes les phases posées d'un coup,
     recommandation à chaque fois ; les décisions notées dans le plan par une petite PR avant de coder ; puis les
     phases enchaînées en PR empilées, fusionnées à la fin (`git rebase --onto main <ancienne pointe> <branche>`,
@@ -453,7 +458,7 @@ Le jeu a été testé de bout en bout le 18 octobre 2026, à la demande de l'uti
 Île-de-France) jouées dans le navigateur intégré, sur ordinateur et à 375 × 812 pixels ; puis le code relu aux
 endroits suspects. Chaque point a ensuite été comparé au Java, en lisant son code et en exécutant ses règles dans
 `jshell` : la colonne « Java » le dit, et les points communs sont notés dans la phase 11 de `docs/feuille-de-route.md`
-du dépôt Java. **Rien n'est décidé ni commencé** : découpage et décisions à valider avec l'utilisateur avant de coder.
+du dépôt Java. Décidés le même jour (plus bas), puis **codés le même jour** (web.7.8 à web.7.11), sauf le point 12.
 
 Pas encore vérifié : le jeu sur un **vrai téléphone** (surtout un iPhone, voir le point 10) et le **thème sombre** à
 l'œil (les captures du navigateur intégré restent rognées ou en retard).
@@ -508,6 +513,17 @@ décisions sont notées ici (PR web.7.8.0) avant de coder ; le code attend le «
 | Outillage | Une **4e petite PR** après web.7.10 : mesurer `pool: 'vmThreads'`, puis taire l'avertissement du canvas. |
 | (12) Carte de fin | **Plus tard**, dans sa propre étape. |
 
+Choix faits en route, en codant (à valider avec les PR) :
+
+- (5) Une région qui a seulement changé de nom : « Centre-Val de Loire : une région d'après 2016, appelée Centre avant
+  2016. » (« qui regroupe Centre » sonnait faux). Un début de nom suffit, comme ailleurs : « champ » en partie du jour
+  parle de Champagne-Ardenne.
+- (9) Le défilement ne se fait que sur un écran tactile (`pointer: coarse`) : à la souris, il ferait sauter la page à
+  chaque clic, pour rien.
+- (11) La phrase de fin du bonus est aussi dans les résultats de la partie du jour, qui ne l'avaient pas non plus.
+- (10) Le texte de fin ne parle plus du clavier (« Clique ou passe sur un département… »), comme décidé ; le clavier
+  marche toujours.
+
 ## Les améliorations à reprendre (relevées le 16 octobre 2026)
 
 Relevées en relisant le code après web.6. Le bug du changement de jour a été corrigé tout de suite (PR #9, étiquette
@@ -529,12 +545,13 @@ commencé.
 - **Carte de fin** : montrer aussi les régions proposées, en couleur.
 - **Partie du jour devinable** : chaque région revient une fois par cycle de 18 jours, donc le 18e jour se devine par
   élimination. Changer cela casserait l'égalité avec le Java : à décider.
-- **Des tests plus rapides** : le délai des tests est passé à 15 s (PR #12), mais les tests d'écran restent lents
+- **Des tests plus rapides** : **fait à web.7.11** (`pool: 'vmThreads'`, 40 s -> 26 s ; `delay: null` pas essayé).
+  Le délai des tests est passé à 15 s (PR #12), mais les tests d'écran restent lents
   (jusqu'à 5 s chacun, 23 s pour toute la suite). Deux pistes, à mesurer avant de choisir :
   - créer le faux navigateur (jsdom) une fois par processus et non une fois par fichier : il prend 40 à 48 % du
     temps, et Vitest le suggère lui-même (`pool: 'vmThreads'`, qui garde chaque fichier isolé) ;
   - faire taper user-event sans pause entre les lettres : `userEvent.setup({ delay: null })`.
-- **Le bruit dans la sortie des tests** : « Not implemented: HTMLCanvasElement's getContext() » s'affiche 7 fois,
+- **Le bruit dans la sortie des tests** : **fait à web.7.11** (c'était axe-core, `_isIconLigature`). « Not implemented: HTMLCanvasElement's getContext() » s'affiche 7 fois,
   car jsdom n'a pas de canvas. Trouver quel code l'appelle (sans doute axe-core, dans les tests d'accessibilité),
   puis le taire, par exemple en remplaçant `getContext` par une fonction vide dans `preparationTests.ts`.
 
