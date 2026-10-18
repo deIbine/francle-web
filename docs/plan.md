@@ -93,7 +93,8 @@ angle de rotation, et les valeurs de ses tests.
 
 ## Où on en est (mis à jour le 18 octobre 2026)
 
-**Faites : web.0 à web.7, et le bonus revu (web.7.5 à web.7.7).** Le bonus des départements est en ligne depuis le
+**Faites : web.0 à web.7, le bonus revu (web.7.5 à web.7.7) et les corrections du 18 octobre 2026 (web.7.8 à
+web.7.11).** Le bonus des départements est en ligne depuis le
 17 octobre 2026 : quatre PR (#17 à #20), étiquettes `web-7.1` à `web-7.4` et `web-7` (détail plus bas dans « Le bonus
 des départements »). **Le bonus revu**, décidé le même jour après les retours des joueurs, est en ligne lui aussi :
 trois PR empilées (#24, #25, #26), fusionnées en squash le 17 octobre 2026 sur l'accord de l'utilisateur (sans test
@@ -101,8 +102,8 @@ en local de sa part), étiquettes `web-7.5`, `web-7.6`, `web-7.7` (détail plus 
 étape : **web.8 Le domaine et le défi**, dont le découpage reste à valider (l'utilisateur doit d'abord acheter le nom
 de domaine). **Web.8 est repoussé** (décidé le 18 octobre 2026) : l'utilisateur n'achète pas de domaine pour
 l'instant. En attendant, **les corrections relevées le 18 octobre 2026** (section du même nom plus bas), découpées et
-décidées le même jour, sont codées le même jour aussi : quatre PR empilées, web.7.8 à web.7.11 (voir « Pour
-reprendre »).
+décidées le même jour, sont codées et en ligne le même jour aussi : quatre PR empilées (#29 à #32), fusionnées en
+squash le 18 octobre 2026 sur l'accord de l'utilisateur, étiquettes `web-7.8` à `web-7.11` (voir « Pour reprendre »).
 
 - **web.0** (PR #1, étiquette `web-0`) : dépôt public `deIbine/francle-web`, Vite + React + TypeScript, Vitest, lint
   oxlint, CI `.github/workflows/ci.yml` (tâche `verifier` sur chaque PR et sur `main`, tâche `publier` vers GitHub
@@ -177,13 +178,15 @@ reprendre »).
 - **Le bonus des départements** (PR #17 à #20, étiquettes `web-7.1` à `web-7.4`, et `web-7`) : voir « Le bonus des
   départements » plus bas. Les choix faits en route (listes « À valider » des PR) ont été acceptés tels quels.
 - **Pour reprendre (le 18 octobre 2026)** : lire ce plan et `docs/lecons.md`, vérifier que `main` est à jour
-  (`git pull`). La suite :
-  - **Les corrections relevées le 18 octobre 2026** (section du même nom plus bas) : **codées**, en quatre PR
-    empilées, **à fusionner sur l'accord de l'utilisateur** : web.7.8 Les bugs (1 à 4), web.7.9 La saisie et la fin de
-    partie (5, 6, 11), web.7.10 Le bonus (7 à 10), web.7.11 L'outillage (tests en 26 s au lieu de 40, plus
-    d'avertissement du canvas). 287 tests. Étiquettes prévues `web-7.8` à `web-7.11` ; `web-7.11` faute de nom décidé
-    pour la PR d'outillage. Fusion : comme pour le bonus revu (rebase de chaque branche sur `main`, base changée en
-    `main`, arbres comparés).
+  (`git pull`) et que la PR de ce point de reprise (web.7.11.1) est fusionnée. La suite :
+  - **Les corrections relevées le 18 octobre 2026** (section du même nom plus bas) : **faites et en ligne**, quatre
+    PR empilées fusionnées en squash le 18 octobre 2026 : web.7.8 Les bugs (#29, `web-7.8`), web.7.9 La saisie et la
+    fin de partie (#30, `web-7.9`), web.7.10 Le bonus (#31, `web-7.10`), web.7.11 L'outillage (#32, `web-7.11` :
+    tests en 26 s au lieu de 40, plus d'avertissement du canvas). 287 tests. Les choix faits en route (listés sous
+    les décisions) ont été acceptés avec la fusion. Reste seulement le point 12 (la carte de fin), pour plus tard.
+  - **La prochaine étape est à choisir avec l'utilisateur** : web.8 reste repoussé ; parmi « Les améliorations à
+    reprendre » plus bas, les candidates sont la carte de fin en couleur (point 12), le compteur de la partie libre,
+    le repère « voisine » et le mode « métropole seulement ». Présenter le choix et les questions avant de coder.
   - **Le Java en même temps**, dans une **autre conversation** ouverte sur le dossier du projet Java (décidé le
     18 octobre 2026) : sa phase 11 (`docs/feuille-de-route.md`, PR deIbine/francle#39) contient les mêmes décisions,
     adaptées au Java, et son propre point de reprise. Les deux conversations n'ont rien à s'attendre : chacune touche
