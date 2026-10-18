@@ -1004,3 +1004,41 @@ commandes), **comment le penser** (la question à se poser la prochaine fois).
   prise hors de la région, « Gironde ») et truquer le hasard avant `render`.
 - **Comment le penser** : un test ne doit supposer des données que ce qu'il vérifie lui-même. Quand il en suppose
   plus, le dire dans un commentaire, ou mieux, choisir des données qui ne peuvent pas manquer.
+
+## web.7.8 Les bugs relevés en jouant
+
+### Un refus n'est pas une fin : garder ce qui aide à corriger
+
+- **Pourquoi** : après « nor » puis Entrée, le jeu répondait « Plusieurs régions possibles… choisis dans la liste »,
+  mais la saisie fermait la liste quoi qu'il arrive (`setOuverte(false)` après chaque envoi). Le message renvoyait à
+  quelque chose qu'on venait de cacher.
+- **Comment le faire** : `onProposer` dit déjà si la saisie est acceptée (il renvoie un booléen). La liste se ferme
+  seulement dans ce cas : `setOuverte(!acceptee)`. Rien n'y est surligné (`setChoisie(-1)`), pour qu'une seconde
+  Entrée renvoie le texte tapé au lieu de jouer une région au hasard. La saisie vide s'arrête plus tôt encore
+  (`saisie.trim() === ''`), dans la saisie elle-même : la partie et le bonus en profitent tous les deux.
+- **Comment le penser** : relire chaque message d'erreur en se demandant « ce qu'il conseille de faire, l'écran le
+  permet-il encore ? ». Et placer une règle au plus près de ce qu'elle concerne : « une saisie vide ne veut rien
+  dire » ne dépend ni des régions ni des départements, donc elle va dans le champ, pas dans ceux qui l'utilisent.
+
+### Une seule fonction pour un format
+
+- **Pourquoi** : les statistiques écrivaient « 100 % » à la main, avec une espace ordinaire : le signe passait à la
+  ligne sur téléphone, et l'anglais gardait l'espace (« 100 % » au lieu de « 100% »). La bonne fonction,
+  `textes.stats.pourcentage()`, existait déjà, deux lignes plus bas.
+- **Comment le faire** : chercher tous les endroits qui fabriquent le même format (`grep -n "%" src/**/*.tsx`), et
+  les faire passer par la fonction des textes.
+- **Comment le penser** : un format (pourcentage, date, nombre) est une règle de langue, comme un mot ; il se range
+  avec les textes. En Java, ce serait un `NumberFormat` partagé plutôt qu'une concaténation dans chaque écran.
+
+### Le nom d'un fichier se voit
+
+- **Pourquoi** : Vite range chaque image dans le site sous son nom d'origine, plus une empreinte :
+  `corse-C5fvIIqz.svg`. Un appui long sur la silhouette, « Ouvrir l'image », et la réponse s'affiche dans l'adresse.
+- **Comment le faire** : `npm run build`, puis `ls dist/assets` montre les noms publiés. L'option
+  `build.rolldownOptions.output.assetFileNames` de Vite (Vite 8 s'appuie sur Rolldown ; `rollupOptions` est
+  l'ancien nom) peut être une fonction : elle reçoit le chemin d'origine du fichier (`originalFileNames`) et renvoie
+  le modèle du nom. Pour les silhouettes, `assets/[hash][extname]` ; pour le reste, le modèle par défaut.
+- **Comment le penser** : tout ce que le navigateur reçoit, le joueur peut le lire (nom de fichier, code, réseau).
+  On ne cache pas une réponse, on la rend seulement moins facile à trouver par accident. Ici, l'appui long est
+  fermé ; les outils du navigateur restent ouverts, et c'est accepté (les contours des départements, chargés au
+  bonus, gardent d'ailleurs leur nom : ils n'arrivent qu'après la victoire).

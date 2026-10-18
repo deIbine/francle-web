@@ -9,6 +9,19 @@ export default defineConfig({
   base: '/francle-web/',
   // tailwindcss() lit les classes écrites dans les composants et produit le CSS qui leur correspond, et lui seul
   plugins: [react(), tailwindcss()],
+  build: {
+    rolldownOptions: {
+      output: {
+        // Par défaut, un fichier ajouté au site garde son nom et y gagne une empreinte : « corse-C5fvIIqz.svg ». Pour
+        // une silhouette, ce nom donne la réponse (appui long sur l'image, « Ouvrir l'image »). Les silhouettes ne
+        // gardent donc que leur empreinte ; les autres fichiers restent nommés comme avant.
+        assetFileNames: (fichier) =>
+          fichier.originalFileNames.some((chemin) => chemin.includes('images/regions/'))
+            ? 'assets/[hash][extname]'
+            : 'assets/[name]-[hash][extname]',
+      },
+    },
+  },
   test: {
     // Un faux navigateur (jsdom) pour pouvoir afficher les composants React pendant les tests.
     environment: 'jsdom',

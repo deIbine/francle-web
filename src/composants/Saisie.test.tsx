@@ -81,4 +81,24 @@ describe('La saisie', () => {
     await userEvent.setup().type(champ, 'Atlantide{Enter}')
     expect(champ.value).toBe('Atlantide')
   })
+
+  it('une saisie refusée laisse la liste ouverte, sans rien surligner', async () => {
+    // « loire » évoque deux régions : le plateau répond « Plusieurs régions possibles » (ici, onProposer refuse)
+    const onProposer = vi.fn(() => false)
+    render(<Saisie suggerer={regions} onProposer={onProposer} />)
+    const joueur = userEvent.setup()
+    await joueur.type(screen.getByRole('combobox'), 'loire{Enter}')
+    expect(options()).toEqual(['Centre-Val de Loire', 'Pays de la Loire'])
+    expect(screen.queryByRole('option', { selected: true })).toBeNull()
+    // une seconde Entrée envoie encore le texte tapé, pas une région prise au hasard dans la liste
+    await joueur.keyboard('{Enter}')
+    expect(onProposer).toHaveBeenLastCalledWith('loire')
+  })
+
+  it('une saisie vide ne propose rien', async () => {
+    const { joueur, champ, onProposer } = afficher()
+    await joueur.click(screen.getByRole('button', { name: 'Proposer' }))
+    await joueur.type(champ, '   {Enter}')
+    expect(onProposer).not.toHaveBeenCalled()
+  })
 })

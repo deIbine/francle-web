@@ -58,10 +58,17 @@ export function Saisie({ suggerer, onProposer, etiquette, exemple, bouton, desac
   const liste = ouverte ? suggerer(texte) : []
 
   function proposer(saisie: string) {
-    if (onProposer(saisie)) {
+    // une saisie vide (ou faite d'espaces) : rien ne se passe, sans message
+    if (saisie.trim() === '') {
+      return
+    }
+    const acceptee = onProposer(saisie)
+    if (acceptee) {
       setTexte('')
     }
-    setOuverte(false)
+    // refusée (« Plusieurs régions possibles », « déjà proposée »…) : la liste reste ouverte sur ce qui a été tapé,
+    // pour choisir sans retaper. Rien n'y est surligné : une seconde Entrée ne joue pas une suggestion au hasard
+    setOuverte(!acceptee)
     setChoisie(-1)
   }
 
