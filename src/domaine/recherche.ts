@@ -84,3 +84,11 @@ export function deviner(saisie: string, mode: Mode): Region | 'plusieurs' | unde
   }
   return liste.length === 1 ? liste[0] : 'plusieurs'
 }
+
+// la région de l'AUTRE époque que la saisie désigne (le nom exact, ou la seule région qu'il évoque), quand elle n'est
+// pas dans celle-ci : « Alsace » en partie du jour, « Grand Est » chez les anciennes régions. Le plateau le dit au
+// joueur au lieu de répondre « cette région n'existe pas ». undefined si la saisie ne désigne aucune de ces régions
+export function autreEpoque(saisie: string, mode: Mode): Region | undefined {
+  const region = deviner(saisie, mode === 'nouvelles' ? 'anciennes' : 'nouvelles')
+  return typeof region === 'object' && !estDansLeMode(region, mode) ? region : undefined
+}

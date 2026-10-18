@@ -2,7 +2,9 @@ import { describe, expect, it } from 'vitest'
 import {
   chercherDepartement,
   DEPARTEMENTS,
+  anciennesRegionsDe,
   departementsDe,
+  nouvelleRegionDe,
   numero,
   parCode,
   suggestionsDepartements,
@@ -98,5 +100,30 @@ describe('Les suggestions de départements', () => {
 
   it('rien pour une saisie vide', () => {
     expect(noms('  ')).toEqual([])
+  })
+})
+
+describe('Le lien entre les deux époques', () => {
+  // les noms, triés : l'ordre de regions.ts n'est pas alphabétique
+  const noms = (regions: readonly { nom: { fr: string } }[]) => regions.map((region) => region.nom.fr).toSorted()
+
+  it('chaque ancienne région est dans une nouvelle région, qui la regroupe', () => {
+    for (const ancienne of REGIONS.filter((region) => region.epoque === 'ancienne')) {
+      expect(anciennesRegionsDe(nouvelleRegionDe(ancienne))).toContain(ancienne)
+    }
+  })
+
+  it('chaque nouvelle région regroupe des anciennes régions, qui couvrent tous ses départements', () => {
+    for (const nouvelle of REGIONS.filter((region) => region.epoque === 'nouvelle')) {
+      const codes = (departements: readonly { code: string }[]) => departements.map((d) => d.code).toSorted()
+      const couverts = anciennesRegionsDe(nouvelle).flatMap((ancienne) => departementsDe(ancienne))
+      expect(codes(couverts)).toEqual(codes(departementsDe(nouvelle)))
+    }
+  })
+
+  it('quelques exemples', () => {
+    expect(nouvelleRegionDe(parId('alsace')).nom.fr).toBe('Grand Est')
+    expect(noms(anciennesRegionsDe(parId('grand-est')))).toEqual(['Alsace', 'Champagne-Ardenne', 'Lorraine'])
+    expect(noms(anciennesRegionsDe(parId('centre-val-de-loire')))).toEqual(['Centre'])
   })
 })

@@ -24,7 +24,6 @@ import {
   repondreChoix,
   repondreSaisie,
   restants,
-  score,
   total,
   type Bonus,
 } from '../domaine/bonus.ts'
@@ -35,7 +34,7 @@ import {
   suggestionsDepartements,
   type Departement,
 } from '../domaine/departements.ts'
-import { useLangue, useTextes } from '../textes.ts'
+import { finDuBonus, useLangue, useTextes } from '../textes.ts'
 import { CarteDepartements } from './CarteDepartements.tsx'
 import { Saisie } from './Saisie.tsx'
 
@@ -214,7 +213,7 @@ export function JeuBonus({ bonus, onChanger, focaliser = false }: Props) {
         </button>
       ) : (
         <p className="font-semibold">
-          {(bonus.etat === 'termine' ? textes.bonus.fini : textes.bonus.arrete)(score(bonus), total(bonus))}
+          {finDuBonus(bonus, textes)}
         </p>
       )}
     </section>

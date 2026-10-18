@@ -5,6 +5,7 @@ import {
   ESSAIS_MAX,
   INDICES,
   indiceApresEssai,
+  indicesAffiches,
   indicesReveles,
   nouvellePartie,
   proposer,
@@ -107,5 +108,11 @@ describe('Indices', () => {
     expect(indicesReveles(jouer('bretagne', 'nouvelles', 'Corse', 'Bretagne'))).toEqual(['superficie'])
     // 6 essais ratés : 5 indices seulement, le dernier essai raté termine la partie
     expect(indicesReveles(jouer('bretagne', 'nouvelles', ...CINQ_RATES, 'Martinique'))).toEqual([...INDICES])
+  })
+
+  it('tous les indices sont montrés une fois la partie finie, quelle que soit la fin', () => {
+    expect(indicesAffiches(jouer('bretagne', 'nouvelles', 'Corse'))).toEqual(['superficie'])
+    expect(indicesAffiches(jouer('bretagne', 'nouvelles', 'Corse', 'Bretagne'))).toEqual([...INDICES])
+    expect(indicesAffiches(abandonner(jouer('bretagne', 'nouvelles', 'Corse')))).toEqual([...INDICES])
   })
 })

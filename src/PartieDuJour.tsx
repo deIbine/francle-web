@@ -191,7 +191,7 @@ export function PartieDuJour({ jour, reglages, demandeStats, demandeListe }: Pro
         titre={enCours(partie) ? textes.stats.titre : textes.resultats}
       >
         {!enCours(partie) && (
-          <FinDePartie partie={partie} message={textes.fin(partie)}>
+          <FinDePartie partie={partie} message={textes.fin(partie)} bonus={bonus}>
             {/* grid-cols-2 : le compte à rebours et le bouton de partage côte à côte */}
             <div className="grid grid-cols-2 items-center gap-2">
               <CompteARebours minuit={minuitSuivant(jour)} />

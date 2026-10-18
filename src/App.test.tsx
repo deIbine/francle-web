@@ -80,9 +80,10 @@ describe('Le jeu', () => {
     expect(lignes()).toHaveLength(0)
   })
 
-  it('une ancienne région n’est pas acceptée dans la partie du jour', async () => {
+  it('une ancienne région n’est pas acceptée dans la partie du jour : le jeu dit où elle est passée', async () => {
     const joueur = demarrer()
-    await proposer(joueur, 'Picardie')
+    await proposer(joueur, 'Alsace')
+    expect(screen.getByText('Alsace : une ancienne région (avant 2016), aujourd’hui dans la région Grand Est.')).toBeDefined()
     expect(lignes()).toHaveLength(0)
   })
 

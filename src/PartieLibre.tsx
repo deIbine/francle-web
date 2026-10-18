@@ -163,7 +163,7 @@ export function PartieLibre({ reglages, demandeListe }: { reglages: Reglages; de
 
       <Fenetre ouverte={fenetre} onFermer={() => setFenetre(false)} titre={textes.resultats}>
         {!enCours(partie) && (
-          <FinDePartie partie={partie} message={textes.fin(partie, true)}>
+          <FinDePartie partie={partie} message={textes.fin(partie, true)} bonus={bonus}>
             <button
               type="button"
               onClick={() => recommencer(mode)}

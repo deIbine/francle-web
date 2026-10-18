@@ -26,6 +26,8 @@ type Joueur = ReturnType<typeof userEvent.setup>
 
 // le panneau de l'onglet affiché (l'autre est caché, donc ignoré par getByRole)
 const panneau = () => screen.getByRole('tabpanel')
+// le bonus lui-même, sans la fenêtre des résultats (toujours dans la page, même fermée, et qui reprend sa phrase de fin)
+const zoneBonus = () => within(panneau()).getByRole('region', { name: /^Bonus/ })
 
 function demarrer() {
   const joueur = userEvent.setup()
@@ -177,11 +179,12 @@ describe('Le bonus des départements, partie du jour', () => {
     await gagner(joueur)
     await repondre(joueur, DEPS[0].code, DEPS[0].nom)
     await joueur.click(within(panneau()).getByRole('button', { name: 'Passer' }))
-    expect(within(panneau()).getByText(`Bonus arrêté : 1 département trouvé sur ${TOTAL}.`)).toBeDefined()
+    expect(within(zoneBonus()).getByText(`Bonus arrêté : 1 département trouvé sur ${TOTAL}.`)).toBeDefined()
     expect(within(panneau()).queryByRole('button', { name: '🗺️ Jouer le bonus' })).toBeNull()
 
     // le joueur a choisi d'arrêter : les résultats s'ouvrent sans pause
     const fenetre = resultats()!
+    expect(within(fenetre).getByText(`Bonus arrêté : 1 département trouvé sur ${TOTAL}.`)).toBeDefined()
     expect(within(fenetre).getByText('Bonus joués').nextElementSibling?.textContent).toBe('1')
     expect(within(fenetre).getByText('Score moyen').nextElementSibling?.textContent).toBe(
       `${Math.round(100 / TOTAL)}\u00a0%`,
@@ -197,7 +200,7 @@ describe('Le bonus des départements, partie du jour', () => {
     for (const departement of [...DEPS].reverse()) {
       await repondre(joueur, departement.code, departement.code)
     }
-    expect(within(panneau()).getByText(`Bonus terminé : ${TOTAL} départements trouvés sur ${TOTAL}.`)).toBeDefined()
+    expect(within(zoneBonus()).getByText(`Bonus terminé : ${TOTAL} départements trouvés sur ${TOTAL}.`)).toBeDefined()
     // pas tout de suite : le joueur voit d'abord sa dernière réponse sur la carte
     expect(resultats()).toBeNull()
     const fenetre = await screen.findByRole('dialog', { name: 'Résultats' }, { timeout: 3000 })
@@ -277,6 +280,15 @@ describe('Le bonus des départements, partie libre', () => {
     // une nouvelle partie remet la silhouette
     await joueur.click(within(panneau()).getByRole('button', { name: 'Nouvelle partie' }))
     expect(within(panneau()).getByRole('img', { name: /silhouette/ })).toBeDefined()
+  })
+
+  it('« Passer » après une réponse : les résultats donnent le score du bonus', async () => {
+    const { joueur, cible } = await gagnerLibre()
+    const zones = within(await carte()).getAllByRole('button')
+    await repondre(joueur, zones[0].getAttribute('data-code')!, 'Gironde')
+    await joueur.click(within(panneau()).getByRole('button', { name: 'Passer' }))
+    const total = departementsDe(cible).length
+    expect(within(resultats()!).getByText(new RegExp(`^Bonus arrêté : \\d département trouvé sur ${total}\\.$`))).toBeDefined()
   })
 
   it('une nouvelle partie pendant la pause de fin : les résultats d’avant ne s’ouvrent pas', async () => {

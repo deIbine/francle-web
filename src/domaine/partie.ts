@@ -97,3 +97,10 @@ export function indicesReveles(partie: Partie): Indice[] {
   })
   return indices
 }
+
+// les indices à montrer : ceux révélés pendant la partie, puis tous une fois la partie finie (gagnée, perdue ou
+// abandonnée), pour apprendre la capitale ou le monument qu'on n'a pas eu besoin de voir. Les règles, elles, ne
+// changent pas : indicesReveles() reste celle du Java
+export function indicesAffiches(partie: Partie): Indice[] {
+  return enCours(partie) ? indicesReveles(partie) : [...INDICES]
+}

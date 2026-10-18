@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { chercher, deviner, simplifier, suggestions } from './recherche.ts'
+import { autreEpoque, chercher, deviner, simplifier, suggestions } from './recherche.ts'
 import { parId, REGIONS, tirables, type Langue, type Mode } from './regions.ts'
 
 const ids = (saisie: string, mode: Mode, langue: Langue = 'fr') =>
@@ -129,5 +129,20 @@ describe('deviner', () => {
   it('rien quand la saisie n’évoque aucune région', () => {
     expect(deviner('Atlantide', 'nouvelles')).toBeUndefined()
     expect(deviner('', 'nouvelles')).toBeUndefined()
+  })
+})
+
+describe('autreEpoque', () => {
+  it("reconnaît une région de l'autre époque, par son nom ou ce qu'il évoque", () => {
+    expect(autreEpoque('Alsace', 'nouvelles')).toBe(parId('alsace'))
+    expect(autreEpoque('champ', 'nouvelles')).toBe(parId('champagne-ardenne'))
+    expect(autreEpoque('Grand Est', 'anciennes')).toBe(parId('grand-est'))
+    expect(autreEpoque('Occitania', 'anciennes')).toBe(parId('occitanie'))
+  })
+
+  it("ne dit rien d'une région des deux époques, ni d'une saisie inconnue", () => {
+    expect(autreEpoque('Bretagne', 'nouvelles')).toBeUndefined()
+    expect(autreEpoque('Bretagne', 'anciennes')).toBeUndefined()
+    expect(autreEpoque('Atlantide', 'nouvelles')).toBeUndefined()
   })
 })
