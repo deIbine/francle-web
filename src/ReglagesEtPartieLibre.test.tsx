@@ -142,12 +142,20 @@ describe('La partie libre', () => {
   it('les anciennes régions se jouent quand on choisit leur époque', async () => {
     const joueur = demarrer()
     await joueur.click(screen.getByRole('tab', { name: 'Partie libre' }))
-    // Picardie n'existe pas dans les régions actuelles : refusée
+    // Picardie n'existe pas dans les régions actuelles : refusée, en disant où elle est passée
     await proposer(joueur, 'Picardie')
-    expect(within(panneau()).getByText('Cette région n’existe pas, ou n’est pas dans le jeu.')).toBeDefined()
+    expect(
+      within(panneau()).getByText('Picardie : une ancienne région (avant 2016), aujourd’hui dans la région Hauts-de-France.'),
+    ).toBeDefined()
 
     const cible = premiereRegion('anciennes')
     await joueur.click(screen.getByRole('radio', { name: 'Anciennes régions (avant 2016)' }))
+    // et l'inverse chez les anciennes régions, sans coûter d'essai
+    await proposer(joueur, 'Grand Est')
+    expect(
+      within(panneau()).getByText('Grand Est : une région d’après 2016, qui regroupe Alsace, Champagne-Ardenne et Lorraine.'),
+    ).toBeDefined()
+    expect(within(panneau()).queryAllByRole('row').filter((ligne) => ligne.closest('tbody'))).toHaveLength(0)
     await proposer(joueur, cible.nom.fr)
     // le message de victoire, sous le bonus qui vient de commencer
     expect(within(panneau()).getByText(new RegExp(`La réponse : ${cible.nom.fr}$`))).toBeDefined()

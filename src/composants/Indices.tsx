@@ -17,7 +17,7 @@ function valeur(region: Region, indice: Indice, textes: Textes, langue: Langue):
   }
 }
 
-// les indices déjà révélés, dans l'ordre
+// les indices à montrer (révélés pendant la partie, tous à la fin), dans l'ordre
 export function Indices({ cible, reveles }: { cible: Region; reveles: readonly Indice[] }) {
   const textes = useTextes()
   const langue = useLangue()

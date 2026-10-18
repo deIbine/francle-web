@@ -1042,3 +1042,49 @@ commandes), **comment le penser** (la question à se poser la prochaine fois).
   On ne cache pas une réponse, on la rend seulement moins facile à trouver par accident. Ici, l'appui long est
   fermé ; les outils du navigateur restent ouverts, et c'est accepté (les contours des départements, chargés au
   bonus, gardent d'ailleurs leur nom : ils n'arrivent qu'après la victoire).
+
+## web.7.9 La saisie et la fin de partie
+
+### Déduire une relation au lieu de l'écrire
+
+- **Pourquoi** : pour dire « Alsace : une ancienne région, aujourd'hui dans la région Grand Est », il faut savoir
+  quelle ancienne région va dans quelle nouvelle. On aurait pu ajouter ce lien à chaque région de `regions.ts` ; mais
+  `departements.json` le contient déjà : la réforme de 2016 a regroupé les régions sans toucher aux départements.
+- **Comment le faire** : `nouvelleRegionDe(ancienne)` cherche la nouvelle région qui contient le premier département
+  de l'ancienne ; `anciennesRegionsDe(nouvelle)` garde les anciennes régions dont tous les départements sont dans la
+  nouvelle. Deux tests vérifient la relation sur toutes les régions (chaque ancienne est regroupée par sa nouvelle,
+  et les anciennes couvrent exactement les départements de la nouvelle), plutôt que trois exemples seulement.
+- **Comment le penser** : avant d'ajouter une donnée, se demander « puis-je la calculer à partir de ce que j'ai
+  déjà ? ». Une donnée de plus peut contredire les autres ; une donnée calculée, jamais. C'est la même idée qu'une
+  méthode `getAge()` calculée à partir de la date de naissance plutôt qu'un champ `age` en Java.
+
+### Laisser les règles tranquilles, changer ce qu'on montre
+
+- **Pourquoi** : à la fin d'une partie, on veut voir tous les indices. Changer `indicesReveles()` aurait été plus
+  court, mais cette fonction est la règle du jeu, la même que le Java (et vérifiée par ses tests de référence).
+- **Comment le faire** : une deuxième fonction, `indicesAffiches(partie)`, qui renvoie les indices révélés pendant
+  la partie et tous une fois la partie finie. Le plateau l'appelle ; les règles ne bougent pas.
+- **Comment le penser** : distinguer « ce que le jeu décide » (une règle) de « ce que l'écran choisit de montrer »
+  (un affichage). Les deux changent pour des raisons différentes ; les séparer évite qu'une envie d'affichage casse
+  une règle partagée.
+
+### Une fonction de plus dans un fichier de composants
+
+- **Pourquoi** : la phrase de fin du bonus sert maintenant à deux endroits (sous la carte, et dans la fenêtre des
+  résultats). La mettre dans `JeuBonus.tsx` et l'exporter faisait râler le lint : `only-export-components`. Le
+  rechargement à chaud de Vite (le « fast refresh », qui remplace un composant modifié sans recharger la page) ne
+  marche que si un fichier `.tsx` n'exporte que des composants.
+- **Comment le faire** : la fonction va dans `textes.ts`, à côté des phrases qu'elle choisit (`finDuBonus`).
+- **Comment le penser** : un fichier de composant exporte des composants ; ce qui se partage entre plusieurs
+  composants va dans un module ordinaire. Quand le lint signale quelque chose qu'on ne comprend pas, lire le nom de
+  la règle : il dit presque toujours pourquoi elle existe.
+
+### Les tests voient aussi ce qui est caché
+
+- **Pourquoi** : une fois la phrase de fin du bonus ajoutée aux résultats, `getByText` en trouvait deux : celle du
+  bonus, et celle de la fenêtre, pourtant fermée. Un `<dialog>` fermé reste dans la page, et `getByText` ne regarde
+  pas si un élément est visible (`getByRole`, lui, ignore les éléments cachés).
+- **Comment le faire** : chercher dans une zone précise : `within(zoneBonus())`, la section du bonus trouvée par son
+  rôle (`region`, celui d'une `<section>` qui a un titre).
+- **Comment le penser** : quand un test trouve « plusieurs éléments », ne pas prendre le premier au hasard ; se
+  demander lequel le joueur regarde, et le désigner comme lui le trouverait.

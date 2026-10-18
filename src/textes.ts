@@ -13,6 +13,7 @@ Les composants n'importent pas TEXTES directement : ils appellent useTextes(), q
 choisie (voir plus bas).
  */
 import { createContext, useContext } from 'react'
+import { score, total, type Bonus } from './domaine/bonus.ts'
 import type { Direction } from './domaine/geographie.ts'
 import type { Indice, Partie } from './domaine/partie.ts'
 import type { Langue } from './domaine/regions.ts'
@@ -36,6 +37,14 @@ function distance(km: number, unite: Unite, langue: Langue): string {
     : `${nombre(Math.round(km / KM_PAR_MILE), langue)}\u00a0mi`
 }
 
+// des noms en une phrase, par ordre alphabétique : « Alsace, Champagne-Ardenne et Lorraine » en français,
+// « Alsace, Champagne-Ardenne and Lorraine » en anglais britannique. Intl.ListFormat connaît le « et » de chaque
+// langue, comme Intl.Collator son ordre alphabétique
+function enumeration(noms: readonly string[], langue: Langue): string {
+  const ordre = new Intl.Collator(langue, { ignorePunctuation: true })
+  return new Intl.ListFormat(LOCALES[langue], { type: 'conjunction' }).format(noms.toSorted(ordre.compare))
+}
+
 const fr = {
   titre: 'Francle',
   numero: (n: number) => `n°\u00a0${n}`,
@@ -53,6 +62,15 @@ const fr = {
   proposer: 'Proposer',
   inconnue: 'Cette région n’existe pas, ou n’est pas dans le jeu.',
   plusieurs: 'Plusieurs régions possibles\u00a0: choisis dans la liste.',
+  // une région de l'autre époque, refusée sans coûter d'essai. Sans article : les régions n'en ont pas dans les
+  // données (« Alsace », pas « l'Alsace »)
+  ancienneRegion: (nom: string, nouvelle: string) =>
+    `${nom}\u00a0: une ancienne région (avant 2016), aujourd’hui dans la région ${nouvelle}.`,
+  // anciennes : une seule quand la région a seulement changé de nom (Centre -> Centre-Val de Loire)
+  nouvelleRegion: (nom: string, anciennes: readonly string[]) =>
+    anciennes.length === 1
+      ? `${nom}\u00a0: une région d’après 2016, appelée ${anciennes[0]} avant 2016.`
+      : `${nom}\u00a0: une région d’après 2016, qui regroupe ${enumeration(anciennes, 'fr')}.`,
   dejaProposee: (nom: string) => `${nom}\u00a0: déjà proposée.`,
 
   tableau: 'Tes essais',
@@ -245,6 +263,12 @@ const en: Textes = {
   inconnue: 'This region doesn’t exist, or isn’t in the game.',
   plusieurs: 'Several regions match: pick one from the list.',
   dejaProposee: (nom: string) => `${nom}: already guessed.`,
+  ancienneRegion: (nom: string, nouvelle: string) =>
+    `${nom}: a former region (before 2016), now part of the ${nouvelle} region.`,
+  nouvelleRegion: (nom: string, anciennes: readonly string[]) =>
+    anciennes.length === 1
+      ? `${nom}: a region since 2016, called ${anciennes[0]} before 2016.`
+      : `${nom}: a region since 2016, which combines ${enumeration(anciennes, 'en')}.`,
 
   tableau: 'Your guesses',
   colonnes: { region: 'Region', distance: 'Distance', direction: 'Direction', proximite: 'Proximity' },
@@ -412,6 +436,12 @@ const en: Textes = {
 }
 
 export const TEXTES: Record<Langue, Textes> = { fr, en }
+
+// la phrase de fin d'un bonus fini (terminé, ou passé après au moins une réponse) : « Bonus terminé : 1 département
+// trouvé sur 2. ». La même sous la carte et dans la fenêtre des résultats
+export function finDuBonus(bonus: Bonus, textes: Textes): string {
+  return (bonus.etat === 'termine' ? textes.bonus.fini : textes.bonus.arrete)(score(bonus), total(bonus))
+}
 
 // La langue choisie, transmise à tous les composants sans la passer de parent en enfant : un « contexte » React.
 // App le fournit (<LangueContext value={…}>) ; n'importe quel composant en dessous le lit avec useContext.

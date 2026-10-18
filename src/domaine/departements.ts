@@ -15,7 +15,7 @@ d'erreur possible à l'exécution, contrairement au Java qui lit sa ressource au
  */
 import donnees from './departements.json'
 import { mots, simplifier } from './recherche.ts'
-import type { Langue, Region } from './regions.ts'
+import { REGIONS, type Langue, type Region } from './regions.ts'
 
 export interface Departement {
   readonly code: string
@@ -110,4 +110,29 @@ export function suggestionsDepartements(
   const ordre = new Intl.Collator(langue, { ignorePunctuation: true })
   const alphabetique = (a: Departement, b: Departement) => ordre.compare(a.nom, b.nom)
   return [...parNumero, ...parNom.sort(alphabetique), ...parMot.sort(alphabetique)]
+}
+
+// Le lien entre les deux époques, déduit des départements : la réforme de 2016 a regroupé les anciennes régions sans
+// toucher aux départements, donc une ancienne région est dans la nouvelle région qui a ses départements. Pas de
+// nouvelle donnée à écrire ni à tenir à jour.
+
+// la nouvelle région (d'après 2016) qui contient cette ancienne région : Alsace -> Grand Est
+export function nouvelleRegionDe(ancienne: Region): Region {
+  const premier = departementsDe(ancienne)[0]
+  const nouvelle = REGIONS.find(
+    (region) => region.epoque === 'nouvelle' && departementsDe(region).includes(premier),
+  )
+  if (nouvelle === undefined) {
+    throw new Error(`Pas de nouvelle région pour ${ancienne.id}`)
+  }
+  return nouvelle
+}
+
+// les anciennes régions (d'avant 2016) regroupées dans cette nouvelle région, dans l'ordre de regions.ts :
+// Grand Est -> Champagne-Ardenne, Lorraine, Alsace ; Centre-Val de Loire -> Centre (un simple changement de nom)
+export function anciennesRegionsDe(nouvelle: Region): Region[] {
+  const siens = departementsDe(nouvelle)
+  return REGIONS.filter(
+    (region) => region.epoque === 'ancienne' && departementsDe(region).every((departement) => siens.includes(departement)),
+  )
 }

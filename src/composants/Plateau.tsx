@@ -8,9 +8,10 @@ joueur propose ou abandonne. C'est le parent qui sait quoi faire ensuite (sauveg
 pour la partie libre) : le même plateau sert aux deux.
  */
 import { useState, type ReactNode } from 'react'
-import { abandonner, enCours, indicesReveles, proposer, type Partie } from '../domaine/partie.ts'
+import { abandonner, enCours, indicesAffiches, proposer, type Partie } from '../domaine/partie.ts'
 import type { ModesDifficiles } from '../domaine/partage.ts'
-import { deviner, suggestions } from '../domaine/recherche.ts'
+import { anciennesRegionsDe, nouvelleRegionDe } from '../domaine/departements.ts'
+import { autreEpoque, deviner, suggestions } from '../domaine/recherche.ts'
 import type { Unite } from '../reglages.ts'
 import { useLangue, useTextes } from '../textes.ts'
 import { Fenetre } from './Fenetre.tsx'
@@ -62,6 +63,19 @@ export function Plateau({ partie, onChanger, modes, angle, unite, fin, demandeLi
       setMessage(textes.dejaProposee(region.nom[langue]))
       return false
     }
+    // une région de l'autre époque (« Alsace » en partie du jour) : on dit où elle est passée, sans coûter d'essai
+    const autre = region === undefined ? autreEpoque(saisie, partie.mode) : undefined
+    if (autre !== undefined) {
+      setMessage(
+        autre.epoque === 'ancienne'
+          ? textes.ancienneRegion(autre.nom[langue], nouvelleRegionDe(autre).nom[langue])
+          : textes.nouvelleRegion(
+              autre.nom[langue],
+              anciennesRegionsDe(autre).map((ancienne) => ancienne.nom[langue]),
+            ),
+      )
+      return false
+    }
     const suite = region === undefined ? undefined : proposer(partie, region.nom.fr)
     if (suite === undefined) {
       setMessage(textes.inconnue)
@@ -94,7 +108,7 @@ export function Plateau({ partie, onChanger, modes, angle, unite, fin, demandeLi
       )}
 
       <TableauEssais essais={partie.essais} unite={unite} />
-      <Indices cible={partie.cible} reveles={indicesReveles(partie)} />
+      <Indices cible={partie.cible} reveles={indicesAffiches(partie)} />
 
       {enCours(partie) &&
         (confirmation ? (
