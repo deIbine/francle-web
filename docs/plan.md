@@ -103,19 +103,31 @@ outils GitHub du cloud ne savent pas le faire. Les branches du cloud s'appellent
 **À la première conversation sur le PC, avant de commencer quoi que ce soit d'autre**, faire cette liste, puis la
 vider ici (par une petite PR). **Chaque PR fusionnée depuis le cloud y ajoute ses lignes.**
 
-**Le retour prévu : samedi 24 octobre 2026.** Dans l'ordre :
+**Qui fait quoi** (décidé le 19 octobre 2026) : **l'utilisateur ne lance aucune commande**. Tout se fait par
+**Claude Code sur le PC**, qui a `gh` connecté au compte `deIbine` avec tous les droits. Claude lance lui-même les
+commandes ci-dessous, dans les deux dossiers (`francle-web`, puis le Java dans
+`C:\Users\cleme\Desktop\Claude\francle`), vérifie le résultat, et explique ce qu'il fait comme d'habitude
+(pourquoi, comment le faire soi-même, comment le penser). Le ménage est déjà autorisé par l'utilisateur : Claude
+l'annonce et le fait, sans reposer la question. Les choix de la suite, eux, attendent toujours son accord.
 
-1. Sur le PC, ouvrir Claude Code dans le dossier `francle-web` et dire « on reprend » : Claude lit ce plan, puis
-   `docs/lecons.md`, et commence par cette liste.
-2. Lancer les commandes de `francle-web`, puis celles de `francle` (le Java), ci-dessous. Toutes les PR du cloud sont
+**Le retour prévu : samedi 24 octobre 2026.** L'utilisateur ouvre Claude Code dans le dossier `francle-web` et dit
+« on reprend ». Claude, dans l'ordre :
+
+1. Lit ce plan, puis `docs/lecons.md`.
+2. Lance les commandes de `francle-web`, puis celles de `francle` (le Java), ci-dessous. Toutes les PR du cloud sont
    déjà fusionnées : il ne reste que les étiquettes et les branches.
-3. Vérifier : `git tag` montre les nouvelles étiquettes, `git branch -a` ne montre plus `ccr-8009fd8d-mbx5ca`,
+3. Vérifie : `git tag` montre les nouvelles étiquettes, `git branch -a` ne montre plus `ccr-8009fd8d-mbx5ca`,
    `git branch` ne montre plus que `main` (supprimer les branches locales déjà fusionnées avec `git branch -D <nom>`,
    après avoir vérifié qu'elles le sont : `git branch --merged main` ne suffit pas après un squash, comparer les
-   arbres comme d'habitude).
-4. Lancer les tests (`npm test` : 297 attendus ; `mvn test` côté Java) pour vérifier le poste.
-5. Vider cette section (sauf son premier paragraphe, utile si on retravaille dans le cloud) par une petite PR, puis
-   choisir la suite avec l'utilisateur (voir « Pour reprendre »).
+   arbres comme d'habitude). Si une commande échoue (étiquette déjà posée, branche déjà supprimée sur GitHub), le
+   dire à l'utilisateur et continuer avec le reste.
+4. Lance les tests (`npm test` : 297 attendus ; `mvn test` côté Java) pour vérifier le poste.
+5. Vide cette section (sauf ses deux premiers paragraphes, utiles si on retravaille dans le cloud) et le point 0 de
+   la phase 12 du Java, par une petite PR dans chaque dépôt, fusionnée avec l'accord de l'utilisateur ; puis présente
+   le choix de la suite (voir « Pour reprendre »).
+
+Les commandes, que Claude lance (Node : `export PATH="/c/Program Files/nodejs:$PATH";` dans le Bash, voir
+« L'environnement de travail »).
 
 Dans `francle-web` (les trois commits sont sur `main`, vérifiables par `git log --oneline -5`) :
 
@@ -137,7 +149,7 @@ git push origin phase-12.0
 git push origin --delete ccr-8009fd8d-mbx5ca
 ```
 
-Les PR de notes fusionnées ensuite depuis le cloud (#37 ici, #44 et #45 côté Java) n'ont pas d'étiquette : ce ne
+Les PR de notes fusionnées ensuite depuis le cloud (#37 et #38 ici, #44, #45 et #46 côté Java) n'ont pas d'étiquette : ce ne
 sont pas des étapes. Pour le commit d'une PR fusionnée : `git log --oneline -10` sur `main`, ou la page de la PR sur
 GitHub.
 
@@ -225,8 +237,8 @@ squash le 18 octobre 2026 sur l'accord de l'utilisateur, étiquettes `web-7.8` �
   boutons de l'en-tête sont plus serrés (`px-1`, `sm:px-2`) pour que le titre tienne sur une ligne.
 - **Le bonus des départements** (PR #17 à #20, étiquettes `web-7.1` à `web-7.4`, et `web-7`) : voir « Le bonus des
   départements » plus bas. Les choix faits en route (listes « À valider » des PR) ont été acceptés tels quels.
-- **Pour reprendre (mis à jour le 19 octobre 2026)** : sur le PC, faire d'abord « À faire sur le PC, avant toute
-  chose » plus haut ; lire ce plan et `docs/lecons.md`, vérifier que `main` est à jour (`git pull`) et qu'aucune PR
+- **Pour reprendre (mis à jour le 19 octobre 2026)** : sur le PC, Claude fait d'abord « À faire sur le PC, avant
+  toute chose » plus haut (l'utilisateur ne lance aucune commande) ; lire ce plan et `docs/lecons.md`, vérifier que `main` est à jour (`git pull`) et qu'aucune PR
   n'est restée ouverte (sur GitHub, onglet « Pull requests » des deux dépôts). La suite :
   - **Les corrections relevées le 18 octobre 2026** (section du même nom plus bas) : **faites et en ligne**, quatre
     PR empilées fusionnées en squash le 18 octobre 2026 : web.7.8 Les bugs (#29, `web-7.8`), web.7.9 La saisie et la
