@@ -103,13 +103,27 @@ outils GitHub du cloud ne savent pas le faire. Les branches du cloud s'appellent
 **À la première conversation sur le PC, avant de commencer quoi que ce soit d'autre**, faire cette liste, puis la
 vider ici (par une petite PR). **Chaque PR fusionnée depuis le cloud y ajoute ses lignes.**
 
-Dans `francle-web` :
+**Le retour prévu : samedi 24 octobre 2026.** Dans l'ordre :
+
+1. Sur le PC, ouvrir Claude Code dans le dossier `francle-web` et dire « on reprend » : Claude lit ce plan, puis
+   `docs/lecons.md`, et commence par cette liste.
+2. Lancer les commandes de `francle-web`, puis celles de `francle` (le Java), ci-dessous. Toutes les PR du cloud sont
+   déjà fusionnées : il ne reste que les étiquettes et les branches.
+3. Vérifier : `git tag` montre les nouvelles étiquettes, `git branch -a` ne montre plus `ccr-8009fd8d-mbx5ca`,
+   `git branch` ne montre plus que `main` (supprimer les branches locales déjà fusionnées avec `git branch -D <nom>`,
+   après avoir vérifié qu'elles le sont : `git branch --merged main` ne suffit pas après un squash, comparer les
+   arbres comme d'habitude).
+4. Lancer les tests (`npm test` : 297 attendus ; `mvn test` côté Java) pour vérifier le poste.
+5. Vider cette section (sauf son premier paragraphe, utile si on retravaille dans le cloud) par une petite PR, puis
+   choisir la suite avec l'utilisateur (voir « Pour reprendre »).
+
+Dans `francle-web` (les trois commits sont sur `main`, vérifiables par `git log --oneline -5`) :
 
 ```bash
 git checkout main && git pull --prune
 git tag -a web-7.12.0 -m "web.7.12.0 : décisions de la liste des départements" 19493b1
-git tag -a web-7.12.0.1 -m "web.7.12.0.1 : la liste à faire sur le PC" <commit de fusion de la PR web.7.12.0.1>
-git tag -a web-7.12 -m "web.7.12 : la liste des départements" <commit de fusion de la PR web.7.12 (#36)>
+git tag -a web-7.12.0.1 -m "web.7.12.0.1 : la liste à faire sur le PC" 24e3ff1
+git tag -a web-7.12 -m "web.7.12 : la liste des départements" c86d891
 git push origin web-7.12.0 web-7.12.0.1 web-7.12
 git push origin --delete ccr-8009fd8d-mbx5ca
 ```
@@ -123,9 +137,9 @@ git push origin phase-12.0
 git push origin --delete ccr-8009fd8d-mbx5ca
 ```
 
-Puis, dans les deux : `git branch` ne doit plus montrer que `main` (supprimer les branches locales déjà fusionnées
-avec `git branch -D <nom>`), et `git tag` doit montrer les nouvelles étiquettes. Pour le commit d'une PR fusionnée :
-`git log --oneline -10` sur `main`, ou la page de la PR sur GitHub. Déjà connus : `24e3ff1` pour web.7.12.0.1.
+Les PR de notes fusionnées ensuite depuis le cloud (#37 ici, #44 et #45 côté Java) n'ont pas d'étiquette : ce ne
+sont pas des étapes. Pour le commit d'une PR fusionnée : `git log --oneline -10` sur `main`, ou la page de la PR sur
+GitHub.
 
 **Faites : web.0 à web.7, le bonus revu (web.7.5 à web.7.7), les corrections du 18 octobre 2026 (web.7.8 à
 web.7.11) et la liste des départements (web.7.12, le 19 octobre 2026, depuis le cloud).** Le bonus des départements est en ligne depuis le
@@ -211,8 +225,9 @@ squash le 18 octobre 2026 sur l'accord de l'utilisateur, étiquettes `web-7.8` �
   boutons de l'en-tête sont plus serrés (`px-1`, `sm:px-2`) pour que le titre tienne sur une ligne.
 - **Le bonus des départements** (PR #17 à #20, étiquettes `web-7.1` à `web-7.4`, et `web-7`) : voir « Le bonus des
   départements » plus bas. Les choix faits en route (listes « À valider » des PR) ont été acceptés tels quels.
-- **Pour reprendre (le 18 octobre 2026)** : sur le PC, faire d'abord « À faire sur le PC, avant toute chose » plus haut ; lire ce plan et `docs/lecons.md`, vérifier que `main` est à jour
-  (`git pull`) et que la PR de ce point de reprise (web.7.11.1) est fusionnée. La suite :
+- **Pour reprendre (mis à jour le 19 octobre 2026)** : sur le PC, faire d'abord « À faire sur le PC, avant toute
+  chose » plus haut ; lire ce plan et `docs/lecons.md`, vérifier que `main` est à jour (`git pull`) et qu'aucune PR
+  n'est restée ouverte (sur GitHub, onglet « Pull requests » des deux dépôts). La suite :
   - **Les corrections relevées le 18 octobre 2026** (section du même nom plus bas) : **faites et en ligne**, quatre
     PR empilées fusionnées en squash le 18 octobre 2026 : web.7.8 Les bugs (#29, `web-7.8`), web.7.9 La saisie et la
     fin de partie (#30, `web-7.9`), web.7.10 Le bonus (#31, `web-7.10`), web.7.11 L'outillage (#32, `web-7.11` :
@@ -238,7 +253,8 @@ squash le 18 octobre 2026 sur l'accord de l'utilisateur, étiquettes `web-7.8` �
     commence à 496 pixels : le clavier devrait la laisser visible) et en thème sombre (les captures du navigateur
     intégré ne se dessinaient pas ; vérifié par script seulement). Depuis web.7.10 : sur téléphone, choisir un
     département fait défiler la page jusqu'au haut du bonus (point 9), et sur iPhone, toucher un département à la fin
-    du bonus doit afficher son nom (point 10).
+    du bonus doit afficher son nom (point 10). Depuis web.7.12 : la liste des départements (📃 pendant le bonus) sur
+    un vrai téléphone, où elle défile dans sa fenêtre (vérifiée à 375 × 812 dans Chromium, en clair et en sombre).
   - Méthode suivie pour le bonus revu, à reprendre : toutes les questions de toutes les phases posées d'un coup,
     recommandation à chaque fois ; les décisions notées dans le plan par une petite PR avant de coder ; puis les
     phases enchaînées en PR empilées, fusionnées à la fin (`git rebase --onto main <ancienne pointe> <branche>`,
