@@ -19,6 +19,7 @@ import { numero } from './domaine/regionDuJour.ts'
 import { minuitSuivant } from './domaine/temps.ts'
 import { PartieDuJour } from './PartieDuJour.tsx'
 import { PartieLibre } from './PartieLibre.tsx'
+import type { Liste } from './liste.ts'
 import { aideVue, langueAffichee, marquerAideVue, useReglages, useTheme } from './reglages.ts'
 import { LangueContext, TEXTES } from './textes.ts'
 
@@ -84,6 +85,10 @@ export default function App() {
   // de même pour 📃, la liste des régions : un compteur par onglet, et seule la partie affichée ouvre sa liste
   // (celle de son époque)
   const [demandeListe, setDemandeListe] = useState<Record<Onglet, number>>({ jour: 0, libre: 0 })
+  // et la liste qu'ouvre 📃 dans chaque onglet : celle des départements pendant le bonus, sinon celle des régions.
+  // Chaque partie nous le dit (onListe), pour le nom du bouton
+  const [listes, setListes] = useState<Record<Onglet, Liste>>({ jour: 'regions', libre: 'regions' })
+  const signalerListe = (nom: Onglet) => (liste: Liste) => setListes((avant) => ({ ...avant, [nom]: liste }))
   const id = useId()
   useTheme(reglages.theme)
   const langue = langueAffichee(reglages)
@@ -156,7 +161,7 @@ export default function App() {
               <button
                 type="button"
                 onClick={() => setDemandeListe((avant) => ({ ...avant, [onglet]: avant[onglet] + 1 }))}
-                aria-label={textes.liste.ouvrir}
+                aria-label={listes[onglet] === 'departements' ? textes.liste.departements.ouvrir : textes.liste.ouvrir}
                 className={boutonIcone}
               >
                 📃
@@ -219,9 +224,10 @@ export default function App() {
                 reglages={reglages}
                 demandeStats={demandeStats}
                 demandeListe={demandeListe.jour}
+                onListe={signalerListe('jour')}
               />
             ) : (
-              <PartieLibre reglages={reglages} demandeListe={demandeListe.libre} />
+              <PartieLibre reglages={reglages} demandeListe={demandeListe.libre} onListe={signalerListe('libre')} />
             )}
           </section>
         ))}

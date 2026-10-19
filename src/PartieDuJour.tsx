@@ -20,7 +20,7 @@ import { JeuBonus } from './composants/JeuBonus.tsx'
 import { Partager } from './composants/Partager.tsx'
 import { Plateau } from './composants/Plateau.tsx'
 import { Statistiques } from './composants/Statistiques.tsx'
-import { bonusDuJour, bonusEnCours, commence, score, total, type Bonus } from './domaine/bonus.ts'
+import { avecListe, bonusDuJour, bonusEnCours, commence, score, total, type Bonus } from './domaine/bonus.ts'
 import { enCours, nouvellePartie, type Partie } from './domaine/partie.ts'
 import { textePartage, type ModesDifficiles } from './domaine/partage.ts'
 import { angleDuJour, MODE_DU_JOUR, numero as numeroDuJour, regionDuJour } from './domaine/regionDuJour.ts'
@@ -41,6 +41,7 @@ import {
   type PartieSauvee,
 } from './sauvegarde.ts'
 import { useLangue, useTextes } from './textes.ts'
+import { useSignalerListe, type Liste } from './liste.ts'
 
 // la partie du jour : celle qu'on avait commencée (rejouée depuis la sauvegarde), sinon une nouvelle
 function partieDuJour(sauvee: PartieSauvee | undefined, jour: Date): Partie {
@@ -60,11 +61,14 @@ interface Props {
   reglages: Reglages
   // augmente de 1 à chaque clic sur 📊 (dans l'en-tête, qui appartient à App) : la fenêtre s'ouvre alors
   demandeStats: number
-  // de même pour 📃, la liste des régions (gardée par le plateau)
+  // de même pour 📃 : la liste des régions (gardée par le plateau), ou des départements pendant le bonus (gardée par
+  // le bonus)
   demandeListe: number
+  // prévient App de la liste qu'ouvre 📃, pour le nom du bouton
+  onListe?: (liste: Liste) => void
 }
 
-export function PartieDuJour({ jour, reglages, demandeStats, demandeListe }: Props) {
+export function PartieDuJour({ jour, reglages, demandeStats, demandeListe, onListe }: Props) {
   const textes = useTextes()
   const langue = useLangue()
   const numero = numeroDuJour(jour)
@@ -86,6 +90,8 @@ export function PartieDuJour({ jour, reglages, demandeStats, demandeListe }: Pro
   const [focusBonus, setFocusBonus] = useState(false)
   // la fenêtre des résultats, un peu après la dernière réponse du bonus
   const pause = usePause(() => setFenetre(true))
+  const listeAuBonus = bonus !== undefined && avecListe(bonus)
+  useSignalerListe(listeAuBonus, onListe)
 
   // un autre onglet a joué : on reprend sa sauvegarde, la dernière écrite fait foi. Les deux onglets montrent ainsi
   // la même partie, et aucun n'écrase les essais de l'autre
@@ -165,7 +171,12 @@ export function PartieDuJour({ jour, reglages, demandeStats, demandeListe }: Pro
         angle={angleDuJour(jour)}
         unite={uniteAffichee(reglages)}
         demandeListe={demandeListe}
-        bonus={bonus && <JeuBonus bonus={bonus} onChanger={changerBonus} focaliser={focusBonus} />}
+        bonus={
+          bonus && (
+            <JeuBonus bonus={bonus} onChanger={changerBonus} focaliser={focusBonus} demandeListe={demandeListe} />
+          )
+        }
+        listeAuBonus={listeAuBonus}
         fin={
           <div className="flex flex-col items-center gap-2">
             <p className="font-semibold">
