@@ -93,6 +93,39 @@ angle de rotation, et les valeurs de ses tests.
 
 ## Où on en est (mis à jour le 19 octobre 2026)
 
+### ⚠️ À faire sur le PC, avant toute chose
+
+Depuis le 19 octobre 2026, le travail se fait aussi **dans le cloud** (Claude Code sur le web, sans le PC). Là-bas,
+Claude peut coder, tester, ouvrir et fusionner les PR (le site est alors publié comme d'habitude), mais **ni poser
+d'étiquette, ni supprimer de branche** : le serveur intermédiaire du cloud refuse ces envois (erreur 403), et les
+outils GitHub du cloud ne savent pas le faire. Les branches du cloud s'appellent toutes `ccr-8009fd8d-mbx5ca`.
+
+**À la première conversation sur le PC, avant de commencer quoi que ce soit d'autre**, faire cette liste, puis la
+vider ici (par une petite PR). **Chaque PR fusionnée depuis le cloud y ajoute ses lignes.**
+
+Dans `francle-web` :
+
+```bash
+git checkout main && git pull --prune
+git tag -a web-7.12.0 -m "web.7.12.0 : décisions de la liste des départements" 19493b1
+git tag -a web-7.12.0.1 -m "web.7.12.0.1 : la liste à faire sur le PC" <commit de fusion de la PR web.7.12.0.1>
+git push origin web-7.12.0 web-7.12.0.1
+git push origin --delete ccr-8009fd8d-mbx5ca
+```
+
+Dans `francle` (Java) :
+
+```bash
+git checkout main && git pull --prune
+git tag -a phase-12.0 -m "Phase 12.0 : décisions de la liste des départements" f16f013
+git push origin phase-12.0
+git push origin --delete ccr-8009fd8d-mbx5ca
+```
+
+Puis, dans les deux : `git branch` ne doit plus montrer que `main` (supprimer les branches locales déjà fusionnées
+avec `git branch -D <nom>`), et `git tag` doit montrer les nouvelles étiquettes. Pour le commit d'une PR fusionnée :
+`git log --oneline -10` sur `main`, ou la page de la PR sur GitHub.
+
 **Faites : web.0 à web.7, le bonus revu (web.7.5 à web.7.7) et les corrections du 18 octobre 2026 (web.7.8 à
 web.7.11).** Le bonus des départements est en ligne depuis le
 17 octobre 2026 : quatre PR (#17 à #20), étiquettes `web-7.1` à `web-7.4` et `web-7` (détail plus bas dans « Le bonus
@@ -177,7 +210,7 @@ squash le 18 octobre 2026 sur l'accord de l'utilisateur, étiquettes `web-7.8` �
   boutons de l'en-tête sont plus serrés (`px-1`, `sm:px-2`) pour que le titre tienne sur une ligne.
 - **Le bonus des départements** (PR #17 à #20, étiquettes `web-7.1` à `web-7.4`, et `web-7`) : voir « Le bonus des
   départements » plus bas. Les choix faits en route (listes « À valider » des PR) ont été acceptés tels quels.
-- **Pour reprendre (le 18 octobre 2026)** : lire ce plan et `docs/lecons.md`, vérifier que `main` est à jour
+- **Pour reprendre (le 18 octobre 2026)** : sur le PC, faire d'abord « À faire sur le PC, avant toute chose » plus haut ; lire ce plan et `docs/lecons.md`, vérifier que `main` est à jour
   (`git pull`) et que la PR de ce point de reprise (web.7.11.1) est fusionnée. La suite :
   - **Les corrections relevées le 18 octobre 2026** (section du même nom plus bas) : **faites et en ligne**, quatre
     PR empilées fusionnées en squash le 18 octobre 2026 : web.7.8 Les bugs (#29, `web-7.8`), web.7.9 La saisie et la
