@@ -1149,3 +1149,53 @@ commandes), **comment le penser** (la question à se poser la prochaine fois).
   que jsdom, sans le message, dans `preparationTests.ts`.
 - **Comment le penser** : un avertissement est une question ; on ne le supprime qu'une fois qu'on a la réponse. La pile
   d'appels (comme `printStackTrace()` en Java) est le moyen le plus direct de savoir « qui m'appelle ? ».
+
+## web.7.12 La liste des départements
+
+### Ouvrir la fenêtre là où se trouve l'information
+
+- **Pourquoi** : un clic dans la liste des départements doit répondre pour le département choisi sur la carte. Ce
+  choix est un état de `JeuBonus` (`choix`), pas du plateau ni de l'en-tête. Ouvrir la liste dans `Plateau`, comme
+  celle des régions, aurait obligé à faire remonter ce choix d'un étage, rien que pour la liste.
+- **Comment le faire** : `JeuBonus` reçoit le compteur `demandeListe` et garde lui-même sa `Fenetre` et sa
+  `ListeDepartements` ; la réponse passe par la même fonction que la saisie (`repondreAvec`, sortie de
+  `repondreChoixTexte`), donc mêmes messages et même refus. `ListeDepartements` ne sait rien du jeu : elle reçoit le
+  bonus et le département choisi, et appelle `onRepondre`.
+- **Comment le penser** : avant de placer un morceau d'interface, se demander « qui possède ce dont il a besoin ? » et
+  le mettre au plus près. Faire descendre une demande (un compteur) coûte moins que faire remonter un état.
+
+### Un compteur partagé : tout le monde le note, un seul agit
+
+- **Pourquoi** : le bouton 📃 augmente un compteur, et le composant qui voit le compteur changer ouvre sa liste. Avec
+  deux destinataires (le plateau pour les régions, le bonus pour les départements), un piège : un clic pendant le
+  bonus n'est vu que par le bonus si le plateau l'ignore complètement. À la fin du bonus, le plateau compare alors le
+  compteur à une ancienne valeur, croit à une nouvelle demande, et la liste des régions s'ouvre toute seule.
+- **Comment le faire** : les deux composants notent **toujours** la valeur vue (`setDemandeVue`), mais seul celui qui
+  est concerné ouvre sa fenêtre (`if (!listeAuBonus)` dans `Plateau`, `if (avecListe(bonus))` dans `JeuBonus`). La
+  règle « qui est concerné » est une seule fonction du domaine (`avecListe` dans `bonus.ts`), pour que les deux ne
+  puissent pas se contredire. Un test refait le scénario exact : 📃 pendant le bonus, « Passer », puis aucune fenêtre.
+- **Comment le penser** : un signal de type « compteur » (comme un numéro de version) n'a de sens que si chaque
+  lecteur garde à jour ce qu'il a déjà vu, même quand il n'en fait rien. Écrire le test du cas « signal reçu puis
+  ignoré » avant de se croire tranquille.
+
+### Remonter une information vers le parent
+
+- **Pourquoi** : le nom du bouton 📃 (« Voir la liste des départements ») dépend du bonus, que seules les parties
+  connaissent ; le bouton, lui, appartient à `App`.
+- **Comment le faire** : chaque partie appelle `onListe('regions' | 'departements')` à l'affichage et à chaque
+  changement, par un petit hook (`useSignalerListe`, dans `src/liste.ts`) : un `useEffect` qui ne dépend que du
+  booléen, et `useEffectEvent` pour appeler la dernière fonction reçue sans relancer l'effet à chaque affichage. `App`
+  garde la réponse par onglet, comme `demandeListe`.
+- **Comment le penser** : c'est un écouteur, comme en Swing (`addPropertyChangeListener`) : l'enfant signale, le
+  parent décide. Quand un parent a besoin d'une information d'un enfant, on passe une fonction vers le bas, et c'est
+  l'enfant qui l'appelle.
+
+### Ce que les tests ne voient pas
+
+- **Pourquoi** : la décision « après un clic sur un nom, le focus revient sur 📃 » repose sur le navigateur (la
+  balise `<dialog>` rend le focus à ce qui l'avait avant). Le faux navigateur des tests imite `showModal()` sans cela.
+- **Comment le faire** : vérifier dans un vrai navigateur, ici Chromium piloté par Playwright à 375 × 812 pixels, en
+  clair et en sombre : lire `document.activeElement` après le clic, et prendre des captures. Penser à la langue du
+  navigateur (`locale: 'fr-FR'`) : sans elle, le jeu démarre en anglais et les boutons ne s'appellent plus pareil.
+- **Comment le penser** : savoir ce que l'outil de test imite et ce qu'il n'imite pas ; ce qui dépend du vrai
+  navigateur se vérifie dans un vrai navigateur, et se dit dans la PR.

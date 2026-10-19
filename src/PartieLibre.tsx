@@ -12,12 +12,13 @@ import { Fenetre } from './composants/Fenetre.tsx'
 import { FinDePartie } from './composants/FinDePartie.tsx'
 import { JeuBonus } from './composants/JeuBonus.tsx'
 import { Plateau } from './composants/Plateau.tsx'
-import { bonusAuHasard, commence, type Bonus } from './domaine/bonus.ts'
+import { avecListe, bonusAuHasard, commence, type Bonus } from './domaine/bonus.ts'
 import { enCours, nouvellePartie, type Partie } from './domaine/partie.ts'
 import type { ModesDifficiles } from './domaine/partage.ts'
 import { tirer, type Mode } from './domaine/regions.ts'
 import { modesReglages, uniteAffichee, type Reglages } from './reglages.ts'
 import { useLangue, useTextes } from './textes.ts'
+import { useSignalerListe, type Liste } from './liste.ts'
 
 // une nouvelle partie libre : une région de l'époque et un angle de rotation, tous deux au hasard.
 // numero compte les parties : il sert de clé au plateau (voir plus bas)
@@ -25,8 +26,14 @@ function tirage(mode: Mode, numero: number): { partie: Partie; angle: number; nu
   return { partie: nouvellePartie(tirer(mode), mode), angle: Math.floor(Math.random() * 360), numero }
 }
 
-// demandeListe : augmente de 1 à chaque clic sur 📃 dans l'en-tête (voir PartieDuJour.tsx)
-export function PartieLibre({ reglages, demandeListe }: { reglages: Reglages; demandeListe: number }) {
+interface Props {
+  reglages: Reglages
+  // augmente de 1 à chaque clic sur 📃 dans l'en-tête, et prévient App de la liste qu'il ouvre (voir PartieDuJour.tsx)
+  demandeListe: number
+  onListe?: (liste: Liste) => void
+}
+
+export function PartieLibre({ reglages, demandeListe, onListe }: Props) {
   const textes = useTextes()
   const langue = useLangue()
   const [mode, setMode] = useState<Mode>('nouvelles')
@@ -43,6 +50,8 @@ export function PartieLibre({ reglages, demandeListe }: { reglages: Reglages; de
   const [bonus, setBonus] = useState<Bonus | undefined>(undefined)
   const [focusBonus, setFocusBonus] = useState(false)
   const pause = usePause(() => setFenetre(true))
+  const listeAuBonus = bonus !== undefined && avecListe(bonus)
+  useSignalerListe(listeAuBonus, onListe)
 
   // une victoire lance le bonus ; une défaite (ou un abandon) ouvre les résultats
   function changer(suite: Partie) {
@@ -141,7 +150,12 @@ export function PartieLibre({ reglages, demandeListe }: { reglages: Reglages; de
         angle={angle}
         unite={uniteAffichee(reglages)}
         demandeListe={demandeListe}
-        bonus={bonus && <JeuBonus bonus={bonus} onChanger={changerBonus} focaliser={focusBonus} />}
+        bonus={
+          bonus && (
+            <JeuBonus bonus={bonus} onChanger={changerBonus} focaliser={focusBonus} demandeListe={demandeListe} />
+          )
+        }
+        listeAuBonus={listeAuBonus}
         fin={
           <div className="flex flex-col items-center gap-2">
             <p className="font-semibold">

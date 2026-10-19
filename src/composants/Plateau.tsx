@@ -34,9 +34,12 @@ interface Props {
   demandeListe: number
   // le bonus des départements, affiché à la place de la silhouette quand il a commencé (rien sinon)
   bonus?: ReactNode
+  // vrai quand 📃 ouvre la liste des départements, gardée par le bonus (voir JeuBonus.tsx) : le plateau n'ouvre
+  // alors pas celle des régions
+  listeAuBonus?: boolean
 }
 
-export function Plateau({ partie, onChanger, modes, angle, unite, fin, demandeListe, bonus }: Props) {
+export function Plateau({ partie, onChanger, modes, angle, unite, fin, demandeListe, bonus, listeAuBonus = false }: Props) {
   const textes = useTextes()
   const langue = useLangue()
   // le message sous la saisie (« région inconnue »…), vide s'il n'y a rien à dire
@@ -44,11 +47,15 @@ export function Plateau({ partie, onChanger, modes, angle, unite, fin, demandeLi
   const [confirmation, setConfirmation] = useState(false)
   const [liste, setListe] = useState(false)
 
-  // 📃 a été cliqué : on ouvre la liste (même façon de faire que pour 📊, voir PartieDuJour.tsx)
+  // 📃 a été cliqué : on ouvre la liste (même façon de faire que pour 📊, voir PartieDuJour.tsx). Pendant le bonus,
+  // c'est lui qui ouvre la sienne ; la demande est notée quand même, sinon la liste des régions s'ouvrirait toute
+  // seule au retour de la silhouette (la demande vue serait restée celle d'avant)
   const [demandeVue, setDemandeVue] = useState(demandeListe)
   if (demandeVue !== demandeListe) {
     setDemandeVue(demandeListe)
-    setListe(true)
+    if (!listeAuBonus) {
+      setListe(true)
+    }
   }
 
   function jouer(saisie: string): boolean {

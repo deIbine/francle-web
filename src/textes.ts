@@ -149,6 +149,15 @@ const fr = {
     aide: 'Clique sur une région pour la proposer.',
     finie: 'La partie est finie.',
     dejaProposee: 'déjà proposée',
+    // pendant le bonus (mode C), la liste des 101 départements : un clic répond pour le département choisi
+    departements: {
+      titre: 'Liste des départements',
+      ouvrir: 'Voir la liste des départements',
+      aide: 'Clique sur le nom du département choisi sur la carte.',
+      sansChoix: 'Clique d’abord sur un département de la carte.',
+      finie: 'Le bonus est fini.',
+      dejaRepondu: 'déjà répondu',
+    },
   },
 
   stats: {
@@ -223,7 +232,7 @@ const fr = {
     jour: 'La partie du jour est la même pour tout le monde, et change à minuit. Partage ton résultat\u00a0: il ne dévoile pas la réponse.',
     libre: 'En partie libre, joue autant que tu veux, avec les régions actuelles ou celles d’avant 2016.',
     modes: 'Dans les réglages ⚙️, essaie les modes difficiles\u00a0: la silhouette tournée 🌀, ou cachée 🙈.',
-    bonus: 'Après une victoire, un bonus 🗺️\u00a0: clique sur chaque département de la région, puis écris son nom ou son numéro. Une seule réponse par département, et ton score s’ajoute au partage.',
+    bonus: 'Après une victoire, un bonus 🗺️\u00a0: clique sur chaque département de la région, puis écris son nom ou son numéro. Une seule réponse par département, et ton score s’ajoute au partage. Pendant le bonus, la liste 📃 montre les 101 départements.',
     jouer: 'Jouer',
   },
 
@@ -252,7 +261,7 @@ const fr = {
     plusTard: 'Ils sont fixés au premier essai\u00a0: dans une partie commencée, un changement compte pour la suivante.',
     liste: 'Liste des régions',
     listeBouton: 'Bouton 📃 dans l’en-tête',
-    listeAide: 'Il ouvre la liste des régions du jeu\u00a0: un clic sur un nom le propose.',
+    listeAide: 'Il ouvre la liste des régions du jeu, ou des départements pendant le bonus\u00a0: un clic sur un nom le propose.',
   },
 }
 
@@ -346,6 +355,14 @@ const en: Textes = {
     aide: 'Click a region to guess it.',
     finie: 'The game is over.',
     dejaProposee: 'already guessed',
+    departements: {
+      titre: 'List of departments',
+      ouvrir: 'See the list of departments',
+      aide: 'Click the name of the department chosen on the map.',
+      sansChoix: 'First click a department on the map.',
+      finie: 'The bonus is over.',
+      dejaRepondu: 'already answered',
+    },
   },
 
   stats: {
@@ -414,7 +431,7 @@ const en: Textes = {
     jour: 'The daily game is the same for everyone, and changes at midnight. Share your result: it doesn’t give the answer away.',
     libre: 'In free play, play as much as you like, with the current regions or those from before 2016.',
     modes: 'In the settings ⚙️, try the hard modes: the outline rotated 🌀, or hidden 🙈.',
-    bonus: 'After a win, a bonus 🗺️: click on each department of the region, then type its name or number. One answer per department, and your score is added to what you share.',
+    bonus: 'After a win, a bonus 🗺️: click on each department of the region, then type its name or number. One answer per department, and your score is added to what you share. During the bonus, the list 📃 shows the 101 departments.',
     jouer: 'Play',
   },
 
@@ -443,7 +460,7 @@ const en: Textes = {
     plusTard: 'They are set at the first guess: in a game already started, a change applies to the next one.',
     liste: 'List of regions',
     listeBouton: '📃 button in the header',
-    listeAide: 'It opens the list of the game’s regions: click a name to guess it.',
+    listeAide: 'It opens the list of the game’s regions, or of the departments during the bonus: click a name to guess it.',
   },
 }
 

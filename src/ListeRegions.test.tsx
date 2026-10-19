@@ -62,6 +62,10 @@ describe('La liste des régions', () => {
     const joueur = demarrer()
     await joueur.click(within(await ouvrirListe(joueur)).getByRole('button', { name: CIBLE.nom.fr }))
     expect(screen.getByRole('heading', { name: /^Bonus/ })).toBeDefined()
+    // pendant le bonus, 📃 ouvre la liste des départements (voir ListeDepartements.test.tsx) ; une fois le bonus
+    // passé, la silhouette revient, et avec elle la liste des régions
+    await joueur.click(screen.getByRole('button', { name: 'Passer' }))
+    await joueur.click(within(screen.getByRole('dialog', { name: 'Résultats' })).getByRole('button', { name: 'Fermer' }))
 
     const liste = await ouvrirListe(joueur)
     expect(within(liste).getByText('La partie est finie.')).toBeDefined()

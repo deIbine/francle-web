@@ -89,6 +89,19 @@ export function bonusEnCours(bonus: Bonus): boolean {
   return bonus.etat === 'en-cours'
 }
 
+// vrai si le bouton 📃 ouvre la liste des départements pendant ce bonus : en mode C seulement (on choisit sur la
+// carte, puis on nomme). Pas pour la question du numéro, en outre-mer : la liste, qui montre les numéros, donnerait la
+// réponse ; le bouton y reste celui des régions
+export function avecListe(bonus: Bonus): boolean {
+  return bonus.question === 'choix'
+}
+
+// les départements de la région qui ont déjà leur réponse, juste ou fausse : dans la liste, ils sont barrés. Les
+// donner ailleurs ne peut être que faux (ou refusé, pour un département trouvé), et leur nom est déjà sur la carte
+export function repondus(bonus: Bonus): Departement[] {
+  return bonus.tentatives.map((tentative) => tentative.demande)
+}
+
 // commencé : au moins une réponse. Un bonus passé avant toute réponse n'a pas commencé : il reste à jouer
 export function commence(bonus: Bonus): boolean {
   return bonus.tentatives.length > 0

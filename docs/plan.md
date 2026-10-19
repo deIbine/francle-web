@@ -109,7 +109,8 @@ Dans `francle-web` :
 git checkout main && git pull --prune
 git tag -a web-7.12.0 -m "web.7.12.0 : décisions de la liste des départements" 19493b1
 git tag -a web-7.12.0.1 -m "web.7.12.0.1 : la liste à faire sur le PC" <commit de fusion de la PR web.7.12.0.1>
-git push origin web-7.12.0 web-7.12.0.1
+git tag -a web-7.12 -m "web.7.12 : la liste des départements" <commit de fusion de la PR web.7.12 (#NUMPR)>
+git push origin web-7.12.0 web-7.12.0.1 web-7.12
 git push origin --delete ccr-8009fd8d-mbx5ca
 ```
 
@@ -124,10 +125,10 @@ git push origin --delete ccr-8009fd8d-mbx5ca
 
 Puis, dans les deux : `git branch` ne doit plus montrer que `main` (supprimer les branches locales déjà fusionnées
 avec `git branch -D <nom>`), et `git tag` doit montrer les nouvelles étiquettes. Pour le commit d'une PR fusionnée :
-`git log --oneline -10` sur `main`, ou la page de la PR sur GitHub.
+`git log --oneline -10` sur `main`, ou la page de la PR sur GitHub. Déjà connus : `24e3ff1` pour web.7.12.0.1.
 
-**Faites : web.0 à web.7, le bonus revu (web.7.5 à web.7.7) et les corrections du 18 octobre 2026 (web.7.8 à
-web.7.11).** Le bonus des départements est en ligne depuis le
+**Faites : web.0 à web.7, le bonus revu (web.7.5 à web.7.7), les corrections du 18 octobre 2026 (web.7.8 à
+web.7.11) et la liste des départements (web.7.12, le 19 octobre 2026, depuis le cloud).** Le bonus des départements est en ligne depuis le
 17 octobre 2026 : quatre PR (#17 à #20), étiquettes `web-7.1` à `web-7.4` et `web-7` (détail plus bas dans « Le bonus
 des départements »). **Le bonus revu**, décidé le même jour après les retours des joueurs, est en ligne lui aussi :
 trois PR empilées (#24, #25, #26), fusionnées en squash le 17 octobre 2026 sur l'accord de l'utilisateur (sans test
@@ -217,11 +218,11 @@ squash le 18 octobre 2026 sur l'accord de l'utilisateur, étiquettes `web-7.8` �
     fin de partie (#30, `web-7.9`), web.7.10 Le bonus (#31, `web-7.10`), web.7.11 L'outillage (#32, `web-7.11` :
     tests en 26 s au lieu de 40, plus d'avertissement du canvas). 287 tests. Les choix faits en route (listés sous
     les décisions) ont été acceptés avec la fusion. Reste seulement le point 12 (la carte de fin), pour plus tard.
-  - **La prochaine étape, choisie le 19 octobre 2026 : web.7.12 La liste des départements** (section du même nom
-    plus bas). Les décisions sont **validées** et notées (PR web.7.12.0) ; **rien n'est codé**. À la reprise : ne
-    pas reposer les questions, présenter le découpage et attendre le « tu peux lancer » de l'utilisateur. Le Java
-    fera la même chose dans sa phase 12, dans sa propre conversation.
-  - **Ensuite, à choisir avec l'utilisateur** : web.8 reste repoussé ; parmi « Les améliorations à
+  - **web.7.12 La liste des départements** (section du même nom plus bas) : **faite et en ligne** le 19 octobre
+    2026, depuis le cloud : décisions (PR #34), liste à faire sur le PC (PR #35), code (PR #NUMPR), fusionnées en squash
+    sur l'accord de l'utilisateur. 297 tests. Ses étiquettes restent à poser sur le PC (voir plus haut). **Le Java**
+    fera la même chose dans sa phase 12, **plus tard**, dans sa propre conversation (décidé le 19 octobre 2026).
+  - **La prochaine étape est à choisir avec l'utilisateur** : web.8 reste repoussé ; parmi « Les améliorations à
     reprendre » plus bas, les candidates sont la carte de fin en couleur (point 12), le compteur de la partie libre,
     le repère « voisine » et le mode « métropole seulement ». Présenter le choix et les questions avant de coder.
   - **Le Java en même temps**, dans une **autre conversation** ouverte sur le dossier du projet Java (décidé le
@@ -567,8 +568,8 @@ Choix faits en route, en codant (à valider avec les PR) :
 ## La liste des départements (web.7.12)
 
 Idée de l'utilisateur, le 19 octobre 2026 : le bonus n'a pas de liste, contrairement à la partie (📃, la liste des
-régions). Pendant le bonus, le bouton 📃 ouvrirait donc la **liste des départements**. **Décidée le 19 octobre 2026,
-pas commencée** : le code attend l'accord de l'utilisateur.
+régions). Pendant le bonus, le bouton 📃 ouvre donc la **liste des départements**. **Décidée et faite le 19 octobre
+2026**, depuis le cloud (PR #34 pour les décisions, #NUMPR pour le code).
 
 ### Les décisions (validées le 19 octobre 2026)
 
@@ -588,7 +589,28 @@ choisi **les 101 départements** (« ça serait trop simple sinon »).
 | Java | **La même chose dans le Java**, plus tard, dans la conversation du Java : notée comme sa **phase 12** dans `docs/feuille-de-route.md` de `deIbine/francle` (le 19 octobre 2026). |
 | Découpage | **Une seule étape**, **web.7.12**, une PR, étiquette `web-7.12` ; ces décisions notées d'abord par une petite PR (web.7.12.0). |
 
-### Ce que ça demande dans le code (à présenter avant de coder)
+Décisions du découpage (validées le 19 octobre 2026, recommandations acceptées) : sont barrés **tous les
+départements dont la place sur la carte est déjà jouée**, trouvés comme manqués (les donner ailleurs ne peut être que
+faux) ; après un clic sur un nom, le **focus revient sur 📃** (ce que fait déjà `<dialog>`).
+
+### Ce qui a été fait (PR #NUMPR)
+
+- `domaine/bonus.ts` : `avecListe(bonus)` (mode C seulement, donc pas la question du numéro) et `repondus(bonus)`.
+- `composants/ListeDepartements.tsx` ; `JeuBonus` garde la fenêtre et répond par `repondreAvec` (la même fonction
+  que la saisie) ; `Plateau` note la demande de 📃 mais n'ouvre pas la liste des régions pendant le bonus.
+- `src/liste.ts` (`useSignalerListe`) : chaque partie dit à `App` quelle liste ouvre 📃, pour le nom du bouton.
+- Textes FR et EN, réglage ⚙️, « Comment jouer » ; `ListeDepartements.test.tsx` (9 tests), un test axe, et le test
+  de `ListeRegions` adapté (après la victoire, 📃 ouvre les départements).
+- Vérifié dans Chromium à 375 × 812 pixels, en clair et en sombre : la liste défile dans la fenêtre, les noms longs
+  passent sur deux lignes, le département barré se voit, et le focus revient sur 📃.
+
+Choix faits en route (à valider avec la PR) :
+
+- Le texte de la fenêtre quand un département est choisi : « Clique sur le nom du département choisi sur la carte. »
+- Le bouton 📃 n'a pas d'infobulle (`title`), ni avant ni maintenant : seul son nom lu (`aria-label`) change.
+- Les modes A et B, cachés, gardent la liste des régions (`avecListe` ne vaut que pour le mode C).
+
+### Ce que ça demandait dans le code (présenté avant de coder)
 
 - **Le bouton 📃 appartient à `App`** (l'en-tête), qui ne sait pas si un bonus est affiché : `PartieDuJour` et
   `PartieLibre` devront le lui signaler, onglet par onglet (comme `demandeListe`, déjà un compteur par onglet).

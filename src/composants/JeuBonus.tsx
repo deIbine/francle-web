@@ -12,9 +12,13 @@ un lecteur d'écran lit la réponse puis la nouvelle question.
 En mode C (celui des joueurs), le joueur choisit un département sur la carte, puis écrit son nom dans la saisie, qui
 reste grisée tant qu'aucun département n'est choisi. Le département choisi est un état d'affichage, gardé ici, et non
 dans le bonus : il ne compte pour rien tant que le joueur n'a pas répondu.
+
+C'est pour cela que la liste des départements (bouton 📃, depuis web.7.12) s'ouvre ici, et non dans le plateau comme
+la liste des régions : un clic sur un nom répond pour le département choisi, que seul ce composant connaît.
  */
 import { useEffect, useId, useRef, useState } from 'react'
 import {
+  avecListe,
   bonusEnCours,
   demande,
   juste,
@@ -36,6 +40,8 @@ import {
 } from '../domaine/departements.ts'
 import { finDuBonus, useLangue, useTextes } from '../textes.ts'
 import { CarteDepartements } from './CarteDepartements.tsx'
+import { Fenetre } from './Fenetre.tsx'
+import { ListeDepartements } from './ListeDepartements.tsx'
 import { Saisie } from './Saisie.tsx'
 
 interface Props {
@@ -44,9 +50,12 @@ interface Props {
   // vrai quand le joueur vient de lancer le bonus (victoire ou bouton) : le focus du clavier va sur le titre. Ce qu'il
   // venait d'utiliser (la saisie de la région, le bouton) a disparu, et sans cela le focus retomberait sur la page
   focaliser?: boolean
+  // augmente de 1 à chaque clic sur 📃 (voir Plateau.tsx) : la liste des départements s'ouvre alors, si ce bonus en a
+  // une (avecListe) ; sinon, c'est le plateau qui ouvre celle des régions
+  demandeListe?: number
 }
 
-export function JeuBonus({ bonus, onChanger, focaliser = false }: Props) {
+export function JeuBonus({ bonus, onChanger, focaliser = false, demandeListe = 0 }: Props) {
   const textes = useTextes()
   const langue = useLangue()
   const idTitre = useId()
@@ -72,6 +81,16 @@ export function JeuBonus({ bonus, onChanger, focaliser = false }: Props) {
   // numéro, quand le joueur vient de lancer le bonus
   const [demandeFocus, setDemandeFocus] = useState(() => (focaliser && numeroDabord ? 1 : 0))
   const modeChoix = bonus.question === 'choix'
+  const [liste, setListe] = useState(false)
+  // 📃 a été cliqué (même façon de faire que dans Plateau.tsx). La demande vue est notée dans tous les cas : une
+  // demande d'avant, qui ne nous concernait pas, ne doit pas ouvrir la liste plus tard
+  const [demandeVue, setDemandeVue] = useState(demandeListe)
+  if (demandeVue !== demandeListe) {
+    setDemandeVue(demandeListe)
+    if (avecListe(bonus)) {
+      setListe(true)
+    }
+  }
   const nom = (departement: Departement) => textes.bonus.departement(departement.nom, departement.code)
 
   // ce qui s'est passé à la dernière réponse : déduit du bonus lui-même, rien à garder à part
@@ -112,12 +131,17 @@ export function JeuBonus({ bonus, onChanger, focaliser = false }: Props) {
   // département le joue, plusieurs demandent de choisir, rien ne coûte de réponse ; un département déjà trouvé est
   // refusé, lui aussi sans rien coûter
   function repondreChoixTexte(choisi: Departement, saisie: string): boolean {
-    const liste = suggerer(saisie)
-    const donne = chercherDepartement(saisie) ?? (liste.length === 1 ? liste[0] : undefined)
+    const evoques = suggerer(saisie)
+    const donne = chercherDepartement(saisie) ?? (evoques.length === 1 ? evoques[0] : undefined)
     if (donne === undefined) {
-      setMessage(liste.length > 1 ? textes.bonus.plusieurs : textes.bonus.inconnu)
+      setMessage(evoques.length > 1 ? textes.bonus.plusieurs : textes.bonus.inconnu)
       return false
     }
+    return repondreAvec(choisi, donne)
+  }
+
+  // mode C, la réponse pour le département choisi, écrite ou cliquée dans la liste
+  function repondreAvec(choisi: Departement, donne: Departement): boolean {
     const suite = repondreChoix(bonus, choisi, donne)
     if (suite === 'deja-trouve') {
       setMessage(textes.bonus.dejaTrouve(nom(donne)))
@@ -137,13 +161,13 @@ export function JeuBonus({ bonus, onChanger, focaliser = false }: Props) {
       // la saisie est grisée tant que rien n'est choisi : ce cas n'arrive pas
       return choisi === undefined ? false : repondreChoixTexte(choisi, saisie)
     }
-    const liste = suggerer(saisie)
-    const suite = repondreSaisie(bonus, saisie) ?? (liste.length === 1 ? repondre(bonus, liste[0]) : undefined)
+    const evoques = suggerer(saisie)
+    const suite = repondreSaisie(bonus, saisie) ?? (evoques.length === 1 ? repondre(bonus, evoques[0]) : undefined)
     if (suite === undefined) {
       setMessage(
         bonus.question === 'numero'
           ? textes.bonus.pasUnNumero
-          : liste.length > 1
+          : evoques.length > 1
             ? textes.bonus.plusieurs
             : textes.bonus.inconnu,
       )
@@ -214,6 +238,20 @@ export function JeuBonus({ bonus, onChanger, focaliser = false }: Props) {
       <p aria-live="polite" className={`min-h-5 text-sm ${message === '' ? '' : 'text-erreur'}`}>
         {message === '' ? retour : message}
       </p>
+
+      <Fenetre ouverte={liste} onFermer={() => setListe(false)} titre={textes.liste.departements.titre}>
+        <ListeDepartements
+          bonus={bonus}
+          choisi={choisi}
+          onRepondre={(donne) => {
+            // la liste se ferme d'abord : si c'était la dernière réponse, la fenêtre des résultats s'ouvre ensuite
+            setListe(false)
+            if (choisi !== undefined && enCours) {
+              repondreAvec(choisi, donne)
+            }
+          }}
+        />
+      </Fenetre>
 
       {enCours ? (
         <button
