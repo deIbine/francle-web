@@ -91,7 +91,7 @@ angle de rotation, et les valeurs de ses tests.
 8. **web.8 Le domaine et le défi** (ancien web.7, renuméroté le 16 octobre 2026) : d'abord le nom de domaine, puis le défi (un lien à envoyer à un ami pour lui
    faire deviner une région). Pas d'archives des jours passés (décidé avant web.4).
 
-## Où on en est (mis à jour le 18 octobre 2026)
+## Où on en est (mis à jour le 19 octobre 2026)
 
 **Faites : web.0 à web.7, le bonus revu (web.7.5 à web.7.7) et les corrections du 18 octobre 2026 (web.7.8 à
 web.7.11).** Le bonus des départements est en ligne depuis le
@@ -184,7 +184,11 @@ squash le 18 octobre 2026 sur l'accord de l'utilisateur, étiquettes `web-7.8` �
     fin de partie (#30, `web-7.9`), web.7.10 Le bonus (#31, `web-7.10`), web.7.11 L'outillage (#32, `web-7.11` :
     tests en 26 s au lieu de 40, plus d'avertissement du canvas). 287 tests. Les choix faits en route (listés sous
     les décisions) ont été acceptés avec la fusion. Reste seulement le point 12 (la carte de fin), pour plus tard.
-  - **La prochaine étape est à choisir avec l'utilisateur** : web.8 reste repoussé ; parmi « Les améliorations à
+  - **La prochaine étape, choisie le 19 octobre 2026 : web.7.12 La liste des départements** (section du même nom
+    plus bas). Les décisions sont **validées** et notées (PR web.7.12.0) ; **rien n'est codé**. À la reprise : ne
+    pas reposer les questions, présenter le découpage et attendre le « tu peux lancer » de l'utilisateur. Le Java
+    fera la même chose dans sa phase 12, dans sa propre conversation.
+  - **Ensuite, à choisir avec l'utilisateur** : web.8 reste repoussé ; parmi « Les améliorations à
     reprendre » plus bas, les candidates sont la carte de fin en couleur (point 12), le compteur de la partie libre,
     le repère « voisine » et le mode « métropole seulement ». Présenter le choix et les questions avant de coder.
   - **Le Java en même temps**, dans une **autre conversation** ouverte sur le dossier du projet Java (décidé le
@@ -526,6 +530,43 @@ Choix faits en route, en codant (à valider avec les PR) :
 - (11) La phrase de fin du bonus est aussi dans les résultats de la partie du jour, qui ne l'avaient pas non plus.
 - (10) Le texte de fin ne parle plus du clavier (« Clique ou passe sur un département… »), comme décidé ; le clavier
   marche toujours.
+
+## La liste des départements (web.7.12)
+
+Idée de l'utilisateur, le 19 octobre 2026 : le bonus n'a pas de liste, contrairement à la partie (📃, la liste des
+régions). Pendant le bonus, le bouton 📃 ouvrirait donc la **liste des départements**. **Décidée le 19 octobre 2026,
+pas commencée** : le code attend l'accord de l'utilisateur.
+
+### Les décisions (validées le 19 octobre 2026)
+
+Posées toutes ensemble, avec une recommandation chacune : acceptées, sauf le contenu (point 1), où l'utilisateur a
+choisi **les 101 départements** (« ça serait trop simple sinon »).
+
+| Sujet | Décision |
+|---|---|
+| Contenu | **Les 101 départements**, pas seulement ceux de la région : la liste limitée à la région donnerait toutes les réponses, et le bonus deviendrait un jeu d'association (comme les suggestions, déjà parmi les 101 depuis le 17 octobre 2026). L'**époque ne joue donc aucun rôle** : les départements sont les mêmes dans les deux. |
+| Affichage | **Nom et numéro** (« Finistère (29) », comme les suggestions), **triés par nom** (ordre alphabétique de la langue, comme `ListeRegions`), sur deux colonnes. |
+| Un clic | Il **répond pour le département sélectionné** sur la carte, comme un clic dans la liste des régions propose la région. Tant qu'aucun département n'est sélectionné, les noms sont **grisés**, avec « Clique d'abord sur un département ». |
+| Déjà répondus | **Barrés et grisés**, comme les régions déjà proposées, sans vert ni rouge (ils sont sur la carte). Le nom lu par un lecteur d'écran le dit. |
+| Outre-mer | La question y est le numéro (« Quel est le numéro de la Guadeloupe ? ») : la liste, avec ses numéros, la donnerait. Le bouton reste donc **celui des régions** pendant un bonus d'outre-mer. |
+| Quand | Les départements **tant que le bonus est sur le plateau**, même fini (tout grisé, avec « Le bonus est fini »). Les régions de nouveau quand la silhouette revient (bonus passé avant toute réponse, nouvelle partie, nouveau jour). Chaque onglet (partie du jour, partie libre) a son propre état. |
+| Le bouton | **Même icône 📃** ; l'infobulle et le nom lu changent : « Voir la liste des départements ». |
+| ⚙️ et « Comment jouer » | Le réglage « Bouton 📃 » masque les deux listes, son texte le dit (« la liste des régions, ou des départements pendant le bonus ») ; une phrase dans « Comment jouer ». En français et en anglais. |
+| Java | **La même chose dans le Java**, plus tard, dans la conversation du Java : notée comme sa **phase 12** dans `docs/feuille-de-route.md` de `deIbine/francle` (le 19 octobre 2026). |
+| Découpage | **Une seule étape**, **web.7.12**, une PR, étiquette `web-7.12` ; ces décisions notées d'abord par une petite PR (web.7.12.0). |
+
+### Ce que ça demande dans le code (à présenter avant de coder)
+
+- **Le bouton 📃 appartient à `App`** (l'en-tête), qui ne sait pas si un bonus est affiché : `PartieDuJour` et
+  `PartieLibre` devront le lui signaler, onglet par onglet (comme `demandeListe`, déjà un compteur par onglet).
+- **Le département sélectionné est gardé dans `JeuBonus`** (état `choix`) : la liste des départements s'ouvre donc
+  là, et non dans `Plateau`, qui lui transmet la demande quand un bonus est affiché.
+- Un composant **`ListeDepartements.tsx`**, sur le modèle de `ListeRegions.tsx`, avec `DEPARTEMENTS` et le nom
+  affiché des suggestions (`textes.bonus.departement`).
+- Textes FR et EN (`textes.ts`), ⚙️, « Comment jouer ».
+- Tests : ouverture pendant le bonus, un clic qui répond, noms grisés sans sélection, déjà répondus barrés,
+  outre-mer (liste des régions), retour à la liste des régions, partie du jour et partie libre, axe.
+- Leçons et plan.
 
 ## Les améliorations à reprendre (relevées le 16 octobre 2026)
 
