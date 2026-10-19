@@ -109,7 +109,7 @@ Dans `francle-web` :
 git checkout main && git pull --prune
 git tag -a web-7.12.0 -m "web.7.12.0 : décisions de la liste des départements" 19493b1
 git tag -a web-7.12.0.1 -m "web.7.12.0.1 : la liste à faire sur le PC" <commit de fusion de la PR web.7.12.0.1>
-git tag -a web-7.12 -m "web.7.12 : la liste des départements" <commit de fusion de la PR web.7.12 (#NUMPR)>
+git tag -a web-7.12 -m "web.7.12 : la liste des départements" <commit de fusion de la PR web.7.12 (#36)>
 git push origin web-7.12.0 web-7.12.0.1 web-7.12
 git push origin --delete ccr-8009fd8d-mbx5ca
 ```
@@ -219,7 +219,7 @@ squash le 18 octobre 2026 sur l'accord de l'utilisateur, étiquettes `web-7.8` �
     tests en 26 s au lieu de 40, plus d'avertissement du canvas). 287 tests. Les choix faits en route (listés sous
     les décisions) ont été acceptés avec la fusion. Reste seulement le point 12 (la carte de fin), pour plus tard.
   - **web.7.12 La liste des départements** (section du même nom plus bas) : **faite et en ligne** le 19 octobre
-    2026, depuis le cloud : décisions (PR #34), liste à faire sur le PC (PR #35), code (PR #NUMPR), fusionnées en squash
+    2026, depuis le cloud : décisions (PR #34), liste à faire sur le PC (PR #35), code (PR #36), fusionnées en squash
     sur l'accord de l'utilisateur. 297 tests. Ses étiquettes restent à poser sur le PC (voir plus haut). **Le Java**
     fera la même chose dans sa phase 12, **plus tard**, dans sa propre conversation (décidé le 19 octobre 2026).
   - **La prochaine étape est à choisir avec l'utilisateur** : web.8 reste repoussé ; parmi « Les améliorations à
@@ -569,7 +569,7 @@ Choix faits en route, en codant (à valider avec les PR) :
 
 Idée de l'utilisateur, le 19 octobre 2026 : le bonus n'a pas de liste, contrairement à la partie (📃, la liste des
 régions). Pendant le bonus, le bouton 📃 ouvre donc la **liste des départements**. **Décidée et faite le 19 octobre
-2026**, depuis le cloud (PR #34 pour les décisions, #NUMPR pour le code).
+2026**, depuis le cloud (PR #34 pour les décisions, #36 pour le code).
 
 ### Les décisions (validées le 19 octobre 2026)
 
@@ -593,7 +593,7 @@ Décisions du découpage (validées le 19 octobre 2026, recommandations accepté
 départements dont la place sur la carte est déjà jouée**, trouvés comme manqués (les donner ailleurs ne peut être que
 faux) ; après un clic sur un nom, le **focus revient sur 📃** (ce que fait déjà `<dialog>`).
 
-### Ce qui a été fait (PR #NUMPR)
+### Ce qui a été fait (PR #36)
 
 - `domaine/bonus.ts` : `avecListe(bonus)` (mode C seulement, donc pas la question du numéro) et `repondus(bonus)`.
 - `composants/ListeDepartements.tsx` ; `JeuBonus` garde la fenêtre et répond par `repondreAvec` (la même fonction
