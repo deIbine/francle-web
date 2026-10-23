@@ -91,9 +91,9 @@ angle de rotation, et les valeurs de ses tests.
 8. **web.8 Le domaine et le défi** (ancien web.7, renuméroté le 16 octobre 2026) : d'abord le nom de domaine, puis le défi (un lien à envoyer à un ami pour lui
    faire deviner une région). Pas d'archives des jours passés (décidé avant web.4).
 
-## Où on en est (mis à jour le 19 octobre 2026)
+## Où on en est (mis à jour le 23 octobre 2026)
 
-### ⚠️ À faire sur le PC, avant toute chose
+### À faire sur le PC (liste vide depuis le 23 octobre 2026)
 
 Depuis le 19 octobre 2026, le travail se fait aussi **dans le cloud** (Claude Code sur le web, sans le PC). Là-bas,
 Claude peut coder, tester, ouvrir et fusionner les PR (le site est alors publié comme d'habitude), mais **ni poser
@@ -103,55 +103,41 @@ outils GitHub du cloud ne savent pas le faire. Les branches du cloud s'appellent
 **À la première conversation sur le PC, avant de commencer quoi que ce soit d'autre**, faire cette liste, puis la
 vider ici (par une petite PR). **Chaque PR fusionnée depuis le cloud y ajoute ses lignes.**
 
-**Qui fait quoi** (décidé le 19 octobre 2026) : **l'utilisateur ne lance aucune commande**. Tout se fait par
-**Claude Code sur le PC**, qui a `gh` connecté au compte `deIbine` avec tous les droits. Claude lance lui-même les
-commandes ci-dessous, dans les deux dossiers (`francle-web`, puis le Java dans
-`C:\Users\cleme\Desktop\Claude\francle`), vérifie le résultat, et explique ce qu'il fait comme d'habitude
-(pourquoi, comment le faire soi-même, comment le penser). Le ménage est déjà autorisé par l'utilisateur : Claude
-l'annonce et le fait, sans reposer la question. Les choix de la suite, eux, attendent toujours son accord.
+**La liste est vide** (le 23 octobre 2026). Comment s'en servir la prochaine fois : chaque ligne est une commande
+exacte, avec le commit visé (`git tag -a <nom> -m "<message>" <commit>`, puis `git push origin <nom>` ;
+`git push origin --delete <branche>`). Sur le PC, Claude lance tout lui-même (l'utilisateur ne lance aucune
+commande, décidé le 19 octobre 2026), vérifie, puis vide la liste par une petite PR.
 
-**Le retour prévu : samedi 24 octobre 2026.** L'utilisateur ouvre Claude Code dans le dossier `francle-web` et dit
-« on reprend ». Claude, dans l'ordre :
+**Fait sur le PC le 23 octobre 2026** (un jour avant le retour prévu), par Claude Code, à la demande de l'utilisateur
+(« Lance l'étape 1 et enregistre bien tout ce que tu fais ») :
 
-1. Lit ce plan, puis `docs/lecons.md`.
-2. Lance les commandes de `francle-web`, puis celles de `francle` (le Java), ci-dessous. Toutes les PR du cloud sont
-   déjà fusionnées : il ne reste que les étiquettes et les branches.
-3. Vérifie : `git tag` montre les nouvelles étiquettes, `git branch -a` ne montre plus `ccr-8009fd8d-mbx5ca`,
-   `git branch` ne montre plus que `main` (supprimer les branches locales déjà fusionnées avec `git branch -D <nom>`,
-   après avoir vérifié qu'elles le sont : `git branch --merged main` ne suffit pas après un squash, comparer les
-   arbres comme d'habitude). Si une commande échoue (étiquette déjà posée, branche déjà supprimée sur GitHub), le
-   dire à l'utilisateur et continuer avec le reste.
-4. Lance les tests (`npm test` : 297 attendus ; `mvn test` côté Java) pour vérifier le poste.
-5. Vide cette section (sauf ses deux premiers paragraphes, utiles si on retravaille dans le cloud) et le point 0 de
-   la phase 12 du Java, par une petite PR dans chaque dépôt, fusionnée avec l'accord de l'utilisateur ; puis présente
-   le choix de la suite (voir « Pour reprendre »).
+1. `git fetch --all --prune` : les deux dépôts étaient déjà à jour (`main` à `bc6c0d7` ici, `78382c1` côté Java),
+   aucune PR ouverte.
+2. Vérifié avant d'agir : les commits visés (`19493b1`, `24e3ff1`, `c86d891` ici, `f16f013` côté Java) sont bien sur
+   `main` (`git merge-base --is-ancestor <commit> origin/main`), et la branche du cloud a le même arbre que `main` dans
+   les deux dépôts (`git diff --stat origin/main origin/ccr-8009fd8d-mbx5ca` vide) : la supprimer ne perd rien.
+3. **Étiquettes posées et envoyées** : `web-7.12.0` (`19493b1`), `web-7.12.0.1` (`24e3ff1`), `web-7.12` (`c86d891`)
+   ici ; `phase-12.0` (`f16f013`) côté Java.
+4. **Branche du cloud `ccr-8009fd8d-mbx5ca`** : la suppression a d'abord été bloquée par le contrôle de sécurité de
+   Claude Code (action destructive), malgré l'autorisation notée ici ; l'utilisateur l'a confirmée dans la
+   conversation. Au second essai, GitHub a répondu « remote ref does not exist » dans les deux dépôts :
+   `git ls-remote --heads origin` ne montre plus que `main`. Elle avait donc été supprimée entre-temps (elle existait
+   encore au `fetch` du début), sans doute par la session Claude ouverte en même temps sur le Java ; non confirmé.
+   Références locales nettoyées par `git fetch --prune`.
+5. Branches locales : il ne reste que `main` et les branches des dossiers de travail des sessions Claude
+   (`claude/…`, une par session, rattachées à un `git worktree`) ; elles ne sont pas supprimées tant que leur session
+   peut s'en servir.
+6. **Tests web** : `npm ci`, puis `npm test`. Le premier passage, juste après l'installation : 3 échecs sur 297, en
+   116 s au lieu d'environ 36 (sans doute des délais dépassés : fichiers pas encore en cache, antivirus sur les
+   nouveaux fichiers de `node_modules`). Deux passages suivants : **297 sur 297**, en 36 et 37 s. `npm run lint` et
+   `npm run build` passent.
+7. **Tests Java** : `mvn` n'est pas installé ; le projet a le Maven Wrapper (`./mvnw -q test` dans le Bash,
+   `.\mvnw.cmd test` dans PowerShell). **403 sur 403**, 18 rapports neufs dans `target/surefire-reports`.
+8. Cette section et le point 0 de la phase 12 du Java vidés par deux petites PR (ici web.7.12.3, sans étiquette : ce
+   ne sont que des notes).
 
-Les commandes, que Claude lance (Node : `export PATH="/c/Program Files/nodejs:$PATH";` dans le Bash, voir
-« L'environnement de travail »).
-
-Dans `francle-web` (les trois commits sont sur `main`, vérifiables par `git log --oneline -5`) :
-
-```bash
-git checkout main && git pull --prune
-git tag -a web-7.12.0 -m "web.7.12.0 : décisions de la liste des départements" 19493b1
-git tag -a web-7.12.0.1 -m "web.7.12.0.1 : la liste à faire sur le PC" 24e3ff1
-git tag -a web-7.12 -m "web.7.12 : la liste des départements" c86d891
-git push origin web-7.12.0 web-7.12.0.1 web-7.12
-git push origin --delete ccr-8009fd8d-mbx5ca
-```
-
-Dans `francle` (Java) :
-
-```bash
-git checkout main && git pull --prune
-git tag -a phase-12.0 -m "Phase 12.0 : décisions de la liste des départements" f16f013
-git push origin phase-12.0
-git push origin --delete ccr-8009fd8d-mbx5ca
-```
-
-Les PR de notes fusionnées ensuite depuis le cloud (#37 et #38 ici, #44, #45 et #46 côté Java) n'ont pas d'étiquette : ce ne
-sont pas des étapes. Pour le commit d'une PR fusionnée : `git log --oneline -10` sur `main`, ou la page de la PR sur
-GitHub.
+Les PR de notes (#37, #38 et web.7.12.3 ici, #44, #45, #46 côté Java) n'ont pas d'étiquette : ce ne sont pas des
+étapes. Pour le commit d'une PR fusionnée : `git log --oneline -10` sur `main`, ou la page de la PR sur GitHub.
 
 **Faites : web.0 à web.7, le bonus revu (web.7.5 à web.7.7), les corrections du 18 octobre 2026 (web.7.8 à
 web.7.11) et la liste des départements (web.7.12, le 19 octobre 2026, depuis le cloud).** Le bonus des départements est en ligne depuis le
@@ -237,8 +223,8 @@ squash le 18 octobre 2026 sur l'accord de l'utilisateur, étiquettes `web-7.8` �
   boutons de l'en-tête sont plus serrés (`px-1`, `sm:px-2`) pour que le titre tienne sur une ligne.
 - **Le bonus des départements** (PR #17 à #20, étiquettes `web-7.1` à `web-7.4`, et `web-7`) : voir « Le bonus des
   départements » plus bas. Les choix faits en route (listes « À valider » des PR) ont été acceptés tels quels.
-- **Pour reprendre (mis à jour le 19 octobre 2026)** : sur le PC, Claude fait d'abord « À faire sur le PC, avant
-  toute chose » plus haut (l'utilisateur ne lance aucune commande) ; lire ce plan et `docs/lecons.md`, vérifier que `main` est à jour (`git pull`) et qu'aucune PR
+- **Pour reprendre (mis à jour le 23 octobre 2026)** : sur le PC, Claude fait d'abord ce que liste « À faire sur le
+  PC » plus haut, s'il y a quelque chose (l'utilisateur ne lance aucune commande) ; lire ce plan et `docs/lecons.md`, vérifier que `main` est à jour (`git pull`) et qu'aucune PR
   n'est restée ouverte (sur GitHub, onglet « Pull requests » des deux dépôts). La suite :
   - **Les corrections relevées le 18 octobre 2026** (section du même nom plus bas) : **faites et en ligne**, quatre
     PR empilées fusionnées en squash le 18 octobre 2026 : web.7.8 Les bugs (#29, `web-7.8`), web.7.9 La saisie et la
@@ -247,7 +233,7 @@ squash le 18 octobre 2026 sur l'accord de l'utilisateur, étiquettes `web-7.8` �
     les décisions) ont été acceptés avec la fusion. Reste seulement le point 12 (la carte de fin), pour plus tard.
   - **web.7.12 La liste des départements** (section du même nom plus bas) : **faite et en ligne** le 19 octobre
     2026, depuis le cloud : décisions (PR #34), liste à faire sur le PC (PR #35), code (PR #36), fusionnées en squash
-    sur l'accord de l'utilisateur. 297 tests. Ses étiquettes restent à poser sur le PC (voir plus haut). **Le Java**
+    sur l'accord de l'utilisateur. 297 tests. Étiquettes posées sur le PC le 23 octobre 2026 (voir plus haut). **Le Java**
     fera la même chose dans sa phase 12, **plus tard**, dans sa propre conversation (décidé le 19 octobre 2026).
   - **La prochaine étape est à choisir avec l'utilisateur** : web.8 reste repoussé ; parmi « Les améliorations à
     reprendre » plus bas, les candidates sont la carte de fin en couleur (point 12), le compteur de la partie libre,
