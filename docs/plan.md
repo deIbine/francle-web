@@ -90,6 +90,8 @@ l'autre, et le web n'a plus à rester égal au Java.
    **web.7.5 à web.7.7 Le bonus revu**, après les retours des joueurs : le bonus juste après la victoire, et un
    mode C « cliquer un département, puis écrire son nom » (décidé le 17 octobre 2026, détail plus bas dans « Le
    bonus revu »). Avant web.8.
+   **web.7.14 Le bonus simplifié** : la liste 📃 et les suggestions limitées aux départements de la région, les 101
+   en option « version difficile » (décidé le 23 octobre 2026, détail plus bas dans « Le bonus simplifié »).
 8. **web.8 Le domaine et le défi** (ancien web.7, renuméroté le 16 octobre 2026) : d'abord le nom de domaine, puis le défi (un lien à envoyer à un ami pour lui
    faire deviner une région). Pas d'archives des jours passés (décidé avant web.4).
 
@@ -244,7 +246,10 @@ squash le 18 octobre 2026 sur l'accord de l'utilisateur, étiquettes `web-7.8` �
     à jour sur `main`. Chaque étape a son étiquette (jusqu'à `web-7.13`) ; seules les PR de notes ou de petits
     réglages n'en ont pas (#8, #12, #13, #21, #37, #38, #39, et web.7.13.1 qui note cet état). Aucune PR fermée sans
     fusion. 297 tests.
-  - **La prochaine étape est à choisir avec l'utilisateur** (présentée le 23 octobre 2026, pas encore choisie) :
+  - **web.7.14 Le bonus simplifié** (choisi par l'utilisateur le 23 octobre 2026, section du même nom plus bas) :
+    les décisions sont prises et notées (web.7.14.0) ; **la suite est web.7.14.1 Les règles**, puis web.7.14.2 Le
+    réglage et l'affichage, en PR empilées sur web.7.14.0, fusionnées à la fin.
+  - **Après web.7.14, la prochaine étape est à choisir avec l'utilisateur** (présentée le 23 octobre 2026) :
     web.8 reste repoussé ; parmi « Les améliorations à reprendre » plus bas, les candidates sont la carte de fin en
     couleur (point 12, **recommandée** : la plus visible, déjà repoussée deux fois), le compteur de la partie libre
     (petit, peut l'accompagner), le repère « voisine » (nouvelle règle, à décider) et le mode « métropole
@@ -395,7 +400,7 @@ département, puis on écrit son nom**, comme on écrit une région.
 | Retour sur la page | Un bonus **en cours** s'affiche directement, sans la fenêtre par-dessus. Un bonus **pas commencé** attend son bouton, et la fenêtre s'ouvre (comme à web.7). |
 | Partie libre | Le même enchaînement. |
 | Mode C | **Un nouveau mode**, celui des joueurs : on clique un département (mis en évidence ; on peut changer d'avis avant d'écrire), puis on écrit son nom ou son **numéro** (« 29 »). **A et B restent dans le code**, cachés, choisis par `MODE_BONUS`. |
-| Suggestions | Parmi les **101 départements** (comme les régions, parmi toutes celles du mode) : limitées à la région, elles donneraient la réponse. |
+| Suggestions | Parmi les **101 départements** (comme les régions, parmi toutes celles du mode) : limitées à la région, elles donneraient la réponse. **Remplacé le 23 octobre 2026** (web.7.14) : seulement ceux de la région, les 101 devenant la version difficile. |
 | Essais | **Une seule réponse par département** : faux, il devient rouge, le bon nom est montré, et il ne se rejoue plus. |
 | Déjà trouvé | Écrire un département déjà trouvé ailleurs sur la carte est refusé avec un message, **sans coûter de réponse**. |
 | Après une réponse | **Aucune sélection automatique** : le joueur clique le suivant. |
@@ -429,9 +434,9 @@ Posées toutes ensemble pour enchaîner les trois phases ; toutes les recommanda
 | 7.5 | Sous le bonus | Le message de victoire et « Voir les résultats » (partie du jour) ou « Nouvelle partie » (partie libre, qui abandonne le bonus sans confirmation, rien n'étant compté) restent affichés. |
 | 7.6 | Sauvegarde | Des **paires** (cliqué -> écrit) à la place de la liste des numéros donnés ; l'ancien format se relit avec l'ordre du jour. |
 | 7.6 | Bonus A en cours | Un bonus du mode A commencé et pas fini (seulement le jour de la mise en ligne) **continue en mode C**, avec ses réponses. |
-| 7.6 | Autre région | Un département d'une autre région écrit en réponse est une **réponse fausse**, qui compte. |
+| 7.6 | Autre région | Un département d'une autre région écrit en réponse est une **réponse fausse**, qui compte. **Depuis web.7.14**, en version difficile seulement ; en version simple, refusé sans coût. |
 | 7.6 | Refus sans coût | Seul un département **déjà trouvé** est refusé ; un nom déjà donné à tort ailleurs reste possible. |
-| 7.6 | Entrée | Un début de nom qui n'évoque qu'**un** département des 101 le joue (« fin » -> Finistère) ; plusieurs : on demande de choisir. |
+| 7.6 | Entrée | Un début de nom qui n'évoque qu'**un** département des 101 le joue (« fin » -> Finistère) ; plusieurs : on demande de choisir. **Depuis web.7.14**, des 101 en version difficile, de la région en version simple. |
 | 7.7 | Avant le clic | La saisie est **grisée** tant qu'aucun département n'est sélectionné, avec « Clique d'abord sur un département ». |
 | 7.7 | La saisie | **Sous la carte** ; elle reçoit le focus au clic sur un département (vérifier à 375 pixels que le clavier du téléphone ne cache pas tout). |
 | 7.7 | La carte | Sélectionné en **bleu foncé** ; répondus en vert ou rouge, plus sélectionnables ; les autres foncent au survol. |
@@ -571,7 +576,7 @@ choisi **les 101 départements** (« ça serait trop simple sinon »).
 
 | Sujet | Décision |
 |---|---|
-| Contenu | **Les 101 départements**, pas seulement ceux de la région : la liste limitée à la région donnerait toutes les réponses, et le bonus deviendrait un jeu d'association (comme les suggestions, déjà parmi les 101 depuis le 17 octobre 2026). L'**époque ne joue donc aucun rôle** : les départements sont les mêmes dans les deux. |
+| Contenu | **Les 101 départements**, pas seulement ceux de la région : la liste limitée à la région donnerait toutes les réponses, et le bonus deviendrait un jeu d'association (comme les suggestions, déjà parmi les 101 depuis le 17 octobre 2026). L'**époque ne joue donc aucun rôle** : les départements sont les mêmes dans les deux. **Remplacé le 23 octobre 2026** (web.7.14) : seulement ceux de la région, les 101 devenant la version difficile. |
 | Affichage | **Nom et numéro** (« Finistère (29) », comme les suggestions), **triés par nom** (ordre alphabétique de la langue, comme `ListeRegions`), sur deux colonnes. |
 | Un clic | Il **répond pour le département sélectionné** sur la carte, comme un clic dans la liste des régions propose la région. Tant qu'aucun département n'est sélectionné, les noms sont **grisés**, avec « Clique d'abord sur un département ». |
 | Déjà répondus | **Barrés et grisés**, comme les régions déjà proposées, sans vert ni rouge (ils sont sur la carte). Le nom lu par un lecteur d'écran le dit. |
@@ -614,6 +619,53 @@ Choix faits en route (à valider avec la PR) :
 - Tests : ouverture pendant le bonus, un clic qui répond, noms grisés sans sélection, déjà répondus barrés,
   outre-mer (liste des régions), retour à la liste des régions, partie du jour et partie libre, axe.
 - Leçons et plan.
+
+## Le bonus simplifié (web.7.14)
+
+Idée de l'utilisateur, le 23 octobre 2026 : simplifier le bonus des départements. Pendant le bonus, la **liste 📃**
+et les **suggestions de la saisie** ne proposent plus que les **départements de la région** jouée, en partie du jour
+comme en partie libre. Le bonus d'aujourd'hui (les 101 départements partout) devient une **option**, la « version
+difficile ». Cela **remplace** deux décisions : les suggestions parmi les 101 (17 octobre 2026, « Le bonus revu ») et
+la liste des 101 (19 octobre 2026, « La liste des départements »).
+
+### Ce que ça demande dans le code (vu avant de décider)
+
+- Les suggestions sont choisies à un seul endroit, `suggerer` dans `JeuBonus.tsx` : les 101 en mode C, ceux de la
+  région en mode B (caché). Il suffit de faire dépendre ce choix de la difficulté, et plus seulement du mode.
+- La liste 📃 trie les 101 départements dans `ListeDepartements.tsx` : elle prendra la même liste que la saisie.
+- Un réglage ajouté prend tout seul sa valeur par défaut chez les joueurs qui en ont déjà d'enregistrés
+  (`lireReglages`) : pas de nouvelle clé de stockage.
+
+### Les décisions (validées le 23 octobre 2026)
+
+Posées toutes ensemble, avec une recommandation chacune : **toutes acceptées**.
+
+| Sujet | Décision |
+|---|---|
+| Par défaut | La **version simple**, pour tout le monde, joueurs actuels compris. Qui veut les 101 départements coche la case. |
+| Le réglage | Une nouvelle rubrique **« Bonus 🗺️ »** dans ⚙️, avec la case **« Départements : version difficile »** et son aide : « La liste 📃 et les suggestions proposent les 101 départements, pas seulement ceux de la région. » En français et en anglais. |
+| Quand il est fixé | À la **première réponse du bonus**, comme 🌀 et 🙈 au premier essai : un changement pendant un bonus commencé vaut pour le suivant. |
+| Partie du jour et partie libre | La même règle dans les deux. |
+| Autre région, version simple | Un nom écrit en entier d'un département d'une autre région est **refusé sans coûter de réponse** (« Ce département n'est pas dans la région »). En version difficile, rien ne change : c'est une réponse fausse qui compte. |
+| Touche Entrée, version simple | Un début de nom qui n'évoque qu'**un** département **de la région** le joue (« fi » -> Finistère en Bretagne), comme les suggestions. |
+| Partage | La version difficile a son repère, comme 🌀 et 🙈 : « 🗺️ 9/12 💪 ». La version simple n'en a pas. |
+| Statistiques | Le même « Score moyen » pour les deux versions, sans les séparer. |
+| Anciennes sauvegardes | Un bonus sauvé avant ce changement est relu comme **difficile** (il a été joué ainsi). |
+| Outre-mer | Inchangé : la question du numéro, et 📃 garde la liste des régions. |
+| « Comment jouer » | Une phrase sur la version simple et l'option. En français et en anglais. |
+| Découpage | Trois PR empilées, fusionnées à la fin : **web.7.14.0** ce plan, **web.7.14.1** les règles, **web.7.14.2** le réglage et l'affichage. Étiquettes `web-7.14.0`, `web-7.14.1`, `web-7.14.2`, et `web-7.14`. |
+
+### Les phases (une branche et une PR chacune)
+
+0. **web.7.14.0 Le plan** : ce chapitre, et les anciennes décisions marquées comme remplacées.
+1. **web.7.14.1 Les règles, sans affichage** : `bonus.ts` (le bonus connaît sa difficulté ; une fonction donne les
+   départements proposés, ceux de la région ou les 101 ; le refus sans coût d'un département d'une autre région en
+   version simple), `sauvegarde.ts` (la difficulté gardée avec le bonus du jour, une ancienne sauvegarde relue comme
+   difficile), `partage.ts` (le repère 💪), tests dont la relecture d'une ancienne sauvegarde.
+2. **web.7.14.2 Le réglage et l'affichage** : `reglages.ts` et `Reglages.tsx` (la rubrique « Bonus 🗺️ »),
+   `PartieDuJour` et `PartieLibre` (la difficulté fixée à la première réponse), `JeuBonus` et `ListeDepartements`
+   (la liste de la phase 1), textes FR et EN, « Comment jouer », tests (dont axe), vérification à 375 pixels en clair
+   et en sombre, leçons, plan.
 
 ## Les améliorations à reprendre (relevées le 16 octobre 2026)
 
