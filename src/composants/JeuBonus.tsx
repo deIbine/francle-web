@@ -23,6 +23,7 @@ import {
   demande,
   juste,
   passer,
+  proposables,
   rang,
   repondre,
   repondreChoix,
@@ -31,13 +32,7 @@ import {
   total,
   type Bonus,
 } from '../domaine/bonus.ts'
-import {
-  chercherDepartement,
-  DEPARTEMENTS,
-  departementsDe,
-  suggestionsDepartements,
-  type Departement,
-} from '../domaine/departements.ts'
+import { chercherDepartement, suggestionsDepartements, type Departement } from '../domaine/departements.ts'
 import { finDuBonus, useLangue, useTextes } from '../textes.ts'
 import { CarteDepartements } from './CarteDepartements.tsx'
 import { Fenetre } from './Fenetre.tsx'
@@ -120,12 +115,9 @@ export function JeuBonus({ bonus, onChanger, focaliser = false, demandeListe = 0
     }
   }
 
-  // les départements que la saisie évoque : parmi les 101 en mode C (limitées à la région, les suggestions
-  // donneraient la réponse), parmi ceux de la région en mode B, aucun pour la question du numéro
-  const suggerer = (texte: string) =>
-    bonus.question === 'numero'
-      ? []
-      : suggestionsDepartements(texte, modeChoix ? DEPARTEMENTS : departementsDe(bonus.region), langue)
+  // les départements que la saisie évoque, parmi ceux que le bonus propose (proposables) : ceux de la région dans la
+  // version simple, les 101 dans la version difficile, aucun pour la question du numéro
+  const suggerer = (texte: string) => suggestionsDepartements(texte, proposables(bonus), langue)
 
   // mode C, la réponse écrite pour le département choisi. Comme pour les régions : un début de nom qui n'évoque qu'un
   // département le joue, plusieurs demandent de choisir, rien ne coûte de réponse ; un département déjà trouvé est

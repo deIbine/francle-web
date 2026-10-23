@@ -104,6 +104,15 @@ export function Reglages({ reglages, onChanger }: Props) {
           onChanger={(liste) => onChanger({ liste })}
         />
       </fieldset>
+      <fieldset className="flex flex-col gap-2">
+        <legend className="mb-1 font-semibold">{textes.reglages.bonus}</legend>
+        <Case
+          libelle={textes.reglages.departementsDifficiles}
+          aide={textes.reglages.departementsDifficilesAide}
+          coche={reglages.departementsDifficiles}
+          onChanger={(departementsDifficiles) => onChanger({ departementsDifficiles })}
+        />
+      </fieldset>
     </div>
   )
 }

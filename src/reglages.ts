@@ -21,9 +21,20 @@ export interface Reglages {
   readonly cachee: boolean
   // le bouton 📃 de l'en-tête, qui ouvre la liste des régions (affiché sauf si le joueur le masque)
   readonly liste: boolean
+  // le bonus des départements dans sa version difficile : la liste 📃 et les suggestions proposent les 101 départements,
+  // pas seulement ceux de la région (depuis web.7.14 ; non par défaut)
+  readonly departementsDifficiles: boolean
 }
 
-export const PAR_DEFAUT: Reglages = { langue: undefined, theme: 'auto', unite: undefined, rotation: false, cachee: false, liste: true }
+export const PAR_DEFAUT: Reglages = {
+  langue: undefined,
+  theme: 'auto',
+  unite: undefined,
+  rotation: false,
+  cachee: false,
+  liste: true,
+  departementsDifficiles: false,
+}
 
 export const CLE_REGLAGES = 'francle.reglages.v1'
 
@@ -39,6 +50,7 @@ export function lireReglages(stockage: Storage = localStorage): Reglages {
       rotation: lu.rotation === true,
       cachee: lu.cachee === true,
       liste: lu.liste !== false,
+      departementsDifficiles: lu.departementsDifficiles === true,
     }
   } catch {
     return PAR_DEFAUT

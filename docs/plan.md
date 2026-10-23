@@ -247,8 +247,12 @@ squash le 18 octobre 2026 sur l'accord de l'utilisateur, étiquettes `web-7.8` �
     réglages n'en ont pas (#8, #12, #13, #21, #37, #38, #39, et web.7.13.1 qui note cet état). Aucune PR fermée sans
     fusion. 297 tests.
   - **web.7.14 Le bonus simplifié** (choisi par l'utilisateur le 23 octobre 2026, section du même nom plus bas) :
-    les décisions sont prises et notées (web.7.14.0) ; **la suite est web.7.14.1 Les règles**, puis web.7.14.2 Le
-    réglage et l'affichage, en PR empilées sur web.7.14.0, fusionnées à la fin.
+    **les trois PR sont prêtes**, empilées : #42 (web.7.14.0, le plan), #43 (web.7.14.1, les règles), #44 (web.7.14.2,
+    le réglage et l'affichage). **Reste à les fusionner** sur l'accord de l'utilisateur (en squash, dans l'ordre, en
+    changeant la base de la suivante en `main` à chaque fois), puis les étiquettes `web-7.14.0`, `web-7.14.1`,
+    `web-7.14.2` et `web-7.14`. Choix faits en route, à valider avec la fusion : le message du refus nomme le
+    département (« Gironde (33) : ce département n'est pas dans la région. ») ; l'aide de la case ajoute « Fixé à la
+    première réponse du bonus. » ; le mode B (caché) garde toujours les départements de la région.
   - **Après web.7.14, la prochaine étape est à choisir avec l'utilisateur** (présentée le 23 octobre 2026) :
     web.8 reste repoussé ; parmi « Les améliorations à reprendre » plus bas, les candidates sont la carte de fin en
     couleur (point 12, **recommandée** : la plus visible, déjà repoussée deux fois), le compteur de la partie libre
@@ -664,7 +668,9 @@ Posées toutes ensemble, avec une recommandation chacune : **toutes acceptées**
    départements proposés, ceux de la région ou les 101 ; le refus sans coût d'un département d'une autre région en
    version simple), `sauvegarde.ts` (la difficulté gardée avec le bonus du jour, une ancienne sauvegarde relue comme
    difficile), `partage.ts` (le repère 💪), tests dont la relecture d'une ancienne sauvegarde.
-2. **web.7.14.2 Le réglage et l'affichage** : `reglages.ts` et `Reglages.tsx` (la rubrique « Bonus 🗺️ »),
+2. ✅ **web.7.14.2 Le réglage et l'affichage** (PR #44 ; 305 tests ; vérifié dans le navigateur intégré en partie
+   libre : « s » ne suggère que la Somme dans les Hauts-de-France, la liste 📃 a 5 noms, puis 101 avec l'option, et le
+   bonus commencé en difficile le reste quand on décoche ; ⚙️ lisible à 375 pixels en sombre) : `reglages.ts` et `Reglages.tsx` (la rubrique « Bonus 🗺️ »),
    `PartieDuJour` et `PartieLibre` (la difficulté fixée à la première réponse), `JeuBonus` et `ListeDepartements`
    (la liste de la phase 1), textes FR et EN, « Comment jouer », tests (dont axe), vérification à 375 pixels en clair
    et en sombre, leçons, plan.

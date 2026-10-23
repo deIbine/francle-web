@@ -1,6 +1,7 @@
 /*
-Les tests de la liste des départements (web.7.12) : pendant le bonus, le bouton 📃 ouvre les 101 départements, et un
-clic sur un nom répond pour le département choisi sur la carte. À l'écran, comme un joueur (voir Bonus.test.tsx pour
+Les tests de la liste des départements (web.7.12) : pendant le bonus, le bouton 📃 ouvre les départements de la
+région (les 101 dans la version difficile, depuis web.7.14), et un clic sur un nom répond pour le département choisi
+sur la carte. À l'écran, comme un joueur (voir Bonus.test.tsx pour
 les façons de faire : clic sur la carte par le numéro du département, Math.random truqué en partie libre).
  */
 import { render, screen, within } from '@testing-library/react'
@@ -57,7 +58,7 @@ const noms = (liste: HTMLElement) =>
     .filter((bouton) => bouton.textContent !== '✕') as HTMLButtonElement[]
 
 describe('La liste des départements, partie du jour', () => {
-  it('pendant le bonus, 📃 ouvre les 101 départements par ordre alphabétique, grisés tant que rien n’est choisi', async () => {
+  it('pendant le bonus, 📃 ouvre les départements de la région par ordre alphabétique, grisés sans choix', async () => {
     const joueur = demarrer()
     await proposer(joueur, CIBLE.nom.fr)
     await carte()
@@ -65,11 +66,24 @@ describe('La liste des départements, partie du jour', () => {
 
     const liste = await ouvrirDepartements(joueur)
     const boutons = noms(liste)
+    // la région du jour est la Corse
+    expect(boutons.map((bouton) => bouton.textContent)).toEqual(['Corse-du-Sud (2A)', 'Haute-Corse (2B)'])
+    expect(boutons.every((bouton) => bouton.disabled)).toBe(true)
+    expect(within(liste).getByText('Clique d’abord sur un département de la carte.')).toBeDefined()
+  })
+
+  it('version difficile (⚙️) : les 101 départements, et un nom d’une autre région est une réponse fausse', async () => {
+    localStorage.setItem(CLE_REGLAGES, JSON.stringify({ departementsDifficiles: true }))
+    const joueur = demarrer()
+    await proposer(joueur, CIBLE.nom.fr)
+    await cliquer(joueur, DEPS[0].code)
+    const liste = await ouvrirDepartements(joueur)
+    const boutons = noms(liste)
     expect(boutons).toHaveLength(101)
     expect(boutons[0].textContent).toBe('Ain (01)')
     expect(boutons.at(-1)!.textContent).toBe('Yvelines (78)')
-    expect(boutons.every((bouton) => bouton.disabled)).toBe(true)
-    expect(within(liste).getByText('Clique d’abord sur un département de la carte.')).toBeDefined()
+    await joueur.click(within(liste).getByRole('button', { name: 'Gironde (33)' }))
+    expect(within(panneau()).getByText(/^Raté/)).toBeDefined()
   })
 
   it('un département choisi : un clic sur son nom répond juste, et il est ensuite barré', async () => {
@@ -165,12 +179,12 @@ describe('La liste des départements, partie libre', () => {
     return { joueur, cible }
   }
 
-  it('anciennes régions : les mêmes 101 départements, et un clic répond', async () => {
+  it('anciennes régions : les départements de la région jouée, et un clic répond', async () => {
     const { joueur, cible } = await gagnerLibre('alsace', true)
     const deps = departementsDe(cible)
     await cliquer(joueur, deps[0].code)
     const liste = await ouvrirDepartements(joueur)
-    expect(noms(liste)).toHaveLength(101)
+    expect(noms(liste).map((bouton) => bouton.textContent)).toEqual(['Bas-Rhin (67)', 'Haut-Rhin (68)'])
     await joueur.click(within(liste).getByRole('button', { name: nom(deps[0]) }))
     expect(within(panneau()).getByText(`Juste : ${nom(deps[0])}.`)).toBeDefined()
   })

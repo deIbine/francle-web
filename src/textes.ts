@@ -234,7 +234,7 @@ const fr = {
     jour: 'La partie du jour est la même pour tout le monde, et change à minuit. Partage ton résultat\u00a0: il ne dévoile pas la réponse.',
     libre: 'En partie libre, joue autant que tu veux, avec les régions actuelles ou celles d’avant 2016.',
     modes: 'Dans les réglages ⚙️, essaie les modes difficiles\u00a0: la silhouette tournée 🌀, ou cachée 🙈.',
-    bonus: 'Après une victoire, un bonus 🗺️\u00a0: clique sur chaque département de la région, puis écris son nom ou son numéro. Une seule réponse par département, et ton score s’ajoute au partage. Pendant le bonus, la liste 📃 montre les 101 départements.',
+    bonus: 'Après une victoire, un bonus 🗺️\u00a0: clique sur chaque département de la région, puis écris son nom ou son numéro. Une seule réponse par département, et ton score s’ajoute au partage. Pendant le bonus, la liste 📃 montre les départements de la région, ou les 101 dans la version difficile (⚙️).',
     jouer: 'Jouer',
   },
 
@@ -264,6 +264,10 @@ const fr = {
     liste: 'Liste des régions',
     listeBouton: 'Bouton 📃 dans l’en-tête',
     listeAide: 'Il ouvre la liste des régions du jeu, ou des départements pendant le bonus\u00a0: un clic sur un nom le propose.',
+    bonus: 'Bonus 🗺️',
+    departementsDifficiles: 'Départements\u00a0: version difficile',
+    departementsDifficilesAide:
+      'La liste 📃 et les suggestions proposent les 101 départements, pas seulement ceux de la région. Fixé à la première réponse du bonus.',
   },
 }
 
@@ -434,7 +438,7 @@ const en: Textes = {
     jour: 'The daily game is the same for everyone, and changes at midnight. Share your result: it doesn’t give the answer away.',
     libre: 'In free play, play as much as you like, with the current regions or those from before 2016.',
     modes: 'In the settings ⚙️, try the hard modes: the outline rotated 🌀, or hidden 🙈.',
-    bonus: 'After a win, a bonus 🗺️: click on each department of the region, then type its name or number. One answer per department, and your score is added to what you share. During the bonus, the list 📃 shows the 101 departments.',
+    bonus: 'After a win, a bonus 🗺️: click on each department of the region, then type its name or number. One answer per department, and your score is added to what you share. During the bonus, the list 📃 shows the region’s departments, or all 101 in the hard version (⚙️).',
     jouer: 'Play',
   },
 
@@ -464,6 +468,10 @@ const en: Textes = {
     liste: 'List of regions',
     listeBouton: '📃 button in the header',
     listeAide: 'It opens the list of the game’s regions, or of the departments during the bonus: click a name to guess it.',
+    bonus: 'Bonus 🗺️',
+    departementsDifficiles: 'Departments: hard version',
+    departementsDifficilesAide:
+      'The 📃 list and the suggestions offer all 101 departments, not only those of the region. Set at the bonus’s first answer.',
   },
 }
 
