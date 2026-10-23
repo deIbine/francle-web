@@ -13,6 +13,7 @@ import { departementsDe, type Departement } from './domaine/departements.ts'
 import { regionDuJour } from './domaine/regionDuJour.ts'
 import { tirables } from './domaine/regions.ts'
 import { PAUSE_FIN_BONUS } from './pause.ts'
+import { CLE_REGLAGES } from './reglages.ts'
 import { lire } from './sauvegarde.ts'
 
 // le jour où l'horloge des tests est arrêtée (voir preparationTests.ts) : la partie n° 2
@@ -165,12 +166,43 @@ describe('Le bonus des départements, partie du jour', () => {
     expect(within(panneau()).getByText(`Juste : ${nom(DEPS[1])}.`)).toBeDefined()
   })
 
-  it('les suggestions viennent des 101 départements, pas seulement de la région', async () => {
+  it('version simple (par défaut) : les suggestions ne viennent que de la région', async () => {
+    const joueur = demarrer()
+    await gagner(joueur)
+    await cliquer(joueur, DEPS[0].code)
+    // la région du jour est la Corse : parmi les 101, « haute » évoquerait aussi la Haute-Garonne, la Haute-Loire…
+    await joueur.type(reponse(), 'haute')
+    expect(screen.getAllByRole('option').map((option) => option.textContent)).toEqual(['Haute-Corse (2B)'])
+  })
+
+  it('version difficile (⚙️) : les 101 départements suggérés, une autre région est une réponse fausse, 💪 au partage', async () => {
+    localStorage.setItem(CLE_REGLAGES, JSON.stringify({ departementsDifficiles: true }))
     const joueur = demarrer()
     await gagner(joueur)
     await cliquer(joueur, DEPS[0].code)
     await joueur.type(reponse(), 'gir')
     expect(screen.getAllByRole('option').map((option) => option.textContent)).toContain('Gironde (33)')
+    await joueur.clear(reponse())
+    await joueur.type(reponse(), 'Gironde{Escape}{Enter}')
+    expect(
+      within(panneau()).getByText(`Raté : c’était ${nom(DEPS[0])}, en rouge sur la carte (ta réponse : Gironde (33)).`),
+    ).toBeDefined()
+    await joueur.click(within(panneau()).getByRole('button', { name: 'Passer' }))
+    await joueur.click(within(resultats()!).getByRole('button', { name: /Partager/ }))
+    expect((await navigator.clipboard.readText()).split('\n').at(-2)).toBe(`🗺️ 0/${TOTAL} 💪`)
+  })
+
+  it('la version est fixée à la première réponse : la changer pendant le bonus vaut pour le suivant', async () => {
+    const joueur = demarrer()
+    await gagner(joueur)
+    await repondre(joueur, DEPS[0].code, DEPS[0].code)
+    await joueur.click(screen.getByRole('button', { name: 'Ouvrir les réglages' }))
+    const reglages = screen.getByRole('dialog', { name: 'Réglages' })
+    await joueur.click(within(reglages).getByLabelText('version difficile', { exact: false }))
+    await joueur.click(within(reglages).getByRole('button', { name: 'Fermer' }))
+    await cliquer(joueur, DEPS[1].code)
+    await joueur.type(reponse(), 'gir')
+    expect(screen.queryAllByRole('option')).toHaveLength(0)
   })
 
   it('les zones ne disent pas leur nom pendant le bonus, et se choisissent au clavier', async () => {

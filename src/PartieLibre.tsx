@@ -12,7 +12,7 @@ import { Fenetre } from './composants/Fenetre.tsx'
 import { FinDePartie } from './composants/FinDePartie.tsx'
 import { JeuBonus } from './composants/JeuBonus.tsx'
 import { Plateau } from './composants/Plateau.tsx'
-import { avecListe, bonusAuHasard, commence, type Bonus } from './domaine/bonus.ts'
+import { avecDifficulte, avecListe, bonusAuHasard, commence, type Bonus } from './domaine/bonus.ts'
 import { enCours, nouvellePartie, type Partie } from './domaine/partie.ts'
 import type { ModesDifficiles } from './domaine/partage.ts'
 import { tirer, type Mode } from './domaine/regions.ts'
@@ -47,7 +47,9 @@ export function PartieLibre({ reglages, demandeListe, onListe }: Props) {
   const nomGroupe = useId()
   // le bonus des départements, le focus sur son titre quand le joueur vient de le lancer, et la pause avant les
   // résultats (voir PartieDuJour.tsx)
-  const [bonus, setBonus] = useState<Bonus | undefined>(undefined)
+  const [bonusGarde, setBonus] = useState<Bonus | undefined>(undefined)
+  // dans la version des réglages tant qu'il n'a pas commencé, fixée à sa première réponse (voir PartieDuJour.tsx)
+  const bonus = bonusGarde && avecDifficulte(bonusGarde, reglages.departementsDifficiles)
   const [focusBonus, setFocusBonus] = useState(false)
   const pause = usePause(() => setFenetre(true))
   const listeAuBonus = bonus !== undefined && avecListe(bonus)

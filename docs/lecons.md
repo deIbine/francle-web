@@ -1286,3 +1286,56 @@ commandes), **comment le penser** (la question à se poser la prochaine fois).
   « Le projet Java, outil de comparaison »), et dans la mémoire de Claude.
 - **Comment le penser** : pour chaque décision, se demander « qui doit la connaître, et où la lira-t-il ? ». Une règle
   durable va dans le fichier lu en premier ; le détail et le pourquoi, dans le plan.
+
+## web.7.14 Le bonus simplifié
+
+### Une seule source pour ce qu'on propose
+
+- **Pourquoi** : la saisie (suggestions) et la liste 📃 doivent toujours montrer les mêmes départements. Avant, chacune
+  avait sa propre règle : `JeuBonus` choisissait entre les 101 et ceux de la région, `ListeDepartements` prenait
+  toujours les 101. Ajouter une version « simple » à deux endroits, c'était risquer qu'un jour ils ne disent plus la
+  même chose.
+- **Comment le faire** : chercher tous les endroits qui répondent à la même question (`grep -n DEPARTEMENTS src`), puis
+  écrire une seule fonction dans le domaine, `proposables(bonus)`, que les deux composants appellent. La règle est
+  alors testée une fois, sans écran (`bonus.test.ts`), et les composants n'ont plus qu'à l'afficher.
+- **Comment le penser** : quand deux endroits doivent rester d'accord, ils ne doivent pas chacun « savoir » la règle :
+  ils doivent la demander au même endroit. En Java, ce serait une méthode du modèle plutôt qu'un `if` copié dans deux
+  vues.
+
+### Un réglage qui se fige à la première réponse
+
+- **Pourquoi** : la version (simple ou difficile) est un réglage, qui peut changer à tout moment, mais un bonus
+  commencé ne doit pas changer de règle en route. Les modes 🌀 et 🙈 ont le même problème, réglé par un état à part
+  (`modesFixes`) dans chaque partie.
+- **Comment le faire** : ici, plus simple, la version est **dans le bonus** (`difficile`). Le composant ne garde pas le
+  bonus tel quel : il calcule à chaque affichage `avecDifficulte(bonusGarde, reglages.departementsDifficiles)`, qui
+  applique le réglage tant que le bonus n'a pas de réponse, et rend le bonus inchangé ensuite. La première réponse
+  part de ce bonus-là : sa version y est donc écrite, puis sauvegardée avec lui.
+- **Comment le penser** : plutôt que de « surveiller » un changement de réglage (un `useEffect` qui recopierait la
+  valeur), on **déduit** l'état affiché de ce qu'on a déjà. Une valeur déduite ne peut pas être en retard ; une copie,
+  si.
+
+### Un champ ajouté, et les anciennes sauvegardes
+
+- **Pourquoi** : les bonus sauvegardés avant web.7.14 n'ont pas de champ `difficile`. Sans précaution, `undefined`
+  serait lu comme « faux », et un bonus joué avec les 101 départements deviendrait « simple » au retour (sans 💪 au
+  partage).
+- **Comment le faire** : un champ facultatif (`difficile?: boolean`) et une valeur par défaut choisie exprès à la
+  lecture (`const { difficile = true } = sauvee.bonus`), plus un test qui relit une sauvegarde écrite à la main dans
+  l'ancien format. Les réglages, eux, n'avaient rien à faire : `lireReglages` complète déjà tout réglage absent par sa
+  valeur par défaut.
+- **Comment le penser** : pour chaque donnée ajoutée, se demander « que vaut-elle dans ce qui a été enregistré
+  avant ? ». La bonne valeur par défaut n'est pas forcément celle d'un nouveau joueur : c'est celle qui décrit ce qui
+  s'est réellement passé.
+
+### Des tests qui reposaient sur l'ancienne règle
+
+- **Pourquoi** : plusieurs tests donnaient « Gironde » comme réponse fausse, pour la Corse ou une région tirée au
+  hasard. Ils ne testaient pas « une autre région est fausse », mais simplement « une réponse fausse » : la nouvelle
+  règle (refus sans coût) les a fait échouer sans que ce qu'ils vérifiaient ait changé.
+- **Comment le faire** : lire chaque test rouge et se demander ce qu'il voulait prouver. Ici, une réponse fausse prise
+  dans la région (un autre département de la carte) prouve la même chose, sous les deux règles. Les tests qui
+  portaient vraiment sur les 101 départements ont été gardés, avec la version difficile réglée d'avance
+  (`localStorage.setItem(CLE_REGLAGES, …)`).
+- **Comment le penser** : un test doit dépendre seulement de ce qu'il vérifie. Si une donnée d'exemple porte une règle
+  cachée (« Gironde est hors de la région »), le jour où la règle change, le test casse pour une mauvaise raison.

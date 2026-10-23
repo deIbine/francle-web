@@ -20,7 +20,7 @@ import { JeuBonus } from './composants/JeuBonus.tsx'
 import { Partager } from './composants/Partager.tsx'
 import { Plateau } from './composants/Plateau.tsx'
 import { Statistiques } from './composants/Statistiques.tsx'
-import { avecListe, bonusDuJour, bonusEnCours, commence, score, total, type Bonus } from './domaine/bonus.ts'
+import { avecDifficulte, avecListe, bonusDuJour, bonusEnCours, commence, score, total, type Bonus } from './domaine/bonus.ts'
 import { enCours, nouvellePartie, type Partie } from './domaine/partie.ts'
 import { textePartage, type ModesDifficiles } from './domaine/partage.ts'
 import { angleDuJour, MODE_DU_JOUR, numero as numeroDuJour, regionDuJour } from './domaine/regionDuJour.ts'
@@ -80,7 +80,10 @@ export function PartieDuJour({ jour, reglages, demandeStats, demandeListe, onLis
   const [modesFixes, setModesFixes] = useState(() => modesFixesDe(sauvee))
   const modes = modesFixes ?? modesReglages(reglages)
   // le bonus des départements : celui qu'on avait commencé (rejoué depuis la sauvegarde), sinon aucun
-  const [bonus, setBonus] = useState<Bonus | undefined>(() => restaurerBonus(numero, sauvee))
+  const [bonusGarde, setBonus] = useState<Bonus | undefined>(() => restaurerBonus(numero, sauvee))
+  // dans la version des réglages (simple ou difficile) tant qu'il n'a pas commencé : sa première réponse, donnée sur
+  // ce bonus-là, fixe sa version, comme le premier essai fixe les modes 🌀 et 🙈
+  const bonus = bonusGarde && avecDifficulte(bonusGarde, reglages.departementsDifficiles)
   // la fenêtre des résultats : ouverte d'emblée si on revient sur une partie déjà finie, sauf si un bonus est en
   // cours (on le reprend). Un bonus pas commencé, lui, ne surprend pas le joueur : la fenêtre s'ouvre, et le bonus
   // attend son bouton
