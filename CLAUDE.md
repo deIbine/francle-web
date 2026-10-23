@@ -20,6 +20,10 @@ depuis ici, ne pas noter de tâches « pour le Java » dans ce plan, et le web n
   React, navigateur), en les rapprochant de Java quand c'est utile.
 - À la fin de chaque étape, ajouter les leçons dans `docs/lecons.md` (format pourquoi / comment / penser).
 - Avant chaque étape, présenter le découpage et poser les questions de décision ; ne rien démarrer sans accord.
+- **Le départ vient toujours de l'utilisateur** (règle du 23 octobre 2026) : même après une question posée par Claude
+  (« Je lance ? », « On fait comme ça ? »), et même s'il y répond ou valide des décisions, Claude ne commence pas.
+  Il attend un message de l'utilisateur qui demande explicitement de commencer (« lance », « tu peux commencer »…).
+  Répondre à des questions, ce n'est pas donner le départ.
 
 ## Git
 
