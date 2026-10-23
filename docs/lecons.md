@@ -1339,3 +1339,53 @@ commandes), **comment le penser** (la question à se poser la prochaine fois).
   (`localStorage.setItem(CLE_REGLAGES, …)`).
 - **Comment le penser** : un test doit dépendre seulement de ce qu'il vérifie. Si une donnée d'exemple porte une règle
   cachée (« Gironde est hors de la région »), le jour où la règle change, le test casse pour une mauvaise raison.
+
+## web.7.15 La carte de fin en couleur
+
+### Une maquette avant le code
+
+- **Pourquoi** : « montrer les régions proposées en couleur » pouvait vouloir dire beaucoup de choses (quelles
+  couleurs ? des numéros ? une légende ?). Une image a permis de décider vite, et les onze décisions ont été prises
+  sur quelque chose de concret.
+- **Comment le faire** : la maquette a été dessinée par un petit script Node, hors du dépôt, qui lit les **vrais**
+  contours (`src/images/cartes/nouvelles.json`) et prend ses chiffres aux **vraies** règles (`geographie.ts`, lancé
+  avec `node --experimental-strip-types`). Puis Edge sans fenêtre l'a transformée en PNG
+  (`msedge --headless=new --screenshot=… fichier.svg`). Elle est gardée dans `docs/maquettes/`.
+- **Comment le penser** : une maquette faite avec les vraies données est presque une preuve que l'idée tient, et ne
+  coûte qu'un script jetable. Une maquette dessinée à la main, elle, peut promettre ce que le code ne donnera pas.
+
+### Une couleur calculée : un dégradé en HSL
+
+- **Pourquoi** : trois paliers (comme les carrés ⬜🟨🟩) auraient donné la même couleur à 41 % et à 54 %. Un dégradé
+  continu montre chaque écart.
+- **Comment le faire** : `couleurProximite` (dans `domaine/partage.ts`) écrit la couleur en **HSL** : teinte (0 à
+  360°, la roue des couleurs), saturation, luminosité. La teinte va du jaune (48°) au vert (140°), et la luminosité
+  descend de 82 % à 36 %. En RVB (rouge, vert, bleu), il aurait fallu faire varier les trois nombres à la fois. La
+  couleur passe par `style={{ fill }}` : une classe Tailwind ne se calcule pas. Les classes sont repérées dans le code
+  au moment de la construction ; une valeur connue seulement en jouant n'y est pas.
+- **Comment le penser** : choisir l'espace de couleur où l'idée s'écrit simplement. « Du jaune au vert, en fonçant »,
+  c'est deux nombres en HSL. Un test vérifie l'idée elle-même (« plus proche, plus foncé »), pas seulement trois
+  valeurs.
+
+### Où poser une étiquette sur une forme
+
+- **Pourquoi** : le centre du rectangle qui entoure une région (la fonction `centre` du bonus) compte aussi les îles,
+  et tombe mal sur une forme biscornue. Et sur une région d'outre-mer, toute petite dans son encadré, la pastille
+  cachait la région elle-même (vu dans le navigateur, sur la Guadeloupe).
+- **Comment le faire** : `centreDeGravite` (dans `contours.ts`) prend le plus grand morceau du tracé et calcule son
+  centre de gravité (la « formule du lacet », qui donne aussi l'aire). Un test vérifie, pour les 35 régions des deux
+  époques, que ce point est bien dans la région : on tire un trait vers la droite, et s'il coupe le bord un nombre
+  impair de fois, le point est dedans. Pour l'outre-mer, la pastille va dans le coin de l'encadré.
+- **Comment le penser** : un calcul géométrique « qui marche sur l'exemple » doit être vérifié sur **toutes** les
+  formes, par un test qui les parcourt. Et regarder le résultat à l'écran : le test disait vrai (le point était bien
+  dans la Guadeloupe), mais c'est l'image qui a montré que la pastille la cachait.
+
+### L'ordre de dessin en SVG
+
+- **Pourquoi** : en SVG, il n'y a pas de `z-index` : ce qui est dessiné en dernier passe devant. Sans précaution, le
+  trait gris d'une région neutre aurait recouvert le bord blanc d'une région colorée voisine.
+- **Comment le faire** : trier les régions avant de les dessiner (les neutres, puis les essais, puis la réponse), et
+  dessiner les pastilles tout à la fin. `pointer-events-none` sur les pastilles laisse passer la souris jusqu'à la
+  région, dont le `<title>` affiche le nom au survol.
+- **Comment le penser** : en SVG, l'ordre des éléments est l'ordre des couches. C'est comme dessiner en Java avec
+  `Graphics2D` : ce qu'on peint après recouvre ce qu'on a peint avant.
