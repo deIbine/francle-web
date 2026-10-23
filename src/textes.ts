@@ -19,6 +19,13 @@ import type { Indice, Partie } from './domaine/partie.ts'
 import type { Langue } from './domaine/regions.ts'
 import type { Theme, Unite } from './reglages.ts'
 
+// un essai tel que la carte de fin le décrit : son numéro, le nom de la région proposée, sa proximité
+export interface EssaiCarte {
+  readonly numero: number
+  readonly nom: string
+  readonly proximite: number
+}
+
 // 1 mile = 1,609344 km (valeur exacte, par définition)
 const KM_PAR_MILE = 1.609344
 
@@ -128,7 +135,13 @@ const fr = {
           : 'Perdu, ce sera pour demain.'
         : 'Partie abandonnée.',
   reponse: 'La réponse\u00a0:',
-  carte: (nom: string) => `Carte de France, la région ${nom} en bleu`,
+  // la carte de fin, pour un lecteur d'écran : la réponse, puis chaque essai avec son numéro et sa proximité
+  carte: (nom: string, essais: readonly EssaiCarte[]) =>
+    `Carte de France, la région ${nom} en bleu` +
+    (essais.length === 0
+      ? ''
+      : `. Tes essais : ${essais.map((e) => `${e.numero} ${e.nom}, ${e.proximite} %`).join(' ; ')}`),
+  legende: { proximite: 'Proximité', reponse: 'la réponse' },
   voirResultats: 'Voir les résultats',
 
   resultats: 'Résultats',
@@ -340,7 +353,10 @@ const en: Textes = {
           : 'Lost. Try again tomorrow.'
         : 'Game abandoned.',
   reponse: 'The answer:',
-  carte: (nom: string) => `Map of France, the region ${nom} in blue`,
+  carte: (nom: string, essais: readonly EssaiCarte[]) =>
+    `Map of France, the region ${nom} in blue` +
+    (essais.length === 0 ? '' : `. Your guesses: ${essais.map((e) => `${e.numero} ${e.nom}, ${e.proximite}%`).join('; ')}`),
+  legende: { proximite: 'Proximity', reponse: 'the answer' },
   voirResultats: 'See results',
 
   resultats: 'Results',

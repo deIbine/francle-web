@@ -42,6 +42,17 @@ export function carres(proximite: number): string {
   return '🟩'.repeat(verts) + '🟨'.repeat(jaunes) + '⬜'.repeat(CARRES - verts - jaunes)
 }
 
+// la couleur d'un essai sur la carte de fin : un dégradé du jaune pâle (0 %, loin) au vert vif (100 %, près), les
+// couleurs des carrés 🟨 🟩. En HSL (teinte, saturation, luminosité) : la teinte passe du jaune (48°) au vert (140°)
+// pendant que la couleur fonce, pour qu'une région proche se voie mieux qu'une lointaine
+export function couleurProximite(proximite: number): string {
+  const t = Math.min(Math.max(proximite, 0), 100) / 100
+  const teinte = Math.round(48 + t * 92)
+  const saturation = Math.round(80 - t * 20)
+  const luminosite = Math.round(82 - t * 46)
+  return `hsl(${teinte}, ${saturation}%, ${luminosite}%)`
+}
+
 // le score : « 3/6 » si trouvée en 3 essais, « X/6 » si perdue ou abandonnée (comme Wordle)
 export function score(partie: Partie): string {
   return `${partie.etat === 'gagnee' ? partie.essais.length : 'X'}/${ESSAIS_MAX}`

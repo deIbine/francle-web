@@ -57,27 +57,64 @@ export function useContours(region: string): Contours | undefined {
   return charges.region === region ? charges.contours : CHARGES.get(region)
 }
 
-// le centre du rectangle qui entoure un tracé. Le tracé est écrit par le script sous la forme « M x y l dx dy dx dy…
-// z », répétée pour chaque morceau (îles, trous) : le premier point est absolu, les suivants relatifs au précédent
-export function centre(d: string): { x: number; y: number } {
-  let xMin = Infinity
-  let xMax = -Infinity
-  let yMin = Infinity
-  let yMax = -Infinity
-  for (const morceau of d.split('M').slice(1)) {
-    const [debut, suite = ''] = morceau.replace('z', '').split('l')
-    let [x, y] = debut.trim().split(' ').map(Number)
-    const ecarts = suite.trim() === '' ? [] : suite.trim().split(' ').map(Number)
-    for (let i = -2; i < ecarts.length; i += 2) {
-      if (i >= 0) {
+export interface Point {
+  readonly x: number
+  readonly y: number
+}
+
+// les morceaux d'un tracé (îles, trous), chacun en points absolus. Le tracé est écrit par le script sous la forme
+// « M x y l dx dy dx dy… z », répétée pour chaque morceau : le premier point est absolu, les suivants relatifs au
+// précédent
+export function morceaux(d: string): Point[][] {
+  return d
+    .split('M')
+    .slice(1)
+    .map((morceau) => {
+      const [debut, suite = ''] = morceau.replace('z', '').split('l')
+      let [x, y] = debut.trim().split(' ').map(Number)
+      const ecarts = suite.trim() === '' ? [] : suite.trim().split(' ').map(Number)
+      const points = [{ x, y }]
+      for (let i = 0; i < ecarts.length; i += 2) {
         x += ecarts[i]
         y += ecarts[i + 1]
+        points.push({ x, y })
       }
-      xMin = Math.min(xMin, x)
-      xMax = Math.max(xMax, x)
-      yMin = Math.min(yMin, y)
-      yMax = Math.max(yMax, y)
-    }
-  }
-  return { x: (xMin + xMax) / 2, y: (yMin + yMax) / 2 }
+      return points
+    })
+}
+
+// le centre du rectangle qui entoure un tracé
+export function centre(d: string): Point {
+  const points = morceaux(d).flat()
+  const xs = points.map((p) => p.x)
+  const ys = points.map((p) => p.y)
+  return { x: (Math.min(...xs) + Math.max(...xs)) / 2, y: (Math.min(...ys) + Math.max(...ys)) / 2 }
+}
+
+// l'aire d'un morceau (formule du lacet : la somme des produits en croix de ses côtés), positive ou négative selon
+// le sens où il est parcouru
+function aire(points: readonly Point[]): number {
+  let somme = 0
+  points.forEach((a, i) => {
+    const b = points[(i + 1) % points.length]
+    somme += a.x * b.y - b.x * a.y
+  })
+  return somme / 2
+}
+
+// le centre de gravité du plus grand morceau, où poser une étiquette : le rectangle qui entoure une région compte
+// aussi ses îles, et son centre tombe mal sur une forme biscornue. Vérifié dans les tests : pour chaque région des
+// deux époques, ce point est bien dans la région
+export function centreDeGravite(d: string): Point {
+  const plusGrand = morceaux(d).reduce((a, b) => (Math.abs(aire(b)) > Math.abs(aire(a)) ? b : a))
+  const a = aire(plusGrand)
+  let x = 0
+  let y = 0
+  plusGrand.forEach((p, i) => {
+    const q = plusGrand[(i + 1) % plusGrand.length]
+    const croix = p.x * q.y - q.x * p.y
+    x += (p.x + q.x) * croix
+    y += (p.y + q.y) * croix
+  })
+  return { x: x / (6 * a), y: y / (6 * a) }
 }

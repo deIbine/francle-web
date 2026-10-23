@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { carres, textePartage } from './partage.ts'
+import { carres, couleurProximite, textePartage } from './partage.ts'
 import { abandonner, nouvellePartie, proposer, type Partie } from './partie.ts'
 import { parId } from './regions.ts'
 
@@ -36,6 +36,23 @@ describe('Le partage', () => {
     [0, '⬜⬜⬜⬜⬜'],
   ])('%i %% donne %s', (proximite, attendu) => {
     expect(carres(proximite)).toBe(attendu)
+  })
+
+  it('la couleur de la carte de fin va du jaune pâle (loin) au vert vif (près)', () => {
+    expect(couleurProximite(0)).toBe('hsl(48, 80%, 82%)')
+    expect(couleurProximite(50)).toBe('hsl(94, 70%, 59%)')
+    expect(couleurProximite(100)).toBe('hsl(140, 60%, 36%)')
+    // hors des bornes : on reste dans le dégradé
+    expect(couleurProximite(-5)).toBe(couleurProximite(0))
+    expect(couleurProximite(120)).toBe(couleurProximite(100))
+  })
+
+  it('plus une région est proche, plus sa couleur est foncée', () => {
+    const luminosite = (p: number) => Number(couleurProximite(p).match(/(\d+)%\)$/)?.[1])
+    for (let p = 1; p <= 100; p++) {
+      expect(luminosite(p)).toBeLessThanOrEqual(luminosite(p - 1))
+    }
+    expect(luminosite(73)).toBeLessThan(luminosite(7))
   })
 
   it('une partie gagnée : le score, une ligne par essai, l’adresse du site', () => {

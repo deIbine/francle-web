@@ -25,7 +25,7 @@ export function FinDePartie({ partie, message, bonus, children }: Props) {
       <p>
         {textes.reponse} <strong>{partie.cible.nom[langue]}</strong>
       </p>
-      <CarteFrance mode={partie.mode} cible={partie.cible.id} nom={partie.cible.nom[langue]} />
+      <CarteFrance partie={partie} />
       <div className="border-t border-bord pt-3">{children}</div>
     </section>
   )
