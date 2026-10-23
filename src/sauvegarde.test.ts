@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { bonusDuJour, passer, repondreChoix, type Bonus } from './domaine/bonus.ts'
+import { avecDifficulte, bonusDuJour, passer, repondreChoix, type Bonus } from './domaine/bonus.ts'
 import { parCode } from './domaine/departements.ts'
 import { SANS_MODE } from './domaine/partage.ts'
 import { abandonner, nouvellePartie, proposer, type Partie } from './domaine/partie.ts'
@@ -84,8 +84,21 @@ describe('La sauvegarde du bonus', () => {
         ['27', '14'],
       ],
       etat: 'en-cours',
+      difficile: false,
     })
     expect(restaurerBonus(1, lire().get(1))).toEqual(repondu(['76', '76'], ['27', '14']))
+  })
+
+  it('la version difficile est gardée avec le bonus ; un bonus d’avant web.7.14, sans version, est difficile', () => {
+    enregistrer(1, gagnee())
+    const difficile = repondreChoix(avecDifficulte(bonusDuJour(NORMANDIE, 1), true), parCode('76')!, parCode('33')!)
+    enregistrerBonus(1, difficile as Bonus)
+    expect(restaurerBonus(1, lire().get(1))).toEqual(difficile)
+    localStorage.setItem(
+      CLE,
+      JSON.stringify({ 1: { regions: ['normandie'], etat: 'gagnee', bonus: { paires: [['76', '76']], etat: 'en-cours' } } }),
+    )
+    expect(restaurerBonus(1, lire().get(1))!.difficile).toBe(true)
   })
 
   it('une sauvegarde de web.7 (les numéros donnés, sans paires) se relit avec l’ordre du jour', () => {
@@ -93,8 +106,9 @@ describe('La sauvegarde du bonus', () => {
       CLE,
       JSON.stringify({ 1: { regions: ['normandie'], etat: 'gagnee', bonus: { reponses: ['76', '14'], etat: 'en-cours' } } }),
     )
-    // 76 puis 27 demandés dans l'ordre du jour ; le bonus continue en mode C (web.7.6)
-    expect(restaurerBonus(1, lire().get(1))).toEqual(repondu(['76', '76'], ['27', '14']))
+    // 76 puis 27 demandés dans l'ordre du jour ; le bonus continue en mode C (web.7.6), en version difficile
+    // (web.7.14 : il a été joué avec les 101 départements)
+    expect(restaurerBonus(1, lire().get(1))).toEqual({ ...repondu(['76', '76'], ['27', '14']), difficile: true })
   })
 
   it('une paire impossible (département hors de la région, ou déjà répondu) arrête la relecture', () => {

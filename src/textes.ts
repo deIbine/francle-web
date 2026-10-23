@@ -210,6 +210,8 @@ const fr = {
     plusieurs: 'Plusieurs départements possibles\u00a0: choisis dans la liste.',
     pasUnNumero: 'Écris un numéro de département, par exemple 971.',
     dejaTrouve: (nom: string) => `${nom}\u00a0: déjà trouvé ailleurs sur la carte.`,
+    // version simple : un département d'une autre région est refusé, sans coûter de réponse
+    autreRegion: (nom: string) => `${nom}\u00a0: ce département n’est pas dans la région.`,
     passer: 'Passer',
     fini: (score: number, total: number) =>
       `Bonus terminé\u00a0: ${score} département${score > 1 ? 's' : ''} trouvé${score > 1 ? 's' : ''} sur ${total}.`,
@@ -409,6 +411,7 @@ const en: Textes = {
     plusieurs: 'Several departments match: pick one from the list.',
     pasUnNumero: 'Type a department number, for example 971.',
     dejaTrouve: (nom: string) => `${nom}: already found elsewhere on the map.`,
+    autreRegion: (nom: string) => `${nom}: this department is not in the region.`,
     passer: 'Skip',
     fini: (score: number, total: number) =>
       `Bonus over: ${score} department${score === 1 ? '' : 's'} found out of ${total}.`,

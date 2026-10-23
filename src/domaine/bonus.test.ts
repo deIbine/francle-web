@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import {
+  avecDifficulte,
   bonusAuHasard,
   bonusDuJour,
   commence,
@@ -7,6 +8,7 @@ import {
   nouveauBonus,
   ordreDuJour,
   passer,
+  proposables,
   rang,
   rejouer,
   rejouerPaires,
@@ -140,11 +142,13 @@ describe('Rejouer une sauvegarde', () => {
 describe('Le mode C : choisir un département, puis le nommer', () => {
   // la Bretagne, en mode C : le joueur choisit l'ordre
   const bonusC = () => nouveauBonus(BRETAGNE, departementsDe(BRETAGNE), 'choix')
+  // la même, en version difficile (les 101 départements proposés)
+  const bonusDifficile = () => nouveauBonus(BRETAGNE, departementsDe(BRETAGNE), 'choix', true)
 
   // la réponse attendue est un bonus (et non un refus)
   function joue(bonus: Bonus, choisi: string, donne: string): Bonus {
     const suite = repondreChoix(bonus, dep(choisi), dep(donne))
-    if (suite === 'deja-trouve') throw new Error('refusé')
+    if (typeof suite === 'string') throw new Error(suite)
     return suite
   }
 
@@ -159,10 +163,35 @@ describe('Le mode C : choisir un département, puis le nommer', () => {
     expect(rang(suite)).toBe(2)
   })
 
-  it('une réponse fausse compte, même un département d’une autre région', () => {
-    const suite = joue(joue(bonusC(), '29', '22'), '35', '33')
+  it('une réponse fausse compte ; un département d’une autre région aussi, en version difficile', () => {
+    const suite = joue(joue(bonusDifficile(), '29', '22'), '35', '33')
     expect(score(suite)).toBe(0)
     expect(suite.tentatives).toHaveLength(2)
+  })
+
+  it('version simple : un département d’une autre région est refusé sans rien coûter', () => {
+    const bonus = joue(bonusC(), '29', '22')
+    expect(repondreChoix(bonus, dep('35'), dep('33'))).toBe('autre-region')
+    expect(repondreSaisieChoix(bonus, dep('35'), 'Gironde')).toBe('autre-region')
+    expect(score(joue(bonus, '35', '35'))).toBe(1)
+  })
+
+  it('les départements proposés : ceux de la région en version simple, les 101 en version difficile', () => {
+    expect(bonusC().difficile).toBe(false)
+    expect(proposables(bonusC()).map((departement) => departement.code)).toEqual(['22', '29', '35', '56'])
+    expect(proposables(bonusDifficile())).toHaveLength(101)
+    // le mode B garde ceux de la région, la question du numéro n'en a aucun
+    expect(proposables(nouveauBonus(BRETAGNE, departementsDe(BRETAGNE), 'nom', true))).toHaveLength(4)
+    const guadeloupe = parId('guadeloupe')
+    expect(proposables(nouveauBonus(guadeloupe, departementsDe(guadeloupe), 'choix', true))).toEqual([])
+  })
+
+  it('la version suit le réglage tant que le bonus n’a pas commencé, puis elle est fixée', () => {
+    const difficile = avecDifficulte(bonusC(), true)
+    expect(difficile.difficile).toBe(true)
+    expect(avecDifficulte(difficile, false).difficile).toBe(false)
+    const commence = joue(difficile, '29', '29')
+    expect(avecDifficulte(commence, false)).toBe(commence)
   })
 
   it('un département déjà trouvé est refusé sans rien coûter ; un nom donné à tort reste possible', () => {
@@ -189,7 +218,7 @@ describe('Le mode C : choisir un département, puis le nommer', () => {
   })
 
   it('la réponse écrite : nom ou numéro des 101 départements ; une saisie inconnue ne coûte rien', () => {
-    const bonus = bonusC()
+    const bonus = bonusDifficile()
     expect(repondreSaisieChoix(bonus, dep('29'), 'Atlantide')).toBe('inconnu')
     const parNom = repondreSaisieChoix(bonus, dep('29'), 'finistere') as Bonus
     expect(score(parNom)).toBe(1)

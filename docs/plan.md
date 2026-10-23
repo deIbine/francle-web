@@ -657,8 +657,10 @@ Posées toutes ensemble, avec une recommandation chacune : **toutes acceptées**
 
 ### Les phases (une branche et une PR chacune)
 
-0. **web.7.14.0 Le plan** : ce chapitre, et les anciennes décisions marquées comme remplacées.
-1. **web.7.14.1 Les règles, sans affichage** : `bonus.ts` (le bonus connaît sa difficulté ; une fonction donne les
+0. ✅ **web.7.14.0 Le plan** (PR #42) : ce chapitre, et les anciennes décisions marquées comme remplacées.
+1. ✅ **web.7.14.1 Les règles, sans affichage** (PR #43 ; `avecDifficulte` et `proposables` dans `bonus.ts`, le
+   refus `'autre-region'` et son message, déjà affiché par `JeuBonus` pour que les types tiennent ; les tests qui
+   donnaient « Gironde » comme réponse fausse en donnent une de la région) : `bonus.ts` (le bonus connaît sa difficulté ; une fonction donne les
    départements proposés, ceux de la région ou les 101 ; le refus sans coût d'un département d'une autre région en
    version simple), `sauvegarde.ts` (la difficulté gardée avec le bonus du jour, une ancienne sauvegarde relue comme
    difficile), `partage.ts` (le repère 💪), tests dont la relecture d'une ancienne sauvegarde.

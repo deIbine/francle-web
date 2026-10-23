@@ -5,7 +5,8 @@ Le texte à partager à la fin de la partie, à la Worldle : le numéro, le scor
     🟩🟩🟨⬜⬜↗️
     🟩🟩🟩🟩🟨⬅️
     🟩🟩🟩🟩🟩🎉
-    🗺️ 9/12                  (le bonus des départements, une fois fini : 9 trouvés sur 12)
+    🗺️ 9/12                  (le bonus des départements, une fois fini : 9 trouvés sur 12 ; suivi de 💪 dans sa
+                              version difficile)
     https://deibine.github.io/francle-web/
 
 Les carrés s'inspirent de generateSquareCharacters (src/domain/geography.ts de Worldle,
@@ -24,6 +25,11 @@ export interface ModesDifficiles {
 }
 
 export const SANS_MODE: ModesDifficiles = { rotation: false, cachee: false }
+
+// le bonus fini, tel qu'il se partage : son score, et sa version (difficile : les 101 départements proposés)
+export interface BonusPartage extends ScoreBonus {
+  readonly difficile: boolean
+}
 
 export const ADRESSE = 'https://deibine.github.io/francle-web/'
 
@@ -54,11 +60,11 @@ export function textePartage(
   numero: number,
   modes: ModesDifficiles = SANS_MODE,
   langue: Langue = 'fr',
-  bonus?: ScoreBonus,
+  bonus?: BonusPartage,
 ): string {
   const lignes = partie.essais.map((essai) => carres(essai.proximite) + EMOJIS[essai.direction])
   if (bonus !== undefined) {
-    lignes.push(`🗺️ ${bonus.score}/${bonus.total}`)
+    lignes.push(`🗺️ ${bonus.score}/${bonus.total}` + (bonus.difficile ? ' 💪' : ''))
   }
   const titre = [`#Francle ${NUMERO[langue](numero)}`, score(partie), emojisModes(modes)].filter(
     (morceau) => morceau !== '',

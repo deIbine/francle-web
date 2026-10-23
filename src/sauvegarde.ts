@@ -19,8 +19,12 @@ Les réponses du bonus, deux formats :
     paires    (depuis web.7.6) [numéro demandé, numéro donné] : en mode C, le joueur choisit l'ordre, il faut donc
               garder aussi le département qu'il a choisi
 On n'écrit plus que des paires ; les deux se lisent.
+
+Depuis web.7.14, le bonus garde aussi sa version (difficile ou non, fixée à la première réponse). Absente, le bonus a
+été joué avant web.7.14, avec les 101 départements : il est relu comme difficile.
  */
 import {
+  avecDifficulte,
   bonusDuJour,
   bonusEnCours,
   commence,
@@ -56,6 +60,8 @@ export interface BonusSauve {
   // web.7 : les numéros des départements donnés, dans l'ordre du jour (absent depuis web.7.6)
   readonly reponses?: readonly string[]
   readonly etat: EtatBonus
+  // depuis web.7.14 : la version difficile (absente avant : difficile, voir en haut du fichier)
+  readonly difficile?: boolean
 }
 
 // toutes les parties sauvées : numéro du jour -> partie. Une sauvegarde illisible (modifiée à la main, d'un autre
@@ -104,7 +110,8 @@ function estBonusSauve(valeur: unknown): valeur is BonusSauve {
     (estListeDeCodes(bonus.reponses) ||
       (Array.isArray(bonus.paires) &&
         bonus.paires.every((paire) => Array.isArray(paire) && paire.length === 2 && estListeDeCodes(paire)))) &&
-    ['en-cours', 'termine', 'passe'].includes(bonus.etat)
+    ['en-cours', 'termine', 'passe'].includes(bonus.etat) &&
+    (bonus.difficile === undefined || typeof bonus.difficile === 'boolean')
   )
 }
 
@@ -141,6 +148,7 @@ export function enregistrerBonus(numero: number, bonus: Bonus, stockage: Storage
     bonus: {
       paires: bonus.tentatives.map((tentative) => [tentative.demande.code, tentative.donne.code] as const),
       etat: bonus.etat,
+      difficile: bonus.difficile,
     },
   })
   ecrire(parties, stockage)
@@ -179,8 +187,8 @@ export function restaurerBonus(numero: number, sauvee: PartieSauvee | undefined)
   if (sauvee?.bonus === undefined) {
     return undefined
   }
-  const neuf = bonusDuJour(regionDuNumero(numero), numero)
-  const { paires, reponses } = sauvee.bonus
+  const { paires, reponses, difficile = true } = sauvee.bonus
+  const neuf = avecDifficulte(bonusDuJour(regionDuNumero(numero), numero), difficile)
   const bonus = paires !== undefined ? rejouerPaires(neuf, paires) : rejouer(neuf, reponses ?? [])
   if (!commence(bonus)) {
     return undefined

@@ -7,7 +7,7 @@ import { render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import App from './App.tsx'
-import { DEPARTEMENTS, departementsDe, type Departement } from './domaine/departements.ts'
+import { departementsDe, type Departement } from './domaine/departements.ts'
 import { regionDuJour } from './domaine/regionDuJour.ts'
 import { parId, tirables } from './domaine/regions.ts'
 import { CLE_REGLAGES } from './reglages.ts'
@@ -16,8 +16,6 @@ import { CLE_REGLAGES } from './reglages.ts'
 const DATE = new Date(2026, 9, 14, 12)
 const CIBLE = regionDuJour(DATE)
 const DEPS = departementsDe(CIBLE)
-// un département d'une autre région : une réponse forcément fausse
-const AILLEURS = DEPARTEMENTS.find((departement) => !DEPS.includes(departement))!
 
 type Joueur = ReturnType<typeof userEvent.setup>
 
@@ -94,17 +92,17 @@ describe('La liste des départements, partie du jour', () => {
     expect((within(ensuite).getByRole('button', { name: nom(DEPS[1]) }) as HTMLButtonElement).disabled).toBe(false)
   })
 
-  it('un nom d’une autre région est une réponse fausse ; le département manqué est barré, pas le nom donné', async () => {
+  it('une réponse fausse : le département manqué est barré, pas le nom donné', async () => {
     const joueur = demarrer()
     await proposer(joueur, CIBLE.nom.fr)
     await cliquer(joueur, DEPS[0].code)
-    await joueur.click(within(await ouvrirDepartements(joueur)).getByRole('button', { name: nom(AILLEURS) }))
+    await joueur.click(within(await ouvrirDepartements(joueur)).getByRole('button', { name: nom(DEPS[1]) }))
     expect(within(panneau()).getByText(/^Raté/)).toBeDefined()
 
     await cliquer(joueur, DEPS[1].code)
     const liste = await ouvrirDepartements(joueur)
     expect(within(liste).getByRole('button', { name: `${nom(DEPS[0])}, déjà répondu` })).toBeDefined()
-    expect((within(liste).getByRole('button', { name: nom(AILLEURS) }) as HTMLButtonElement).disabled).toBe(false)
+    expect((within(liste).getByRole('button', { name: nom(DEPS[1]) }) as HTMLButtonElement).disabled).toBe(false)
   })
 
   it('le bonus fini reste affiché : la liste le dit, et tout est grisé', async () => {
