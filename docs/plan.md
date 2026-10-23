@@ -236,9 +236,20 @@ squash le 18 octobre 2026 sur l'accord de l'utilisateur, étiquettes `web-7.8` �
   - **web.7.13 La séparation d'avec le Java** (le 23 octobre 2026, à la demande de l'utilisateur) : les deux
     projets sont séparés, le Java n'est plus qu'un outil de comparaison (voir la fin de ce plan). Plus de tâches
     « pour le Java » ici, plus de PR jumelles, plus de ménage dans l'autre dépôt depuis une conversation du web.
-  - **La prochaine étape est à choisir avec l'utilisateur** : web.8 reste repoussé ; parmi « Les améliorations à
-    reprendre » plus bas, les candidates sont la carte de fin en couleur (point 12), le compteur de la partie libre,
-    le repère « voisine » et le mode « métropole seulement ». Présenter le choix et les questions avant de coder.
+    **Fusionnée** en squash le 23 octobre 2026 sur l'accord de l'utilisateur (PR #40, étiquette `web-7.13`). Les
+    valeurs de référence sont figées dans `reference.json` ; `outils/ReferenceJava.java` est supprimé ; la règle est
+    dans `CLAUDE.md`. Reste au dépôt Java, dans sa propre conversation, de retirer ses renvois vers le web.
+  - **État vérifié le 23 octobre 2026**, après web.7.13 : aucune PR ouverte ; sur GitHub, seule la branche `main` ;
+    en local, `main` et la branche du dossier de travail de la session Claude ; le dossier principal `francle-web`
+    à jour sur `main`. Chaque étape a son étiquette (jusqu'à `web-7.13`) ; seules les PR de notes ou de petits
+    réglages n'en ont pas (#8, #12, #13, #21, #37, #38, #39, et web.7.13.1 qui note cet état). Aucune PR fermée sans
+    fusion. 297 tests.
+  - **La prochaine étape est à choisir avec l'utilisateur** (présentée le 23 octobre 2026, pas encore choisie) :
+    web.8 reste repoussé ; parmi « Les améliorations à reprendre » plus bas, les candidates sont la carte de fin en
+    couleur (point 12, **recommandée** : la plus visible, déjà repoussée deux fois), le compteur de la partie libre
+    (petit, peut l'accompagner), le repère « voisine » (nouvelle règle, à décider) et le mode « métropole
+    seulement » ; ou le défi seul (web.8.1, qui ne dépend pas du domaine, après réponse aux questions 5 à 10 de
+    web.8). Présenter le découpage et les questions avant de coder.
   - **web.8** : **repoussé** le 18 octobre 2026 (pas de domaine acheté pour l'instant). Le découpage et ses onze
     questions ont été présentés le 17 octobre 2026 (voir « Le domaine et le défi (web.8) » plus bas) ; l'utilisateur
     n'y a pas encore répondu.
