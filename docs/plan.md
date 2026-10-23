@@ -265,6 +265,10 @@ squash le 18 octobre 2026 sur l'accord de l'utilisateur, étiquettes `web-7.8` �
     (petit, peut l'accompagner), le repère « voisine » (nouvelle règle, à décider) et le mode « métropole
     seulement » ; ou le défi seul (web.8.1, qui ne dépend pas du domaine, après réponse aux questions 5 à 10 de
     web.8). Présenter le découpage et les questions avant de coder.
+  - **Choisie le 23 octobre 2026 : la carte de fin en couleur (web.7.15)**, après une maquette que l'utilisateur a
+    beaucoup aimée (section du même nom plus bas). Découpage et décisions **validés le même jour** (toutes les
+    recommandations acceptées). **Lancée le même jour** par l'utilisateur (« Tu peux lancer l'ensemble des
+    phases ») : deux PR empilées, à fusionner à la fin sur son accord.
   - **web.8** : **repoussé** le 18 octobre 2026 (pas de domaine acheté pour l'instant). Le découpage et ses onze
     questions ont été présentés le 17 octobre 2026 (voir « Le domaine et le défi (web.8) » plus bas) ; l'utilisateur
     n'y a pas encore répondu.
@@ -681,6 +685,64 @@ Posées toutes ensemble, avec une recommandation chacune : **toutes acceptées**
    (la liste de la phase 1), textes FR et EN, « Comment jouer », tests (dont axe), vérification à 375 pixels en clair
    et en sombre, leçons, plan.
 
+## La carte de fin en couleur (web.7.15)
+
+Le point 12 des corrections du 18 octobre 2026 (« Carte de fin » dans « Les améliorations à reprendre »). Une
+maquette a été montrée le 23 octobre 2026 ; l'utilisateur l'a beaucoup aimée et a demandé de garder l'idée :
+[`docs/maquettes/carte-de-fin-en-couleur.png`](maquettes/carte-de-fin-en-couleur.png). Elle a été dessinée avec les
+vrais contours (`src/images/cartes/nouvelles.json`), et ses chiffres viennent des vraies règles (`geographie.ts`) :
+l'Occitanie trouvée en 5 essais, en thème clair et en thème sombre.
+
+### L'idée (la maquette)
+
+- La **réponse** reste en **bleu foncé**, comme aujourd'hui.
+- Chaque **région proposée** est colorée selon sa **proximité** : un dégradé du **jaune pâle** (loin) au **vert
+  vif** (près), les couleurs des carrés 🟨 🟩 du partage. Le Grand Est à 7 % est presque jaune ; la
+  Nouvelle-Aquitaine à 73 % est bien verte.
+- Une **pastille numérotée** montre l'ordre des essais : on voit le chemin qui se rapproche.
+- Les régions jamais proposées gardent la couleur neutre d'aujourd'hui (`carte-fond`).
+- Sous la carte de la maquette : une légende du dégradé, et un rappel du tableau des essais (pour expliquer
+  l'image, pas forcément à garder).
+
+### Ce que ça demande dans le code (vu avant de décider)
+
+- `FinDePartie.tsx` a déjà toute la partie (`partie`) : il suffit de donner ses essais à `CarteFrance`, au lieu de la
+  seule cible.
+- `CarteFrance.tsx` colore déjà la réponse par une classe ; il faudra une couleur calculée par essai (style
+  `fill`), les pastilles, et dessiner les régions proposées après les autres (en SVG, le dernier dessiné passe
+  devant).
+- La couleur selon la proximité est une règle pure, testable sans affichage, à côté de `carres()` dans
+  `domaine/partage.ts`.
+- L'outre-mer est déjà dans ses encadrés : une région d'outre-mer proposée s'y colore comme les autres.
+
+### Les décisions (validées le 23 octobre 2026)
+
+Posées toutes ensemble, avec une recommandation chacune : **toutes acceptées** (« Ok pour tout »).
+
+| Sujet | Décision |
+|---|---|
+| La couleur | Un **dégradé continu** du jaune pâle (0 %) au vert vif (99 %), comme la maquette, et pas trois paliers comme les carrés ⬜🟨🟩 : il distingue 41 % de 54 %. |
+| Les numéros | Une **pastille numérotée** sur chaque région proposée, dans l'ordre des essais. |
+| La légende | **Une ligne fine** sous la carte : le dégradé, « 0 % » et « 99 % », et le bleu de la réponse. |
+| Le tableau | **Pas de rappel** du tableau des essais sous la carte : il est déjà sur le plateau. |
+| Partie perdue ou abandonnée | **Pareil** : la réponse en bleu, les essais en couleur. |
+| Partie libre | **La même carte**, dans les deux époques. |
+| Thème sombre | **Le même dégradé** (lisible sur la maquette). |
+| Au survol | Le **nom** de chaque région colorée. |
+| Lecteurs d'écran | Le texte de la carte lit les essais : « Occitanie en bleu ; tes essais : 1 Grand Est, 7 % ; … ». En anglais aussi. |
+| Partage | **Inchangé**. |
+| Découpage | **Deux PR** empilées (ci-dessous). |
+
+### Le découpage (validé le 23 octobre 2026)
+
+Deux PR empilées, fusionnées à la fin, étiquettes `web-7.15.0`, `web-7.15.1` et `web-7.15` :
+
+0. **web.7.15.0 Le plan** : ce chapitre, avec les décisions ci-dessus.
+1. **web.7.15.1 La carte en couleur** : la couleur selon la proximité (règle pure, avec ses tests), `CarteFrance`
+   (les essais colorés, les pastilles, la légende, le nom au survol, le texte pour les lecteurs d'écran),
+   `FinDePartie`, textes FR et EN, tests (dont axe), vérification à 375 pixels en clair et en sombre, en partie du
+   jour et en partie libre (les deux époques), leçons, plan.
+
 ## Les améliorations à reprendre (relevées le 16 octobre 2026)
 
 Relevées en relisant le code après web.6. Le bug du changement de jour a été corrigé tout de suite (PR #9, étiquette
@@ -699,7 +761,8 @@ commencé.
   « voisine » (dans le tableau, voire dans le partage) aiderait : c'est une nouvelle règle, à décider.
 - **Outre-mer et mode 🙈** : un mode « métropole seulement » en partie libre (les silhouettes d'outre-mer sont très
   reconnaissables) ; en mode image cachée, révéler la silhouette au bout de quelques essais.
-- **Carte de fin** : montrer aussi les régions proposées, en couleur.
+- **Carte de fin** : montrer aussi les régions proposées, en couleur. **Choisie le 23 octobre 2026** : voir « La
+  carte de fin en couleur (web.7.15) », avec sa maquette.
 - **Partie du jour devinable** : chaque région revient une fois par cycle de 18 jours, donc le 18e jour se devine par
   élimination. Changer cela changerait les régions des jours à venir, et les valeurs figées de `reference.json` : à décider.
 - **Des tests plus rapides** : **fait à web.7.11** (`pool: 'vmThreads'`, 40 s -> 26 s ; `delay: null` pas essayé).
