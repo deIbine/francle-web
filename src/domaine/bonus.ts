@@ -4,8 +4,8 @@ la région trouvée, un par un. Une seule réponse par département : juste ou f
 Comme partie.ts, sans aucun affichage, et un bonus ne se modifie jamais : repondre() et passer() renvoient un
 NOUVEAU bonus.
 
-Repris de Bonus.java (deIbine/francle, phase 9). L'ordre de la partie du jour est le même que celui du Java, au bit
-près (vérifié par reference-java.test.ts).
+Repris de Bonus.java (deIbine/francle, phase 9). L'ordre de la partie du jour est figé dans reference.json (vérifié
+par reference.test.ts).
 
 Quatre sortes de questions :
     carte   « Où est le Finistère ? » : le joueur clique sur la carte (mode A, caché)

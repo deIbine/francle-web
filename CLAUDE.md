@@ -5,6 +5,10 @@ Version web de Francle (jeu de devinettes des régions françaises), inspirée d
 **Au début de chaque conversation : lire `docs/plan.md`** (décisions validées, découpage en étapes, point de départ).
 Ensuite, s'il existe, `docs/lecons.md`.
 
+**Projet séparé du Java** (depuis le 23 octobre 2026) : le projet Java `deIbine/francle` n'est qu'un **outil de
+comparaison** (lire son code, exécuter ses règles pour comprendre). Ne jamais modifier son dépôt ni y ouvrir de PR
+depuis ici, ne pas noter de tâches « pour le Java » dans ce plan, et le web n'a pas à lui rester égal.
+
 ## Méthode de travail
 
 - Tout en français : explications, commentaires, commits (à l'impératif), PR.

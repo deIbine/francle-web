@@ -1,7 +1,7 @@
 /*
 Le générateur de hasard de Java (java.util.Random), recopié à l'identique : avec la même graine, il donne exactement
-la même suite de nombres qu'en Java. C'est ce qui permet au site de trouver la même région du jour et le même angle
-que le Francle Java.
+la même suite de nombres qu'en Java. Repris du Francle Java, dont le site a gardé la région et l'angle du jour ; les
+valeurs sont maintenant figées dans reference.json, propre au site.
 
 Java décrit précisément son algorithme dans la documentation de Random : un « générateur congruentiel linéaire » sur
 48 bits. À chaque tirage : graine = (graine × 0x5DEECE66D + 0xB) mod 2^48.

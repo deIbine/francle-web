@@ -64,7 +64,7 @@ describe('La sauvegarde', () => {
 })
 
 describe('La sauvegarde du bonus', () => {
-  // la partie n° 1 : la Normandie, dont le bonus du jour demande 76, 27, 50, 61 puis 14 (voir reference-java.json)
+  // la partie n° 1 : la Normandie, dont le bonus du jour demande 76, 27, 50, 61 puis 14 (voir reference.json)
   const NORMANDIE = regionDuNumero(1)
   const gagnee = () => proposer(nouvellePartie(NORMANDIE, 'nouvelles'), 'Normandie')!
   // le bonus du jour (mode C), après ces réponses : [département choisi, département donné]

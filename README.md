@@ -50,7 +50,7 @@ Chaque fusion dans `main` publie le site sur GitHub Pages (`.github/workflows/ci
 | `src/textes.ts` | Tous les textes, en français et en anglais. |
 | `src/sauvegarde.ts`, `src/reglages.ts` | Ce qui est gardé dans le navigateur. |
 | `src/images/` | Les silhouettes (SVG), les contours des cartes et ceux des départements, produits par `outils/generer_images.py`. |
-| `outils/` | Le script des images, et `ReferenceJava.java`, qui produit les valeurs de référence du jeu Java. |
+| `outils/` | Le script des images. |
 | `docs/plan.md`, `docs/lecons.md` | Le plan du projet et les leçons apprises à chaque étape. |
 
 ### Les images
@@ -66,9 +66,10 @@ py outils/generer_images.py <dossier des contours> src/images public
 
 ### La version Java
 
-Francle a d'abord été un jeu de bureau en Java ([deIbine/francle](https://github.com/deIbine/francle)). Le site
-reprend ses règles et ses données : la région du jour est la même, au bit près, et les tests comparent les résultats
-aux valeurs du Java (`src/domaine/reference-java.test.ts`).
+Francle a d'abord été un jeu de bureau en Java ([deIbine/francle](https://github.com/deIbine/francle)). Le site en
+a repris les règles et les données, puis a suivi son propre chemin : les deux projets sont séparés, et le Java ne
+sert plus que de point de comparaison. Les valeurs de référence du site (région et angle du jour, distances,
+suggestions) sont figées dans `src/domaine/reference.json` et vérifiées par `src/domaine/reference.test.ts`.
 
 ## Licence
 

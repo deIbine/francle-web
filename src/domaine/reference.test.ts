@@ -1,7 +1,10 @@
 /*
-Les valeurs du Francle Java, toutes comparées : distances, directions et pourcentages pour chaque paire de régions,
+Les valeurs de référence du jeu, figées : distances, directions et pourcentages pour chaque paire de régions,
 région, angle et ordre du bonus des départements pour 1501 jours passés, suggestions pour 472 saisies dans chaque mode.
-Le fichier reference-java.json est produit par outils/ReferenceJava.java (voir son en-tête).
+Le fichier reference.json a été produit au départ par le Francle Java (deIbine/francle), qui a servi de modèle. Depuis
+le 23 octobre 2026, les deux projets sont séparés : ces valeurs sont celles du site, et rien n'oblige plus à rester
+égal au Java. Un écart voulu se corrige dans reference.json, en le disant dans la PR ; un écart non voulu est un bug.
+Le plus important : la région et l'angle du jour, qui ne doivent pas changer pour les joueurs.
  */
 import { describe, expect, it } from 'vitest'
 import { ordreDuJour } from './bonus.ts'
@@ -9,7 +12,7 @@ import { azimut, direction, distance, proximite } from './geographie.ts'
 import { suggestions } from './recherche.ts'
 import { angleDuJour, numero, regionDuJour } from './regionDuJour.ts'
 import { parId, type Mode } from './regions.ts'
-import reference from './reference-java.json'
+import reference from './reference.json'
 
 // « 2026-10-12 » -> minuit, heure locale, ce jour-là : la date telle que la voit le joueur
 function dateLocale(texte: string): Date {
@@ -17,12 +20,12 @@ function dateLocale(texte: string): Date {
   return new Date(annee, mois - 1, jour)
 }
 
-// SUD_OUEST (Java) -> sud-ouest
+// SUD_OUEST (écrit ainsi dans le fichier, comme les constantes Java d'origine) -> sud-ouest
 function directionWeb(java: string): string {
   return java.toLowerCase().replace('_', '-')
 }
 
-describe('Comparaison avec le Francle Java', () => {
+describe('Les valeurs de référence', () => {
   it('a bien une valeur pour chaque paire de régions', () => {
     expect(reference.paires).toHaveLength(35 * 35)
   })
