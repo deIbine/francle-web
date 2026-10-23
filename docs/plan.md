@@ -140,7 +140,8 @@ Les PR de notes (#37, #38, #39) n'ont pas d'étiquette : ce ne sont pas des
 
 **Faites : web.0 à web.7, le bonus revu (web.7.5 à web.7.7), les corrections du 18 octobre 2026 (web.7.8 à
 web.7.11) et la liste des départements (web.7.12, le 19 octobre 2026, depuis le cloud), puis la séparation d'avec le Java
-(web.7.13, le 23 octobre 2026), et le bonus simplifié (web.7.14, le même jour).** Le bonus des départements est en ligne depuis le
+(web.7.13, le 23 octobre 2026), le bonus simplifié (web.7.14, le même jour) et la carte de fin en couleur
+(web.7.15, le même jour).** Le bonus des départements est en ligne depuis le
 17 octobre 2026 : quatre PR (#17 à #20), étiquettes `web-7.1` à `web-7.4` et `web-7` (détail plus bas dans « Le bonus
 des départements »). **Le bonus revu**, décidé le même jour après les retours des joueurs, est en ligne lui aussi :
 trois PR empilées (#24, #25, #26), fusionnées en squash le 17 octobre 2026 sur l'accord de l'utilisateur (sans test
@@ -268,8 +269,20 @@ squash le 18 octobre 2026 sur l'accord de l'utilisateur, étiquettes `web-7.8` �
   - **Choisie le 23 octobre 2026 : la carte de fin en couleur (web.7.15)**, après une maquette que l'utilisateur a
     beaucoup aimée (section du même nom plus bas). Découpage et décisions **validés le même jour** (toutes les
     recommandations acceptées). **Lancée le même jour** par l'utilisateur (« Tu peux lancer l'ensemble des
-    phases ») : **codée le même jour**, deux PR empilées (#46 le plan, #47 la carte), à fusionner
-    à la fin sur son accord. À vérifier par l'utilisateur, en jouant : la carte sur un vrai téléphone.
+    phases ») : **faite et en ligne le même jour**. Deux PR empilées : #46 (web.7.15.0, le plan) et #47
+    (web.7.15.1, la carte), fusionnées en squash le 23 octobre 2026 sur l'accord de l'utilisateur, dans l'ordre :
+    #46, puis la branche de #47 rebasée sur `main` (`git rebase --onto origin/main <ancienne base> <branche>`, arbre
+    identique avant et après), base de la PR changée en `main`, CI repassée, fusion. Étiquettes `web-7.15.0`
+    (`133fe5a`), `web-7.15.1` et `web-7.15` (`d3610bb`). Le choix fait en route a été accepté avec la fusion : la
+    pastille d'une région d'outre-mer va dans le coin de son encadré. 314 tests.
+  - **État vérifié le 23 octobre 2026**, après web.7.15 : les deux branches supprimées en local et sur GitHub (seule
+    `main` y reste, aucune PR ouverte), le dossier principal `francle-web` à jour sur `main`, le site publié (CI
+    `verifier` et `publier` réussies). La PR de ces notes (web.7.15.2) n'a pas d'étiquette.
+  - **Encore à vérifier par l'utilisateur, en jouant** : la carte de fin en couleur sur un vrai téléphone.
+  - **Après web.7.15, la prochaine étape est à choisir avec l'utilisateur** : web.8 reste repoussé ; parmi « Les
+    améliorations à reprendre » plus bas, restent le compteur de la partie libre, le repère « voisine » (nouvelle
+    règle, à décider) et le mode « métropole seulement » ; ou le défi seul (web.8.1). Présenter le découpage et les
+    questions, puis **attendre le signal de départ de l'utilisateur** (règle de `CLAUDE.md`).
   - **web.8** : **repoussé** le 18 octobre 2026 (pas de domaine acheté pour l'instant). Le découpage et ses onze
     questions ont été présentés le 17 octobre 2026 (voir « Le domaine et le défi (web.8) » plus bas) ; l'utilisateur
     n'y a pas encore répondu.
@@ -736,7 +749,7 @@ Posées toutes ensemble, avec une recommandation chacune : **toutes acceptées**
 
 ### Le découpage (validé le 23 octobre 2026)
 
-Deux PR empilées, fusionnées à la fin, étiquettes `web-7.15.0`, `web-7.15.1` et `web-7.15` :
+Deux PR empilées, **fusionnées en squash le 23 octobre 2026**, étiquettes `web-7.15.0`, `web-7.15.1` et `web-7.15` :
 
 0. ✅ **web.7.15.0 Le plan** (PR #46) : ce chapitre, avec les décisions ci-dessus.
 1. ✅ **web.7.15.1 La carte en couleur** (PR #47 ; 314 tests ; `couleurProximite` dans `partage.ts`,
@@ -766,7 +779,7 @@ commencé.
   « voisine » (dans le tableau, voire dans le partage) aiderait : c'est une nouvelle règle, à décider.
 - **Outre-mer et mode 🙈** : un mode « métropole seulement » en partie libre (les silhouettes d'outre-mer sont très
   reconnaissables) ; en mode image cachée, révéler la silhouette au bout de quelques essais.
-- **Carte de fin** : montrer aussi les régions proposées, en couleur. **Choisie le 23 octobre 2026** : voir « La
+- **Carte de fin** : montrer aussi les régions proposées, en couleur. **Faite le 23 octobre 2026** (web.7.15) : voir « La
   carte de fin en couleur (web.7.15) », avec sa maquette.
 - **Partie du jour devinable** : chaque région revient une fois par cycle de 18 jours, donc le 18e jour se devine par
   élimination. Changer cela changerait les régions des jours à venir, et les valeurs figées de `reference.json` : à décider.
