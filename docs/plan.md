@@ -268,7 +268,7 @@ squash le 18 octobre 2026 sur l'accord de l'utilisateur, étiquettes `web-7.8` �
   - **Choisie le 23 octobre 2026 : la carte de fin en couleur (web.7.15)**, après une maquette que l'utilisateur a
     beaucoup aimée (section du même nom plus bas). Découpage et décisions **validés le même jour** (toutes les
     recommandations acceptées). **Lancée le même jour** par l'utilisateur (« Tu peux lancer l'ensemble des
-    phases ») : **codée le même jour**, deux PR empilées (#46 le plan, la PR de web.7.15.1 la carte), à fusionner
+    phases ») : **codée le même jour**, deux PR empilées (#46 le plan, #47 la carte), à fusionner
     à la fin sur son accord. À vérifier par l'utilisateur, en jouant : la carte sur un vrai téléphone.
   - **web.8** : **repoussé** le 18 octobre 2026 (pas de domaine acheté pour l'instant). Le découpage et ses onze
     questions ont été présentés le 17 octobre 2026 (voir « Le domaine et le défi (web.8) » plus bas) ; l'utilisateur
@@ -739,7 +739,7 @@ Posées toutes ensemble, avec une recommandation chacune : **toutes acceptées**
 Deux PR empilées, fusionnées à la fin, étiquettes `web-7.15.0`, `web-7.15.1` et `web-7.15` :
 
 0. ✅ **web.7.15.0 Le plan** (PR #46) : ce chapitre, avec les décisions ci-dessus.
-1. ✅ **web.7.15.1 La carte en couleur** (314 tests ; `couleurProximite` dans `partage.ts`,
+1. ✅ **web.7.15.1 La carte en couleur** (PR #47 ; 314 tests ; `couleurProximite` dans `partage.ts`,
    `centreDeGravite` et `morceaux` dans `contours.ts` ; choix fait en route : la pastille d'une région d'outre-mer
    va dans le coin de son encadré, sinon elle cachait la région ; la légende ne s'affiche que s'il y a d'autres
    essais que la réponse ; vérifié dans le navigateur intégré, partie libre perdue en 6 essais, à 375 pixels en
