@@ -140,7 +140,7 @@ Les PR de notes (#37, #38, #39) n'ont pas d'étiquette : ce ne sont pas des
 
 **Faites : web.0 à web.7, le bonus revu (web.7.5 à web.7.7), les corrections du 18 octobre 2026 (web.7.8 à
 web.7.11) et la liste des départements (web.7.12, le 19 octobre 2026, depuis le cloud), puis la séparation d'avec le Java
-(web.7.13, le 23 octobre 2026).** Le bonus des départements est en ligne depuis le
+(web.7.13, le 23 octobre 2026), et le bonus simplifié (web.7.14, le même jour).** Le bonus des départements est en ligne depuis le
 17 octobre 2026 : quatre PR (#17 à #20), étiquettes `web-7.1` à `web-7.4` et `web-7` (détail plus bas dans « Le bonus
 des départements »). **Le bonus revu**, décidé le même jour après les retours des joueurs, est en ligne lui aussi :
 trois PR empilées (#24, #25, #26), fusionnées en squash le 17 octobre 2026 sur l'accord de l'utilisateur (sans test
@@ -247,12 +247,18 @@ squash le 18 octobre 2026 sur l'accord de l'utilisateur, étiquettes `web-7.8` �
     réglages n'en ont pas (#8, #12, #13, #21, #37, #38, #39, et web.7.13.1 qui note cet état). Aucune PR fermée sans
     fusion. 297 tests.
   - **web.7.14 Le bonus simplifié** (choisi par l'utilisateur le 23 octobre 2026, section du même nom plus bas) :
-    **les trois PR sont prêtes**, empilées : #42 (web.7.14.0, le plan), #43 (web.7.14.1, les règles), #44 (web.7.14.2,
-    le réglage et l'affichage). **Reste à les fusionner** sur l'accord de l'utilisateur (en squash, dans l'ordre, en
-    changeant la base de la suivante en `main` à chaque fois), puis les étiquettes `web-7.14.0`, `web-7.14.1`,
-    `web-7.14.2` et `web-7.14`. Choix faits en route, à valider avec la fusion : le message du refus nomme le
-    département (« Gironde (33) : ce département n'est pas dans la région. ») ; l'aide de la case ajoute « Fixé à la
-    première réponse du bonus. » ; le mode B (caché) garde toujours les départements de la région.
+    **faite et en ligne**. Trois PR empilées : #42 (web.7.14.0, le plan), #43 (web.7.14.1, les règles), #44 (web.7.14.2,
+    le réglage et l'affichage), fusionnées en squash le 23 octobre 2026 sur l'accord de l'utilisateur, dans l'ordre :
+    chaque branche rebasée sur `main` (`git rebase --onto origin/main <ancienne base> <branche>`), arbre comparé avant
+    et après, base de la PR changée en `main`, puis fusion. Étiquettes `web-7.14.0` (`6a6cde7`), `web-7.14.1`
+    (`0ec88c7`), `web-7.14.2` et `web-7.14` (`831763c`). Les choix faits en route ont été acceptés avec la fusion : le
+    message du refus nomme le département (« Gironde (33) : ce département n'est pas dans la région. ») ; l'aide de la
+    case ajoute « Fixé à la première réponse du bonus. » ; le mode B (caché) garde toujours les départements de la
+    région. 305 tests.
+  - **État vérifié le 23 octobre 2026**, après web.7.14 : les trois branches supprimées en local et sur GitHub (seule
+    `main` y reste), le dossier principal `francle-web` à jour sur `main`. La PR de ces notes (web.7.14.3) n'a pas
+    d'étiquette.
+  - **Encore à vérifier par l'utilisateur, en jouant** : la version simple et l'option ⚙️ sur un vrai téléphone.
   - **Après web.7.14, la prochaine étape est à choisir avec l'utilisateur** (présentée le 23 octobre 2026) :
     web.8 reste repoussé ; parmi « Les améliorations à reprendre » plus bas, les candidates sont la carte de fin en
     couleur (point 12, **recommandée** : la plus visible, déjà repoussée deux fois), le compteur de la partie libre
