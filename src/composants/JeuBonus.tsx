@@ -143,8 +143,8 @@ export function JeuBonus({ bonus, onChanger, focaliser = false, demandeListe = 0
   // mode C, la réponse pour le département choisi, écrite ou cliquée dans la liste
   function repondreAvec(choisi: Departement, donne: Departement): boolean {
     const suite = repondreChoix(bonus, choisi, donne)
-    if (suite === 'deja-trouve') {
-      setMessage(textes.bonus.dejaTrouve(nom(donne)))
+    if (suite === 'deja-trouve' || suite === 'autre-region') {
+      setMessage((suite === 'deja-trouve' ? textes.bonus.dejaTrouve : textes.bonus.autreRegion)(nom(donne)))
       return false
     }
     setMessage('')

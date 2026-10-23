@@ -159,7 +159,10 @@ export function PartieDuJour({ jour, reglages, demandeStats, demandeListe, onLis
   }
 
   // le score du bonus, pour le partage, une fois le bonus fini
-  const scoreBonus = bonus === undefined || bonusEnCours(bonus) ? undefined : { score: score(bonus), total: total(bonus) }
+  const scoreBonus =
+    bonus === undefined || bonusEnCours(bonus)
+      ? undefined
+      : { score: score(bonus), total: total(bonus), difficile: bonus.difficile }
   const stats = statistiques(resultats(parties), numero)
 
   return (

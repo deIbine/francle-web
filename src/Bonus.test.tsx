@@ -124,21 +124,28 @@ describe('Le bonus des départements, partie du jour', () => {
   it('une réponse juste ou fausse se dit, et le département ne se choisit plus', async () => {
     const joueur = demarrer()
     await gagner(joueur)
-    await repondre(joueur, DEPS[0].code, DEPS[0].nom)
-    expect(within(panneau()).getByText(`Juste : ${nom(DEPS[0])}.`)).toBeDefined()
+    // une réponse fausse (la région du jour, la Corse, n'a que deux départements : l'autre est donné)
+    await repondre(joueur, DEPS[0].code, DEPS[1].nom)
+    expect(
+      within(panneau()).getByText(
+        `Raté : c’était ${nom(DEPS[0])}, en rouge sur la carte (ta réponse : ${nom(DEPS[1])}).`,
+      ),
+    ).toBeDefined()
     expect(within(panneau()).getByText(`1 réponse sur ${TOTAL}`)).toBeDefined()
     // la saisie est vidée et grisée de nouveau : au joueur de choisir le suivant
     expect(reponse().value).toBe('')
     expect(reponse().disabled).toBe(true)
     // répondu : il dit son nom et son résultat, et n'est plus un bouton
-    const zone = within(await carte()).getByRole('img', { name: `${nom(DEPS[0])}, trouvé` })
+    const zone = within(await carte()).getByRole('img', { name: `${nom(DEPS[0])}, manqué` })
     expect(zone.getAttribute('data-code')).toBe(DEPS[0].code)
 
-    // une réponse fausse, et même d'une autre région (celle du jour peut n'avoir que deux départements)
+    // version simple (par défaut) : un département d'une autre région est refusé, sans coûter de réponse
     await repondre(joueur, DEPS[1].code, 'Gironde')
-    expect(
-      within(panneau()).getByText(`Raté : c’était ${nom(DEPS[1])}, en rouge sur la carte (ta réponse : Gironde (33)).`),
-    ).toBeDefined()
+    expect(within(panneau()).getByText('Gironde (33) : ce département n’est pas dans la région.')).toBeDefined()
+    expect(within(panneau()).getByText(`1 réponse sur ${TOTAL}`)).toBeDefined()
+    await joueur.clear(reponse())
+    await joueur.type(reponse(), `${DEPS[1].nom}{Escape}{Enter}`)
+    expect(within(panneau()).getByText(`Juste : ${nom(DEPS[1])}.`)).toBeDefined()
   })
 
   it('un département déjà trouvé est refusé sans rien coûter ; le numéro et un début de nom sont acceptés', async () => {
@@ -298,7 +305,8 @@ describe('Le bonus des départements, partie libre', () => {
     const { joueur, cible } = await gagnerLibre(true)
     const zones = within(await carte()).getAllByRole('button')
     expect(zones).toHaveLength(departementsDe(cible).length)
-    await repondre(joueur, zones[0].getAttribute('data-code')!, 'Gironde')
+    // une réponse fausse : un autre département de la région
+    await repondre(joueur, zones[0].getAttribute('data-code')!, zones[1].getAttribute('data-code')!)
     expect(within(panneau()).getByText(/^Raté|^Juste/)).toBeDefined()
     expect(lire().size).toBe(0)
     // une nouvelle partie remet la silhouette
@@ -309,7 +317,8 @@ describe('Le bonus des départements, partie libre', () => {
   it('« Passer » après une réponse : les résultats donnent le score du bonus', async () => {
     const { joueur, cible } = await gagnerLibre()
     const zones = within(await carte()).getAllByRole('button')
-    await repondre(joueur, zones[0].getAttribute('data-code')!, 'Gironde')
+    // une réponse fausse : un autre département de la région
+    await repondre(joueur, zones[0].getAttribute('data-code')!, zones[1].getAttribute('data-code')!)
     await joueur.click(within(panneau()).getByRole('button', { name: 'Passer' }))
     const total = departementsDe(cible).length
     expect(within(resultats()!).getByText(new RegExp(`^Bonus arrêté : \\d département trouvé sur ${total}\\.$`))).toBeDefined()

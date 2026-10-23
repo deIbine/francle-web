@@ -121,7 +121,7 @@ describe('L’accessibilité (axe)', () => {
     await joueur.type(screen.getByRole('combobox'), `${regionDuJour(DATE).nom.fr}{Escape}{Enter}`)
     const carte = await screen.findByRole('group', { name: 'Carte des départements de la région' }, { timeout: 5000 })
     await joueur.click(within(carte).getAllByRole('button')[0])
-    await joueur.type(screen.getByRole('combobox', { name: 'Ta réponse' }), 'Finistère{Escape}{Enter}')
+    await joueur.type(screen.getByRole('combobox', { name: 'Ta réponse' }), '2B{Escape}{Enter}')
     await joueur.click(within(carte).getAllByRole('button')[0])
     await joueur.click(screen.getByRole('button', { name: 'Voir la liste des départements' }))
     expect(screen.getByRole('dialog', { name: 'Liste des départements' })).toBeDefined()

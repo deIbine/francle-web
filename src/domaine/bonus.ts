@@ -15,8 +15,20 @@ Quatre sortes de questions :
             joueurs depuis web.7.7) : pas de question imposée, ni d'ordre
     numero  « Quel est le numéro de la Guadeloupe ? » : pour une région d'un seul département, où cliquer sur le seul
             département de la carte serait gratuit, comme le choisir puis recopier le nom de la région
+
+Deux versions (depuis web.7.14), choisies par le joueur dans les réglages :
+    simple     la liste 📃 et les suggestions ne proposent que les départements de la région (par défaut)
+    difficile  elles proposent les 101 départements, comme avant web.7.14
+La version est fixée à la première réponse, comme les modes 🌀 et 🙈 au premier essai (voir avecDifficulte).
  */
-import { chercherDepartement, departementsDe, numero, parCode, type Departement } from './departements.ts'
+import {
+  chercherDepartement,
+  DEPARTEMENTS,
+  departementsDe,
+  numero,
+  parCode,
+  type Departement,
+} from './departements.ts'
 import { HasardJava } from './hasardJava.ts'
 import type { Region } from './regions.ts'
 
@@ -44,10 +56,17 @@ export interface Bonus {
   readonly ordre: readonly Departement[]
   readonly tentatives: readonly Tentative[]
   readonly etat: EtatBonus
+  // la version difficile : les 101 départements proposés, au lieu de ceux de la région (voir en haut du fichier)
+  readonly difficile: boolean
 }
 
 // mode : carte ou nom, remplacé par numero pour une région d'un seul département
-export function nouveauBonus(region: Region, ordre: readonly Departement[], mode: Question = MODE_BONUS): Bonus {
+export function nouveauBonus(
+  region: Region,
+  ordre: readonly Departement[],
+  mode: Question = MODE_BONUS,
+  difficile = false,
+): Bonus {
   const attendus = departementsDe(region)
   if (ordre.length !== attendus.length || !attendus.every((departement) => ordre.includes(departement))) {
     throw new Error(`L'ordre doit contenir chaque département de ${region.id} une fois`)
@@ -55,7 +74,23 @@ export function nouveauBonus(region: Region, ordre: readonly Departement[], mode
   if (mode === 'numero') {
     throw new Error("numero n'est pas un mode : il est choisi d'après la région")
   }
-  return { region, question: ordre.length === 1 ? 'numero' : mode, ordre, tentatives: [], etat: 'en-cours' }
+  return { region, question: ordre.length === 1 ? 'numero' : mode, ordre, tentatives: [], etat: 'en-cours', difficile }
+}
+
+// le bonus dans la version choisie par le joueur, tant qu'il n'a pas commencé ; une fois commencé, sa version est
+// fixée et ne bouge plus (un changement de réglage vaut pour le bonus suivant)
+export function avecDifficulte(bonus: Bonus, difficile: boolean): Bonus {
+  return commence(bonus) || bonus.difficile === difficile ? bonus : { ...bonus, difficile }
+}
+
+// les départements que la saisie peut suggérer et que la liste 📃 montre. En mode C : ceux de la région en version
+// simple, les 101 en version difficile. En mode B (caché), toujours ceux de la région, comme avant ; aucun pour la
+// question du numéro
+export function proposables(bonus: Bonus): readonly Departement[] {
+  if (bonus.question === 'numero') {
+    return []
+  }
+  return bonus.question === 'choix' && bonus.difficile ? DEPARTEMENTS : departementsDe(bonus.region)
 }
 
 // les octets ASCII de « Bonus » : un sel à lui, sinon le mélange viendrait de la même suite de nombres que l'angle
@@ -139,9 +174,14 @@ export function trouve(bonus: Bonus, departement: Departement): boolean {
 
 // mode C : le joueur a choisi un département sur la carte, et donne un nom. Un département déjà trouvé ailleurs est
 // refusé sans coûter de réponse (le joueur s'est sûrement trompé de département sur la carte), comme une région déjà
-// proposée dans la partie ; un nom déjà donné à tort, lui, reste possible. Un département d'une autre région est une
-// réponse fausse, qui compte
-export function repondreChoix(bonus: Bonus, choisi: Departement, donne: Departement): Bonus | 'deja-trouve' {
+// proposée dans la partie ; un nom déjà donné à tort, lui, reste possible. Un département d'une autre région est
+// refusé lui aussi sans rien coûter en version simple, où seuls ceux de la région sont proposés ; en version
+// difficile, c'est une réponse fausse, qui compte
+export function repondreChoix(
+  bonus: Bonus,
+  choisi: Departement,
+  donne: Departement,
+): Bonus | 'deja-trouve' | 'autre-region' {
   verifierEnCours(bonus)
   if (bonus.question !== 'choix') {
     throw new Error(`Pas de choix libre pour la question ${bonus.question}`)
@@ -150,6 +190,9 @@ export function repondreChoix(bonus: Bonus, choisi: Departement, donne: Departem
   // permet pas
   if (!restants(bonus).includes(choisi)) {
     throw new Error(`${choisi.code} ne peut pas être choisi`)
+  }
+  if (!bonus.difficile && !bonus.ordre.includes(donne)) {
+    return 'autre-region'
   }
   return trouve(bonus, donne) ? 'deja-trouve' : ajouter(bonus, choisi, donne)
 }
@@ -160,7 +203,7 @@ export function repondreSaisieChoix(
   bonus: Bonus,
   choisi: Departement,
   saisie: string,
-): Bonus | 'inconnu' | 'deja-trouve' {
+): Bonus | 'inconnu' | 'deja-trouve' | 'autre-region' {
   const departement = chercherDepartement(saisie)
   return departement === undefined ? 'inconnu' : repondreChoix(bonus, choisi, departement)
 }
