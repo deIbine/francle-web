@@ -3,7 +3,8 @@ La région du jour : la même pour tout le monde, calculée dans le navigateur �
 Deux navigateurs qui ne se parlent pas doivent trouver la même réponse : le calcul ne dépend que de la date et des
 noms des régions, jamais de l'ordre du tableau REGIONS ni de l'heure.
 
-Le même calcul que RegionDuJour.java, au bit près : le site et le jeu Java donnent la même région le même jour.
+Repris de RegionDuJour.java (deIbine/francle). Les valeurs sont figées dans reference.json : elles ne doivent plus
+changer, pour que les joueurs gardent leurs régions (et leurs parties sauvegardées).
 
 Les jours sont groupés en cycles de N jours (N = nombre de régions) : à chaque cycle, les régions sont mélangées avec
 le numéro du cycle pour graine, et le jour k du cycle reçoit la k-ième. Chaque région revient donc exactement une fois

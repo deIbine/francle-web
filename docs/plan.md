@@ -9,9 +9,11 @@ Un **nouveau projet**, dans un **nouveau dépôt** (`deIbine/francle-web`, publi
 fin **tout le monde puisse jouer à Francle en ligne**. L'inspiration principale est **Worldle**, dont on s'inspire
 largement.
 
-Le projet Java `deIbine/francle` (version de bureau, Swing) est terminé et gardé tel quel, pour nous. Il sert de
-**référence pour les règles et les données** : régions, indices, distance, direction, proximité, région du jour,
-angle de rotation, et les valeurs de ses tests.
+Le projet Java `deIbine/francle` (version de bureau, Swing) a servi de **modèle pour les règles et les données** :
+régions, indices, distance, direction, proximité, région du jour, angle de rotation, et les valeurs de ses tests.
+**Depuis le 23 octobre 2026, les deux projets sont séparés** (web.7.13) : le Java n'est plus qu'un **outil de
+comparaison** (voir « Le projet Java, outil de comparaison » à la fin). Rien ne se reporte plus d'un projet à
+l'autre, et le web n'a plus à rester égal au Java.
 
 ## Worldle, la source d'inspiration
 
@@ -48,7 +50,7 @@ angle de rotation, et les valeurs de ses tests.
 | Statistiques | Calculées à partir de l'historique des parties. Une **série** demande des **jours consécutifs** : un jour sauté la remet à zéro (décidé à web.3). |
 | Fin de partie et statistiques | Dans une **fenêtre** par-dessus le jeu (`<dialog>`), comme Worldle (décidé à web.3). |
 | Indices | **On les garde** (superficie, spécialité, personnalité, capitale) : c'est la particularité de Francle. **Plus un 5e, le monument** (décidé à web.1), révélé après le 5e essai raté. |
-| Région du jour | **La même que le Java**, au bit près (même hasard, même premier jour, le 13 octobre 2026). Le jour change **à minuit chez le joueur** (décidé à web.1). |
+| Région du jour | **Reprise du Java** (même hasard, même premier jour, le 13 octobre 2026), puis **figée** dans `reference.json` depuis la séparation des deux projets (web.7.13) : elle ne doit pas changer pour les joueurs. Le jour change **à minuit chez le joueur** (décidé à web.1). |
 | Langues | **Français et anglais**, au choix du joueur. Au premier passage, la **langue du navigateur** ; un **bouton FR / EN visible** dans l'en-tête ; les traductions dans **`textes.ts`**, sans bibliothèque ; une **seule adresse** pour les deux langues ; le texte de partage est traduit (« #Francle #12 3/6 » en anglais) (décidé avant web.4). |
 | Réglages | Une fenêtre **⚙️**, gardée dans le navigateur. **Thème** : automatique (celui du système) par défaut, ou clair, ou sombre. **Unité** : km par défaut en français, **miles par défaut en anglais** ; l'unité suit la langue tant que le joueur ne l'a pas choisie lui-même, ensuite son choix l'emporte (décidé avant web.4). |
 | Modes difficiles 🌀 🙈 | Fixés **au premier essai** : un changement en cours de partie ne compte que pour la partie suivante, pour que l'emoji du partage dise vrai. Rotation : l'angle du jour en partie du jour, un **angle au hasard** en partie libre (décidé avant web.4). |
@@ -111,36 +113,32 @@ commande, décidé le 19 octobre 2026), vérifie, puis vide la liste par une pet
 **Fait sur le PC le 23 octobre 2026** (un jour avant le retour prévu), par Claude Code, à la demande de l'utilisateur
 (« Lance l'étape 1 et enregistre bien tout ce que tu fais ») :
 
-1. `git fetch --all --prune` : les deux dépôts étaient déjà à jour (`main` à `bc6c0d7` ici, `78382c1` côté Java),
-   aucune PR ouverte.
-2. Vérifié avant d'agir : les commits visés (`19493b1`, `24e3ff1`, `c86d891` ici, `f16f013` côté Java) sont bien sur
-   `main` (`git merge-base --is-ancestor <commit> origin/main`), et la branche du cloud a le même arbre que `main` dans
-   les deux dépôts (`git diff --stat origin/main origin/ccr-8009fd8d-mbx5ca` vide) : la supprimer ne perd rien.
-3. **Étiquettes posées et envoyées** : `web-7.12.0` (`19493b1`), `web-7.12.0.1` (`24e3ff1`), `web-7.12` (`c86d891`)
-   ici ; `phase-12.0` (`f16f013`) côté Java.
+1. `git fetch --all --prune` : déjà à jour (`main` à `bc6c0d7`), aucune PR ouverte.
+2. Vérifié avant d'agir : les commits visés (`19493b1`, `24e3ff1`, `c86d891`) sont bien sur `main`
+   (`git merge-base --is-ancestor <commit> origin/main`), et la branche du cloud a le même arbre que `main`
+   (`git diff --stat origin/main origin/ccr-8009fd8d-mbx5ca` vide) : la supprimer ne perd rien.
+3. **Étiquettes posées et envoyées** : `web-7.12.0` (`19493b1`), `web-7.12.0.1` (`24e3ff1`), `web-7.12` (`c86d891`).
 4. **Branche du cloud `ccr-8009fd8d-mbx5ca`** : la suppression a d'abord été bloquée par le contrôle de sécurité de
    Claude Code (action destructive), malgré l'autorisation notée ici ; l'utilisateur l'a confirmée dans la
-   conversation. Au second essai, GitHub a répondu « remote ref does not exist » dans les deux dépôts :
-   `git ls-remote --heads origin` ne montre plus que `main`. Elle avait donc été supprimée entre-temps (elle existait
-   encore au `fetch` du début), sans doute par la session Claude ouverte en même temps sur le Java ; non confirmé.
-   Références locales nettoyées par `git fetch --prune`.
+   conversation. Au second essai, GitHub a répondu « remote ref does not exist » : `git ls-remote --heads origin` ne
+   montre plus que `main`. Elle avait été supprimée entre-temps (elle existait encore au `fetch` du début), sans doute
+   par une autre session Claude ; non confirmé. Références locales nettoyées par `git fetch --prune`.
 5. Branches locales : il ne reste que `main` et les branches des dossiers de travail des sessions Claude
    (`claude/…`, une par session, rattachées à un `git worktree`) ; elles ne sont pas supprimées tant que leur session
    peut s'en servir.
-6. **Tests web** : `npm ci`, puis `npm test`. Le premier passage, juste après l'installation : 3 échecs sur 297, en
+6. **Tests** : `npm ci`, puis `npm test`. Le premier passage, juste après l'installation : 3 échecs sur 297, en
    116 s au lieu d'environ 36 (sans doute des délais dépassés : fichiers pas encore en cache, antivirus sur les
    nouveaux fichiers de `node_modules`). Deux passages suivants : **297 sur 297**, en 36 et 37 s. `npm run lint` et
    `npm run build` passent.
-7. **Tests Java** : `mvn` n'est pas installé ; le projet a le Maven Wrapper (`./mvnw -q test` dans le Bash,
-   `.\mvnw.cmd test` dans PowerShell). **403 sur 403**, 18 rapports neufs dans `target/surefire-reports`.
-8. Cette section et le point 0 de la phase 12 du Java vidés par deux petites PR (ici web.7.12.3, sans étiquette : ce
-   ne sont que des notes).
+7. Cette section vidée par une petite PR (web.7.12.3, #39, sans étiquette : ce ne sont que des notes). Ce fut la
+   dernière fois que le ménage se fit aussi dans le dépôt Java : les deux projets sont séparés depuis (web.7.13).
 
-Les PR de notes (#37, #38 et web.7.12.3 ici, #44, #45, #46 côté Java) n'ont pas d'étiquette : ce ne sont pas des
+Les PR de notes (#37, #38, #39) n'ont pas d'étiquette : ce ne sont pas des
 étapes. Pour le commit d'une PR fusionnée : `git log --oneline -10` sur `main`, ou la page de la PR sur GitHub.
 
 **Faites : web.0 à web.7, le bonus revu (web.7.5 à web.7.7), les corrections du 18 octobre 2026 (web.7.8 à
-web.7.11) et la liste des départements (web.7.12, le 19 octobre 2026, depuis le cloud).** Le bonus des départements est en ligne depuis le
+web.7.11) et la liste des départements (web.7.12, le 19 octobre 2026, depuis le cloud), puis la séparation d'avec le Java
+(web.7.13, le 23 octobre 2026).** Le bonus des départements est en ligne depuis le
 17 octobre 2026 : quatre PR (#17 à #20), étiquettes `web-7.1` à `web-7.4` et `web-7` (détail plus bas dans « Le bonus
 des départements »). **Le bonus revu**, décidé le même jour après les retours des joueurs, est en ligne lui aussi :
 trois PR empilées (#24, #25, #26), fusionnées en squash le 17 octobre 2026 sur l'accord de l'utilisateur (sans test
@@ -159,9 +157,10 @@ squash le 18 octobre 2026 sur l'accord de l'utilisateur, étiquettes `web-7.8` �
   - `regions.ts` (35 régions, noms et indices FR/EN, 5e indice « monument »), `recherche.ts` (saisie, suggestions,
     noms FR et EN acceptés), `geographie.ts` (distance, 8 directions, proximité), `partie.ts` (6 essais, valeurs non
     modifiables : `proposer(partie, saisie)` renvoie une nouvelle partie), `hasardJava.ts` + `regionDuJour.ts`
-    (région et angle du jour identiques au Java, minuit chez le joueur) ;
-  - 98 tests, dont `reference-java.test.ts` qui compare tout au fichier `reference-java.json` produit par
-    `outils/ReferenceJava.java` (mode d'emploi dans son en-tête).
+    (région et angle du jour repris du Java, minuit chez le joueur) ;
+  - 98 tests, dont `reference-java.test.ts` qui comparait tout au fichier `reference-java.json` produit par
+    `outils/ReferenceJava.java` (à web.7.13 : renommés `reference.test.ts` et `reference.json`, valeurs figées
+    propres au site, outil supprimé).
 - **web.2** (PR #3, étiquette `web-2`) : le jeu jouable, partie du jour seulement, sans sauvegarde.
   - `outils/generer_images.py` produit `src/images/regions/<id>.svg` (36 silhouettes, dont `defaut.svg` pour le mode
     image cachée) et `src/images/cartes/<mode>.json` (contours pour la carte de fin). Les contours sources
@@ -225,7 +224,7 @@ squash le 18 octobre 2026 sur l'accord de l'utilisateur, étiquettes `web-7.8` �
   départements » plus bas. Les choix faits en route (listes « À valider » des PR) ont été acceptés tels quels.
 - **Pour reprendre (mis à jour le 23 octobre 2026)** : sur le PC, Claude fait d'abord ce que liste « À faire sur le
   PC » plus haut, s'il y a quelque chose (l'utilisateur ne lance aucune commande) ; lire ce plan et `docs/lecons.md`, vérifier que `main` est à jour (`git pull`) et qu'aucune PR
-  n'est restée ouverte (sur GitHub, onglet « Pull requests » des deux dépôts). La suite :
+  n'est restée ouverte (sur GitHub, onglet « Pull requests »). La suite :
   - **Les corrections relevées le 18 octobre 2026** (section du même nom plus bas) : **faites et en ligne**, quatre
     PR empilées fusionnées en squash le 18 octobre 2026 : web.7.8 Les bugs (#29, `web-7.8`), web.7.9 La saisie et la
     fin de partie (#30, `web-7.9`), web.7.10 Le bonus (#31, `web-7.10`), web.7.11 L'outillage (#32, `web-7.11` :
@@ -233,20 +232,16 @@ squash le 18 octobre 2026 sur l'accord de l'utilisateur, étiquettes `web-7.8` �
     les décisions) ont été acceptés avec la fusion. Reste seulement le point 12 (la carte de fin), pour plus tard.
   - **web.7.12 La liste des départements** (section du même nom plus bas) : **faite et en ligne** le 19 octobre
     2026, depuis le cloud : décisions (PR #34), liste à faire sur le PC (PR #35), code (PR #36), fusionnées en squash
-    sur l'accord de l'utilisateur. 297 tests. Étiquettes posées sur le PC le 23 octobre 2026 (voir plus haut). **Le Java**
-    fera la même chose dans sa phase 12, **plus tard**, dans sa propre conversation (décidé le 19 octobre 2026).
+    sur l'accord de l'utilisateur. 297 tests. Étiquettes posées sur le PC le 23 octobre 2026 (voir plus haut).
+  - **web.7.13 La séparation d'avec le Java** (le 23 octobre 2026, à la demande de l'utilisateur) : les deux
+    projets sont séparés, le Java n'est plus qu'un outil de comparaison (voir la fin de ce plan). Plus de tâches
+    « pour le Java » ici, plus de PR jumelles, plus de ménage dans l'autre dépôt depuis une conversation du web.
   - **La prochaine étape est à choisir avec l'utilisateur** : web.8 reste repoussé ; parmi « Les améliorations à
     reprendre » plus bas, les candidates sont la carte de fin en couleur (point 12), le compteur de la partie libre,
     le repère « voisine » et le mode « métropole seulement ». Présenter le choix et les questions avant de coder.
-  - **Le Java en même temps**, dans une **autre conversation** ouverte sur le dossier du projet Java (décidé le
-    18 octobre 2026) : sa phase 11 (`docs/feuille-de-route.md`, PR deIbine/francle#39) contient les mêmes décisions,
-    adaptées au Java, et son propre point de reprise. Les deux conversations n'ont rien à s'attendre : chacune touche
-    son dépôt.
-  - **web.8** : **repoussé** le 18 octobre 2026 (pas de domaine acheté pour l'instant). Le découpage et ses douze
+  - **web.8** : **repoussé** le 18 octobre 2026 (pas de domaine acheté pour l'instant). Le découpage et ses onze
     questions ont été présentés le 17 octobre 2026 (voir « Le domaine et le défi (web.8) » plus bas) ; l'utilisateur
     n'y a pas encore répondu.
-  - **Le Java (phase 10)** : **fait** dans le dépôt Java (PR #36 à #38 de `deIbine/francle`, constaté le 18 octobre
-    2026). La section « À reporter dans le Java » plus bas n'est donc plus à faire.
   - **Encore à vérifier par l'utilisateur, en jouant** : le mode C sur un vrai téléphone (à 375 × 812, la saisie
     commence à 496 pixels : le clavier devrait la laisser visible) et en thème sombre (les captures du navigateur
     intégré ne se dessinaient pas ; vérifié par script seulement). Depuis web.7.10 : sur téléphone, choisir un
@@ -296,19 +291,18 @@ Idée du 16 octobre 2026 : après une victoire, en bonus, faire deviner les dép
 |---|---|
 | Quand | **Après chaque victoire**, en partie du jour **comme en partie libre** : le bonus commence de lui-même (comme dans le Java, après le test du jeu ; d'abord prévu pour la partie du jour seulement). Le bonus d'une partie libre n'est **ni sauvegardé, ni compté, ni partagé**, comme la partie libre elle-même, et ses départements sont **dans un ordre au hasard**, ceux de l'**époque jouée**. |
 | Combien | **Tous les départements** de la région : ce n'est pas censé être simple. Une région à un seul département (outre-mer) a un bonus d'**une seule question**. |
-| Ordre | En partie du jour, **le même ordre que le Java, au bit près** (voir « L'ordre du jour » plus haut), vérifié par `reference-java.json`. |
+| Ordre | En partie du jour, **l'ordre repris du Java** (voir « L'ordre du jour » plus haut), figé dans `reference.json` depuis web.7.13. |
 | Essais | **Un seul par département** : juste ou faux, on montre la réponse (vert ou rouge) et on passe au suivant. |
 | Forme du jeu | Deux modes programmés : **A. cliquer sur la carte** (« Où est le Finistère ? ») et **B. nommer le département coloré** (saisie avec suggestions, **nom ou numéro** acceptés, « 29 »). **Seul A est en ligne** ; B se choisit par une **constante dans le code** (comme `Bonus.MODE` du Java), sans le montrer aux joueurs. |
 | Outre-mer | Une région à un seul département : cliquer serait gratuit, donc on demande **le numéro** (« Quel est le numéro de : Guadeloupe ? »). |
 | Où | **Sur le plateau, à la place de la silhouette**. Le bonus commence à la fermeture de la fenêtre de fin d'une victoire. |
 | Passer | Un bouton **« Passer »**. Passé **avant toute réponse**, le bonus n'a pas commencé : il reste à jouer. |
-| Reprise (**propre au web**) | Un bonus du jour commencé (au moins une réponse) puis quitté (page fermée, onglet rechargé) **reprend là où il en était** au retour, avec les réponses déjà données. Le Java, lui, le compte comme joué avec son score partiel, **sans reprise**. Écart décidé le 17 octobre 2026 : sur le web, fermer un onglet par erreur arrive souvent. **« Passer »** un bonus commencé le termine (score partiel), comme dans le Java. Noté aussi dans la feuille de route du Java. |
+| Reprise (**propre au web**) | Un bonus du jour commencé (au moins une réponse) puis quitté (page fermée, onglet rechargé) **reprend là où il en était** au retour, avec les réponses déjà données. Le Java, lui, le compte comme joué avec son score partiel, **sans reprise**. Écart décidé le 17 octobre 2026 : sur le web, fermer un onglet par erreur arrive souvent. **« Passer »** un bonus commencé le termine (score partiel), comme dans le Java. |
 | Île-de-France | Un **zoom** sur Paris et la petite couronne (75, 92, 93, 94), trop petits sinon : le cadre `zoom` du fichier de contours. |
 | Ce qui compte | Le bonus du jour est **sauvegardé**, compte dans les **statistiques** (**score moyen**, moyenne des pourcentages de départements trouvés, et **nombre de bonus**) et apparaît dans le **partage**. |
 | Partage | Une ligne de **score** : « 🗺️ 9/12 ». **Aucune ligne 🗺️** tant que le bonus n'est pas fini (pas commencé, ou en cours). |
 | Données | **Copie** de `departements.json` du Java dans le web (les deux dépôts sont séparés). Le script web le lit, comme celui du Java. |
 | Contours | Générés par `outils/generer_images.py`, en y **reportant les changements du script Java** : **un fichier de contours par région** (les 35, anciennes régions comprises), chaque département étant un tracé à part, avec son numéro. React les dessine, colore et rend cliquables (comme `CarteFrance`). Ce fichier sert aux deux modes. |
-| D'abord en Java | Le bonus est fait **en entier dans les deux projets**, **d'abord dans le projet Java** `deIbine/francle` (sa **phase 9**, plan dans son `docs/feuille-de-route.md`), puis ici en web.7. Le Java a tranché les questions ouvertes en jouant ; ses réponses s'appliquent au web, sauf la reprise (décidé le 16 octobre 2026). |
 
 ### Les phases (une branche et une PR par phase, étiquettes `web-7.0`, `web-7.1`…)
 
@@ -375,7 +369,7 @@ département, puis on écrit son nom**, comme on écrit une région.
   et `bonusAVenir` dans `PartieDuJour.tsx` et `PartieLibre.tsx`). Il faut donc un autre moment pour ouvrir la
   fenêtre : la fin du bonus. Effet heureux : le partage contient alors déjà la ligne « 🗺️ 9/12 ».
 - Le mode C, c'est le mode B dont le joueur choisit l'ordre. Il n'a pas besoin de l'ordre du jour (gardé pour le
-  mode A, avec sa comparaison au Java). La `Tentative` tient toujours : `demande` est le département cliqué, `donne`
+  mode A). La `Tentative` tient toujours : `demande` est le département cliqué, `donne`
   celui qui est écrit ; score, statistiques et partage ne changent pas.
 - La **sauvegarde** change : elle ne garde que les numéros donnés, dans l'ordre du jour connu d'avance. Avec un ordre
   libre, il faut des **paires** (cliqué -> écrit). Les anciennes sauvegardes se relisent comme aujourd'hui, en les
@@ -396,7 +390,6 @@ département, puis on écrit son nom**, comme on écrit une région.
 | Après une réponse | **Aucune sélection automatique** : le joueur clique le suivant. |
 | Outre-mer | Toujours la question du **numéro**, le seul département étant déjà sélectionné. |
 | Numérotation | **web.7.5 à web.7.7**, avant web.8. Une PR par étape, étiquettes `web-7.5`…, et `web-7.5.0` pour ce plan. |
-| Java | **Le web d'abord**, dans cette conversation ; le Java **plus tard, dans une autre conversation**, avec les mêmes décisions (voir « À reporter dans le Java »). |
 
 ### Les étapes (une branche et une PR chacune)
 
@@ -434,27 +427,6 @@ Posées toutes ensemble pour enchaîner les trois phases ; toutes les recommanda
 | 7.7 | Les textes | « Clique sur un département de la carte », puis « Quel est ce département ? » ; « 3 réponses sur 12 » ; « Juste » et « Raté » inchangés. En anglais aussi. |
 | 7.7 | Comment jouer | « Après une victoire, un bonus 🗺️ : clique sur chaque département de la région, puis écris son nom ou son numéro. Une seule réponse par département, et ton score s'ajoute au partage. » En anglais aussi. |
 | — | Regroupement | **Trois PR** (7.5, 7.6, 7.7), empilées. |
-
-### À reporter dans le Java (phase 10, plus tard, dans une autre conversation)
-
-✅ **Fait** dans le dépôt Java (PR #36 à #38 de `deIbine/francle`, constaté le 18 octobre 2026). Gardé pour mémoire.
-
-Les décisions des phases ci-dessus valent aussi pour le Java (la pause avant la fenêtre, le focus, les paires, la
-saisie grisée avant le clic…), sauf ce qui est propre au navigateur (fausses horloges, 375 pixels).
-
-Dans `docs/feuille-de-route.md` de `deIbine/francle`, puis dans le code, avec les décisions du tableau plus haut :
-
-- **10.1 L'enchaînement** : `Fenetre.java`, une victoire du jour lance `jouerBonus()` tout de suite (comme la partie
-  libre aujourd'hui) ; `statistiquesEnFinDuJour()` est appelé à la fin du bonus, ou à « Passer » avant toute réponse.
-- **10.2 Les règles** : `Bonus.java`, `Question.CHOIX` (ou un nom à décider), `repondre(cliqué, saisie)`, refus d'un
-  département déjà trouvé, `MODE` passe à C (A et B restent) ; `Resultat.bonus` en paires, l'ancien format toujours
-  lisible ; tests JUnit.
-- **10.3 L'affichage** : `CarteDepartements` sélectionne au clic au lieu de répondre ; la saisie (`Autocompletion`)
-  sur les 101 départements ; la minuterie entre deux questions n'a plus d'objet en mode C, à retirer comme dans le
-  web.
-- **La note restée en attente depuis web.7** : trois choix propres au web (pas de minuterie entre deux questions ;
-  en mode B, Entrée sur un début de nom joue le seul département évoqué ; un bonus pas commencé attend son bouton
-  jusqu'à minuit), à noter dans la phase 9 de la feuille de route.
 
 ## Le domaine et le défi (web.8)
 
@@ -503,8 +475,6 @@ Le reste :
 
 11. Ajouter à web.8 une amélioration en attente (compteur de la partie libre, repère « voisine », mode « métropole
     seulement ») ? (Non : web.8 reste court, elles auront leur étape.)
-12. La note dans le plan du Java (les trois choix propres au web pour le bonus, voir « Pour reprendre ») : maintenant,
-    dans une PR du dépôt Java, ou plus tard ?
 
 ## Les corrections relevées le 18 octobre 2026
 
@@ -512,33 +482,32 @@ Le jeu a été testé de bout en bout le 18 octobre 2026, à la demande de l'uti
 (275, tous verts), lint, types et construction ; une partie du jour (La Réunion) et des parties libres (Corse,
 Île-de-France) jouées dans le navigateur intégré, sur ordinateur et à 375 × 812 pixels ; puis le code relu aux
 endroits suspects. Chaque point a ensuite été comparé au Java, en lisant son code et en exécutant ses règles dans
-`jshell` : la colonne « Java » le dit, et les points communs sont notés dans la phase 11 de `docs/feuille-de-route.md`
-du dépôt Java. Décidés le même jour (plus bas), puis **codés le même jour** (web.7.8 à web.7.11), sauf le point 12.
+`jshell`, pour comprendre (la colonne « Java » a été retirée à web.7.13, avec la séparation des deux projets). Décidés le même jour (plus bas), puis **codés le même jour** (web.7.8 à web.7.11), sauf le point 12.
 
 Pas encore vérifié : le jeu sur un **vrai téléphone** (surtout un iPhone, voir le point 10) et le **thème sombre** à
 l'œil (les captures du navigateur intégré restent rognées ou en retard).
 
 ### Les bugs
 
-| # | Problème | Pour le reproduire | Cause | Java |
-|---|---|---|---|---|
-| 1 | « Choisis dans la liste », mais la liste est fermée | Partie libre, anciennes régions : « nor » puis Entrée. Bonus de la Corse : « corse » puis Entrée. Il faut retaper une lettre pour revoir la liste | `proposer()` dans `composants/Saisie.tsx` ferme la liste (`setOuverte(false)`) même quand la saisie est refusée | **Même bug** (`Autocompletion.entree()`) |
-| 2 | « 100 % » coupé sur deux lignes ; « Wins 100 % » en anglais, mais « Average score 100% » | 📊 à 375 pixels ; puis en anglais | `composants/Statistiques.tsx` écrit `` `${stats.pourcentage} %` `` à la main (espace ordinaire, pas traduit) au lieu de `textes.stats.pourcentage()` | Correct |
-| 3 | La réponse se lit dans le nom de l'image | Appui long sur la silhouette, « Ouvrir l'image » : `corse-C5fvIIqz.svg` (clic droit sur ordinateur) | Vite garde le nom du fichier source et n'y ajoute qu'une empreinte. Piste : des noms sans la région (option `build.rollupOptions.output.assetFileNames` de Vite, ou images renommées) | Sans objet |
-| 4 | Une saisie vide est « une région qui n'existe pas » | « Proposer » sans rien écrire | Aucun test du cas vide avant `deviner()` (`composants/Plateau.tsx`). Piste : ne rien faire, ou « Écris le nom d'une région » | **Même bug**, en pire (« «  » n'est pas une région reconnue ») |
+| # | Problème | Pour le reproduire | Cause |
+|---|---|---|---|
+| 1 | « Choisis dans la liste », mais la liste est fermée | Partie libre, anciennes régions : « nor » puis Entrée. Bonus de la Corse : « corse » puis Entrée. Il faut retaper une lettre pour revoir la liste | `proposer()` dans `composants/Saisie.tsx` ferme la liste (`setOuverte(false)`) même quand la saisie est refusée |
+| 2 | « 100 % » coupé sur deux lignes ; « Wins 100 % » en anglais, mais « Average score 100% » | 📊 à 375 pixels ; puis en anglais | `composants/Statistiques.tsx` écrit `` `${stats.pourcentage} %` `` à la main (espace ordinaire, pas traduit) au lieu de `textes.stats.pourcentage()` |
+| 3 | La réponse se lit dans le nom de l'image | Appui long sur la silhouette, « Ouvrir l'image » : `corse-C5fvIIqz.svg` (clic droit sur ordinateur) | Vite garde le nom du fichier source et n'y ajoute qu'une empreinte. Piste : des noms sans la région (option `build.rollupOptions.output.assetFileNames` de Vite, ou images renommées) |
+| 4 | Une saisie vide est « une région qui n'existe pas » | « Proposer » sans rien écrire | Aucun test du cas vide avant `deviner()` (`composants/Plateau.tsx`). Piste : ne rien faire, ou « Écris le nom d'une région » |
 
 ### Les soucis d'interface
 
-| # | Problème | Piste | Java |
-|---|---|---|---|
-| 5 | En partie du jour, « Alsace » répond « Cette région n'existe pas » | « L'Alsace est une ancienne région, aujourd'hui dans le Grand Est », sans coûter d'essai ; l'inverse en partie libre, anciennes régions | **Pareil** |
-| 6 | Les indices pas encore révélés restent cachés à la fin : gagné en 4 essais, on ne voit jamais la capitale ni le monument | Tout révéler une fois la partie finie, pour apprendre | **Pareil** |
-| 7 | Bonus d'outre-mer : « Quel est le numéro de : La Réunion ? » (deux-points maladroits), et le focus va sur le titre du bonus : il faut cliquer dans le champ avant de taper « 974 » | L'article de chaque département d'outre-mer (« de la Guadeloupe », « de La Réunion », « de Mayotte »…) ; le focus dans la saisie quand il faut écrire | **Même texte** ; le focus est déjà dans la saisie |
-| 8 | Les suggestions de départements n'ont pas de numéro (« Corse-du-Sud, Haute-Corse ») | « Finistère (29) », pour apprendre les numéros en passant | **Pareil** |
-| 9 | Sur téléphone, en partie libre, la saisie du bonus commence à 572 pixels sur 812 : le clavier cache une partie de la carte | Carte plus petite sur téléphone, ou saisie au-dessus de la carte | Sans objet |
-| 10 | À la fin du bonus, « Survole un département… pour voir son nom » : le survol n'existe pas au doigt. Sur Android, toucher un département devrait marcher (le navigateur imite la souris et donne le focus). **Sur iPhone, peut-être pas** : Safari n'imite la souris que sur ce qui lui semble cliquable, et les départements n'ont plus ni `onClick` ni `cursor-pointer` à la fin | Afficher le nom au **clic** (souris comme doigt), et un texte « Touche ou survole… ». À vérifier sur un iPhone | Sans objet (bulle d'aide à la souris) |
-| 11 | La fenêtre de résultats de la partie libre n'a pas le score du bonus | Le reprendre, comme la partie du jour | Correct (`messageDeFin()` l'ajoute) |
-| 12 | La carte de fin ne colore que la réponse (déjà noté dans « Les améliorations à reprendre ») | Les régions proposées en couleur | **Pareil** |
+| # | Problème | Piste |
+|---|---|---|
+| 5 | En partie du jour, « Alsace » répond « Cette région n'existe pas » | « L'Alsace est une ancienne région, aujourd'hui dans le Grand Est », sans coûter d'essai ; l'inverse en partie libre, anciennes régions |
+| 6 | Les indices pas encore révélés restent cachés à la fin : gagné en 4 essais, on ne voit jamais la capitale ni le monument | Tout révéler une fois la partie finie, pour apprendre |
+| 7 | Bonus d'outre-mer : « Quel est le numéro de : La Réunion ? » (deux-points maladroits), et le focus va sur le titre du bonus : il faut cliquer dans le champ avant de taper « 974 » | L'article de chaque département d'outre-mer (« de la Guadeloupe », « de La Réunion », « de Mayotte »…) ; le focus dans la saisie quand il faut écrire |
+| 8 | Les suggestions de départements n'ont pas de numéro (« Corse-du-Sud, Haute-Corse ») | « Finistère (29) », pour apprendre les numéros en passant |
+| 9 | Sur téléphone, en partie libre, la saisie du bonus commence à 572 pixels sur 812 : le clavier cache une partie de la carte | Carte plus petite sur téléphone, ou saisie au-dessus de la carte |
+| 10 | À la fin du bonus, « Survole un département… pour voir son nom » : le survol n'existe pas au doigt. Sur Android, toucher un département devrait marcher (le navigateur imite la souris et donne le focus). **Sur iPhone, peut-être pas** : Safari n'imite la souris que sur ce qui lui semble cliquable, et les départements n'ont plus ni `onClick` ni `cursor-pointer` à la fin | Afficher le nom au **clic** (souris comme doigt), et un texte « Touche ou survole… ». À vérifier sur un iPhone |
+| 11 | La fenêtre de résultats de la partie libre n'a pas le score du bonus | Le reprendre, comme la partie du jour |
+| 12 | La carte de fin ne colore que la réponse (déjà noté dans « Les améliorations à reprendre ») | Les régions proposées en couleur |
 
 Notés en passant, déjà dans « Les améliorations à reprendre » : la suite de tests a pris **52 s** ce jour-là (jsdom
 créé 24 fois, 34 % du temps ; Vitest propose encore `pool: 'vmThreads'`), et l'avertissement du canvas s'affiche
@@ -552,7 +521,6 @@ décisions sont notées ici (PR web.7.8.0) avant de coder ; le code attend le «
 | Sujet | Décision |
 |---|---|
 | Découpage | **Trois PR empilées**, avant web.8 : **web.7.8 Les bugs** (1, 2, 3, 4), **web.7.9 La saisie et la fin de partie** (5, 6, 11), **web.7.10 Le bonus** (7, 8, 9, 10). Étiquettes `web-7.8`, `web-7.9`, `web-7.10` ; `web-7.8.0` pour ce plan. Puis une **petite PR d'outillage** (tests plus rapides, canvas). |
-| Java | Les mêmes décisions pour les points communs (1, 4, 5, 6, 7, 8), **en même temps que le web, dans une autre conversation** : phase 11 de la feuille de route du Java (PR deIbine/francle#39), avec son découpage (11.1 à 11.3) et ses décisions adaptées (textes au vouvoiement, focus d'outre-mer déjà bon). |
 | (1) « Plusieurs » | La liste **reste ouverte** sur les régions (ou départements) évoquées, **sans en surligner aucune** : deux Entrée de suite ne jouent pas une région au hasard. |
 | (2) Pourcentages | Par `textes.stats.pourcentage()`, comme ailleurs ; vérifier qu'aucun autre pourcentage n'est écrit à la main. |
 | (3) Nom de l'image | Les silhouettes ont des **noms sans la région** (seulement l'empreinte, par l'option `assetFileNames` de Vite). Arrête la triche d'un appui long, pas celle des outils du navigateur ; en mode développement, les noms restent lisibles. |
@@ -600,7 +568,6 @@ choisi **les 101 départements** (« ça serait trop simple sinon »).
 | Quand | Les départements **tant que le bonus est sur le plateau**, même fini (tout grisé, avec « Le bonus est fini »). Les régions de nouveau quand la silhouette revient (bonus passé avant toute réponse, nouvelle partie, nouveau jour). Chaque onglet (partie du jour, partie libre) a son propre état. |
 | Le bouton | **Même icône 📃** ; l'infobulle et le nom lu changent : « Voir la liste des départements ». |
 | ⚙️ et « Comment jouer » | Le réglage « Bouton 📃 » masque les deux listes, son texte le dit (« la liste des régions, ou des départements pendant le bonus ») ; une phrase dans « Comment jouer ». En français et en anglais. |
-| Java | **La même chose dans le Java**, plus tard, dans la conversation du Java : notée comme sa **phase 12** dans `docs/feuille-de-route.md` de `deIbine/francle` (le 19 octobre 2026). |
 | Découpage | **Une seule étape**, **web.7.12**, une PR, étiquette `web-7.12` ; ces décisions notées d'abord par une petite PR (web.7.12.0). |
 
 Décisions du découpage (validées le 19 octobre 2026, recommandations acceptées) : sont barrés **tous les
@@ -657,7 +624,7 @@ commencé.
   reconnaissables) ; en mode image cachée, révéler la silhouette au bout de quelques essais.
 - **Carte de fin** : montrer aussi les régions proposées, en couleur.
 - **Partie du jour devinable** : chaque région revient une fois par cycle de 18 jours, donc le 18e jour se devine par
-  élimination. Changer cela casserait l'égalité avec le Java : à décider.
+  élimination. Changer cela changerait les régions des jours à venir, et les valeurs figées de `reference.json` : à décider.
 - **Des tests plus rapides** : **fait à web.7.11** (`pool: 'vmThreads'`, 40 s -> 26 s ; `delay: null` pas essayé).
   Le délai des tests est passé à 15 s (PR #12), mais les tests d'écran restent lents
   (jusqu'à 5 s chacun, 23 s pour toute la suite). Deux pistes, à mesurer avant de choisir :
@@ -677,14 +644,19 @@ commencé.
   `npm run build`.
 - Python 3.10 est installé, accessible par `py` (pas `python`) : il sert à `outils/generer_images.py`.
 - GitHub CLI (`gh`) est connecté au compte `deIbine`, avec les droits `repo` et `workflow`.
-- Java 21 est installé : il sert à régénérer le fichier de référence du Java si besoin.
+- Java 21 est installé : de quoi lancer le projet Java pour comparer une règle (voir la section suivante).
 - Branches nommées `web-<n>-<sujet>` (par exemple `web-1-donnees-et-regles`), étiquettes `web-<n>`.
 
-## Où trouver le reste
+## Le projet Java, outil de comparaison
 
-- Projet Java : `C:\Users\cleme\Desktop\Claude\francle` (dépôt `deIbine/francle`, étiquettes `phase-6`, `phase-8`).
-  - son plan, dont la phase 9 (le bonus des départements) : `docs/feuille-de-route.md` ;
-  - les données des régions : `src/main/java/fr/francle/donnees/RegionFr.java` et `docs/indices.md` ;
-  - les règles : `src/main/java/fr/francle/jeu/` (`Partie`, `Direction`, `RegionDuJour`) ;
-  - le script des images et la source des contours : `outils/generer_images.py` ;
-  - les leçons des phases précédentes : `docs/lecons.md`.
+Depuis le 23 octobre 2026 (web.7.13), les deux projets sont **séparés**, chacun dans son dossier et son dépôt, chacun
+avec sa conversation. Le Java sert seulement à **comparer** : lire comment il fait, exécuter une de ses règles
+(`jshell`) pour comprendre un écart. On ne modifie pas son dépôt depuis ici, on n'y reporte pas les décisions du web,
+et le web n'a pas à lui rester égal.
+
+- Où : `C:\Users\cleme\Desktop\Claude\francle` (dépôt `deIbine/francle`).
+- Ce qu'on peut y lire : les données des régions (`src/main/java/fr/francle/donnees/RegionFr.java`,
+  `docs/indices.md`), les règles (`src/main/java/fr/francle/jeu/` : `Partie`, `Direction`, `RegionDuJour`, `Bonus`),
+  le script des images d'origine (`outils/generer_images.py`).
+- Pour le lancer : `.\mvnw.cmd test` (PowerShell) ou `./mvnw test` (Bash) ; Maven n'est pas installé, le projet
+  apporte le sien (le Maven Wrapper).

@@ -1246,3 +1246,43 @@ commandes), **comment le penser** (la question à se poser la prochaine fois).
 - **Comment le penser** : c'est l'équivalent de `npx` ou d'un `package.json` pour Node : la version de l'outil est
   écrite dans le dépôt, et n'importe quel poste peut construire le projet sans rien installer. Avant de conclure
   « l'outil manque », regarder si le projet n'apporte pas le sien.
+
+## web.7.13 La séparation d'avec le Java
+
+### Couper un lien, pas l'histoire
+
+- **Pourquoi** : le Java apparaissait dans 32 fichiers, mais pas toujours de la même façon. Certaines mentions
+  obligeaient les deux projets à avancer ensemble : des tâches « à reporter dans le Java », des PR jumelles, un test
+  qui exigeait la même région du jour « au bit près », un outil (`ReferenceJava.java`) qui lisait l'autre dépôt.
+  D'autres disaient seulement d'où venait une idée, ou expliquaient une notion web par une notion Java. Tout effacer
+  aurait fait perdre l'histoire et la pédagogie ; ne rien toucher aurait gardé le lien.
+- **Comment le faire** : lister d'abord (`git grep -n -i java`), puis trier en quatre sortes : les **liens actifs**
+  (une obligation, une tâche, un outil qui dépend de l'autre dépôt), les **comparaisons** (« repris de
+  `Bonus.java` »), les **analogies** (« comme une HashMap »), l'**historique** (les leçons passées). Ne couper que la
+  première sorte. Pour le plan, un script Python qui vérifie que chaque texte à remplacer apparaît exactement une fois
+  (`assert s.count(a) == 1`) : une faute de frappe arrête tout au lieu de rater un passage en silence.
+- **Comment le penser** : séparer deux projets, c'est retirer les **dépendances**, pas les **souvenirs**. La question
+  à se poser devant chaque mention : « si l'autre projet changeait demain, est-ce que ceci deviendrait faux ou
+  m'obligerait à faire quelque chose ? » Si oui, c'est un lien à couper.
+
+### Des valeurs de référence figées
+
+- **Pourquoi** : `reference-java.json` servait à prouver que le site calculait comme le Java. Une fois les projets
+  séparés, cette preuve n'a plus de sens, mais les valeurs restent précieuses : la région et l'angle du jour ne
+  doivent jamais changer pour les joueurs (sinon leurs parties sauvegardées ne correspondraient plus au bon jour).
+- **Comment le faire** : garder le fichier et le test, en les renommant (`reference.json`, `reference.test.ts`) ;
+  supprimer l'outil qui le produisait à partir du Java ; écrire dans l'en-tête du test ce que veut dire un écart (voulu :
+  on corrige le fichier et on le dit dans la PR ; pas voulu : c'est un bug). `git mv` garde l'historique du fichier
+  (`git log --follow src/domaine/reference.json`).
+- **Comment le penser** : c'est un test de non-régression par « valeurs dorées » (*golden values*, ou *snapshot*) :
+  on fige une fois le résultat jugé bon, et le test signale tout changement. Il ne dit pas si le résultat est juste,
+  seulement s'il a changé : c'est exactement ce qu'on veut pour une donnée qui ne doit pas bouger.
+
+### Écrire la règle là où elle sera lue
+
+- **Pourquoi** : une décision qui doit tenir dans toutes les conversations à venir (« ne plus toucher au Java ») ne
+  sert à rien si elle n'est écrite que dans l'historique d'une conversation.
+- **Comment le faire** : la noter dans `CLAUDE.md` (lu au début de chaque conversation), dans le plan (une section
+  « Le projet Java, outil de comparaison »), et dans la mémoire de Claude.
+- **Comment le penser** : pour chaque décision, se demander « qui doit la connaître, et où la lira-t-il ? ». Une règle
+  durable va dans le fichier lu en premier ; le détail et le pourquoi, dans le plan.
