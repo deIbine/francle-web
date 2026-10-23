@@ -1199,3 +1199,50 @@ commandes), **comment le penser** (la question à se poser la prochaine fois).
   navigateur (`locale: 'fr-FR'`) : sans elle, le jeu démarre en anglais et les boutons ne s'appellent plus pareil.
 - **Comment le penser** : savoir ce que l'outil de test imite et ce qu'il n'imite pas ; ce qui dépend du vrai
   navigateur se vérifie dans un vrai navigateur, et se dit dans la PR.
+
+## web.7.12.3 Le retour sur le PC
+
+### Vérifier avant de poser une étiquette ou de supprimer une branche
+
+- **Pourquoi** : une étiquette posée sur le mauvais commit, ou une branche supprimée qui contenait encore du travail,
+  ne se voient pas tout de suite et se rattrapent mal (une étiquette envoyée a pu être récupérée par d'autres).
+- **Comment le faire** : `git fetch --prune` d'abord, pour voir l'état réel de GitHub. Puis, pour chaque commit visé,
+  `git merge-base --is-ancestor <commit> origin/main` (aucune sortie, code 0 : le commit est bien dans `main`) ; et
+  pour la branche à supprimer, `git diff --stat origin/main origin/<branche>` : une sortie vide veut dire même
+  contenu, donc rien à perdre. Ensuite seulement, `git tag -a`, `git push origin <étiquette>`,
+  `git push origin --delete <branche>`.
+- **Comment le penser** : avant une action difficile à défaire, se demander « qu'est-ce que je perdrais si je me
+  trompe ? », et le vérifier par une commande qui ne modifie rien. C'est la même idée que de lancer les tests avant
+  un `push`.
+
+### Ce qui a changé entre-temps
+
+- **Pourquoi** : la branche du cloud existait au début de la conversation, mais plus au moment de la supprimer
+  (« remote ref does not exist ») : une autre session Claude, ouverte sur le Java, travaillait en même temps.
+- **Comment le faire** : interroger le serveur lui-même plutôt que sa copie locale : `git ls-remote --heads origin`
+  liste les branches de GitHub à l'instant présent, alors que `git branch -a` montre ce qu'on a vu au dernier `fetch`.
+  Puis `git fetch --prune` pour remettre la copie locale d'accord.
+- **Comment le penser** : `origin/main` est une photo, pas une fenêtre ouverte sur GitHub. Quand plusieurs personnes
+  (ou sessions) travaillent sur le même dépôt, une erreur de type « n'existe pas » est souvent bonne nouvelle : le
+  travail a déjà été fait. On le vérifie, on le note, et on continue.
+
+### Un test rouge au premier passage n'est pas forcément un bug
+
+- **Pourquoi** : juste après `npm ci`, la suite a pris 116 s au lieu de 36, avec 3 échecs ; les deux passages
+  suivants étaient entièrement verts.
+- **Comment le faire** : comparer la durée à l'habitude (notée dans ce fichier, web.7.11), puis relancer. Si c'est
+  vert et rapide, deux fois de suite, c'était la machine (fichiers froids, antivirus), pas le code ; si un test échoue
+  toujours au même endroit, c'est un vrai problème. Garder la sortie dans un fichier
+  (`npx vitest run > sortie.txt 2>&1`) pour pouvoir la relire.
+- **Comment le penser** : un échec qui disparaît se note quand même, avec sa cause probable. S'il revient souvent,
+  c'est un test fragile (un délai trop court) à corriger.
+
+### Le Maven Wrapper
+
+- **Pourquoi** : `mvn test` répondait « command not found » : Maven n'est pas installé sur le PC.
+- **Comment le faire** : le projet Java contient `mvnw` et `mvnw.cmd`, le **Maven Wrapper** : un petit script qui
+  télécharge la bonne version de Maven (une fois, dans `~/.m2/wrapper`) et la lance. `./mvnw test` dans le Bash,
+  `.\mvnw.cmd test` dans PowerShell.
+- **Comment le penser** : c'est l'équivalent de `npx` ou d'un `package.json` pour Node : la version de l'outil est
+  écrite dans le dépôt, et n'importe quel poste peut construire le projet sans rien installer. Avant de conclure
+  « l'outil manque », regarder si le projet n'apporte pas le sien.
