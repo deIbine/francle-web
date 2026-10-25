@@ -66,6 +66,7 @@ const fr = {
   titre: 'Francle',
   numero: (n: number) => `n°\u00a0${n}`,
   sousTitre: 'Devine la région française du jour, en six essais.',
+  sousTitreLibre: 'Devine une région française tirée au hasard, en six essais.',
   onglets: { titre: 'Sorte de partie', jour: 'Partie du jour', libre: 'Partie libre' },
   // le bouton de langue montre la langue vers laquelle il fait passer
   autreLangue: { court: 'EN', long: 'Switch to English' },
@@ -186,6 +187,8 @@ const fr = {
     bonus: 'Bonus des départements',
     bonusJoues: 'Bonus joués',
     scoreMoyenBonus: 'Score moyen',
+    // le score moyen tant qu'aucun bonus n'a été joué : « 0 % » laisserait croire à un score nul
+    aucunScore: '–',
     pourcentage: (p: number) => `${p}\u00a0%`,
   },
 
@@ -231,6 +234,9 @@ const fr = {
     arrete: (score: number, total: number) =>
       `Bonus arrêté\u00a0: ${score} département${score > 1 ? 's' : ''} trouvé${score > 1 ? 's' : ''} sur ${total}.`,
     chargement: 'Chargement de la carte…',
+    // le téléchargement des contours a échoué (plus de réseau, ou une nouvelle version du site entre-temps)
+    echec: 'Impossible de charger la carte.',
+    reessayer: 'Réessayer',
   },
 
   aide: {
@@ -290,6 +296,7 @@ const en: Textes = {
   titre: 'Francle',
   numero: (n: number) => `#${n}`,
   sousTitre: 'Guess the French region of the day, in six tries.',
+  sousTitreLibre: 'Guess a random French region, in six tries.',
   onglets: { titre: 'Kind of game', jour: 'Daily game', libre: 'Free play' },
   autreLangue: { court: 'FR', long: 'Passer en français' },
 
@@ -400,6 +407,7 @@ const en: Textes = {
     bonus: 'Departments bonus',
     bonusJoues: 'Bonuses played',
     scoreMoyenBonus: 'Average score',
+    aucunScore: '–',
     pourcentage: (p: number) => `${p}%`,
   },
 
@@ -438,6 +446,8 @@ const en: Textes = {
     arrete: (score: number, total: number) =>
       `Bonus stopped: ${score} department${score === 1 ? '' : 's'} found out of ${total}.`,
     chargement: 'Loading the map…',
+    echec: 'Could not load the map.',
+    reessayer: 'Try again',
   },
 
   aide: {

@@ -120,6 +120,8 @@ describe('La partie libre', () => {
 
     await joueur.click(screen.getByRole('tab', { name: 'Partie libre' }))
     expect(screen.getByRole('heading', { level: 1 }).textContent).toBe('Francle')
+    // le sous-titre ne parle plus de « la région du jour »
+    expect(screen.getByText('Devine une région française tirée au hasard, en six essais.')).toBeDefined()
     expect(within(panneau()).queryAllByRole('row').filter((ligne) => ligne.closest('tbody'))).toHaveLength(0)
     await proposer(joueur, cible.nom.fr)
     // une victoire lance le bonus ; « Passer » avant toute réponse ouvre les résultats
@@ -137,6 +139,9 @@ describe('La partie libre', () => {
     await joueur.click(screen.getByRole('button', { name: 'Voir les statistiques' }))
     const stats = screen.getByRole('dialog', { name: 'Statistiques' })
     expect(within(stats).getByText('Parties').nextElementSibling?.textContent).toBe('0')
+    // aucun bonus joué : pas de score moyen, plutôt qu'un « 0 % » trompeur
+    expect(within(stats).getByText('Score moyen').nextElementSibling?.textContent).toBe('–')
+    expect(screen.getByText('Devine la région française du jour, en six essais.')).toBeDefined()
   })
 
   it('les anciennes régions se jouent quand on choisit leur époque', async () => {

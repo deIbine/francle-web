@@ -179,7 +179,10 @@ export default function App() {
               📊
             </button>
           </div>
-          <p className="col-span-3 text-sm text-discret">{textes.sousTitre}</p>
+          {/* le sous-titre suit l'onglet : « du jour » n'a pas de sens en partie libre */}
+          <p className="col-span-3 text-sm text-discret">
+            {onglet === 'jour' ? textes.sousTitre : textes.sousTitreLibre}
+          </p>
 
           {/* les onglets : role="tablist", "tab" et "tabpanel" disent aux lecteurs d'écran comment ils marchent */}
           <div

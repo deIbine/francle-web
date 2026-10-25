@@ -12,7 +12,7 @@ import { Fenetre } from './composants/Fenetre.tsx'
 import { FinDePartie } from './composants/FinDePartie.tsx'
 import { JeuBonus } from './composants/JeuBonus.tsx'
 import { Plateau } from './composants/Plateau.tsx'
-import { avecDifficulte, avecListe, bonusAuHasard, commence, type Bonus } from './domaine/bonus.ts'
+import { avecDifficulte, avecListe, bonusAuHasard, bonusEnCours, commence, type Bonus } from './domaine/bonus.ts'
 import { enCours, nouvellePartie, type Partie } from './domaine/partie.ts'
 import type { ModesDifficiles } from './domaine/partage.ts'
 import { tirer, type Mode } from './domaine/regions.ts'
@@ -163,13 +163,16 @@ export function PartieLibre({ reglages, demandeListe, onListe }: Props) {
             <p className="font-semibold">
               {textes.fin(partie, true)} {textes.reponse} {partie.cible.nom[langue]}
             </p>
-            <button
-              type="button"
-              onClick={() => recommencer(mode)}
-              className="rounded bg-francle-fonce px-4 py-2 font-semibold text-white hover:opacity-90"
-            >
-              {textes.nouvellePartie}
-            </button>
+            {/* caché pendant le bonus : un clic le perdrait sans prévenir. « Passer » sert à en sortir */}
+            {(bonus === undefined || !bonusEnCours(bonus)) && (
+              <button
+                type="button"
+                onClick={() => recommencer(mode)}
+                className="rounded bg-francle-fonce px-4 py-2 font-semibold text-white hover:opacity-90"
+              >
+                {textes.nouvellePartie}
+              </button>
+            )}
             {partie.etat === 'gagnee' && bonus === undefined && (
               <BoutonBonus onJouer={() => lancerBonus(partie)} />
             )}

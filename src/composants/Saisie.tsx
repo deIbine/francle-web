@@ -85,16 +85,19 @@ export function Saisie({ suggerer, onProposer, etiquette, exemple, bouton, desac
       evenement.preventDefault() // sinon le curseur saute au début ou à la fin du texte
       setOuverte(true)
       const pas = evenement.key === 'ArrowDown' ? 1 : -1
+      // liste fermée, « liste » est vide : on demande les suggestions qu'elle va montrer, sinon il faudrait une
+      // seconde pression pour surligner la première
+      const nombre = ouverte ? liste.length : suggerer(texte).length
       setChoisie((avant) => {
-        if (liste.length === 0) {
+        if (nombre === 0) {
           return -1
         }
         // rien de surligné : ↓ va à la première suggestion, ↑ à la dernière
         if (avant < 0) {
-          return pas > 0 ? 0 : liste.length - 1
+          return pas > 0 ? 0 : nombre - 1
         }
         // on tourne en boucle : après la dernière suggestion, on revient à la première
-        return (avant + pas + liste.length) % liste.length
+        return (avant + pas + nombre) % nombre
       })
     } else if (evenement.key === 'Escape') {
       setOuverte(false)

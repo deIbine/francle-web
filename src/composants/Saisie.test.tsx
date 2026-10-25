@@ -29,6 +29,14 @@ describe('La saisie', () => {
     expect(options()).toEqual(['Bretagne'])
   })
 
+  it('liste fermée (Échap), une seule pression sur ↓ la rouvre et surligne la première suggestion', async () => {
+    const { joueur, champ } = afficher()
+    await joueur.type(champ, 'loire{Escape}')
+    expect(options()).toEqual([])
+    await joueur.keyboard('{ArrowDown}')
+    expect(screen.getByRole('option', { selected: true }).textContent).toBe('Centre-Val de Loire')
+  })
+
   it('↓ puis Entrée propose la suggestion surlignée', async () => {
     const { joueur, champ, onProposer } = afficher()
     await joueur.type(champ, 'loire')

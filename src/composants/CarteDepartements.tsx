@@ -34,7 +34,22 @@ interface Props {
 
 export function CarteDepartements(props: Props) {
   const textes = useTextes()
-  const contours = useContours(props.bonus.region.id)
+  const { contours, echec, reessayer } = useContours(props.bonus.region.id)
+  if (echec) {
+    // le bonus reste là : « Passer » marche toujours, et rien n'est perdu
+    return (
+      <div className="flex h-56 flex-col items-center justify-center gap-2">
+        <p>{textes.bonus.echec}</p>
+        <button
+          type="button"
+          onClick={reessayer}
+          className="rounded bg-francle-fonce px-4 py-2 font-semibold text-white hover:opacity-90"
+        >
+          {textes.bonus.reessayer}
+        </button>
+      </div>
+    )
+  }
   if (contours === undefined) {
     return <p className="flex h-56 items-center justify-center">{textes.bonus.chargement}</p>
   }
