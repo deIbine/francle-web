@@ -220,7 +220,8 @@ const fr = {
     saisie: 'Ta réponse',
     saisieExemple: 'Un nom ou un numéro…',
     saisieNumero: 'Un numéro…',
-    cliqueDabord: 'Clique d’abord sur un département',
+    // court : il doit tenir dans le champ sur un téléphone de 375 pixels (« …sur un département » était coupé)
+    cliqueDabord: 'Clique d’abord sur la carte',
     repondre: 'Répondre',
     inconnu: 'Ce n’est pas un département.',
     plusieurs: 'Plusieurs départements possibles\u00a0: choisis dans la liste.',
@@ -230,9 +231,9 @@ const fr = {
     autreRegion: (nom: string) => `${nom}\u00a0: ce département n’est pas dans la région.`,
     passer: 'Passer',
     fini: (score: number, total: number) =>
-      `Bonus terminé\u00a0: ${score} département${score > 1 ? 's' : ''} trouvé${score > 1 ? 's' : ''} sur ${total}.`,
+      `Bonus terminé\u00a0: ${score} département${score > 1 ? 's' : ''} trouvé${score > 1 ? 's' : ''} sur ${total}.`,
     arrete: (score: number, total: number) =>
-      `Bonus arrêté\u00a0: ${score} département${score > 1 ? 's' : ''} trouvé${score > 1 ? 's' : ''} sur ${total}.`,
+      `Bonus arrêté\u00a0: ${score} département${score > 1 ? 's' : ''} trouvé${score > 1 ? 's' : ''} sur ${total}.`,
     chargement: 'Chargement de la carte…',
     // le téléchargement des contours a échoué (plus de réseau, ou une nouvelle version du site entre-temps)
     echec: 'Impossible de charger la carte.',
@@ -442,9 +443,9 @@ const en: Textes = {
     autreRegion: (nom: string) => `${nom}: this department is not in the region.`,
     passer: 'Skip',
     fini: (score: number, total: number) =>
-      `Bonus over: ${score} department${score === 1 ? '' : 's'} found out of ${total}.`,
+      `Bonus over: ${score} department${score === 1 ? '' : 's'} found out of ${total}.`,
     arrete: (score: number, total: number) =>
-      `Bonus stopped: ${score} department${score === 1 ? '' : 's'} found out of ${total}.`,
+      `Bonus stopped: ${score} department${score === 1 ? '' : 's'} found out of ${total}.`,
     chargement: 'Loading the map…',
     echec: 'Could not load the map.',
     reessayer: 'Try again',

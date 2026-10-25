@@ -107,9 +107,10 @@ export default function App() {
     }
   }
 
-  // px-1 sur téléphone, px-2 à partir de 640 pixels (sm:) : avec trois boutons à droite, le titre et son numéro
-  // tiennent ainsi sur une ligne même sur un écran de 375 pixels
-  const boutonIcone = 'rounded px-1 text-2xl hover:bg-surface sm:px-2'
+  // px-1 et text-xl sur téléphone, px-2 et text-2xl à partir de 640 pixels (sm:) : avec FR / EN et deux boutons à
+  // droite, le titre et son numéro tiennent ainsi sur une ligne même sur un écran de 375 pixels (mesuré le 25 octobre
+  // 2026 : en text-2xl, « n° 13 » passait à la ligne)
+  const boutonIcone = 'rounded px-1 text-xl hover:bg-surface sm:px-2 sm:text-2xl'
 
   return (
     // la langue choisie, transmise à tous les composants en dessous (voir LangueContext dans textes.ts)
@@ -136,7 +137,8 @@ export default function App() {
               ⚙️
             </button>
           </div>
-          <h1 className="text-3xl font-bold tracking-wide">
+          {/* whitespace-nowrap : le numéro reste à côté du titre, jamais en dessous */}
+          <h1 className="text-3xl font-bold tracking-wide whitespace-nowrap">
             {textes.titre}
             {onglet === 'jour' && (
               // l'espace hors du span : dans le span, les lecteurs d'écran la perdraient (« Francleno° 3 »)

@@ -19,8 +19,10 @@ export function Statistiques({ stats, dernier }: { stats: Stats; dernier?: numbe
       {/* grid-cols-4 : quatre colonnes de même largeur */}
       <dl className="grid grid-cols-4 gap-2">
         {chiffres.map(([nom, valeur]) => (
-          // flex-col-reverse : la valeur (dd) au-dessus de son nom (dt), tout en gardant l'ordre dt puis dd du HTML
-          <div key={nom} className="flex flex-col-reverse">
+          // flex-col-reverse : la valeur (dd) au-dessus de son nom (dt), tout en gardant l'ordre dt puis dd du HTML.
+          // justify-end : dans une colonne inversée, la « fin » est en haut. Les valeurs restent ainsi alignées en haut
+          // même quand un nom prend deux lignes (« Série en cours » sur téléphone) ; sans cela, elles montaient
+          <div key={nom} className="flex flex-col-reverse justify-end">
             <dt className="text-xs text-discret">{nom}</dt>
             <dd className="text-2xl font-bold tabular-nums">{valeur}</dd>
           </div>
@@ -58,7 +60,7 @@ export function Statistiques({ stats, dernier }: { stats: Stats; dernier?: numbe
               ],
             ] as const
           ).map(([nom, valeur]) => (
-            <div key={nom} className="flex flex-col-reverse">
+            <div key={nom} className="flex flex-col-reverse justify-end">
               <dt className="text-xs text-discret">{nom}</dt>
               <dd className="text-2xl font-bold tabular-nums">{valeur}</dd>
             </div>

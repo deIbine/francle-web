@@ -87,7 +87,7 @@ describe('Le bonus des départements, partie du jour', () => {
     expect(within(panneau()).getByText('Clique sur un département de la carte')).toBeDefined()
     // rien de choisi : la saisie est grisée
     expect(reponse().disabled).toBe(true)
-    expect(reponse().placeholder).toBe('Clique d’abord sur un département')
+    expect(reponse().placeholder).toBe('Clique d’abord sur la carte')
     expect(within(panneau()).queryByRole('img', { name: /silhouette/ })).toBeNull()
   })
 

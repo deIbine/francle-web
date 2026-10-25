@@ -1428,3 +1428,36 @@ commandes), **comment le penser** (la question à se poser la prochaine fois).
   comportement.
 - **Comment le penser** : avant d'ajouter une confirmation, se demander si le bouton a besoin d'être là à ce moment.
   Un bouton qui n'est pas affiché ne demande pas de confirmation.
+
+## web.7.16.2 Le téléphone
+
+### Mesurer la place au lieu de deviner
+
+- **Pourquoi** : à 375 pixels, « n° 13 » passait sous « Francle ». À web.6.3, le titre tenait sur une ligne ; depuis,
+  le bouton FR / EN a pris de la place dans l'en-tête, et personne ne l'a revu à cette largeur.
+- **Comment le faire** : dans le navigateur intégré, à la taille d'un téléphone (`resize_window`, ou le mode appareil
+  des outils de développement, F12), lire les largeurs par un petit script : `offsetWidth` des trois colonnes de
+  l'en-tête, hauteur du titre (72 pixels = deux lignes, 36 = une). Ici : 82 + 149 + 112 = 343, toute la place, et le
+  titre en demandait plus. Les emoji passent en `text-xl` sur téléphone (`sm:text-2xl` au-delà de 640 pixels), et
+  `whitespace-nowrap` interdit au titre de se couper. Même méthode pour le texte d'exemple du mode C :
+  `canvas.measureText()` donne la largeur d'un texte dans la police du champ (248 pixels pour « Clique d’abord sur un
+  département », 185 pour « Clique d’abord sur la carte », pour environ 210 de place).
+- **Comment le penser** : chaque ajout dans un espace serré (un en-tête, un champ) peut casser l'affichage ailleurs.
+  Revérifier la plus petite largeur visée après chaque ajout, chiffres à l'appui.
+
+### Une colonne inversée, et son « haut »
+
+- **Pourquoi** : dans 📊, chaque chiffre est au-dessus de son nom grâce à `flex-col-reverse`. Quand un nom prenait deux
+  lignes (« Série en cours »), son chiffre montait plus haut que les autres.
+- **Comment le faire** : dans une colonne inversée, le début de l'axe est en bas : les éléments se tassent donc en bas
+  (`justify-start` par défaut). `justify-end` les tasse en haut : les chiffres restent alignés, et les noms
+  s'allongent vers le bas.
+- **Comment le penser** : `flex-direction: column-reverse` inverse aussi le sens de `justify-content`. Avant
+  d'inverser un axe, se demander où iront les éléments quand ils n'ont pas tous la même taille.
+
+### L'espace insécable, encore
+
+- **Pourquoi** : « 1 département trouvé sur 1. » laissait « 1. » seul sur sa ligne.
+- **Comment le faire** : ` ` (espace insécable) entre « sur » et le nombre, comme entre un nombre et « % ».
+- **Comment le penser** : un nombre ne doit jamais être séparé du mot qui le présente ni de son unité. Chercher dans
+  `textes.ts` chaque `${…}` précédé d'une espace ordinaire.
