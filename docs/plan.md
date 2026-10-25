@@ -287,8 +287,19 @@ squash le 18 octobre 2026 sur l'accord de l'utilisateur, étiquettes `web-7.8` �
     du jeu demandée par l'utilisateur (section du même nom plus bas) : 5 bugs, 12 soucis d'esthétique, une maquette
     (`docs/maquettes/coup-de-neuf.png`). Décisions **validées le même jour** (toutes les recommandations, et la phase
     4 faite elle aussi). Plan fusionné (PR #49, étiquette `web-7.16.0`) ; maquette **validée** le même jour.
-    **Lancée le même jour** par l'utilisateur (« Tu peux lancer les 4 phases d'affilée ») : les quatre phases codées,
-    en PR empilées (web.7.16.1 à web.7.16.4), **en attente de fusion** sur l'accord de l'utilisateur.
+    **Lancée le même jour** par l'utilisateur (« Tu peux lancer les 4 phases d'affilée ») : **faite et en ligne le même
+    jour**. Quatre PR empilées, #51 à #54, fusionnées en squash le 25 octobre 2026 sur l'accord de l'utilisateur, dans
+    l'ordre : chaque branche rebasée sur `main` (`git rebase --onto origin/main <ancienne base> <branche>`, arbre
+    identique avant et après), base de la PR changée en `main`, CI repassée, fusion. Étiquettes `web-7.16.1`
+    (`1a44d47`), `web-7.16.2` (`ae50d3d`), `web-7.16.3` (`2c91689`), `web-7.16.4` et `web-7.16` (`f91de62`). 318 tests.
+  - **État vérifié le 25 octobre 2026**, après web.7.16 : les quatre branches supprimées en local et sur GitHub (seule
+    `main` y reste), le dossier principal `francle-web` à jour sur `main`, le site publié (CI `verifier` et `publier`
+    réussies). La PR de ces notes (web.7.16.5) n'a pas d'étiquette.
+  - **Encore à vérifier par l'utilisateur, en jouant** : le coup de neuf sur un vrai téléphone (en-tête, réglages,
+    bilan) ; « Réessayer » du bonus lors d'une vraie coupure de réseau.
+  - **Après web.7.16, la prochaine étape est à choisir avec l'utilisateur** : web.8 reste repoussé ; restent dans « Les
+    améliorations à reprendre » le compteur de la partie libre, le repère « voisine » et le mode « métropole
+    seulement » ; ou le défi seul (web.8.1) ; ou les silhouettes sans limites de départements (vu à web.7.16.4).
   - **web.8** : **repoussé** le 18 octobre 2026 (pas de domaine acheté pour l'instant). Le découpage et ses onze
     questions ont été présentés le 17 octobre 2026 (voir « Le domaine et le défi (web.8) » plus bas) ; l'utilisateur
     n'y a pas encore répondu.
