@@ -95,7 +95,7 @@ l'autre, et le web n'a plus à rester égal au Java.
 8. **web.8 Le domaine et le défi** (ancien web.7, renuméroté le 16 octobre 2026) : d'abord le nom de domaine, puis le défi (un lien à envoyer à un ami pour lui
    faire deviner une région). Pas d'archives des jours passés (décidé avant web.4).
 
-## Où on en est (mis à jour le 23 octobre 2026)
+## Où on en est (mis à jour le 25 octobre 2026)
 
 ### À faire sur le PC (liste vide depuis le 23 octobre 2026)
 
@@ -283,6 +283,11 @@ squash le 18 octobre 2026 sur l'accord de l'utilisateur, étiquettes `web-7.8` �
     améliorations à reprendre » plus bas, restent le compteur de la partie libre, le repère « voisine » (nouvelle
     règle, à décider) et le mode « métropole seulement » ; ou le défi seul (web.8.1). Présenter le découpage et les
     questions, puis **attendre le signal de départ de l'utilisateur** (règle de `CLAUDE.md`).
+  - **Choisie le 25 octobre 2026 : les corrections et le coup de neuf (web.7.16)**, après une vérification complète
+    du jeu demandée par l'utilisateur (section du même nom plus bas) : 5 bugs, 12 soucis d'esthétique, une maquette
+    (`docs/maquettes/coup-de-neuf.png`). Décisions **validées le même jour** (toutes les recommandations, et la phase
+    4 faite elle aussi). **Pas encore lancée** : attendre le signal de départ de l'utilisateur, et son avis sur la
+    maquette avant la phase 4.
   - **web.8** : **repoussé** le 18 octobre 2026 (pas de domaine acheté pour l'instant). Le découpage et ses onze
     questions ont été présentés le 17 octobre 2026 (voir « Le domaine et le défi (web.8) » plus bas) ; l'utilisateur
     n'y a pas encore répondu.
@@ -760,6 +765,90 @@ Deux PR empilées, **fusionnées en squash le 23 octobre 2026**, étiquettes `we
    (les essais colorés, les pastilles, la légende, le nom au survol, le texte pour les lecteurs d'écran),
    `FinDePartie`, textes FR et EN, tests (dont axe), vérification à 375 pixels en clair et en sombre, en partie du
    jour et en partie libre (les deux époques), leçons, plan.
+
+## Les corrections et le coup de neuf (web.7.16)
+
+Demandé par l'utilisateur le 25 octobre 2026 : « des vérifications de bugs et d'amélioration d'esthétique », et des
+phases pour les traiter. Le jeu a été vérifié le même jour **sans rien modifier** : lint, build et tests (**314 sur
+314** ; 71 s, car ils tournaient en même temps que l'installation et le build) ; tout le code des composants relu ;
+une partie du jour (Martinique, gagnée en 3 essais, avec le bonus) et une partie libre en anciennes régions
+(Picardie en 5 essais) jouées dans le navigateur intégré, sur ordinateur puis à 375 × 812 en thème sombre.
+
+### Les bugs
+
+| # | Problème | Cause |
+|---|---|---|
+| 1 | Le bonus peut rester bloqué sur « Chargement… » | `useContours` (`src/contours.ts`) n'a pas de `.catch` : si le téléchargement des contours échoue (plus de réseau, ou une mise en ligne qui a renommé les fichiers pendant que la page restait ouverte), le message ne part jamais |
+| 2 | En partie libre, le sous-titre dit « Devine la région française du jour » | `textes.sousTitre` ne dépend pas de l'onglet (`App.tsx`) |
+| 3 | Pendant le bonus de la partie libre, « Nouvelle partie » reste sous la carte : un clic perd le bonus, sans confirmation | Le bloc `fin` du plateau s'affiche dès que la partie est finie, bonus en cours ou non |
+| 4 | 📊 : « Score moyen 0 % » alors qu'aucun bonus n'a été joué | `Statistiques.tsx` affiche le pourcentage même quand `bonusJoues` vaut 0 |
+| 5 | Liste fermée : il faut appuyer deux fois sur ↓ pour surligner la première suggestion | Dans `touche()` (`Saisie.tsx`), la liste lue est celle d'avant l'ouverture (vide) |
+
+### L'esthétique
+
+| # | Problème | Où |
+|---|---|---|
+| 6 | À 375 pixels, le titre passe sur deux lignes : « n° 13 » tombe sous « Francle » (le bouton FR / EN, ajouté après web.6.3, prend la place) | En-tête |
+| 7 | 📊 : « Série en cours » et « Meilleure série » font deux lignes, leurs chiffres ne sont plus alignés avec les autres | `Statistiques.tsx` |
+| 8 | Mode C à 375 pixels : le texte d'exemple est coupé (« Clique d'abord sur un départe… ») | Saisie du bonus |
+| 9 | « 1 département trouvé sur 1. » laisse « 1. » seul sur sa ligne | Espace insécable manquante (`textes.ts`) |
+| 10 | Les messages qui expliquent (« Alsace : une ancienne région… », « déjà proposée ») sont en rouge, comme des erreurs | `Plateau.tsx`, `JeuBonus.tsx` |
+| 11 | Carte de fin : 58 %, 71 % et 90 % ont presque le même vert. En métropole, la proximité dépasse presque toujours 50 % (la Bretagne vaut même 51 % depuis la Martinique) : la moitié jaune du dégradé ne sert pas | `couleurProximite` (`partage.ts`) |
+| 12 | Carte de fin : une réponse d'outre-mer se voit à peine (encadré minuscule, la pastille la cache en partie) | `CarteFrance.tsx` |
+| 13 | Les boutons « Non » (abandon, changement d'époque) ont une bordure de la couleur du texte, pas `border-bord` | `Plateau.tsx`, `PartieLibre.tsx` |
+| 14 | Les icônes de l'en-tête sont des emoji, dessinés différemment par chaque système (❓ rouge sous Windows, 📊 multicolore) | En-tête |
+| 15 | Les réglages sont une longue liste de boutons radio | `Reglages.tsx` |
+| 16 | « Comment jouer » est un bloc de texte | `Aide.tsx` |
+| 17 | Sous un bonus fini, la page répète le résultat (« Bonus terminé… », puis « Bravo… La réponse : … ») | `JeuBonus.tsx`, bloc `fin` des deux parties |
+
+Laissés de côté : Open Graph et `theme-color` (déjà prévus avec web.8) ; le site chargé au départ pèse 362 Ko (les
+cartes des deux époques y sont, alors qu'elles ne servent qu'à la fin) ; l'empreinte d'une silhouette ne change pas
+d'une mise en ligne à l'autre (on pourrait apprendre « C5fvIIqz = Corse » : triche très improbable).
+
+### La maquette du coup de neuf
+
+[`docs/maquettes/coup-de-neuf.png`](maquettes/coup-de-neuf.png), dessinée le 25 octobre 2026 avec les vraies
+silhouettes et les vrais contours (script Node jetable, puis Edge sans fenêtre), en clair et en sombre, à la largeur
+d'un téléphone. **Pas encore validée par l'utilisateur.** Quatre écrans :
+
+1. **L'en-tête en icônes** : quatre icônes dessinées en SVG (aide, réglages, liste, statistiques), d'un trait de la
+   couleur du texte, à la place des emoji ; le titre et son numéro tiennent sur une ligne. Le message
+   d'information est neutre (gris, sur fond `surface`, précédé de ⓘ), plus en rouge.
+2. **Les réglages groupés** : langue, thème et distances en boutons côte à côte (le choix en bleu Francle) ; les
+   modes difficiles, le bouton liste et la version difficile du bonus en interrupteurs, avec leur explication en
+   petit.
+3. **« Comment jouer » illustré** : une vraie ligne du tableau (Normandie, 251 km, ↗️, 76 %) avec, dessous, ce que
+   veut dire chaque colonne ; puis quatre lignes courtes avec une icône (indices, bonus, partie du jour et partie
+   libre, modes difficiles).
+4. **La fin de partie sur la page** : sous la carte du bonus, un seul bloc de bilan (« 🎉 Martinique, trouvée en 3
+   essais », « Bonus : 1 département sur 1 · 100 % »), avec « Voir les résultats » et « Partager » côte à côte ; plus
+   de phrase répétée.
+
+### Les décisions (validées le 25 octobre 2026)
+
+L'utilisateur a accepté **toutes les recommandations** (« oui pour tes recommandations »), sauf la phase 4, qu'il veut
+faire **elle aussi**, avec des maquettes proposées par Claude.
+
+| Sujet | Décision |
+|---|---|
+| (1) Contours | Un message « Impossible de charger la carte. » et un bouton **Réessayer**. Le bonus reste là, « Passer » marche toujours. |
+| (3) « Nouvelle partie » | **Caché** tant que le bonus est en cours : « Passer » suffit pour en sortir. |
+| (4) Score moyen | **« – »** tant qu'aucun bonus n'a été joué. |
+| (11) Le dégradé | Il **commence à 50 %** : en dessous, jaune pâle ; de 50 à 99 %, du jaune au vert. La règle de proximité ne change pas, seulement la couleur (et la légende : « 50 % », « 99 % »). |
+| (10) Les messages | **Neutres** (`text-discret`) pour ce qui explique ; le rouge seulement pour les vraies erreurs. |
+| Phase 4 | **Faite elle aussi**, sur maquette (ci-dessus), après les trois autres. Ses détails attendent l'avis de l'utilisateur sur la maquette. |
+| Les autres points | Corrigés comme proposé (2, 5 à 9, 12, 13). |
+
+### Les phases (une branche et une PR chacune, empilées, fusion en squash à la fin)
+
+0. **web.7.16.0 Le plan** : ce chapitre, la maquette.
+1. **web.7.16.1 Les bugs** : 1 à 5.
+2. **web.7.16.2 Le téléphone** : 6 à 9.
+3. **web.7.16.3 Les couleurs et les messages** : 10 à 13.
+4. **web.7.16.4 Le coup de neuf** : 14 à 17, d'après la maquette une fois validée.
+
+Étiquettes prévues : `web-7.16.0` à `web-7.16.4`, puis `web-7.16`. **Rien n'est commencé** : le code attend le
+signal de départ de l'utilisateur (règle de `CLAUDE.md`).
 
 ## Les améliorations à reprendre (relevées le 16 octobre 2026)
 
