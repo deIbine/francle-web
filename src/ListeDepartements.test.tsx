@@ -189,11 +189,14 @@ describe('La liste des départements, partie libre', () => {
     expect(within(panneau()).getByText(`Juste : ${nom(deps[0])}.`)).toBeDefined()
   })
 
-  it('« Nouvelle partie » pendant le bonus : retour à la liste des régions, sans fenêtre ouverte toute seule', async () => {
+  it('« Nouvelle partie » après le bonus : retour à la liste des régions, sans fenêtre ouverte toute seule', async () => {
     const { joueur } = await gagnerLibre('bretagne')
     await carte()
     await ouvrirDepartements(joueur)
     await joueur.click(within(listeDepartements()!).getByRole('button', { name: 'Fermer' }))
+    // « Nouvelle partie » est caché pendant le bonus (web.7.16.1) : on le passe d'abord, puis on ferme les résultats
+    await joueur.click(within(panneau()).getByRole('button', { name: 'Passer' }))
+    await joueur.click(within(screen.getByRole('dialog', { name: 'Résultats' })).getByRole('button', { name: 'Fermer' }))
     await joueur.click(within(panneau()).getByRole('button', { name: 'Nouvelle partie' }))
 
     expect(listeRegions()).toBeNull()

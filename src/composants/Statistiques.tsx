@@ -52,7 +52,10 @@ export function Statistiques({ stats, dernier }: { stats: Stats; dernier?: numbe
           {(
             [
               [textes.stats.bonusJoues, stats.bonusJoues],
-              [textes.stats.scoreMoyenBonus, textes.stats.pourcentage(stats.scoreMoyenBonus)],
+              [
+                textes.stats.scoreMoyenBonus,
+                stats.bonusJoues === 0 ? textes.stats.aucunScore : textes.stats.pourcentage(stats.scoreMoyenBonus),
+              ],
             ] as const
           ).map(([nom, valeur]) => (
             <div key={nom} className="flex flex-col-reverse">

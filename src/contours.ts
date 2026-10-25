@@ -38,23 +38,50 @@ export async function contoursDe(region: string): Promise<Contours> {
   return contours
 }
 
-// les contours de la région, dans un composant : undefined le temps du téléchargement, puis les contours.
-// useEffect lance le téléchargement après l'affichage ; à l'arrivée, setCharges fait réafficher le composant.
-// « actif » ignore une réponse arrivée trop tard, si la région a changé entre-temps (ou si le composant a disparu)
-export function useContours(region: string): Contours | undefined {
-  const [charges, setCharges] = useState(() => ({ region, contours: CHARGES.get(region) }))
+// où en est le téléchargement : les contours une fois arrivés (undefined avant), « echec » s'il a échoué, et de quoi
+// le relancer
+export interface Chargement {
+  readonly contours: Contours | undefined
+  readonly echec: boolean
+  readonly reessayer: () => void
+}
+
+// les contours de la région, dans un composant. useEffect lance le téléchargement après l'affichage ; à l'arrivée,
+// setEtat fait réafficher le composant. « actif » ignore une réponse arrivée trop tard, si la région a changé
+// entre-temps (ou si le composant a disparu).
+// Un téléchargement peut échouer : plus de réseau, ou une nouvelle version du site mise en ligne pendant que la page
+// restait ouverte (les fichiers ont alors changé de nom). Sans le second argument de then(), l'échec passerait
+// inaperçu et « Chargement… » resterait affiché pour toujours. « essai » compte les tentatives : l'augmenter relance
+// l'effet, donc le téléchargement.
+// charger : contoursDe, sauf dans les tests, qui simulent un échec
+export function useContours(region: string, charger: (region: string) => Promise<Contours> = contoursDe): Chargement {
+  const [essai, setEssai] = useState(0)
+  const [etat, setEtat] = useState(() => ({ region, essai, contours: CHARGES.get(region), echec: false }))
   useEffect(() => {
     let actif = true
-    contoursDe(region).then((contours) => {
-      if (actif) {
-        setCharges({ region, contours })
-      }
-    })
+    charger(region).then(
+      (contours) => {
+        if (actif) {
+          setEtat({ region, essai, contours, echec: false })
+        }
+      },
+      () => {
+        if (actif) {
+          setEtat({ region, essai, contours: undefined, echec: true })
+        }
+      },
+    )
     return () => {
       actif = false
     }
-  }, [region])
-  return charges.region === region ? charges.contours : CHARGES.get(region)
+  }, [region, essai, charger])
+  // un état d'une autre région ou d'une tentative d'avant ne compte plus : on attend la réponse en cours
+  const aJour = etat.region === region && etat.essai === essai
+  return {
+    contours: aJour ? etat.contours : CHARGES.get(region),
+    echec: aJour && etat.echec,
+    reessayer: () => setEssai((avant) => avant + 1),
+  }
 }
 
 export interface Point {

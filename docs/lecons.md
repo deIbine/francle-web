@@ -1389,3 +1389,42 @@ commandes), **comment le penser** (la question à se poser la prochaine fois).
   région, dont le `<title>` affiche le nom au survol.
 - **Comment le penser** : en SVG, l'ordre des éléments est l'ordre des couches. C'est comme dessiner en Java avec
   `Graphics2D` : ce qu'on peint après recouvre ce qu'on a peint avant.
+
+## web.7.16.1 Les bugs
+
+### Une promesse sans plan B
+
+- **Pourquoi** : le bonus télécharge les contours de sa région au moment où il commence (`import()` par Vite). Le code
+  disait quoi faire quand le fichier arrive (`.then(…)`), mais rien pour un échec : plus de réseau, ou une nouvelle
+  version du site mise en ligne pendant que la page restait ouverte (les fichiers changent alors de nom). La promesse
+  échouait en silence, et « Chargement de la carte… » restait affiché pour toujours.
+- **Comment le faire** : donner à `then()` son second argument, appelé en cas d'échec (ou un `.catch`), et en faire un
+  état que l'écran montre : un message et un bouton « Réessayer ». Le bouton augmente un compteur d'essais ; comme le
+  compteur est dans les dépendances du `useEffect`, React relance l'effet, donc le téléchargement. Pour le tester sans
+  couper le réseau, le hook accepte une fonction de téléchargement en paramètre (par défaut la vraie) : le test lui
+  passe une fausse fonction (`vi.fn().mockRejectedValueOnce(…)`) qui échoue une fois, puis réussit.
+- **Comment le penser** : devant chaque `then`, `await` ou `fetch`, se demander « et si ça échoue ? ». En Java, le
+  compilateur oblige à traiter une exception vérifiée ; une promesse JavaScript, elle, peut échouer sans que personne
+  ne le remarque. Et ce qui dépend du réseau doit pouvoir être remplacé dans un test, comme on injecte une dépendance.
+
+### Lire l'état d'avant, dans une fonction appelée au clavier
+
+- **Pourquoi** : quand la liste des suggestions était fermée, il fallait presser ↓ deux fois. La fonction de la
+  touche ouvrait la liste (`setOuverte(true)`), puis comptait les suggestions dans `liste`… qui était encore vide :
+  un `setState` ne change la valeur qu'à l'affichage suivant, pas tout de suite.
+- **Comment le faire** : calculer directement ce dont on a besoin (`suggerer(texte)`) quand la liste est fermée, au lieu
+  de lire une valeur qui n'est pas encore à jour. Un test le vérifie : Échap ferme la liste, une seule pression sur ↓
+  surligne la première suggestion.
+- **Comment le penser** : dans un composant React, les variables d'un affichage sont figées, comme une photo. Après un
+  `setState`, la photo ne change pas : c'est le prochain affichage qui verra la nouvelle valeur.
+
+### Cacher ce qui ferait perdre quelque chose
+
+- **Pourquoi** : pendant le bonus de la partie libre, « Nouvelle partie » restait sous la carte : un clic perdait le
+  bonus sans prévenir. Une confirmation aurait ajouté un pas à chaque partie ; or « Passer » existe déjà pour sortir
+  du bonus.
+- **Comment le faire** : n'afficher le bouton que si le bonus n'est pas en cours (`bonusEnCours`). Deux tests, qui
+  cliquaient sur « Nouvelle partie » pendant le bonus, passent maintenant par « Passer » : ils décrivaient l'ancien
+  comportement.
+- **Comment le penser** : avant d'ajouter une confirmation, se demander si le bouton a besoin d'être là à ce moment.
+  Un bouton qui n'est pas affiché ne demande pas de confirmation.

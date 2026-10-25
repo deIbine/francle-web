@@ -341,7 +341,11 @@ describe('Le bonus des départements, partie libre', () => {
     await repondre(joueur, zones[0].getAttribute('data-code')!, zones[1].getAttribute('data-code')!)
     expect(within(panneau()).getByText(/^Raté|^Juste/)).toBeDefined()
     expect(lire().size).toBe(0)
-    // une nouvelle partie remet la silhouette
+    // pendant le bonus, pas de « Nouvelle partie » : un clic le perdrait sans prévenir
+    expect(within(panneau()).queryByRole('button', { name: 'Nouvelle partie' })).toBeNull()
+    // passé, il revient ; une nouvelle partie remet la silhouette
+    await joueur.click(within(panneau()).getByRole('button', { name: 'Passer' }))
+    await joueur.click(within(resultats()!).getByRole('button', { name: 'Fermer' }))
     await joueur.click(within(panneau()).getByRole('button', { name: 'Nouvelle partie' }))
     expect(within(panneau()).getByRole('img', { name: /silhouette/ })).toBeDefined()
   })
