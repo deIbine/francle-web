@@ -286,8 +286,8 @@ squash le 18 octobre 2026 sur l'accord de l'utilisateur, étiquettes `web-7.8` �
   - **Choisie le 25 octobre 2026 : les corrections et le coup de neuf (web.7.16)**, après une vérification complète
     du jeu demandée par l'utilisateur (section du même nom plus bas) : 5 bugs, 12 soucis d'esthétique, une maquette
     (`docs/maquettes/coup-de-neuf.png`). Décisions **validées le même jour** (toutes les recommandations, et la phase
-    4 faite elle aussi). **Pas encore lancée** : attendre le signal de départ de l'utilisateur, et son avis sur la
-    maquette avant la phase 4.
+    4 faite elle aussi). Plan fusionné (PR #49, étiquette `web-7.16.0`) ; maquette **validée** le même jour.
+    **Pas encore lancée** : attendre le signal de départ de l'utilisateur pour web.7.16.1.
   - **web.8** : **repoussé** le 18 octobre 2026 (pas de domaine acheté pour l'instant). Le découpage et ses onze
     questions ont été présentés le 17 octobre 2026 (voir « Le domaine et le défi (web.8) » plus bas) ; l'utilisateur
     n'y a pas encore répondu.
@@ -809,7 +809,8 @@ d'une mise en ligne à l'autre (on pourrait apprendre « C5fvIIqz = Corse » : t
 
 [`docs/maquettes/coup-de-neuf.png`](maquettes/coup-de-neuf.png), dessinée le 25 octobre 2026 avec les vraies
 silhouettes et les vrais contours (script Node jetable, puis Edge sans fenêtre), en clair et en sombre, à la largeur
-d'un téléphone. **Pas encore validée par l'utilisateur.** Quatre écrans :
+d'un téléphone. **Validée par l'utilisateur le 25 octobre 2026** (« c'est effectivement beaucoup mieux »), après la
+fusion du plan (PR #49). Quatre écrans :
 
 1. **L'en-tête en icônes** : quatre icônes dessinées en SVG (aide, réglages, liste, statistiques), d'un trait de la
    couleur du texte, à la place des emoji ; le titre et son numéro tiennent sur une ligne. Le message
@@ -836,7 +837,7 @@ faire **elle aussi**, avec des maquettes proposées par Claude.
 | (4) Score moyen | **« – »** tant qu'aucun bonus n'a été joué. |
 | (11) Le dégradé | Il **commence à 50 %** : en dessous, jaune pâle ; de 50 à 99 %, du jaune au vert. La règle de proximité ne change pas, seulement la couleur (et la légende : « 50 % », « 99 % »). |
 | (10) Les messages | **Neutres** (`text-discret`) pour ce qui explique ; le rouge seulement pour les vraies erreurs. |
-| Phase 4 | **Faite elle aussi**, sur maquette (ci-dessus), après les trois autres. Ses détails attendent l'avis de l'utilisateur sur la maquette. |
+| Phase 4 | **Faite elle aussi**, après les trois autres, **comme la maquette** (ci-dessus, validée le 25 octobre 2026) : les quatre écrans tels quels. |
 | Les autres points | Corrigés comme proposé (2, 5 à 9, 12, 13). |
 
 ### Les phases (une branche et une PR chacune, empilées, fusion en squash à la fin)
@@ -845,7 +846,10 @@ faire **elle aussi**, avec des maquettes proposées par Claude.
 1. **web.7.16.1 Les bugs** : 1 à 5.
 2. **web.7.16.2 Le téléphone** : 6 à 9.
 3. **web.7.16.3 Les couleurs et les messages** : 10 à 13.
-4. **web.7.16.4 Le coup de neuf** : 14 à 17, d'après la maquette une fois validée.
+4. **web.7.16.4 Le coup de neuf** : 14 à 17, d'après la maquette validée.
+
+Le plan est fusionné (PR #49, étiquette `web-7.16.0`, commit `d7492e6`), la validation de la maquette notée par une
+petite PR de notes (web.7.16.0.1, sans étiquette).
 
 Étiquettes prévues : `web-7.16.0` à `web-7.16.4`, puis `web-7.16`. **Rien n'est commencé** : le code attend le
 signal de départ de l'utilisateur (règle de `CLAUDE.md`).
