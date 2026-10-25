@@ -162,8 +162,8 @@ describe('La partie libre', () => {
     ).toBeDefined()
     expect(within(panneau()).queryAllByRole('row').filter((ligne) => ligne.closest('tbody'))).toHaveLength(0)
     await proposer(joueur, cible.nom.fr)
-    // le message de victoire, sous le bonus qui vient de commencer
-    expect(within(panneau()).getByText(new RegExp(`La réponse : ${cible.nom.fr}$`))).toBeDefined()
+    // le bilan de la victoire, sous le bonus qui vient de commencer
+    expect(within(panneau()).getByText(`🎉 ${cible.nom.fr}, trouvée du premier coup`)).toBeDefined()
   })
 
   it('changer d’époque pendant une partie commencée demande confirmation', async () => {

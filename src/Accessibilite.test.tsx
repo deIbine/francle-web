@@ -32,8 +32,9 @@ describe('Comment jouer', () => {
     const joueur = userEvent.setup()
     render(<App />)
     const aide = screen.getByRole('dialog', { name: 'Comment jouer' })
-    // l'exemple est un vrai essai : la Normandie proposée pour la Bretagne
-    expect(within(aide).getByText(/Normandie · .*\skm · .* · \d+\s%/)).toBeDefined()
+    // l'exemple est un vrai essai, dessiné comme une ligne du tableau : la Normandie proposée pour la Bretagne
+    const exemple = within(aide).getByRole('table', { name: 'Un exemple d’essai' })
+    expect(within(exemple).getByRole('row').textContent).toMatch(/^Normandie.*\skm.*\d+\s%$/)
     await joueur.click(within(aide).getByRole('button', { name: 'Jouer' }))
     expect(screen.queryByRole('dialog')).toBeNull()
 

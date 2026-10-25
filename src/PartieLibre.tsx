@@ -7,6 +7,7 @@ partie suivante.
  */
 import { useId, useState } from 'react'
 import { usePause } from './pause.ts'
+import { Bilan } from './composants/Bilan.tsx'
 import { BoutonBonus } from './composants/BoutonBonus.tsx'
 import { Fenetre } from './composants/Fenetre.tsx'
 import { FinDePartie } from './composants/FinDePartie.tsx'
@@ -17,7 +18,7 @@ import { enCours, nouvellePartie, type Partie } from './domaine/partie.ts'
 import type { ModesDifficiles } from './domaine/partage.ts'
 import { tirer, type Mode } from './domaine/regions.ts'
 import { modesReglages, uniteAffichee, type Reglages } from './reglages.ts'
-import { useLangue, useTextes } from './textes.ts'
+import { useTextes } from './textes.ts'
 import { useSignalerListe, type Liste } from './liste.ts'
 
 // une nouvelle partie libre : une région de l'époque et un angle de rotation, tous deux au hasard.
@@ -35,7 +36,6 @@ interface Props {
 
 export function PartieLibre({ reglages, demandeListe, onListe }: Props) {
   const textes = useTextes()
-  const langue = useLangue()
   const [mode, setMode] = useState<Mode>('nouvelles')
   const [{ partie, angle, numero }, setTirage] = useState(() => tirage('nouvelles', 1))
   // les modes difficiles, fixés au premier essai comme pour la partie du jour
@@ -159,10 +159,7 @@ export function PartieLibre({ reglages, demandeListe, onListe }: Props) {
         }
         listeAuBonus={listeAuBonus}
         fin={
-          <div className="flex flex-col items-center gap-2">
-            <p className="font-semibold">
-              {textes.fin(partie, true)} {textes.reponse} {partie.cible.nom[langue]}
-            </p>
+          <Bilan partie={partie} libre bonus={bonus}>
             {/* caché pendant le bonus : un clic le perdrait sans prévenir. « Passer » sert à en sortir */}
             {(bonus === undefined || !bonusEnCours(bonus)) && (
               <button
@@ -176,7 +173,7 @@ export function PartieLibre({ reglages, demandeListe, onListe }: Props) {
             {partie.etat === 'gagnee' && bonus === undefined && (
               <BoutonBonus onJouer={() => lancerBonus(partie)} />
             )}
-          </div>
+          </Bilan>
         }
       />
 

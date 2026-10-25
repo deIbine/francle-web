@@ -136,6 +136,12 @@ const fr = {
           : 'Perdu, ce sera pour demain.'
         : 'Partie abandonnée.',
   reponse: 'La réponse\u00a0:',
+  // le bilan sous le plateau, une fois la partie finie (depuis web.7.16.4) : un seul bloc, au lieu de phrases répétées
+  bilan: {
+    titre: 'Résumé de la partie',
+    gagnee: (nom: string, essais: number) =>
+      essais === 1 ? `🎉 ${nom}, trouvée du premier coup` : `🎉 ${nom}, trouvée en ${essais} essais`,
+  },
   // la carte de fin, pour un lecteur d'écran : la réponse, puis chaque essai avec son numéro et sa proximité
   carte: (nom: string, essais: readonly EssaiCarte[]) =>
     `Carte de France, la région ${nom} en bleu` +
@@ -244,17 +250,18 @@ const fr = {
     titre: 'Comment jouer',
     ouvrir: 'Comment jouer',
     but: 'Devine la région française à partir de sa silhouette, en six essais au plus.',
-    apres: 'Après chaque essai, tu vois\u00a0:',
-    distance: 'la distance entre les capitales des deux régions\u00a0;',
-    direction: 'la direction à suivre pour aller vers la région à deviner\u00a0;',
-    proximite: 'la proximité\u00a0: 100\u00a0% pour la bonne région, 0\u00a0% pour la plus éloignée.',
-    exemple: (nom: string, distance: string, fleche: string, proximite: string) =>
-      `Par exemple, «\u00a0${nom} · ${distance} · ${fleche} · ${proximite}\u00a0»\u00a0: la région à deviner est à ${distance}, dans cette direction.`,
-    indices: 'Après chaque essai raté, un indice apparaît\u00a0: la superficie, une spécialité, une personnalité, la capitale, puis un monument.',
-    jour: 'La partie du jour est la même pour tout le monde, et change à minuit. Partage ton résultat\u00a0: il ne dévoile pas la réponse.',
-    libre: 'En partie libre, joue autant que tu veux, avec les régions actuelles ou celles d’avant 2016.',
-    modes: 'Dans les réglages ⚙️, essaie les modes difficiles\u00a0: la silhouette tournée 🌀, ou cachée 🙈.',
-    bonus: 'Après une victoire, un bonus 🗺️\u00a0: clique sur chaque département de la région, puis écris son nom ou son numéro. Une seule réponse par département, et ton score s’ajoute au partage. Pendant le bonus, la liste 📃 montre les départements de la région, ou les 101 dans la version difficile (⚙️).',
+    // l'exemple : une vraie ligne du tableau, puis ce que veut dire chaque colonne (depuis web.7.16.4)
+    exemple: (nom: string) => `Par exemple, si tu proposes «\u00a0${nom}\u00a0»\u00a0:`,
+    tableauExemple: 'Un exemple d’essai',
+    colonnes: {
+      distance: 'la distance entre les capitales',
+      direction: 'la direction à suivre',
+      proximite: 'la proximité (100\u00a0%\u00a0: trouvé)',
+    },
+    indices: 'Après chaque essai raté, un indice\u00a0: la superficie, une spécialité, une personnalité, la capitale, puis un monument.',
+    bonus: 'Gagné\u00a0? Un bonus\u00a0: nomme chaque département de la région (la liste les montre aussi). Ton score s’ajoute au partage.',
+    jour: 'La partie du jour est la même pour tout le monde, et change à minuit\u00a0; partager ton résultat ne dévoile pas la réponse. En partie libre, joue autant que tu veux, avec les régions actuelles ou celles d’avant 2016.',
+    modes: 'Dans les réglages, essaie les modes difficiles\u00a0: la silhouette tournée 🌀, ou cachée 🙈.',
     jouer: 'Jouer',
   },
 
@@ -282,12 +289,12 @@ const fr = {
     cacheeAide: 'Pas de silhouette\u00a0: seulement les distances, les flèches et les indices.',
     plusTard: 'Ils sont fixés au premier essai\u00a0: dans une partie commencée, un changement compte pour la suivante.',
     liste: 'Liste des régions',
-    listeBouton: 'Bouton 📃 dans l’en-tête',
+    listeBouton: 'Bouton liste dans l’en-tête',
     listeAide: 'Il ouvre la liste des régions du jeu, ou des départements pendant le bonus\u00a0: un clic sur un nom le propose.',
     bonus: 'Bonus 🗺️',
     departementsDifficiles: 'Départements\u00a0: version difficile',
     departementsDifficilesAide:
-      'La liste 📃 et les suggestions proposent les 101 départements, pas seulement ceux de la région. Fixé à la première réponse du bonus.',
+      'La liste et les suggestions proposent les 101 départements, pas seulement ceux de la région. Fixé à la première réponse du bonus.',
   },
 }
 
@@ -361,6 +368,11 @@ const en: Textes = {
           : 'Lost. Try again tomorrow.'
         : 'Game abandoned.',
   reponse: 'The answer:',
+  bilan: {
+    titre: 'Game summary',
+    gagnee: (nom: string, essais: number) =>
+      essais === 1 ? `🎉 ${nom}, found on the first try` : `🎉 ${nom}, found in ${essais} tries`,
+  },
   carte: (nom: string, essais: readonly EssaiCarte[]) =>
     `Map of France, the region ${nom} in blue` +
     (essais.length === 0 ? '' : `. Your guesses: ${essais.map((e) => `${e.numero} ${e.nom}, ${e.proximite}%`).join('; ')}`),
@@ -455,17 +467,17 @@ const en: Textes = {
     titre: 'How to play',
     ouvrir: 'How to play',
     but: 'Guess the French region from its outline, in six tries at most.',
-    apres: 'After each guess, you see:',
-    distance: 'the distance between the capitals of the two regions;',
-    direction: 'the direction to go to reach the region to guess;',
-    proximite: 'the proximity: 100% for the right region, 0% for the farthest one.',
-    exemple: (nom: string, distance: string, fleche: string, proximite: string) =>
-      `For example, “${nom} · ${distance} · ${fleche} · ${proximite}”: the region to guess is ${distance} away, in that direction.`,
-    indices: 'After each wrong guess, a clue appears: the area, a speciality, a famous person, the capital, then a landmark.',
-    jour: 'The daily game is the same for everyone, and changes at midnight. Share your result: it doesn’t give the answer away.',
-    libre: 'In free play, play as much as you like, with the current regions or those from before 2016.',
-    modes: 'In the settings ⚙️, try the hard modes: the outline rotated 🌀, or hidden 🙈.',
-    bonus: 'After a win, a bonus 🗺️: click on each department of the region, then type its name or number. One answer per department, and your score is added to what you share. During the bonus, the list 📃 shows the region’s departments, or all 101 in the hard version (⚙️).',
+    exemple: (nom: string) => `For example, if you guess “${nom}”:`,
+    tableauExemple: 'An example guess',
+    colonnes: {
+      distance: 'the distance between the capitals',
+      direction: 'the direction to go',
+      proximite: 'the proximity (100%: found)',
+    },
+    indices: 'After each wrong guess, a clue: the area, a speciality, a famous person, the capital, then a landmark.',
+    bonus: 'You won? A bonus: name each department of the region (the list shows them too). Your score is added to what you share.',
+    jour: 'The daily game is the same for everyone, and changes at midnight; sharing your result doesn’t give the answer away. In free play, play as much as you like, with the current regions or those from before 2016.',
+    modes: 'In the settings, try the hard modes: the outline rotated 🌀, or hidden 🙈.',
     jouer: 'Play',
   },
 
@@ -493,12 +505,12 @@ const en: Textes = {
     cacheeAide: 'No outline: only distances, arrows and clues.',
     plusTard: 'They are set at the first guess: in a game already started, a change applies to the next one.',
     liste: 'List of regions',
-    listeBouton: '📃 button in the header',
+    listeBouton: 'List button in the header',
     listeAide: 'It opens the list of the game’s regions, or of the departments during the bonus: click a name to guess it.',
     bonus: 'Bonus 🗺️',
     departementsDifficiles: 'Departments: hard version',
     departementsDifficilesAide:
-      'The 📃 list and the suggestions offer all 101 departments, not only those of the region. Set at the bonus’s first answer.',
+      'The list and the suggestions offer all 101 departments, not only those of the region. Set at the bonus’s first answer.',
   },
 }
 

@@ -13,7 +13,7 @@ export function Message({ message, defaut = '' }: { message: LeMessage; defaut?:
     <p
       aria-live="polite"
       className={`min-h-5 text-sm ${
-        vide ? '' : message.sorte === 'erreur' ? 'text-erreur' : 'rounded bg-surface px-3 py-1.5 text-discret'
+        vide ? '' : message.sorte === 'erreur' ? 'text-erreur' : 'rounded bg-surface px-3 py-1.5 text-left text-discret'
       }`}
     >
       {/* ⓘ n'est qu'un dessin : le lecteur d'écran lit le texte seul */}
