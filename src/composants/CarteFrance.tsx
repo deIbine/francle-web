@@ -7,7 +7,7 @@ outils/generer_images.py, donne le contour de chaque région : le composant les 
 réponse et les essais. C'est l'avantage d'un SVG écrit dans la page : chaque région est un élément qu'on peut styler.
  */
 import { centreDeGravite } from '../contours.ts'
-import { couleurProximite } from '../domaine/partage.ts'
+import { couleurProximite, DEBUT_DEGRADE } from '../domaine/partage.ts'
 import type { Partie } from '../domaine/partie.ts'
 import type { Mode } from '../domaine/regions.ts'
 import { useLangue, useTextes } from '../textes.ts'
@@ -27,16 +27,24 @@ const CARTES: Record<Mode, Carte> = { anciennes, nouvelles }
 const RAYON = 26
 
 // les couleurs de la légende : quelques étapes du dégradé suffisent, le navigateur fond les couleurs entre elles
-const DEGRADE = `linear-gradient(to right, ${[0, 25, 50, 75, 100].map(couleurProximite).join(', ')})`
+const ETAPES = [0, 0.25, 0.5, 0.75, 1].map((t) => DEBUT_DEGRADE + t * (100 - DEBUT_DEGRADE))
+const DEGRADE = `linear-gradient(to right, ${ETAPES.map(couleurProximite).join(', ')})`
+
+type Encadre = Carte['encadres'][number]
+
+// l'encadré d'outre-mer où se trouve une région, s'il y en a un
+function encadreDe(carte: Carte, d: string): Encadre | undefined {
+  const centre = centreDeGravite(d)
+  return carte.encadres.find(
+    ({ x, y, cote }) => centre.x >= x && centre.x <= x + cote && centre.y >= y && centre.y <= y + cote,
+  )
+}
 
 // où poser la pastille d'une région : en son centre ; mais une région d'outre-mer est trop petite et la pastille la
 // cacherait, elle va donc dans le coin en haut à droite de son encadré
 function placePastille(carte: Carte, d: string): { x: number; y: number } {
-  const centre = centreDeGravite(d)
-  const encadre = carte.encadres.find(
-    ({ x, y, cote }) => centre.x >= x && centre.x <= x + cote && centre.y >= y && centre.y <= y + cote,
-  )
-  return encadre === undefined ? centre : { x: encadre.x + encadre.cote - RAYON, y: encadre.y + RAYON }
+  const encadre = encadreDe(carte, d)
+  return encadre === undefined ? centreDeGravite(d) : { x: encadre.x + encadre.cote - RAYON, y: encadre.y + RAYON }
 }
 
 export function CarteFrance({ partie }: { partie: Partie }) {
@@ -55,6 +63,9 @@ export function CarteFrance({ partie }: { partie: Partie }) {
   const rang = (id: string) => (id === cible ? 2 : essais.has(id) ? 1 : 0)
   const ids = Object.keys(carte.regions).sort((a, b) => rang(a) - rang(b))
   const autresEssais = [...essais.keys()].some((id) => id !== cible)
+  // une réponse d'outre-mer est minuscule sur la carte : son encadré est bordé de bleu, plus épais, pour que l'œil la
+  // trouve tout de suite
+  const encadreReponse = cible in carte.regions ? encadreDe(carte, carte.regions[cible]) : undefined
   return (
     <figure className="mx-auto flex w-full max-w-xs flex-col gap-2">
       <svg
@@ -63,17 +74,25 @@ export function CarteFrance({ partie }: { partie: Partie }) {
         aria-label={textes.carte(partie.cible.nom[langue], [...essais.values()])}
         className="h-auto w-full"
       >
-        {carte.encadres.map(({ x, y, cote }) => (
-          <rect
-            key={`${x}-${y}`}
-            x={x}
-            y={y}
-            width={cote}
-            height={cote}
-            vectorEffect="non-scaling-stroke"
-            className="fill-none stroke-carte-trait"
-          />
-        ))}
+        {/* l'encadré de la réponse en dernier : son trait bleu passe devant ceux de ses voisins */}
+        {[...carte.encadres]
+          .sort((a, b) => Number(a === encadreReponse) - Number(b === encadreReponse))
+          .map((encadre) => (
+            <rect
+              key={`${encadre.x}-${encadre.y}`}
+              x={encadre.x}
+              y={encadre.y}
+              width={encadre.cote}
+              height={encadre.cote}
+              vectorEffect="non-scaling-stroke"
+              data-reponse={encadre === encadreReponse ? '' : undefined}
+              className={
+                encadre === encadreReponse
+                  ? 'fill-none stroke-francle-fonce stroke-[3] dark:stroke-francle-clair'
+                  : 'fill-none stroke-carte-trait'
+              }
+            />
+          ))}
         {ids.map((id) => {
           const essai = essais.get(id)
           return (
@@ -122,7 +141,8 @@ export function CarteFrance({ partie }: { partie: Partie }) {
       {autresEssais && (
         <figcaption aria-hidden="true" className="flex items-center gap-2 text-xs text-discret">
           <span>{textes.legende.proximite}</span>
-          <span>{textes.pourcentage(0)}</span>
+          {/* le dégradé commence à 50 % (DEBUT_DEGRADE) : en dessous, la même couleur que 50 % */}
+          <span>{textes.pourcentage(DEBUT_DEGRADE)}</span>
           <span className="h-2.5 flex-1 rounded-sm" style={{ background: DEGRADE }} />
           <span>{textes.pourcentage(99)}</span>
           <span className="ml-1 size-2.5 rounded-sm bg-francle-fonce" />

@@ -1461,3 +1461,36 @@ commandes), **comment le penser** (la question à se poser la prochaine fois).
 - **Comment le faire** : ` ` (espace insécable) entre « sur » et le nombre, comme entre un nombre et « % ».
 - **Comment le penser** : un nombre ne doit jamais être séparé du mot qui le présente ni de son unité. Chercher dans
   `textes.ts` chaque `${…}` précédé d'une espace ordinaire.
+
+## web.7.16.3 Les couleurs et les messages
+
+### Une couleur dit quelque chose
+
+- **Pourquoi** : tous les messages sous la saisie étaient rouges, même « Alsace : une ancienne région… », qui
+  explique au lieu de reprocher. Le rouge veut dire « erreur » : à force de servir partout, il ne voulait plus rien
+  dire.
+- **Comment le faire** : chaque message a maintenant une **sorte** (`'info'` ou `'erreur'`, dans `src/message.ts`), et un
+  seul composant (`composants/Message.tsx`) choisit son apparence : l'explication en gris sur fond `surface`, précédée
+  d'un ⓘ caché aux lecteurs d'écran (`aria-hidden`), l'erreur en rouge. Le plateau et le bonus s'en servent tous les
+  deux. Le type et la constante `AUCUN` sont dans un fichier à part : oxlint avertit qu'un fichier qui exporte un
+  composant ne devrait exporter que des composants (le rechargement à chaud de Vite en dépend).
+- **Comment le penser** : une couleur est une information. Avant d'en choisir une, se demander ce qu'elle dit au
+  joueur ; et donner une **sorte** au message plutôt qu'une couleur, pour que l'apparence se décide en un seul endroit
+  (comme une `enum` Java qu'un seul `switch` traduit).
+
+### Un dégradé à la mesure des vraies valeurs
+
+- **Pourquoi** : le dégradé de la carte de fin allait de 0 à 100 %, mais en métropole la proximité est presque toujours
+  au-dessus de 50 %. Toute la moitié jaune ne servait pas, et 58 % ou 90 % avaient presque le même vert.
+- **Comment le faire** : faire commencer le dégradé à 50 % (`DEBUT_DEGRADE` dans `partage.ts`) : en dessous, jaune pâle.
+  La légende dit « 50 % ». Un test vérifie l'écart de teinte entre 58 % et 90 %.
+- **Comment le penser** : une échelle de couleurs se règle sur les valeurs **qu'on rencontre**, pas sur celles qui sont
+  possibles. Regarder d'abord où tombent les vraies données (ici, en jouant), puis placer le dégradé là.
+
+### Guider l'œil vers ce qui est petit
+
+- **Pourquoi** : une réponse d'outre-mer est minuscule sur la carte de fin, dans son encadré.
+- **Comment le faire** : l'encadré qui contient la réponse (trouvé comme pour les pastilles : le centre de la région
+  est-il dans l'encadré ?) a un trait bleu plus épais, et il est dessiné après les autres pour passer devant.
+- **Comment le penser** : quand on ne peut pas agrandir ce qui est petit, on peut l'entourer : le cadre attire l'œil
+  sans rien changer à la carte.

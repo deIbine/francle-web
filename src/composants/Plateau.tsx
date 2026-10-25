@@ -13,9 +13,11 @@ import type { ModesDifficiles } from '../domaine/partage.ts'
 import { anciennesRegionsDe, nouvelleRegionDe } from '../domaine/departements.ts'
 import { autreEpoque, deviner, suggestions } from '../domaine/recherche.ts'
 import type { Unite } from '../reglages.ts'
+import { AUCUN, type LeMessage } from '../message.ts'
 import { useLangue, useTextes } from '../textes.ts'
 import { Fenetre } from './Fenetre.tsx'
 import { Indices } from './Indices.tsx'
+import { Message } from './Message.tsx'
 import { ListeRegions } from './ListeRegions.tsx'
 import { Saisie } from './Saisie.tsx'
 import { Silhouette } from './Silhouette.tsx'
@@ -42,8 +44,10 @@ interface Props {
 export function Plateau({ partie, onChanger, modes, angle, unite, fin, demandeListe, bonus, listeAuBonus = false }: Props) {
   const textes = useTextes()
   const langue = useLangue()
-  // le message sous la saisie (« région inconnue »…), vide s'il n'y a rien à dire
-  const [message, setMessage] = useState('')
+  // le message sous la saisie : une explication (« déjà proposée »…) ou une erreur (« région inconnue »), vide s'il n'y
+  // a rien à dire
+  const [message, setMessage] = useState<LeMessage>(AUCUN)
+  const info = (texte: string) => setMessage({ texte, sorte: 'info' })
   const [confirmation, setConfirmation] = useState(false)
   const [liste, setListe] = useState(false)
 
@@ -62,18 +66,18 @@ export function Plateau({ partie, onChanger, modes, angle, unite, fin, demandeLi
     // le nom tapé, ou la seule région qu'il évoque (« bret » -> Bretagne). Un refus ne coûte jamais d'essai
     const region = deviner(saisie, partie.mode)
     if (region === 'plusieurs') {
-      setMessage(textes.plusieurs)
+      info(textes.plusieurs)
       return false
     }
     // une région déjà proposée ne coûte pas d'essai : le joueur s'est sûrement trompé de ligne
     if (region !== undefined && partie.essais.some((essai) => essai.region === region)) {
-      setMessage(textes.dejaProposee(region.nom[langue]))
+      info(textes.dejaProposee(region.nom[langue]))
       return false
     }
     // une région de l'autre époque (« Alsace » en partie du jour) : on dit où elle est passée, sans coûter d'essai
     const autre = region === undefined ? autreEpoque(saisie, partie.mode) : undefined
     if (autre !== undefined) {
-      setMessage(
+      info(
         autre.epoque === 'ancienne'
           ? textes.ancienneRegion(autre.nom[langue], nouvelleRegionDe(autre).nom[langue])
           : textes.nouvelleRegion(
@@ -85,11 +89,11 @@ export function Plateau({ partie, onChanger, modes, angle, unite, fin, demandeLi
     }
     const suite = region === undefined ? undefined : proposer(partie, region.nom.fr)
     if (suite === undefined) {
-      setMessage(textes.inconnue)
+      setMessage({ texte: textes.inconnue, sorte: 'erreur' })
       return false
     }
     onChanger(suite)
-    setMessage('')
+    setMessage(AUCUN)
     return true
   }
 
@@ -105,10 +109,7 @@ export function Plateau({ partie, onChanger, modes, angle, unite, fin, demandeLi
             }
             onProposer={jouer}
           />
-          {/* aria-live : un lecteur d'écran lit le message dès qu'il change ; min-h garde la place réservée */}
-          <p aria-live="polite" className="min-h-5 text-sm text-erreur">
-            {message}
-          </p>
+          <Message message={message} />
         </>
       ) : (
         fin
@@ -131,7 +132,7 @@ export function Plateau({ partie, onChanger, modes, angle, unite, fin, demandeLi
             >
               {textes.oui}
             </button>
-            <button type="button" onClick={() => setConfirmation(false)} className="rounded border px-3 py-1">
+            <button type="button" onClick={() => setConfirmation(false)} className="rounded border border-bord px-3 py-1">
               {textes.non}
             </button>
           </div>

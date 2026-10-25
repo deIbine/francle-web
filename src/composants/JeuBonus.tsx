@@ -33,10 +33,12 @@ import {
   type Bonus,
 } from '../domaine/bonus.ts'
 import { chercherDepartement, suggestionsDepartements, type Departement } from '../domaine/departements.ts'
+import { AUCUN, type LeMessage } from '../message.ts'
 import { finDuBonus, useLangue, useTextes } from '../textes.ts'
 import { CarteDepartements } from './CarteDepartements.tsx'
 import { Fenetre } from './Fenetre.tsx'
 import { ListeDepartements } from './ListeDepartements.tsx'
+import { Message } from './Message.tsx'
 import { Saisie } from './Saisie.tsx'
 
 interface Props {
@@ -65,8 +67,8 @@ export function JeuBonus({ bonus, onChanger, focaliser = false, demandeListe = 0
       titre.current?.focus()
     }
   }, [focaliser, numeroDabord])
-  // le message d'une saisie refusée (modes B et C), vide s'il n'y a rien à dire
-  const [message, setMessage] = useState('')
+  // le message d'une saisie refusée (modes B et C) : une explication ou une erreur, vide s'il n'y a rien à dire
+  const [message, setMessage] = useState<LeMessage>(AUCUN)
   const enCours = bonusEnCours(bonus)
   // mode C : le département cliqué sur la carte. Seulement s'il attend encore sa réponse : un autre onglet a pu y
   // répondre entre-temps
@@ -98,14 +100,14 @@ export function JeuBonus({ bonus, onChanger, focaliser = false, demandeListe = 0
         : textes.bonus.faux(nom(derniere.demande), nom(derniere.donne))
 
   function repondreClic(departement: Departement) {
-    setMessage('')
+    setMessage(AUCUN)
     onChanger(repondre(bonus, departement))
   }
 
   // mode C : un département choisi sur la carte (un autre clic change d'avis)
   function choisir(departement: Departement) {
     setChoix(departement)
-    setMessage('')
+    setMessage(AUCUN)
     setDemandeFocus((avant) => avant + 1)
     // sur un écran tactile, le clavier va s'ouvrir et cacher le bas de la page : on fait d'abord défiler la page
     // pour mettre le haut du bonus en haut de l'écran. Pas à la souris, où la page ne bougerait que pour rien.
@@ -126,7 +128,11 @@ export function JeuBonus({ bonus, onChanger, focaliser = false, demandeListe = 0
     const evoques = suggerer(saisie)
     const donne = chercherDepartement(saisie) ?? (evoques.length === 1 ? evoques[0] : undefined)
     if (donne === undefined) {
-      setMessage(evoques.length > 1 ? textes.bonus.plusieurs : textes.bonus.inconnu)
+      setMessage(
+        evoques.length > 1
+          ? { texte: textes.bonus.plusieurs, sorte: 'info' }
+          : { texte: textes.bonus.inconnu, sorte: 'erreur' },
+      )
       return false
     }
     return repondreAvec(choisi, donne)
@@ -136,10 +142,13 @@ export function JeuBonus({ bonus, onChanger, focaliser = false, demandeListe = 0
   function repondreAvec(choisi: Departement, donne: Departement): boolean {
     const suite = repondreChoix(bonus, choisi, donne)
     if (suite === 'deja-trouve' || suite === 'autre-region') {
-      setMessage((suite === 'deja-trouve' ? textes.bonus.dejaTrouve : textes.bonus.autreRegion)(nom(donne)))
+      setMessage({
+        texte: (suite === 'deja-trouve' ? textes.bonus.dejaTrouve : textes.bonus.autreRegion)(nom(donne)),
+        sorte: 'info',
+      })
       return false
     }
-    setMessage('')
+    setMessage(AUCUN)
     setChoix(undefined)
     onChanger(suite)
     return true
@@ -158,14 +167,14 @@ export function JeuBonus({ bonus, onChanger, focaliser = false, demandeListe = 0
     if (suite === undefined) {
       setMessage(
         bonus.question === 'numero'
-          ? textes.bonus.pasUnNumero
+          ? { texte: textes.bonus.pasUnNumero, sorte: 'erreur' }
           : evoques.length > 1
-            ? textes.bonus.plusieurs
-            : textes.bonus.inconnu,
+            ? { texte: textes.bonus.plusieurs, sorte: 'info' }
+            : { texte: textes.bonus.inconnu, sorte: 'erreur' },
       )
       return false
     }
-    setMessage('')
+    setMessage(AUCUN)
     onChanger(suite)
     return true
   }
@@ -227,9 +236,8 @@ export function JeuBonus({ bonus, onChanger, focaliser = false, demandeListe = 0
         />
       )}
 
-      <p aria-live="polite" className={`min-h-5 text-sm ${message === '' ? '' : 'text-erreur'}`}>
-        {message === '' ? retour : message}
-      </p>
+      {/* sans message, la réponse précédente (juste ou fausse), en texte simple */}
+      <Message message={message} defaut={retour} />
 
       <Fenetre ouverte={liste} onFermer={() => setListe(false)} titre={textes.liste.departements.titre}>
         <ListeDepartements

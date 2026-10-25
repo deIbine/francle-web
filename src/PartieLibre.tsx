@@ -136,7 +136,7 @@ export function PartieLibre({ reglages, demandeListe, onListe }: Props) {
             >
               {textes.oui}
             </button>
-            <button type="button" onClick={() => setEpoqueDemandee(undefined)} className="rounded border px-3 py-1">
+            <button type="button" onClick={() => setEpoqueDemandee(undefined)} className="rounded border border-bord px-3 py-1">
               {textes.non}
             </button>
           </div>

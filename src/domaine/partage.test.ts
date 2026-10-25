@@ -38,13 +38,20 @@ describe('Le partage', () => {
     expect(carres(proximite)).toBe(attendu)
   })
 
-  it('la couleur de la carte de fin va du jaune pâle (loin) au vert vif (près)', () => {
-    expect(couleurProximite(0)).toBe('hsl(48, 80%, 82%)')
-    expect(couleurProximite(50)).toBe('hsl(94, 70%, 59%)')
+  it('la couleur de la carte de fin va du jaune pâle (50 % ou moins) au vert vif (près)', () => {
+    expect(couleurProximite(50)).toBe('hsl(48, 80%, 82%)')
+    expect(couleurProximite(75)).toBe('hsl(94, 70%, 59%)')
     expect(couleurProximite(100)).toBe('hsl(140, 60%, 36%)')
-    // hors des bornes : on reste dans le dégradé
-    expect(couleurProximite(-5)).toBe(couleurProximite(0))
+    // sous 50 % (outre-mer contre métropole), jaune pâle ; hors des bornes, on reste dans le dégradé
+    expect(couleurProximite(0)).toBe(couleurProximite(50))
+    expect(couleurProximite(-5)).toBe(couleurProximite(50))
     expect(couleurProximite(120)).toBe(couleurProximite(100))
+  })
+
+  it('les proximités de la métropole ont des couleurs bien distinctes', () => {
+    // 58 % et 90 % avaient presque le même vert quand le dégradé partait de 0 %
+    const teinte = (p: number) => Number(couleurProximite(p).match(/^hsl\((\d+)/)?.[1])
+    expect(teinte(90) - teinte(58)).toBeGreaterThanOrEqual(55)
   })
 
   it('plus une région est proche, plus sa couleur est foncée', () => {
