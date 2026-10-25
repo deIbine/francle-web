@@ -107,7 +107,20 @@ describe('La carte de fin en couleur', () => {
     expect(container.querySelector('figcaption')).toBeNull()
     unmount()
     render(<CarteFrance partie={OCCITANIE} />)
-    expect(document.querySelector('figcaption')?.textContent).toBe('Proximité0\u00a0%99\u00a0%la réponse')
+    expect(document.querySelector('figcaption')?.textContent).toBe('Proximité50\u00a0%99\u00a0%la réponse')
+  })
+
+  it('une réponse d’outre-mer : son encadré est bordé de bleu, et lui seul', () => {
+    const { container, unmount } = render(<CarteFrance partie={jouer('martinique', 'Bretagne', 'Martinique')} />)
+    const encadres = container.querySelectorAll('rect')
+    expect(encadres).toHaveLength(nouvelles.encadres.length)
+    expect(container.querySelectorAll('rect[data-reponse]')).toHaveLength(1)
+    // dessiné en dernier, pour que son trait passe devant ceux des encadrés voisins
+    expect(encadres[encadres.length - 1].hasAttribute('data-reponse')).toBe(true)
+    unmount()
+    // une réponse en métropole : aucun encadré mis en avant
+    render(<CarteFrance partie={OCCITANIE} />)
+    expect(document.querySelectorAll('rect[data-reponse]')).toHaveLength(0)
   })
 
   it('une partie perdue : les six essais en couleur, la réponse en bleu sans pastille', () => {

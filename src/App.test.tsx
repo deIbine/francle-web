@@ -60,7 +60,8 @@ describe('Le jeu', () => {
   it('une région inconnue ne coûte pas d’essai', async () => {
     const joueur = demarrer()
     await proposer(joueur, 'Atlantide')
-    expect(screen.getByText('Cette région n’existe pas, ou n’est pas dans le jeu.')).toBeDefined()
+    // une vraie erreur : en rouge, sans la marque ⓘ des explications
+    expect(screen.getByText('Cette région n’existe pas, ou n’est pas dans le jeu.').textContent).not.toContain('ⓘ')
     expect(lignes()).toHaveLength(0)
   })
 
@@ -83,7 +84,10 @@ describe('Le jeu', () => {
   it('une ancienne région n’est pas acceptée dans la partie du jour : le jeu dit où elle est passée', async () => {
     const joueur = demarrer()
     await proposer(joueur, 'Alsace')
-    expect(screen.getByText('Alsace : une ancienne région (avant 2016), aujourd’hui dans la région Grand Est.')).toBeDefined()
+    // une explication, pas une faute du joueur : neutre, avec la marque ⓘ (cachée aux lecteurs d'écran)
+    expect(
+      screen.getByText('Alsace : une ancienne région (avant 2016), aujourd’hui dans la région Grand Est.').textContent,
+    ).toMatch(/^ⓘ /)
     expect(lignes()).toHaveLength(0)
   })
 
