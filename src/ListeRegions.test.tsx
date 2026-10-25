@@ -96,7 +96,7 @@ describe('La liste des régions', () => {
     const joueur = demarrer()
     await joueur.click(screen.getByRole('button', { name: 'Ouvrir les réglages' }))
     const reglages = screen.getByRole('dialog', { name: 'Réglages' })
-    await joueur.click(within(reglages).getByLabelText('Bouton 📃', { exact: false }))
+    await joueur.click(within(reglages).getByLabelText('Bouton liste', { exact: false }))
     expect(screen.queryByRole('button', { name: 'Voir la liste des régions' })).toBeNull()
   })
 })

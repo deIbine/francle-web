@@ -34,7 +34,7 @@ import {
 } from '../domaine/bonus.ts'
 import { chercherDepartement, suggestionsDepartements, type Departement } from '../domaine/departements.ts'
 import { AUCUN, type LeMessage } from '../message.ts'
-import { finDuBonus, useLangue, useTextes } from '../textes.ts'
+import { useLangue, useTextes } from '../textes.ts'
 import { CarteDepartements } from './CarteDepartements.tsx'
 import { Fenetre } from './Fenetre.tsx'
 import { ListeDepartements } from './ListeDepartements.tsx'
@@ -253,7 +253,8 @@ export function JeuBonus({ bonus, onChanger, focaliser = false, demandeListe = 0
         />
       </Fenetre>
 
-      {enCours ? (
+      {/* fini, sa phrase de fin est dans le bilan sous le plateau (Bilan.tsx), et non ici : elle n'est dite qu'une fois */}
+      {enCours && (
         <button
           type="button"
           onClick={() => onChanger(passer(bonus))}
@@ -261,10 +262,6 @@ export function JeuBonus({ bonus, onChanger, focaliser = false, demandeListe = 0
         >
           {textes.bonus.passer}
         </button>
-      ) : (
-        <p className="font-semibold">
-          {finDuBonus(bonus, textes)}
-        </p>
       )}
     </section>
   )

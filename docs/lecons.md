@@ -1494,3 +1494,54 @@ commandes), **comment le penser** (la question à se poser la prochaine fois).
   est-il dans l'encadré ?) a un trait bleu plus épais, et il est dessiné après les autres pour passer devant.
 - **Comment le penser** : quand on ne peut pas agrandir ce qui est petit, on peut l'entourer : le cadre attire l'œil
   sans rien changer à la carte.
+
+## web.7.16.4 Le coup de neuf
+
+### Des icônes en SVG plutôt qu'en emoji
+
+- **Pourquoi** : un emoji est dessiné par le système, pas par le site : ❓ est rouge sous Windows, 📊 multicolore, et
+  ils changent d'un téléphone à l'autre. L'en-tête n'avait donc jamais la même allure.
+- **Comment le faire** : quatre petits SVG dessinés à la main sur une grille de 24 × 24 (`composants/Icones.tsx`), avec
+  `stroke="currentColor"` : le trait prend la couleur du texte, donc suit le thème clair ou sombre sans rien ajouter.
+  `aria-hidden="true"` sur l'icône, car le bouton a déjà son nom (`aria-label`). Plus étroites que les emoji, elles
+  laissent assez de place au titre à 375 pixels.
+- **Comment le penser** : ce qui fait partie de l'identité du site (ses boutons, ses couleurs) doit être dessiné par le
+  site. Un emoji convient dans un texte (🌀 🙈 dans une phrase), pas pour une interface qui doit avoir la même allure
+  partout.
+
+### Changer l'apparence sans changer l'élément
+
+- **Pourquoi** : les réglages devaient devenir des boutons groupés et des interrupteurs, comme sur la maquette. Mais les
+  boutons radio et les cases à cocher savent déjà tout faire : le clavier (flèches, Espace), les lecteurs d'écran, les
+  tests qui les cherchent par leur rôle.
+- **Comment le faire** : garder les vrais `<input>`, invisibles mais présents (`sr-only`), et dessiner autour. Pour les
+  boutons groupés, le libellé change de style selon la case qu'il contient : `has-[:checked]:bg-francle-fonce` (le
+  sélecteur CSS `:has`). Pour l'interrupteur, un `<span>` placé après la case suit son état : `peer` sur la case,
+  `peer-checked:bg-francle-fonce` sur le rail, et le rond (`after:`) glisse avec `peer-checked:after:translate-x-4`.
+  Le focus du clavier se voit grâce à `has-[:focus-visible]:` et `peer-focus-visible:`. Aucun test n'a dû changer pour
+  les réglages.
+- **Comment le penser** : en HTML, le **sens** d'un élément (une case à cocher) et son **apparence** (un interrupteur)
+  sont deux choses séparées. Garder le bon élément, et changer seulement le dessin : c'est comme changer le
+  `LookAndFeel` d'un `JCheckBox` en Swing, sans le remplacer par un `JPanel` cliquable.
+
+### Dire une chose une seule fois
+
+- **Pourquoi** : après le bonus, la page disait « Bonus terminé… » dans la zone du bonus, puis « Bravo… La réponse :
+  … » en dessous : deux blocs, et la même information sous deux formes.
+- **Comment le faire** : un seul composant de bilan (`composants/Bilan.tsx`), utilisé par les deux sortes de partie : le
+  résultat (« 🎉 Martinique, trouvée en 3 essais »), la phrase du bonus, et les boutons. La zone du bonus ne garde que
+  la carte et la dernière réponse. Le bilan est une `<section>` avec un nom (« Résumé de la partie ») : les lecteurs
+  d'écran la trouvent, et les tests aussi (`getByRole('region', { name: … })`). Le partage y est aussi, sauf pendant
+  le bonus (son score manquerait).
+- **Comment le penser** : quand deux endroits de l'écran disent la même chose, se demander lequel est à sa place, et
+  supprimer l'autre. Moins de texte, c'est moins à lire, surtout sur un téléphone.
+
+### Quand la capture ne suit pas
+
+- **Pourquoi** : à 375 pixels, les captures du navigateur intégré sortaient rognées (déjà noté à web.7.10), et on ne
+  pouvait pas juger l'en-tête à l'œil.
+- **Comment le faire** : mesurer par un script (positions des colonnes de l'en-tête, hauteur du titre, largeur de la
+  page, place des boutons du bilan), puis regarder l'apparence en taille ordinateur, où la colonne du jeu fait de toute
+  façon 448 pixels au plus (`max-w-md`).
+- **Comment le penser** : une capture n'est qu'un moyen de vérifier. Si elle ment, revenir aux chiffres : ils disent
+  si ça tient, même quand l'image ne se dessine pas.

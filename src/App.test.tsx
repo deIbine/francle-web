@@ -141,6 +141,14 @@ describe('Le jeu', () => {
     await joueur.click(screen.getByRole('button', { name: 'Oui' }))
     expect(within(screen.getByRole('dialog')).getByText('Partie abandonnée.')).toBeDefined()
     expect(screen.queryByRole('combobox')).toBeNull()
+
+    // sous le plateau, un seul bloc de bilan : le résultat, la réponse, « Voir les résultats » et « Partager »
+    await joueur.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'Fermer' }))
+    const bilan = screen.getByRole('region', { name: 'Résumé de la partie' })
+    expect(within(bilan).getByText(`Partie abandonnée. La réponse : ${CIBLE.nom.fr}`)).toBeDefined()
+    expect(within(bilan).getByRole('button', { name: 'Voir les résultats' })).toBeDefined()
+    await joueur.click(within(bilan).getByRole('button', { name: /Partager/ }))
+    expect((await navigator.clipboard.readText()).split('\n')[0]).toBe('#Francle n° 2 X/6')
   })
 
   it('deux onglets ouverts : l’un reprend ce que l’autre a joué', async () => {

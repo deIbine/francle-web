@@ -12,6 +12,7 @@ fenêtre par-dessus. Passé avant toute réponse, ou pas encore lancé quand on 
 jusqu'à minuit, par le bouton « 🗺️ Jouer le bonus ».
  */
 import { useState } from 'react'
+import { Bilan } from './composants/Bilan.tsx'
 import { BoutonBonus } from './composants/BoutonBonus.tsx'
 import { CompteARebours } from './composants/CompteARebours.tsx'
 import { Fenetre } from './composants/Fenetre.tsx'
@@ -184,10 +185,7 @@ export function PartieDuJour({ jour, reglages, demandeStats, demandeListe, onLis
         }
         listeAuBonus={listeAuBonus}
         fin={
-          <div className="flex flex-col items-center gap-2">
-            <p className="font-semibold">
-              {textes.fin(partie)} {textes.reponse} {partie.cible.nom[langue]}
-            </p>
+          <Bilan partie={partie} bonus={bonus}>
             <button
               type="button"
               onClick={ouvrirFenetre}
@@ -195,10 +193,14 @@ export function PartieDuJour({ jour, reglages, demandeStats, demandeListe, onLis
             >
               {textes.voirResultats}
             </button>
+            {/* le partage, aussi sur la page (comme la maquette) ; pas pendant le bonus, dont le score manquerait */}
+            {(bonus === undefined || !bonusEnCours(bonus)) && (
+              <Partager texte={textePartage(partie, numero, modes, langue, scoreBonus)} />
+            )}
             {partie.etat === 'gagnee' && bonus === undefined && (
               <BoutonBonus onJouer={() => lancerBonus(partie)} />
             )}
-          </div>
+          </Bilan>
         }
       />
 

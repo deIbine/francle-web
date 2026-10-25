@@ -1,5 +1,5 @@
 /*
-L'application : l'en-tête (titre, onglets, boutons ❓ ⚙️ FR/EN 📃 📊), « Comment jouer », les réglages, les deux sortes de
+L'application : l'en-tête (titre, onglets, boutons aide, réglages, FR/EN, liste, statistiques), « Comment jouer », les réglages, les deux sortes de
 partie et le bas de page.
 
 Les deux parties restent affichées en même temps, l'une cachée (attribut hidden) : passer d'un onglet à l'autre ne
@@ -14,6 +14,7 @@ import { useEffect, useId, useState, type KeyboardEvent } from 'react'
 import { Aide } from './composants/Aide.tsx'
 import { Credits } from './composants/Credits.tsx'
 import { Fenetre } from './composants/Fenetre.tsx'
+import { IconeAide, IconeListe, IconeReglages, IconeStats } from './composants/Icones.tsx'
 import { Reglages } from './composants/Reglages.tsx'
 import { numero } from './domaine/regionDuJour.ts'
 import { minuitSuivant } from './domaine/temps.ts'
@@ -107,10 +108,9 @@ export default function App() {
     }
   }
 
-  // px-1 et text-xl sur téléphone, px-2 et text-2xl à partir de 640 pixels (sm:) : avec FR / EN et deux boutons à
-  // droite, le titre et son numéro tiennent ainsi sur une ligne même sur un écran de 375 pixels (mesuré le 25 octobre
-  // 2026 : en text-2xl, « n° 13 » passait à la ligne)
-  const boutonIcone = 'rounded px-1 text-xl hover:bg-surface sm:px-2 sm:text-2xl'
+  // les boutons à icône (SVG, voir Icones.tsx) : p-1 sur téléphone, p-1.5 à partir de 640 pixels (sm:). Les icônes,
+  // plus étroites que les emoji d'avant, laissent le titre et son numéro sur une ligne même à 375 pixels
+  const boutonIcone = 'rounded p-1 hover:bg-surface sm:p-1.5'
 
   return (
     // la langue choisie, transmise à tous les composants en dessous (voir LangueContext dans textes.ts)
@@ -118,15 +118,16 @@ export default function App() {
       {/* max-w-md : 28rem au plus, centré (mx-auto) ; flex flex-col gap-4 : les blocs en colonne, espacés de 1rem */}
       <main className="mx-auto flex min-h-screen max-w-md flex-col gap-4 p-4 text-center">
         {/* grid à trois colonnes (1fr auto 1fr) : le titre reste centré, les boutons de part et d'autre */}
-        <header className="grid grid-cols-[1fr_auto_1fr] items-center gap-y-2">
-          <div className="flex items-center justify-self-start">
+        {/* gap-x-2 : un peu d'air entre le titre et les boutons, qui se touchaient à 375 pixels */}
+        <header className="grid grid-cols-[1fr_auto_1fr] items-center gap-x-2 gap-y-2">
+          <div className="flex items-center gap-0.5 justify-self-start">
             <button
               type="button"
               onClick={() => setFenetreAide(true)}
               aria-label={textes.aide.ouvrir}
               className={boutonIcone}
             >
-              ❓
+              <IconeAide />
             </button>
             <button
               type="button"
@@ -134,7 +135,7 @@ export default function App() {
               aria-label={textes.reglages.ouvrir}
               className={boutonIcone}
             >
-              ⚙️
+              <IconeReglages />
             </button>
           </div>
           {/* whitespace-nowrap : le numéro reste à côté du titre, jamais en dessous */}
@@ -148,7 +149,7 @@ export default function App() {
               </>
             )}
           </h1>
-          <div className="flex items-center justify-self-end">
+          <div className="flex items-center gap-0.5 justify-self-end">
             <button
               type="button"
               onClick={() => changerReglages({ langue: langue === 'fr' ? 'en' : 'fr' })}
@@ -166,7 +167,7 @@ export default function App() {
                 aria-label={listes[onglet] === 'departements' ? textes.liste.departements.ouvrir : textes.liste.ouvrir}
                 className={boutonIcone}
               >
-                📃
+                <IconeListe />
               </button>
             )}
             <button
@@ -178,7 +179,7 @@ export default function App() {
               aria-label={textes.stats.ouvrir}
               className={boutonIcone}
             >
-              📊
+              <IconeStats />
             </button>
           </div>
           {/* le sous-titre suit l'onglet : « du jour » n'a pas de sens en partie libre */}

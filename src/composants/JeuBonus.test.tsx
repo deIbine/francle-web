@@ -68,7 +68,8 @@ describe('L’outre-mer : le numéro', () => {
     expect(screen.getByText('Écris un numéro de département, par exemple 971.')).toBeDefined()
     await joueur.clear(champ)
     await joueur.type(champ, '971{Enter}')
-    expect(screen.getByText('Bonus terminé : 1 département trouvé sur 1.')).toBeDefined()
+    // la réponse juste ; la phrase de fin, elle, est dans le bilan sous le plateau (Bilan.tsx)
+    expect(screen.getByText('Juste : Guadeloupe (971).')).toBeDefined()
   })
 
   it('lancé par le joueur, le focus va dans la saisie : le numéro se tape tout de suite', () => {

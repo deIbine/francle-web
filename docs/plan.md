@@ -287,7 +287,8 @@ squash le 18 octobre 2026 sur l'accord de l'utilisateur, étiquettes `web-7.8` �
     du jeu demandée par l'utilisateur (section du même nom plus bas) : 5 bugs, 12 soucis d'esthétique, une maquette
     (`docs/maquettes/coup-de-neuf.png`). Décisions **validées le même jour** (toutes les recommandations, et la phase
     4 faite elle aussi). Plan fusionné (PR #49, étiquette `web-7.16.0`) ; maquette **validée** le même jour.
-    **Pas encore lancée** : attendre le signal de départ de l'utilisateur pour web.7.16.1.
+    **Lancée le même jour** par l'utilisateur (« Tu peux lancer les 4 phases d'affilée ») : les quatre phases codées,
+    en PR empilées (web.7.16.1 à web.7.16.4), **en attente de fusion** sur l'accord de l'utilisateur.
   - **web.8** : **repoussé** le 18 octobre 2026 (pas de domaine acheté pour l'instant). Le découpage et ses onze
     questions ont été présentés le 17 octobre 2026 (voir « Le domaine et le défi (web.8) » plus bas) ; l'utilisateur
     n'y a pas encore répondu.
@@ -842,11 +843,36 @@ faire **elle aussi**, avec des maquettes proposées par Claude.
 
 ### Les phases (une branche et une PR chacune, empilées, fusion en squash à la fin)
 
-0. **web.7.16.0 Le plan** : ce chapitre, la maquette.
-1. **web.7.16.1 Les bugs** : 1 à 5.
-2. **web.7.16.2 Le téléphone** : 6 à 9.
-3. **web.7.16.3 Les couleurs et les messages** : 10 à 13.
-4. **web.7.16.4 Le coup de neuf** : 14 à 17, d'après la maquette validée.
+0. ✅ **web.7.16.0 Le plan** : ce chapitre, la maquette (PR #49 et #50).
+1. ✅ **web.7.16.1 Les bugs** : 1 à 5. `useContours` renvoie un état (`contours`, `echec`, `reessayer`) et accepte une
+   fonction de téléchargement (pour les tests) ; `sousTitreLibre` ; « Nouvelle partie » caché pendant le bonus ;
+   `aucunScore` (« – ») ; ↓ compte les suggestions à venir quand la liste est fermée.
+2. ✅ **web.7.16.2 Le téléphone** : 6 à 9. Emoji de l'en-tête en `text-xl` sur téléphone et titre en
+   `whitespace-nowrap` (mesuré : 36 pixels de haut, une ligne) ; `justify-end` dans les statistiques ; « Clique d’abord
+   sur la carte » (185 pixels pour environ 210 de place) ; espace insécable avant le total du bonus.
+3. ✅ **web.7.16.3 Les couleurs et les messages** : 10 à 13. `src/message.ts` (sorte `info` ou `erreur`) et
+   `composants/Message.tsx` ; `DEBUT_DEGRADE` (50) dans `partage.ts` ; l'encadré de la réponse d'outre-mer en bleu,
+   dessiné en dernier ; `border-bord` sur les boutons « Non ».
+4. ✅ **web.7.16.4 Le coup de neuf** : 14 à 17, comme la maquette. `composants/Icones.tsx` (quatre SVG) ; réglages en
+   boutons groupés (`has-[:checked]:`) et interrupteurs (`peer-checked:`), sur les vrais `<input>` ; « Comment jouer »
+   avec une vraie ligne du tableau ; `composants/Bilan.tsx` (« Résumé de la partie »), avec le partage sur la page.
+
+Choix faits en route (à valider avec les PR) :
+
+- (1) « Réessayer » relance le téléchargement ; **pas vérifié sur une vraie coupure** (le test simule l'échec). Si le
+  navigateur garde en mémoire l'échec d'un `import()`, seul un rechargement de la page aidera.
+- (6) À 375 pixels, `gap-x-2` dans l'en-tête : le titre touchait le bouton FR / EN.
+- (10) Restent rouges : « Cette région n’existe pas », « Ce n’est pas un département », « Écris un numéro… ». Deviennent
+  neutres : « Plusieurs… possibles », « déjà proposée », « déjà trouvé », « pas dans la région », l'autre époque.
+- (16) Les textes de « Comment jouer » sont raccourcis (FR et EN) ; les emoji de l'en-tête n'y sont plus cités
+  (« Bouton liste dans l’en-tête » dans les réglages).
+- (17) La dernière réponse du bonus (« Juste : Martinique (972). ») reste sous sa carte ; la maquette ne la montrait pas.
+  Le partage est dans le bilan, sauf pendant le bonus.
+- Vu en vérifiant, **pas changé** : les silhouettes sont dessinées département par département depuis web.2 (4 tracés
+  pour la Bretagne), ce qui laisse voir leurs limites, donc leur nombre. À décider plus tard si ça gêne.
+
+Vérifié le 25 octobre 2026 : 318 tests, lint, build ; dans le navigateur intégré, en clair et en sombre, en taille
+ordinateur, et à 375 pixels par script (les captures à cette largeur sortaient rognées).
 
 Le plan est fusionné (PR #49, étiquette `web-7.16.0`, commit `d7492e6`), la validation de la maquette notée par une
 petite PR de notes (web.7.16.0.1, sans étiquette).

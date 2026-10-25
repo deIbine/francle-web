@@ -29,6 +29,8 @@ type Joueur = ReturnType<typeof userEvent.setup>
 const panneau = () => screen.getByRole('tabpanel')
 // le bonus lui-même, sans la fenêtre des résultats (toujours dans la page, même fermée, et qui reprend sa phrase de fin)
 const zoneBonus = () => within(panneau()).getByRole('region', { name: /^Bonus/ })
+// le bilan sous le plateau, une fois la partie finie : le résultat, celui du bonus, les boutons
+const bilan = () => within(panneau()).getByRole('region', { name: 'Résumé de la partie' })
 
 function demarrer() {
   const joueur = userEvent.setup()
@@ -236,7 +238,7 @@ describe('Le bonus des départements, partie du jour', () => {
     await gagner(joueur)
     await repondre(joueur, DEPS[0].code, DEPS[0].nom)
     await joueur.click(within(panneau()).getByRole('button', { name: 'Passer' }))
-    expect(within(zoneBonus()).getByText(`Bonus arrêté : 1 département trouvé sur ${TOTAL}.`)).toBeDefined()
+    expect(within(bilan()).getByText(`Bonus arrêté : 1 département trouvé sur ${TOTAL}.`)).toBeDefined()
     expect(within(panneau()).queryByRole('button', { name: '🗺️ Jouer le bonus' })).toBeNull()
 
     // le joueur a choisi d'arrêter : les résultats s'ouvrent sans pause
@@ -257,7 +259,9 @@ describe('Le bonus des départements, partie du jour', () => {
     for (const departement of [...DEPS].reverse()) {
       await repondre(joueur, departement.code, departement.code)
     }
-    expect(within(zoneBonus()).getByText(`Bonus terminé : ${TOTAL} départements trouvés sur ${TOTAL}.`)).toBeDefined()
+    // la phrase de fin est dite une fois, dans le bilan, et non plus aussi dans la zone du bonus
+    expect(within(bilan()).getByText(`Bonus terminé : ${TOTAL} départements trouvés sur ${TOTAL}.`)).toBeDefined()
+    expect(within(zoneBonus()).queryByText(/^Bonus terminé/)).toBeNull()
     // pas tout de suite : le joueur voit d'abord sa dernière réponse sur la carte
     expect(resultats()).toBeNull()
     const fenetre = await screen.findByRole('dialog', { name: 'Résultats' }, { timeout: 3000 })
