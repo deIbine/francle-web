@@ -47,14 +47,13 @@ export function IconeReglages({ className }: { className?: string }) {
   )
 }
 
-// trois lignes à puces : la liste des régions (ou des départements)
+// un hexagone (la France) avec trois lignes de texte : la liste des régions (ou des départements). Depuis web.7.17 ;
+// avant, trois lignes à puces, qu'on confondait avec le menu « hamburger » des sites (☰)
 export function IconeListe({ className }: { className?: string }) {
   return (
     <Icone className={className}>
-      <path d="M9 6h11M9 12h11M9 18h11" />
-      {[6, 12, 18].map((y) => (
-        <circle key={y} cx="4.5" cy={y} r="0.9" fill="currentColor" stroke="none" />
-      ))}
+      <path d="M12 2.5l8.2 4.75v9.5L12 21.5l-8.2-4.75v-9.5z" />
+      <path d="M8.5 9.5h7M8.5 12h7M8.5 14.5h4.5" />
     </Icone>
   )
 }
