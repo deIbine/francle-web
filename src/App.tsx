@@ -111,6 +111,8 @@ export default function App() {
   // les boutons à icône (SVG, voir Icones.tsx) : p-1 sur téléphone, p-1.5 à partir de 640 pixels (sm:). Les icônes,
   // plus étroites que les emoji d'avant, laissent le titre et son numéro sur une ligne même à 375 pixels
   const boutonIcone = 'rounded p-1 hover:bg-surface sm:p-1.5'
+  // leur nom est dans title, et non plus dans aria-label (web.7.17) : title donne aussi le nom au lecteur d'écran, et
+  // en plus une infobulle au survol de la souris. Avec les deux à la fois, le nom risquerait d'être lu deux fois
 
   return (
     // la langue choisie, transmise à tous les composants en dessous (voir LangueContext dans textes.ts)
@@ -124,7 +126,7 @@ export default function App() {
             <button
               type="button"
               onClick={() => setFenetreAide(true)}
-              aria-label={textes.aide.ouvrir}
+              title={textes.aide.ouvrir}
               className={boutonIcone}
             >
               <IconeAide />
@@ -132,7 +134,7 @@ export default function App() {
             <button
               type="button"
               onClick={() => setFenetreReglages(true)}
-              aria-label={textes.reglages.ouvrir}
+              title={textes.reglages.ouvrir}
               className={boutonIcone}
             >
               <IconeReglages />
@@ -164,7 +166,7 @@ export default function App() {
               <button
                 type="button"
                 onClick={() => setDemandeListe((avant) => ({ ...avant, [onglet]: avant[onglet] + 1 }))}
-                aria-label={listes[onglet] === 'departements' ? textes.liste.departements.ouvrir : textes.liste.ouvrir}
+                title={listes[onglet] === 'departements' ? textes.liste.departements.ouvrir : textes.liste.ouvrir}
                 className={boutonIcone}
               >
                 <IconeListe />
@@ -176,7 +178,7 @@ export default function App() {
                 setOnglet('jour')
                 setDemandeStats((n) => n + 1)
               }}
-              aria-label={textes.stats.ouvrir}
+              title={textes.stats.ouvrir}
               className={boutonIcone}
             >
               <IconeStats />

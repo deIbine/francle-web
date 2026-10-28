@@ -218,6 +218,13 @@ describe('Le jeu', () => {
     expect(screen.queryByRole('dialog')).toBeNull()
   })
 
+  it('les boutons à icône de l’en-tête ont une infobulle qui dit leur nom', () => {
+    demarrer()
+    for (const nom of ['Comment jouer', 'Ouvrir les réglages', 'Voir la liste des régions', 'Voir les statistiques']) {
+      expect(screen.getByRole('button', { name: nom }).getAttribute('title')).toBe(nom)
+    }
+  })
+
   it('« Partager » copie le résultat dans le presse-papiers', async () => {
     // userEvent.setup() remplace le presse-papiers du faux navigateur par une imitation qu'on peut relire
     const joueur = demarrer()

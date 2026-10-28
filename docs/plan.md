@@ -95,7 +95,7 @@ l'autre, et le web n'a plus à rester égal au Java.
 8. **web.8 Le domaine et le défi** (ancien web.7, renuméroté le 16 octobre 2026) : d'abord le nom de domaine, puis le défi (un lien à envoyer à un ami pour lui
    faire deviner une région). Pas d'archives des jours passés (décidé avant web.4).
 
-## Où on en est (mis à jour le 25 octobre 2026)
+## Où on en est (mis à jour le 28 octobre 2026)
 
 ### À faire sur le PC (liste vide depuis le 23 octobre 2026)
 
@@ -300,6 +300,9 @@ squash le 18 octobre 2026 sur l'accord de l'utilisateur, étiquettes `web-7.8` �
   - **Après web.7.16, la prochaine étape est à choisir avec l'utilisateur** : web.8 reste repoussé ; restent dans « Les
     améliorations à reprendre » le compteur de la partie libre, le repère « voisine » et le mode « métropole
     seulement » ; ou le défi seul (web.8.1) ; ou les silhouettes sans limites de départements (vu à web.7.16.4).
+  - **web.7.17 L'icône de la liste** (le 28 octobre 2026, à la demande de l'utilisateur) : l'hexagone remplace les
+    trois lignes à puces, et les boutons à icône de l'en-tête ont une infobulle (section du même nom plus bas). Une
+    seule PR, étiquette `web-7.17` prévue après la fusion.
   - **web.8** : **repoussé** le 18 octobre 2026 (pas de domaine acheté pour l'instant). Le découpage et ses onze
     questions ont été présentés le 17 octobre 2026 (voir « Le domaine et le défi (web.8) » plus bas) ; l'utilisateur
     n'y a pas encore répondu.
@@ -890,6 +893,26 @@ petite PR de notes (web.7.16.0.1, sans étiquette).
 
 Étiquettes prévues : `web-7.16.0` à `web-7.16.4`, puis `web-7.16`. **Rien n'est commencé** : le code attend le
 signal de départ de l'utilisateur (règle de `CLAUDE.md`).
+
+## L'icône de la liste (web.7.17)
+
+Relevé par l'utilisateur le 28 octobre 2026 : l'icône de la liste (trois lignes à puces, depuis web.7.16.4) n'est pas
+claire. Elle ressemble au menu « hamburger » (☰) des sites, ne dit rien du jeu, et aucun bouton à icône de l'en-tête
+n'avait d'infobulle (le nom était dans `aria-label`, que la souris ne montre pas).
+
+Décisions **validées le 28 octobre 2026** (quatre variantes montrées : actuelle, hexagone, A → Z, icône + mot) :
+
+| Sujet | Décision |
+|---|---|
+| Icône | **Un hexagone** (la France) avec trois lignes de texte, même grille 24 × 24 et même trait que les autres. |
+| Régions et départements | **Une seule icône** pour les deux listes : le bouton reste au même endroit, son nom change déjà. |
+| Infobulles | **Oui**, sur les quatre boutons à icône (aide, réglages, liste, statistiques), par `title`. |
+| Étape | Une petite étape, **web.7.17**, une PR, étiquette `web-7.17`. |
+
+Fait le même jour : `IconeListe` redessinée (`composants/Icones.tsx`) ; dans `App.tsx`, le nom des quatre boutons
+passe de `aria-label` à `title` (les deux à la fois feraient lire le nom deux fois par certains lecteurs d'écran) ; un
+test vérifie l'infobulle. Le bouton FR / EN n'a pas changé : il montre déjà du texte. Vérifié : 319 tests, lint, build ;
+dans le navigateur intégré, l'en-tête tient à 375 pixels (titre sur une ligne, page de 375 pixels de large).
 
 ## Les améliorations à reprendre (relevées le 16 octobre 2026)
 

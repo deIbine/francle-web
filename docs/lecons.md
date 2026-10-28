@@ -1545,3 +1545,33 @@ commandes), **comment le penser** (la question à se poser la prochaine fois).
   façon 448 pixels au plus (`max-w-md`).
 - **Comment le penser** : une capture n'est qu'un moyen de vérifier. Si elle ment, revenir aux chiffres : ils disent
   si ça tient, même quand l'image ne se dessine pas.
+
+## web.7.17 L'icône de la liste
+
+### Une icône doit parler du sujet
+
+- **Pourquoi** : l'icône de la liste (trois lignes à puces) ressemblait au menu « hamburger » (☰) que presque tous
+  les sites utilisent pour ouvrir leur navigation. Un joueur pouvait s'attendre à un menu, pas à la liste des
+  régions. Et rien dans le dessin ne parlait de la France.
+- **Comment le faire** : poser plusieurs variantes côte à côte, **à leur vraie taille** (24 pixels) et **dans leur
+  vrai voisinage** (à côté de EN et des statistiques), pas seulement en grand : un détail lisible à 56 pixels
+  (les lettres A et Z) disparaît à 24. Garder la même grille et le même trait que les autres icônes
+  (`Icone` dans `composants/Icones.tsx`), pour qu'elles aillent ensemble. L'hexagone est un seul `<path>` : six
+  sommets, de `M12 2.5` (la pointe du haut) à `z` (qui referme la forme).
+- **Comment le penser** : se demander « Si je vois cette icône sur un autre site, est-ce que je devine ce qu'elle fait
+  ici ? ». Si la réponse est « elle ouvre un menu », l'ancrer dans le sujet du jeu (ici l'Hexagone), ou lui ajouter un
+  mot.
+
+### Le nom d'un bouton : aria-label ou title
+
+- **Pourquoi** : un bouton qui ne montre qu'une icône a besoin d'un nom. Avec `aria-label`, le lecteur d'écran
+  l'entend, mais la souris ne voit rien au survol. `title` fait les deux : il donne le nom quand il n'y en a pas
+  d'autre, et le navigateur l'affiche en infobulle.
+- **Comment le faire** : remplacer `aria-label={…}` par `title={…}` sur les boutons à icône. Ne pas mettre les deux
+  avec le même texte : `title` devient alors une « description » en plus du nom, et certains lecteurs d'écran lisent
+  la même chose deux fois. Les tests qui cherchent `getByRole('button', { name: … })` ne changent pas : Testing
+  Library calcule le nom comme un navigateur, `title` compris. Un test vérifie en plus l'attribut `title`.
+- **Comment le penser** : en HTML, le **nom accessible** d'un élément se calcule dans un ordre précis
+  (`aria-labelledby`, puis `aria-label`, puis le texte ou le `<label>`, puis `title`). Choisir la source qui sert
+  à la fois aux lecteurs d'écran et aux yeux, plutôt que d'en empiler deux. C'est un peu comme le `setToolTipText`
+  et le `getAccessibleName` d'un `JButton` en Swing : un seul texte peut servir aux deux.
