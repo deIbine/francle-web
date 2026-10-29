@@ -35,10 +35,12 @@ interface Props {
 export function CarteDepartements(props: Props) {
   const textes = useTextes()
   const { contours, echec, reessayer } = useContours(props.bonus.region.id)
+  // h-64 : la hauteur de la carte qui va venir (max-h-64), pour que la page ne saute pas à son arrivée (depuis
+  // web.7.18 ; avant, h-56 : 32 pixels de moins)
   if (echec) {
     // le bonus reste là : « Passer » marche toujours, et rien n'est perdu
     return (
-      <div className="flex h-56 flex-col items-center justify-center gap-2">
+      <div className="flex h-64 flex-col items-center justify-center gap-2">
         <p>{textes.bonus.echec}</p>
         <button
           type="button"
@@ -51,7 +53,7 @@ export function CarteDepartements(props: Props) {
     )
   }
   if (contours === undefined) {
-    return <p className="flex h-56 items-center justify-center">{textes.bonus.chargement}</p>
+    return <p className="flex h-64 items-center justify-center">{textes.bonus.chargement}</p>
   }
   return <Carte {...props} contours={contours} />
 }

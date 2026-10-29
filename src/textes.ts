@@ -44,6 +44,14 @@ function distance(km: number, unite: Unite, langue: Langue): string {
     : `${nombre(Math.round(km / KM_PAR_MILE), langue)}\u00a0mi`
 }
 
+// une superficie, dans l'unité des distances (depuis web.7.18) : km², ou mi² avec les miles. Un mile carré vaut
+// 1,609344² km², soit environ 2,59 km²
+function superficie(km2: number, unite: Unite, langue: Langue): string {
+  return unite === 'km'
+    ? `${nombre(km2, langue)}\u00a0km²`
+    : `${nombre(Math.round(km2 / KM_PAR_MILE ** 2), langue)}\u00a0mi²`
+}
+
 // des noms en une phrase, par ordre alphabétique : « Alsace, Champagne-Ardenne et Lorraine » en français,
 // « Alsace, Champagne-Ardenne and Lorraine » en anglais britannique. Intl.ListFormat connaît le « et » de chaque
 // langue, comme Intl.Collator son ordre alphabétique
@@ -117,7 +125,8 @@ const fr = {
     capitale: 'Capitale',
     monument: 'Monument',
   } satisfies Record<Indice, string>,
-  kilometresCarres: (km2: number) => `${nombre(km2, 'fr')}\u00a0km²`,
+  // la superficie, dans l'unité des distances (km² ou mi²)
+  superficie: (km2: number, unite: Unite) => superficie(km2, unite, 'fr'),
 
   abandonner: 'Abandonner',
   confirmerAbandon: 'Abandonner pour de bon\u00a0?',
@@ -129,7 +138,7 @@ const fr = {
     partie.etat === 'gagnee'
       ? partie.essais.length === 1
         ? 'Bravo, trouvé du premier coup\u00a0!'
-        : `Bravo, trouvé en ${partie.essais.length} essais\u00a0!`
+        : `Bravo, trouvé en ${partie.essais.length}\u00a0essais\u00a0!`
       : partie.etat === 'perdue'
         ? libre
           ? 'Perdu\u00a0!'
@@ -140,7 +149,8 @@ const fr = {
   bilan: {
     titre: 'Résumé de la partie',
     gagnee: (nom: string, essais: number) =>
-      essais === 1 ? `🎉 ${nom}, trouvée du premier coup` : `🎉 ${nom}, trouvée en ${essais} essais`,
+      // \u00a0 : « essais » ne tombe jamais seul sur la ligne suivante, loin de son nombre
+      essais === 1 ? `🎉 ${nom}, trouvée du premier coup` : `🎉 ${nom}, trouvée en ${essais}\u00a0essais`,
   },
   // la carte de fin, pour un lecteur d'écran : la réponse, puis chaque essai avec son numéro et sa proximité
   carte: (nom: string, essais: readonly EssaiCarte[]) =>
@@ -160,6 +170,8 @@ const fr = {
 
   epoque: 'Époque',
   confirmerEpoque: 'Changer d’époque\u00a0? La partie en cours sera perdue.',
+  // pendant le bonus, la partie est gagnée : c'est le bonus qui serait perdu (depuis web.7.18)
+  confirmerEpoqueBonus: 'Changer d’époque\u00a0? Le bonus en cours sera perdu.',
   epoques: { nouvelles: 'Régions actuelles (depuis 2016)', anciennes: 'Anciennes régions (avant 2016)' },
   nouvellePartie: 'Nouvelle partie',
 
@@ -350,7 +362,7 @@ const en: Textes = {
     capitale: 'Capital',
     monument: 'Landmark',
   },
-  kilometresCarres: (km2: number) => `${nombre(km2, 'en')}\u00a0km²`,
+  superficie: (km2: number, unite: Unite) => superficie(km2, unite, 'en'),
 
   abandonner: 'Give up',
   confirmerAbandon: 'Give up for good?',
@@ -361,7 +373,7 @@ const en: Textes = {
     partie.etat === 'gagnee'
       ? partie.essais.length === 1
         ? 'Well done, first try!'
-        : `Well done, found in ${partie.essais.length} tries!`
+        : `Well done, found in ${partie.essais.length}\u00a0tries!`
       : partie.etat === 'perdue'
         ? libre
           ? 'Lost!'
@@ -371,7 +383,7 @@ const en: Textes = {
   bilan: {
     titre: 'Game summary',
     gagnee: (nom: string, essais: number) =>
-      essais === 1 ? `🎉 ${nom}, found on the first try` : `🎉 ${nom}, found in ${essais} tries`,
+      essais === 1 ? `🎉 ${nom}, found on the first try` : `🎉 ${nom}, found in ${essais}\u00a0tries`,
   },
   carte: (nom: string, essais: readonly EssaiCarte[]) =>
     `Map of France, the region ${nom} in blue` +
@@ -388,6 +400,7 @@ const en: Textes = {
 
   epoque: 'Era',
   confirmerEpoque: 'Change era? The current game will be lost.',
+  confirmerEpoqueBonus: 'Change era? The current bonus will be lost.',
   epoques: { nouvelles: 'Current regions (since 2016)', anciennes: 'Former regions (before 2016)' },
   nouvellePartie: 'New game',
 

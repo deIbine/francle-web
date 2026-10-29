@@ -1575,3 +1575,75 @@ commandes), **comment le penser** (la question à se poser la prochaine fois).
   (`aria-labelledby`, puis `aria-label`, puis le texte ou le `<label>`, puis `title`). Choisir la source qui sert
   à la fois aux lecteurs d'écran et aux yeux, plutôt que d'en empiler deux. C'est un peu comme le `setToolTipText`
   et le `getAccessibleName` d'un `JButton` en Swing : un seul texte peut servir aux deux.
+
+## web.7.18 Les corrections du 29 octobre 2026
+
+### Chercher tous les chemins vers une perte
+
+- **Pourquoi** : à web.7.16.1, « Nouvelle partie » avait été caché pendant le bonus, car un clic le faisait perdre.
+  Mais les boutons d'époque de la partie libre menaient au même endroit (`recommencer`), sans rien demander : une
+  partie gagnée n'est plus « en cours », et la confirmation ne regardait que la partie.
+- **Comment le faire** : chercher toutes les fois où la fonction qui perd quelque chose est appelée (ici
+  `recommencer(`, trois fois dans `PartieLibre.tsx`), et vérifier que chacune pose la même condition. La condition est
+  maintenant nommée une fois (`bonusAPerdre`), et la question dit ce qui serait perdu (« Le bonus en cours sera
+  perdu »).
+- **Comment le penser** : corriger un bouton ne corrige pas la règle. Se demander « Qu'est-ce qui est perdu, et par
+  combien de chemins y arrive-t-on ? », pas seulement « Quel bouton pose problème ? ».
+
+### Où va le focus quand son élément disparaît
+
+- **Pourquoi** : une fenêtre `<dialog>` rend le focus à ce qui l'avait à son ouverture. Si cet élément a disparu
+  entre-temps (« Passer », à la fin du bonus), le navigateur laisse le focus sur la page entière (`<body>`), et un
+  joueur au clavier doit tout reparcourir.
+- **Comment le faire** : dans la console, `document.activeElement` juste après la fermeture. Le correctif, `repli`
+  dans `Fenetre.tsx`, donne le focus à un bouton choisi (« Voir les résultats », « Nouvelle partie »). Piège vu dans
+  un vrai navigateur, et que jsdom n'imite pas : au moment de l'évènement `close`, le focus n'est **pas encore** sur
+  `<body>`, il est toujours sur le ✕ de la fenêtre fermée ; il ne tombe sur `<body>` qu'ensuite. La condition regarde
+  donc aussi « le focus est-il encore dans la fenêtre ? » (`contains`). Autre piège : le rechargement à chaud de Vite
+  garde l'état de la page, et un essai fait juste après une modification peut encore tourner avec l'ancien code ;
+  recharger la page avant de conclure.
+- **Comment le penser** : chaque fois qu'un élément disparaît alors qu'il peut avoir le focus, se demander où le
+  focus doit aller. En Swing, c'est le même souci (`requestFocusInWindow` après avoir retiré un composant). Et un faux
+  navigateur ne remplace pas un vrai pour ce qui touche au focus : vérifier dans les deux.
+
+### Un clic, c'est un appui et un relâché
+
+- **Pourquoi** : une sélection de texte commencée dans une fenêtre et relâchée sur le fond grisé la fermait. Quand le
+  bouton est enfoncé sur un élément et relâché sur un autre, le navigateur envoie le `click` à leur **ancêtre commun**,
+  ici le `<dialog>` lui-même : le test `target === currentTarget` le prenait pour un clic sur le fond.
+- **Comment le faire** : noter dans `onMouseDown` si l'appui a eu lieu sur le fond (un `useRef`, qui garde une valeur
+  sans réafficher), et ne fermer au `click` que si l'appui ET le relâché y étaient.
+- **Comment le penser** : un « clic » est le résultat de deux évènements. Quand un geste peut commencer à un endroit et
+  finir ailleurs (glisser, sélectionner), regarder où il a commencé, pas seulement où il finit.
+
+### Une ligne de plus dans le même tableau
+
+- **Pourquoi** : dans « Comment jouer », les explications sous l'exemple étaient une liste à part, décalée à la main
+  (`pl-20`, trois colonnes égales). Elles tombaient à côté de leurs colonnes, et plus encore en anglais.
+- **Comment le faire** : les mettre dans une seconde ligne (`<tr>`) du même `<table>`. Le navigateur calcule les
+  largeurs de colonne pour toutes les lignes : chaque explication est sous sa valeur, quelle que soit la langue.
+  Vérifié en mesurant (`getBoundingClientRect`) : les bords gauche et droit des deux lignes sont les mêmes.
+- **Comment le penser** : quand deux choses doivent rester alignées, les mettre dans la même structure plutôt que
+  d'imiter l'alignement avec des marges. Une marge écrite à la main ne suit pas les textes qui changent.
+
+### Faire défiler juste ce qu'il faut
+
+- **Pourquoi** : la liste des suggestions ne montre que 240 pixels ; avec ↓, la suggestion surlignée passait sous son
+  bord, invisible.
+- **Comment le faire** : à chaque changement de la suggestion surlignée, `scrollIntoView({ block: 'nearest' })` sur
+  son élément. `nearest` ne fait défiler que si elle est cachée, et juste assez. Le jeu Java le faisait déjà
+  (`JList.ensureIndexIsVisible`). Dans les tests, jsdom n'a pas `scrollIntoView` : une fausse fonction retient sur
+  quel élément elle est appelée.
+- **Comment le penser** : un composant fait maison doit refaire ce que le navigateur (ou Swing) faisait tout seul avec
+  l'élément d'origine. Un `<select>` défile tout seul ; une liste ARIA faite de `<li>`, non.
+
+### Mesurer avant de choisir une taille
+
+- **Pourquoi** : « Provence-Alpes-Côte d'Azur » passait sur deux lignes dans le tableau à 375 pixels, et la page
+  sautait à l'arrivée de la carte du bonus.
+- **Comment le faire** : essayer plusieurs valeurs dans la page par un script (police 12, 13, 14 pixels ; marges 6 ou
+  8 pixels), et mesurer la hauteur de la case. Des marges de 6 pixels suffisent, sans réduire la police
+  (`px-1.5 sm:px-2`). Pour la carte : le cadre « Chargement… » mesurait 224 pixels, la carte 256 (`max-h-64`) ; le
+  cadre prend maintenant 256.
+- **Comment le penser** : pour un réglage de mise en page, mesurer d'abord dans le vrai navigateur, puis choisir la
+  plus petite modification qui suffit. Et réserver d'avance la place de ce qui arrive plus tard, pour que rien ne saute.

@@ -5,7 +5,7 @@ il commence tout de suite, avec les départements de l'époque jouée, dans un o
 résultats s'ouvre à sa fin (comme pour la partie du jour) ; passé avant toute réponse, il reste à jouer jusqu'à la
 partie suivante.
  */
-import { useId, useState } from 'react'
+import { useId, useRef, useState } from 'react'
 import { usePause } from './pause.ts'
 import { Bilan } from './composants/Bilan.tsx'
 import { BoutonBonus } from './composants/BoutonBonus.tsx'
@@ -19,7 +19,7 @@ import type { ModesDifficiles } from './domaine/partage.ts'
 import { tirer, type Mode } from './domaine/regions.ts'
 import { modesReglages, uniteAffichee, type Reglages } from './reglages.ts'
 import { useTextes } from './textes.ts'
-import { useSignalerListe, type Liste } from './liste.ts'
+import { listeOuverte, useSignalerListe, type Liste } from './liste.ts'
 
 // une nouvelle partie libre : une région de l'époque et un angle de rotation, tous deux au hasard.
 // numero compte les parties : il sert de clé au plateau (voir plus bas)
@@ -52,8 +52,10 @@ export function PartieLibre({ reglages, demandeListe, onListe }: Props) {
   const bonus = bonusGarde && avecDifficulte(bonusGarde, reglages.departementsDifficiles)
   const [focusBonus, setFocusBonus] = useState(false)
   const pause = usePause(() => setFenetre(true))
+  // « Nouvelle partie », où revient le focus quand la fenêtre se ferme et que le bouton qui l'avait a disparu
+  const boutonNouvelle = useRef<HTMLButtonElement>(null)
   const listeAuBonus = bonus !== undefined && avecListe(bonus)
-  useSignalerListe(listeAuBonus, onListe)
+  useSignalerListe(listeOuverte(bonus), onListe)
 
   // une victoire lance le bonus ; une défaite (ou un abandon) ouvre les résultats
   function changer(suite: Partie) {
@@ -94,10 +96,12 @@ export function PartieLibre({ reglages, demandeListe, onListe }: Props) {
     pause.annuler()
   }
 
-  // changer d'époque perd la partie en cours : on demande confirmation dès qu'un essai a été joué. Le bouton radio,
+  // changer d'époque perd la partie en cours : on demande confirmation dès qu'un essai a été joué, et pendant le bonus
+  // (depuis web.7.18 : la partie gagnée n'est plus « en cours », et le bonus partait sans un mot). Le bouton radio,
   // « contrôlé » par React (checked={mode === choix}), reste alors sur l'ancienne époque tant qu'on n'a pas dit oui
+  const bonusAPerdre = bonus !== undefined && bonusEnCours(bonus)
   function choisirEpoque(choix: Mode) {
-    if (enCours(partie) && partie.essais.length > 0) {
+    if ((enCours(partie) && partie.essais.length > 0) || bonusAPerdre) {
       setEpoqueDemandee(choix)
     } else {
       recommencer(choix)
@@ -128,7 +132,9 @@ export function PartieLibre({ reglages, demandeListe, onListe }: Props) {
         {epoqueDemandee !== undefined && (
           <div className="flex flex-wrap items-center justify-center gap-2 text-sm">
             {/* basis-full : la question sur sa propre ligne, les deux boutons ensemble en dessous */}
-            <span className="basis-full text-center">{textes.confirmerEpoque}</span>
+            <span className="basis-full text-center">
+              {bonusAPerdre ? textes.confirmerEpoqueBonus : textes.confirmerEpoque}
+            </span>
             <button
               type="button"
               onClick={() => recommencer(epoqueDemandee)}
@@ -163,6 +169,7 @@ export function PartieLibre({ reglages, demandeListe, onListe }: Props) {
             {/* caché pendant le bonus : un clic le perdrait sans prévenir. « Passer » sert à en sortir */}
             {(bonus === undefined || !bonusEnCours(bonus)) && (
               <button
+                ref={boutonNouvelle}
                 type="button"
                 onClick={() => recommencer(mode)}
                 className="rounded bg-francle-fonce px-4 py-2 font-semibold text-white hover:opacity-90"
@@ -177,7 +184,7 @@ export function PartieLibre({ reglages, demandeListe, onListe }: Props) {
         }
       />
 
-      <Fenetre ouverte={fenetre} onFermer={() => setFenetre(false)} titre={textes.resultats}>
+      <Fenetre ouverte={fenetre} onFermer={() => setFenetre(false)} titre={textes.resultats} repli={boutonNouvelle}>
         {!enCours(partie) && (
           <FinDePartie partie={partie} message={textes.fin(partie, true)} bonus={bonus}>
             <button

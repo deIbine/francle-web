@@ -203,12 +203,15 @@ describe('La liste des départements, partie libre', () => {
     expect(screen.getByRole('button', { name: 'Voir la liste des régions' })).toBeDefined()
   })
 
-  it('outre-mer : la question du numéro garde la liste des régions, qui donnerait sinon la réponse', async () => {
+  it('outre-mer : la question du numéro n’a pas de liste, qui donnerait la réponse : le bouton est grisé', async () => {
     const { joueur } = await gagnerLibre('guadeloupe')
     expect(await within(panneau()).findByText(/numéro de la Guadeloupe/, {}, { timeout: 5000 })).toBeDefined()
     expect(screen.queryByRole('button', { name: 'Voir la liste des départements' })).toBeNull()
-    await joueur.click(screen.getByRole('button', { name: 'Voir la liste des régions' }))
-    expect(listeRegions()).not.toBeNull()
+    // depuis web.7.18 : grisé, plutôt qu'ouvrir la liste des régions, toute grisée puisque la partie est gagnée
+    const bouton = screen.getByRole('button', { name: 'Voir la liste des régions' })
+    expect((bouton as HTMLButtonElement).disabled).toBe(true)
+    await joueur.click(bouton)
+    expect(listeRegions()).toBeNull()
     expect(listeDepartements()).toBeNull()
   })
 })

@@ -22,17 +22,19 @@ export function TableauEssais({ essais, unite }: { essais: readonly Essai[]; uni
           <th scope="col">{textes.colonnes.proximite}</th>
         </tr>
       </thead>
+      {/* px-1.5 sur téléphone (sm:px-2 au-delà) : 4 pixels de plus pour le nom, et « Provence-Alpes-Côte d’Azur » tient
+          sur une ligne à 375 pixels, même à côté de « 100 % » (depuis web.7.18) */}
       <tbody>
         {essais.map((essai, index) => (
           <tr key={index} className="bg-surface">
-            <td className="rounded-l px-2 py-1.5 text-left font-medium">{essai.region.nom[langue]}</td>
-            <td className="px-2 py-1.5 text-right tabular-nums">{textes.distance(essai.distance, unite)}</td>
-            <td className="px-2 py-1.5 text-center">
+            <td className="rounded-l px-1.5 py-1.5 sm:px-2 text-left font-medium">{essai.region.nom[langue]}</td>
+            <td className="px-1.5 py-1.5 sm:px-2 text-right tabular-nums">{textes.distance(essai.distance, unite)}</td>
+            <td className="px-1.5 py-1.5 sm:px-2 text-center">
               <span role="img" aria-label={textes.directions[essai.direction]}>
                 {EMOJIS[essai.direction]}
               </span>
             </td>
-            <td className="rounded-r px-2 py-1.5 text-right tabular-nums">{textes.pourcentage(essai.proximite)}</td>
+            <td className="rounded-r px-1.5 py-1.5 sm:px-2 text-right tabular-nums">{textes.pourcentage(essai.proximite)}</td>
           </tr>
         ))}
         {restants.map((_, index) => (

@@ -304,8 +304,9 @@ squash le 18 octobre 2026 sur l'accord de l'utilisateur, étiquettes `web-7.8` �
     trois lignes à puces, et les boutons à icône de l'en-tête ont une infobulle (section du même nom plus bas). Une
     seule PR, étiquette `web-7.17` prévue après la fusion.
   - **Les corrections relevées le 29 octobre 2026 (web.7.18)** : une nouvelle passe de bugs et d'interface, faite à
-    la demande de l'utilisateur sans rien modifier, puis notée ici à sa demande (section du même nom plus bas). Les
-    décisions ne sont **pas encore prises** et **rien n'est commencé**.
+    la demande de l'utilisateur sans rien modifier, puis notée ici à sa demande (section du même nom plus bas). Plan
+    fusionné (PR #57, étiquette `web-7.18.0`, commit `c6a8389`). Les 14 points **codés le même jour**, sur le départ
+    de l'utilisateur, dans une seule PR (branche `web-7-18-corrections`), étiquette `web-7.18` prévue après la fusion.
   - **web.8** : **repoussé** le 18 octobre 2026 (pas de domaine acheté pour l'instant). Le découpage et ses onze
     questions ont été présentés le 17 octobre 2026 (voir « Le domaine et le défi (web.8) » plus bas) ; l'utilisateur
     n'y a pas encore répondu.
@@ -969,7 +970,30 @@ Les plus utiles, selon Claude : les bugs 1 à 3, puis 6, 7 et 10. Le point 12 at
   « Superficie » suit alors l'unité des distances (84 060 km² donnent environ 32 456 mi²).
 - Tout est décidé.
 
-**Rien n'est commencé** : le code attend le signal de départ de l'utilisateur (règle de `CLAUDE.md`).
+### Ce qui a été fait (web.7.18, le 29 octobre 2026)
+
+Codé sur le départ de l'utilisateur (« tu peux lancer »), dans une seule PR :
+
+- (1) `PartieLibre.tsx` : `bonusAPerdre` ; la question devient « Changer d'époque ? Le bonus en cours sera perdu. ».
+- (2) `Saisie.tsx` : `scrollIntoView({ block: 'nearest' })` sur la suggestion surlignée.
+- (3) `Fenetre.tsx` : `repli`, le bouton qui reprend le focus s'il est retombé sur la page, **ou s'il est encore dans
+  la fenêtre fermée** (vu dans un vrai navigateur : à l'évènement `close`, le focus est toujours sur ✕). « Voir les
+  résultats » pour la partie du jour, « Nouvelle partie » pour la libre.
+- (4) `Fenetre.tsx` : un clic sur le fond ne ferme que si le bouton y a aussi été enfoncé (`onMouseDown`).
+- (5) `PartieDuJour.tsx` : les résultats ne s'ouvrent pas d'emblée tant que « Comment jouer » n'a pas été vu.
+- (6) `Aide.tsx` : les explications dans une seconde ligne du tableau de l'exemple.
+- (7) `Plateau.tsx` : les régions déjà proposées retirées des suggestions.
+- (8, 9) `Partager.tsx` : le message ne prend de place que quand il existe, et s'efface au bout de 3 s (`DUREE_MESSAGE`).
+- (10) `textes.ts` : espace insécable avant « essais » / « tries », dans le bilan et le message de fin.
+- (11) `CarteDepartements.tsx` : le cadre d'attente passe de 224 à 256 pixels (`h-64`), la hauteur de la carte.
+- (12) `textes.superficie(km², unité)` remplace `kilometresCarres` ; `Indices` reçoit l'unité.
+- (13) `liste.ts` : `'aucune'` (bonus sans liste) ; le bouton liste de l'en-tête est alors grisé.
+- (14) `TableauEssais.tsx` : `px-1.5 sm:px-2` (mesuré : 6 pixels de marge suffisent, police inchangée).
+
+Vérifié : 331 tests (dont `Corrections.test.tsx`, 11 tests, et un dans `Saisie.test.tsx` ; deux tests mis à jour pour
+la seconde ligne de l'aide et le bouton grisé), lint, types, build ; dans le navigateur intégré à 375 × 812 : aide
+alignée (mesurée), PACA sur une ligne, bilan sans vide, 658 mi² pour la Guadeloupe, bouton liste grisé en outre-mer,
+confirmation d'époque pendant le bonus, focus sur « Nouvelle partie » après Échap. Pas vérifié sur un vrai téléphone.
 
 ## Les améliorations à reprendre (relevées le 16 octobre 2026)
 

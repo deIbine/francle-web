@@ -56,8 +56,17 @@ export function Saisie({ suggerer, onProposer, etiquette, exemple, bouton, desac
     }
   }, [demandeFocus])
 
-  // recalculée à chaque affichage : 35 régions ou 13 départements au plus, c'est instantané
+  // recalculée à chaque affichage : 35 régions ou 101 départements au plus, c'est instantané
   const liste = ouverte ? suggerer(texte) : []
+
+  // la suggestion surlignée au clavier reste visible : la liste ne montre que 240 pixels (max-h-60), et sans cela ↓
+  // surlignerait des suggestions cachées sous son bord (depuis web.7.18). block: 'nearest' fait défiler juste ce qu'il
+  // faut, et seulement si elle est cachée. « ?. » : jsdom, le faux navigateur des tests, n'a pas scrollIntoView
+  useEffect(() => {
+    if (choisie >= 0) {
+      document.getElementById(`${idListe}-${choisie}`)?.scrollIntoView?.({ block: 'nearest' })
+    }
+  }, [choisie, idListe])
 
   function proposer(saisie: string) {
     // une saisie vide (ou faite d'espaces) : rien ne se passe, sans message

@@ -1,14 +1,16 @@
 import { useId } from 'react'
 import type { Indice } from '../domaine/partie.ts'
 import type { Langue, Region } from '../domaine/regions.ts'
+import type { Unite } from '../reglages.ts'
 import { useLangue, useTextes, type Textes } from '../textes.ts'
 
 // la valeur d'un indice pour une région, prête à afficher
-function valeur(region: Region, indice: Indice, textes: Textes, langue: Langue): string {
+function valeur(region: Region, indice: Indice, textes: Textes, langue: Langue, unite: Unite): string {
   // switch sur un type union : TypeScript vérifie que chaque cas est traité, comme un switch sur un enum Java
   switch (indice) {
     case 'superficie':
-      return textes.kilometresCarres(region.superficie)
+      // dans l'unité des distances (depuis web.7.18) : en mi² pour qui joue en miles
+      return textes.superficie(region.superficie, unite)
     case 'capitale':
       return region.capitale
     default:
@@ -18,7 +20,7 @@ function valeur(region: Region, indice: Indice, textes: Textes, langue: Langue):
 }
 
 // les indices à montrer (révélés pendant la partie, tous à la fin), dans l'ordre
-export function Indices({ cible, reveles }: { cible: Region; reveles: readonly Indice[] }) {
+export function Indices({ cible, reveles, unite }: { cible: Region; reveles: readonly Indice[]; unite: Unite }) {
   const textes = useTextes()
   const langue = useLangue()
   // un identifiant unique : la partie du jour et la partie libre affichent chacune leurs indices dans la page
@@ -38,7 +40,7 @@ export function Indices({ cible, reveles }: { cible: Region; reveles: readonly I
             // si ce div n'existait pas pour la grille : dt et dd restent ses deux colonnes
             <div key={indice} className="contents">
               <dt className="text-discret">{textes.nomsIndices[indice]}</dt>
-              <dd>{valeur(cible, indice, textes, langue)}</dd>
+              <dd>{valeur(cible, indice, textes, langue, unite)}</dd>
             </div>
           ))}
         </dl>

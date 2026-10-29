@@ -11,7 +11,7 @@ son score. Il est sauvé à chaque réponse : commencé puis quitté (page ferm�
 fenêtre par-dessus. Passé avant toute réponse, ou pas encore lancé quand on revient sur la page, il reste à jouer
 jusqu'à minuit, par le bouton « 🗺️ Jouer le bonus ».
  */
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { Bilan } from './composants/Bilan.tsx'
 import { BoutonBonus } from './composants/BoutonBonus.tsx'
 import { CompteARebours } from './composants/CompteARebours.tsx'
@@ -28,7 +28,7 @@ import { angleDuJour, MODE_DU_JOUR, numero as numeroDuJour, regionDuJour } from 
 import { statistiques } from './domaine/statistiques.ts'
 import { minuitSuivant } from './domaine/temps.ts'
 import { usePause } from './pause.ts'
-import { modesReglages, uniteAffichee, type Reglages } from './reglages.ts'
+import { aideVue, modesReglages, uniteAffichee, type Reglages } from './reglages.ts'
 import { useChangementAilleurs } from './onglets.ts'
 import {
   CLE,
@@ -42,7 +42,7 @@ import {
   type PartieSauvee,
 } from './sauvegarde.ts'
 import { useLangue, useTextes } from './textes.ts'
-import { useSignalerListe, type Liste } from './liste.ts'
+import { listeOuverte, useSignalerListe, type Liste } from './liste.ts'
 
 // la partie du jour : celle qu'on avait commencée (rejouée depuis la sauvegarde), sinon une nouvelle
 function partieDuJour(sauvee: PartieSauvee | undefined, jour: Date): Partie {
@@ -87,15 +87,21 @@ export function PartieDuJour({ jour, reglages, demandeStats, demandeListe, onLis
   const bonus = bonusGarde && avecDifficulte(bonusGarde, reglages.departementsDifficiles)
   // la fenêtre des résultats : ouverte d'emblée si on revient sur une partie déjà finie, sauf si un bonus est en
   // cours (on le reprend). Un bonus pas commencé, lui, ne surprend pas le joueur : la fenêtre s'ouvre, et le bonus
-  // attend son bouton
-  const [fenetre, setFenetre] = useState(() => !enCours(partie) && (bonus === undefined || !bonusEnCours(bonus)))
+  // attend son bouton. Sauf à la première visite : « Comment jouer » s'ouvre alors (App.tsx), et deux fenêtres
+  // l'une sur l'autre se fermeraient dans le désordre (depuis web.7.18)
+  const [fenetre, setFenetre] = useState(
+    () => !enCours(partie) && (bonus === undefined || !bonusEnCours(bonus)) && aideVue(),
+  )
   // vrai quand le bonus vient d'être lancé par le joueur (victoire ou bouton) : le focus du clavier va alors sur son
   // titre, la saisie ou le bouton qu'il vient d'utiliser ayant disparu. Pas quand on reprend un bonus en revenant
   const [focusBonus, setFocusBonus] = useState(false)
   // la fenêtre des résultats, un peu après la dernière réponse du bonus
   const pause = usePause(() => setFenetre(true))
+  // « Voir les résultats », où revient le focus quand la fenêtre se ferme et que le bouton qui l'avait a disparu
+  // (« Passer », à la fin du bonus)
+  const boutonResultats = useRef<HTMLButtonElement>(null)
   const listeAuBonus = bonus !== undefined && avecListe(bonus)
-  useSignalerListe(listeAuBonus, onListe)
+  useSignalerListe(listeOuverte(bonus), onListe)
 
   // un autre onglet a joué : on reprend sa sauvegarde, la dernière écrite fait foi. Les deux onglets montrent ainsi
   // la même partie, et aucun n'écrase les essais de l'autre
@@ -187,6 +193,7 @@ export function PartieDuJour({ jour, reglages, demandeStats, demandeListe, onLis
         fin={
           <Bilan partie={partie} bonus={bonus}>
             <button
+              ref={boutonResultats}
               type="button"
               onClick={ouvrirFenetre}
               className="rounded bg-francle-fonce px-4 py-2 font-semibold text-white hover:opacity-90"
@@ -208,6 +215,7 @@ export function PartieDuJour({ jour, reglages, demandeStats, demandeListe, onLis
         ouverte={fenetre}
         onFermer={() => setFenetre(false)}
         titre={enCours(partie) ? textes.stats.titre : textes.resultats}
+        repli={boutonResultats}
       >
         {!enCours(partie) && (
           <FinDePartie partie={partie} message={textes.fin(partie)} bonus={bonus}>

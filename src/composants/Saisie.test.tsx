@@ -37,6 +37,22 @@ describe('La saisie', () => {
     expect(screen.getByRole('option', { selected: true }).textContent).toBe('Centre-Val de Loire')
   })
 
+  it('la suggestion surlignée au clavier défile jusqu’à être visible (web.7.18)', async () => {
+    // jsdom n'a pas scrollIntoView : une fausse fonction, qui retient sur quel élément elle est appelée (this)
+    const appels: Element[] = []
+    const avant = Element.prototype.scrollIntoView
+    Element.prototype.scrollIntoView = function (this: Element) {
+      appels.push(this)
+    }
+    try {
+      const { joueur, champ } = afficher()
+      await joueur.type(champ, 'g{ArrowDown}{ArrowDown}')
+      expect(appels.at(-1)).toBe(screen.getByRole('option', { selected: true }))
+    } finally {
+      Element.prototype.scrollIntoView = avant
+    }
+  })
+
   it('↓ puis Entrée propose la suggestion surlignée', async () => {
     const { joueur, champ, onProposer } = afficher()
     await joueur.type(champ, 'loire')
