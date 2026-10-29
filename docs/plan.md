@@ -95,7 +95,7 @@ l'autre, et le web n'a plus à rester égal au Java.
 8. **web.8 Le domaine et le défi** (ancien web.7, renuméroté le 16 octobre 2026) : d'abord le nom de domaine, puis le défi (un lien à envoyer à un ami pour lui
    faire deviner une région). Pas d'archives des jours passés (décidé avant web.4).
 
-## Où on en est (mis à jour le 28 octobre 2026)
+## Où on en est (mis à jour le 29 octobre 2026)
 
 ### À faire sur le PC (liste vide depuis le 23 octobre 2026)
 
@@ -303,6 +303,9 @@ squash le 18 octobre 2026 sur l'accord de l'utilisateur, étiquettes `web-7.8` �
   - **web.7.17 L'icône de la liste** (le 28 octobre 2026, à la demande de l'utilisateur) : l'hexagone remplace les
     trois lignes à puces, et les boutons à icône de l'en-tête ont une infobulle (section du même nom plus bas). Une
     seule PR, étiquette `web-7.17` prévue après la fusion.
+  - **Les corrections relevées le 29 octobre 2026 (web.7.18)** : une nouvelle passe de bugs et d'interface, faite à
+    la demande de l'utilisateur sans rien modifier, puis notée ici à sa demande (section du même nom plus bas). Les
+    décisions ne sont **pas encore prises** et **rien n'est commencé**.
   - **web.8** : **repoussé** le 18 octobre 2026 (pas de domaine acheté pour l'instant). Le découpage et ses onze
     questions ont été présentés le 17 octobre 2026 (voir « Le domaine et le défi (web.8) » plus bas) ; l'utilisateur
     n'y a pas encore répondu.
@@ -913,6 +916,54 @@ Fait le même jour : `IconeListe` redessinée (`composants/Icones.tsx`) ; dans `
 passe de `aria-label` à `title` (les deux à la fois feraient lire le nom deux fois par certains lecteurs d'écran) ; un
 test vérifie l'infobulle. Le bouton FR / EN n'a pas changé : il montre déjà du texte. Vérifié : 319 tests, lint, build ;
 dans le navigateur intégré, l'en-tête tient à 375 pixels (titre sur une ligne, page de 375 pixels de large).
+
+## Les corrections relevées le 29 octobre 2026 (web.7.18)
+
+Demandé par l'utilisateur le 29 octobre 2026 : « une passe d'analyse de bugs et d'améliorations d'interface, sans rien
+commencer ». Le jeu a été vérifié **sans rien modifier** : lint, build et tests (**319 sur 319**, 44 s) ; tout le code
+des composants relu ; une partie du jour (Nouvelle-Aquitaine, gagnée en 5 essais, bonus passé après une réponse) et
+une partie libre jouées dans le navigateur intégré, à 375 × 812 puis en taille ordinateur, en clair, en sombre et en
+anglais. Les points déjà notés ailleurs (limites des départements dans les silhouettes, Open Graph…) ne sont pas
+repris.
+
+### Les bugs
+
+| # | Problème | Pour le reproduire | Cause |
+|---|---|---|---|
+| 1 | Changer d'époque pendant le bonus de la partie libre perd la partie et le bonus, **sans confirmation** | Partie libre : gagner, puis cliquer « Anciennes régions » pendant le bonus | `choisirEpoque` (`PartieLibre.tsx`) ne demande confirmation que si la partie est en cours ; une partie gagnée ne l'est plus. Le même défaut que « Nouvelle partie » (web.7.16.1), par un autre chemin |
+| 2 | Au clavier, la suggestion surlignée sort de la liste, qui ne défile pas | Partie libre, anciennes régions : « c » (7 suggestions), puis 6 fois ↓ : « Poitou-Charentes » est surlignée mais cachée | La liste fait 240 pixels au plus (`max-h-60`) et rien n'appelle `scrollIntoView` sur l'option choisie (`Saisie.tsx`). Pire avec les 101 départements de la version difficile |
+| 3 | Le focus du clavier est perdu après la fenêtre des résultats du bonus | Une réponse au bonus, « Passer », puis Échap : `document.activeElement` est `<body>` | La fenêtre rend le focus au bouton « Passer », qui a disparu entre-temps |
+| 4 | Sélectionner du texte dans une fenêtre et relâcher la souris sur le fond gris ferme la fenêtre | Glisser depuis un texte de « Comment jouer » jusqu'au fond | `Fenetre.tsx` regarde la cible du `click`, pas l'endroit où le bouton a été enfoncé |
+| 5 | « Comment jouer » et les résultats peuvent s'ouvrir l'un sur l'autre | Effacer `francle.aide-vue.v1` avec une partie du jour finie, puis recharger | Les deux fenêtres s'ouvrent d'emblée, chacune de son côté. Très rare pour un vrai joueur |
+
+### Les soucis d'interface
+
+| # | Problème | Piste |
+|---|---|---|
+| 6 | « Comment jouer » : les explications ne tombent pas sous leur colonne (« la distance entre les capitales » à cheval entre le nom et la distance), surtout en anglais | Le décalage est écrit à la main (`pl-20`, trois colonnes égales) : une seconde ligne dans le même `<table>` suivrait les colonnes |
+| 7 | Les suggestions proposent une région déjà jouée, ensuite refusée (« déjà proposée ») | La retirer des suggestions, ou la barrer comme dans la liste |
+| 8 | Un vide sous les boutons du bilan | La ligne « Copié » sous « Partager » garde sa place même vide (`min-h-5`) |
+| 9 | « Copié ! » reste affiché pour toujours ; un second clic n'annonce rien de nouveau | Effacer le message après 2 ou 3 secondes |
+| 10 | À 375 pixels, « trouvée en 5 essais » laisse « essais » seul sur sa ligne | Une espace insécable entre le nombre et « essais » |
+| 11 | La page saute à l'arrivée de la carte du bonus (« Chargement… » : 224 pixels, la carte : environ 300) | Donner au cadre d'attente la hauteur de la carte |
+| 12 | En anglais avec les miles, la superficie reste en km² | **À décider** : mi², ou km² gardé exprès (l'unité ne concerne que les distances) |
+| 13 | Bonus d'outre-mer (question du numéro) : le bouton liste ouvre la liste des régions, toute grisée | Masquer ou désactiver le bouton dans ce cas |
+| 14 | À 375 pixels, « Provence-Alpes-Côte d'Azur » passe sur deux lignes dans le tableau | Détail : une police plus petite pour les noms sur téléphone |
+
+Les plus utiles, selon Claude : les bugs 1 à 3, puis 6, 7 et 10. Le point 12 attend d'abord l'avis de l'utilisateur.
+
+### Comment ils ont été trouvés
+
+- (1) En lisant le code : pour chaque action qui perd quelque chose, chercher tous les chemins qui y mènent
+  (`recommencer(` est appelé trois fois) et vérifier qu'ils posent tous la même condition.
+- (2) Dans la console du navigateur : `getBoundingClientRect()` de l'option surlignée comparé à celui de la liste.
+- (3) Après chaque fermeture de fenêtre, `document.activeElement` dans la console : `<body>` veut dire focus perdu.
+- La question à se poser : quand un élément disparaît (bouton, saisie), où vont le focus et les actions qui y menaient ?
+
+### À décider
+
+Le découpage (une PR, ou bugs puis interface en deux PR empilées), les points retenus, et le point 12. **Rien n'est
+commencé** : le code attend le signal de départ de l'utilisateur (règle de `CLAUDE.md`).
 
 ## Les améliorations à reprendre (relevées le 16 octobre 2026)
 
