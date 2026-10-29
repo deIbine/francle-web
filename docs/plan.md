@@ -964,7 +964,8 @@ Les plus utiles, selon Claude : les bugs 1 à 3, puis 6, 7 et 10. Le point 12 at
 
 - **Découpage : une seule PR**, web.7.18, étiquette `web-7.18` (décidé par l'utilisateur le 29 octobre 2026) ;
   `web-7.18.0` pour ce plan.
-- Restent à décider : les points retenus, et le point 12 (mi² ou km²).
+- **Points retenus : les 14** (décidé par l'utilisateur le 29 octobre 2026).
+- Reste à décider : le point 12 (mi² ou km²).
 
 **Rien n'est commencé** : le code attend le signal de départ de l'utilisateur (règle de `CLAUDE.md`).
 
