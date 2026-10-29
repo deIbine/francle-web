@@ -104,8 +104,12 @@ export function Plateau({ partie, onChanger, modes, angle, unite, fin, demandeLi
       {enCours(partie) ? (
         <>
           <Saisie
+            // sans les régions déjà proposées (depuis web.7.18) : les choisir ne mènerait qu'à « déjà proposée ».
+            // Tapée en entier, une telle région reçoit toujours ce message
             suggerer={(texte) =>
-              suggestions(texte, partie.mode, langue).map((region) => ({ cle: region.id, nom: region.nom[langue] }))
+              suggestions(texte, partie.mode, langue)
+                .filter((region) => !partie.essais.some((essai) => essai.region === region))
+                .map((region) => ({ cle: region.id, nom: region.nom[langue] }))
             }
             onProposer={jouer}
           />
@@ -116,7 +120,7 @@ export function Plateau({ partie, onChanger, modes, angle, unite, fin, demandeLi
       )}
 
       <TableauEssais essais={partie.essais} unite={unite} />
-      <Indices cible={partie.cible} reveles={indicesAffiches(partie)} />
+      <Indices cible={partie.cible} reveles={indicesAffiches(partie)} unite={unite} />
 
       {enCours(partie) &&
         (confirmation ? (

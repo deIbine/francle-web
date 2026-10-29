@@ -167,7 +167,10 @@ export default function App() {
                 type="button"
                 onClick={() => setDemandeListe((avant) => ({ ...avant, [onglet]: avant[onglet] + 1 }))}
                 title={listes[onglet] === 'departements' ? textes.liste.departements.ouvrir : textes.liste.ouvrir}
-                className={boutonIcone}
+                // grisé pendant un bonus sans liste (la question du numéro, en outre-mer) : il n'y aurait rien à choisir.
+                // Grisé plutôt que caché : les autres boutons de l'en-tête ne bougent pas
+                disabled={listes[onglet] === 'aucune'}
+                className={`${boutonIcone} disabled:opacity-40 disabled:hover:bg-transparent`}
               >
                 <IconeListe />
               </button>

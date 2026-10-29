@@ -48,14 +48,17 @@ export function Aide({ onJouer }: { onJouer: () => void }) {
               </td>
               <td className="rounded-r px-2 py-1.5 text-right tabular-nums">{textes.pourcentage(EXEMPLE.proximite)}</td>
             </tr>
+            {/* sous les colonnes distance, direction et proximité : ce qu'elles veulent dire. Une seconde ligne du même
+                tableau (depuis web.7.18) : chaque explication est dans sa colonne, quelle que soit la longueur des
+                textes. Avant, une liste à part, décalée à la main, tombait à côté de ses colonnes */}
+            <tr className="align-top text-xs text-discret">
+              <td />
+              <td className="px-1 text-center">{textes.aide.colonnes.distance}</td>
+              <td className="px-1 text-center">{textes.aide.colonnes.direction}</td>
+              <td className="px-1 text-center">{textes.aide.colonnes.proximite}</td>
+            </tr>
           </tbody>
         </table>
-        {/* sous les colonnes distance, direction et proximité : ce qu'elles veulent dire */}
-        <ul className="grid grid-cols-3 gap-2 pl-20 text-center text-xs text-discret">
-          <li>{textes.aide.colonnes.distance}</li>
-          <li>{textes.aide.colonnes.direction}</li>
-          <li>{textes.aide.colonnes.proximite}</li>
-        </ul>
       </div>
       <ul className="flex flex-col gap-2.5 text-sm">
         <Etape icone="💡">{textes.aide.indices}</Etape>

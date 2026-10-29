@@ -34,7 +34,16 @@ describe('Comment jouer', () => {
     const aide = screen.getByRole('dialog', { name: 'Comment jouer' })
     // l'exemple est un vrai essai, dessiné comme une ligne du tableau : la Normandie proposée pour la Bretagne
     const exemple = within(aide).getByRole('table', { name: 'Un exemple d’essai' })
-    expect(within(exemple).getByRole('row').textContent).toMatch(/^Normandie.*\skm.*\d+\s%$/)
+    const [essai, explications] = within(exemple).getAllByRole('row')
+    expect(essai.textContent).toMatch(/^Normandie.*\skm.*\d+\s%$/)
+    // chaque explication dans la colonne qu'elle explique (depuis web.7.18), sous la distance, la direction, la proximité
+    const cellules = within(explications).getAllByRole('cell')
+    expect(cellules.map((cellule) => cellule.textContent)).toEqual([
+      '',
+      'la distance entre les capitales',
+      'la direction à suivre',
+      expect.stringMatching(/^la proximité/),
+    ])
     await joueur.click(within(aide).getByRole('button', { name: 'Jouer' }))
     expect(screen.queryByRole('dialog')).toBeNull()
 
