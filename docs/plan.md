@@ -1057,7 +1057,10 @@ Noté en passant et corrigé avec ce plan : « Où on en est » disait encore l'
 - **(2) Le dégradé : continu, de 0 à 100 %** (décidé par l'utilisateur le 30 octobre 2026), avec la luminosité qui
   varie assez pour que les verts restent distincts (le défaut relevé à web.7.16 : 58 % et 90 % presque pareils). La
   légende dit « 0 % » au lieu de « 50 % ». Remplace la décision (11) du 25 octobre 2026 (« Il commence à 50 % »).
-- Les points ouverts : (5) l'infobulle ; les fonctionnalités à prendre dans cette étape ou plus tard.
+- **(5) L'infobulle du bouton grisé : elle dit pourquoi** (décidé par l'utilisateur le 30 octobre 2026) :
+  « Pas de liste pour cette question », « No list for this question » en anglais. Elle sert aussi de nom au bouton
+  pour les lecteurs d'écran (`title`, depuis web.7.17).
+- Le point ouvert : les fonctionnalités à prendre dans cette étape ou plus tard.
 
 ## Les améliorations à reprendre (relevées le 16 octobre 2026)
 
