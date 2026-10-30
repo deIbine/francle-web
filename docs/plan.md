@@ -95,7 +95,7 @@ l'autre, et le web n'a plus à rester égal au Java.
 8. **web.8 Le domaine et le défi** (ancien web.7, renuméroté le 16 octobre 2026) : d'abord le nom de domaine, puis le défi (un lien à envoyer à un ami pour lui
    faire deviner une région). Pas d'archives des jours passés (décidé avant web.4).
 
-## Où on en est (mis à jour le 29 octobre 2026)
+## Où on en est (mis à jour le 30 octobre 2026)
 
 ### À faire sur le PC (liste vide depuis le 23 octobre 2026)
 
@@ -306,7 +306,11 @@ squash le 18 octobre 2026 sur l'accord de l'utilisateur, étiquettes `web-7.8` �
   - **Les corrections relevées le 29 octobre 2026 (web.7.18)** : une nouvelle passe de bugs et d'interface, faite à
     la demande de l'utilisateur sans rien modifier, puis notée ici à sa demande (section du même nom plus bas). Plan
     fusionné (PR #57, étiquette `web-7.18.0`, commit `c6a8389`). Les 14 points **codés le même jour**, sur le départ
-    de l'utilisateur, dans une seule PR (branche `web-7-18-corrections`), étiquette `web-7.18` prévue après la fusion.
+    de l'utilisateur, dans une seule PR, **fusionnée** (PR #58, étiquette `web-7.18`, commit `145cc72`).
+  - **Les corrections relevées le 30 octobre 2026 (web.7.19)** : une nouvelle passe de bugs, d'interface et de
+    fonctionnalités, faite à la demande de l'utilisateur sans rien modifier, puis notée ici à sa demande (section du
+    même nom plus bas). Plan par la PR web.7.19.0 (branche `web-7-19-0-plan`), étiquette `web-7.19.0` prévue après la
+    fusion. **À décider** : le découpage, les points retenus, puis les points ouverts. Rien n'est commencé.
   - **web.8** : **repoussé** le 18 octobre 2026 (pas de domaine acheté pour l'instant). Le découpage et ses onze
     questions ont été présentés le 17 octobre 2026 (voir « Le domaine et le défi (web.8) » plus bas) ; l'utilisateur
     n'y a pas encore répondu.
@@ -994,6 +998,63 @@ Vérifié : 331 tests (dont `Corrections.test.tsx`, 11 tests, et un dans `Saisie
 la seconde ligne de l'aide et le bouton grisé), lint, types, build ; dans le navigateur intégré à 375 × 812 : aide
 alignée (mesurée), PACA sur une ligne, bilan sans vide, 658 mi² pour la Guadeloupe, bouton liste grisé en outre-mer,
 confirmation d'époque pendant le bonus, focus sur « Nouvelle partie » après Échap. Pas vérifié sur un vrai téléphone.
+
+## Les corrections relevées le 30 octobre 2026 (web.7.19)
+
+Demandé par l'utilisateur le 30 octobre 2026 : « une analyse d'amélioration, de bugs, d'interface, et de
+fonctionnalités, sans rien commencer ». Le jeu a été vérifié **sans rien modifier** : lint, build et tests (**331 sur
+331**, 60 s) ; tout le code des composants relu ; une partie du jour (Auvergne-Rhône-Alpes, gagnée en 4 essais, bonus
+11 sur 12, avec la liste des départements) et trois parties libres (Guadeloupe en anglais, en sombre et en mode 🌀,
+avec la question du numéro ; Mayotte perdue en mode 🙈, anciennes régions ; Provence-Alpes-Côte d'Azur avec le bonus)
+jouées dans le navigateur intégré, à 375 × 812 puis en taille ordinateur. Les points déjà notés ailleurs ne sont pas
+repris.
+
+### Les bugs
+
+| # | Problème | Pour le reproduire | Cause |
+|---|---|---|---|
+| 1 | La page se bloque, sans fenêtre visible : plus aucun clic ne marche ; seul Échap (absent au doigt) la débloque, sinon il faut recharger | Donner la dernière réponse d'un bonus, puis toucher l'autre onglet dans la seconde et demie qui suit | La pause avant les résultats (`usePause`, `PartieLibre.tsx` et `PartieDuJour.tsx`) appelle `showModal()` (`Fenetre.tsx`) sur une fenêtre dont l'onglet est caché (`hidden`, `App.tsx`). Une fenêtre modale rend le reste de la page inactif, mais dans un parent caché elle ne s'affiche pas. Vu dans la console : `document.elementFromPoint` au centre de « Voir les résultats » renvoie `<html>` |
+| 2 | Carte de fin : la plupart des essais ont le même jaune pâle (Bretagne 0 %, Grand Est 32 % et Occitanie 36 % pour Auvergne-Rhône-Alpes) | Toute partie dont des essais sont sous 50 % | Le dégradé commence à 50 % (`DEBUT_DEGRADE`, `domaine/partage.ts`, décidé à web.7.16 sur une partie où la réponse était la Martinique). Mais la formule met à 0 % la région de métropole la plus éloignée : mesuré sur toutes les paires de régions actuelles, 90 sur 156 sont sous 50 % pour une réponse en métropole, 65 sur 85 pour une réponse d'outre-mer |
+
+### Les soucis d'interface
+
+| # | Problème | Piste |
+|---|---|---|
+| 3 | Mode 🙈 : la silhouette n'est jamais montrée, même la partie perdue ou abandonnée ; en mode 🌀, elle reste tournée (`Plateau.tsx`) | À la fin, la vraie silhouette, à l'endroit |
+| 4 | Partie libre : une fois la fenêtre des résultats fermée, impossible de revoir la carte de fin (le bilan n'a que « Nouvelle partie ») | Un bouton « Voir les résultats », comme en partie du jour |
+| 5 | Le bouton liste grisé (bonus d'outre-mer) garde l'infobulle « Voir la liste des régions » (`App.tsx`) | Une infobulle qui dit pourquoi il est grisé, ou aucune |
+| 6 | La fenêtre dit « Bravo, trouvé en 4 essais ! » puis « La réponse : … » ; le bilan sous le plateau dit « 🎉 Auvergne-Rhône-Alpes, trouvée en 4 essais » | Une seule phrase, la même aux deux endroits |
+| 7 | Les barres des statistiques mettent leur nom (`aria-label`) sur un `<span>` sans rôle (`Statistiques.tsx`) : certains lecteurs d'écran l'ignorent. Relevé en lisant le code, pas vérifié avec axe | `role="img"`, ou un texte `sr-only` |
+
+### Les fonctionnalités
+
+Déjà notées (« Les améliorations à reprendre » et web.8) : le compteur de la partie libre, le mode « métropole
+seulement », le repère « voisine », le défi (web.8.1, questions 5 à 10 en attente). Nouvelles idées :
+
+- **Le compte à rebours sur la page**, dans le bilan de la partie du jour, et plus seulement dans la fenêtre.
+- **Mode 🙈 : révéler la silhouette** au bout de quelques essais (la moitié de cette idée est déjà notée).
+- **Une partie libre « départements »** (plus grosse) : deviner un département d'après sa forme. Les données existent ;
+  il faudrait une silhouette par département (`outils/generer_images.py`).
+
+Les plus utiles, selon Claude : les bugs 1 et 2 (le 1 bloque le jeu sur téléphone), puis 3, 4 et 5 ; côté
+fonctionnalités, le compteur de la partie libre irait bien avec le point 4.
+
+Noté en passant et corrigé avec ce plan : « Où on en est » disait encore l'étiquette `web-7.18` « prévue ».
+
+### Comment ils ont été trouvés
+
+- (1) En lisant `usePause` : une action qui arrive plus tard, et si l'écran a changé entre-temps ? Puis reproduit dans
+  le navigateur, et confirmé par `document.elementFromPoint`.
+- (2) Trois essais de la même couleur dans une vraie partie ; puis `geographie.ts` importé dans la console du
+  navigateur (`await import('/francle-web/src/domaine/geographie.ts')`) pour calculer toutes les paires.
+- La question à se poser : une règle « en pratique, c'est toujours… », sur combien de cas a-t-elle été vérifiée ?
+
+### À décider
+
+- Le découpage (une seule PR, comme web.7.18 ?).
+- Les points retenus.
+- Les points ouverts : (2) le dégradé (de 0 à 100 %, ou des paliers) ; (5) l'infobulle ; les fonctionnalités à
+  prendre dans cette étape ou plus tard.
 
 ## Les améliorations à reprendre (relevées le 16 octobre 2026)
 
