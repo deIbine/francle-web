@@ -302,7 +302,7 @@ squash le 18 octobre 2026 sur l'accord de l'utilisateur, étiquettes `web-7.8` �
     seulement » ; ou le défi seul (web.8.1) ; ou les silhouettes sans limites de départements (vu à web.7.16.4).
   - **web.7.17 L'icône de la liste** (le 28 octobre 2026, à la demande de l'utilisateur) : l'hexagone remplace les
     trois lignes à puces, et les boutons à icône de l'en-tête ont une infobulle (section du même nom plus bas). Une
-    seule PR, étiquette `web-7.17` prévue après la fusion.
+    seule PR, **fusionnée** (PR #56, étiquette `web-7.17`, commit `8f2b805`).
   - **Les corrections relevées le 29 octobre 2026 (web.7.18)** : une nouvelle passe de bugs et d'interface, faite à
     la demande de l'utilisateur sans rien modifier, puis notée ici à sa demande (section du même nom plus bas). Plan
     fusionné (PR #57, étiquette `web-7.18.0`, commit `c6a8389`). Les 14 points **codés le même jour**, sur le départ
@@ -311,8 +311,17 @@ squash le 18 octobre 2026 sur l'accord de l'utilisateur, étiquettes `web-7.8` �
     fonctionnalités, faite à la demande de l'utilisateur sans rien modifier, puis notée ici à sa demande (section du
     même nom plus bas). Plan fusionné (PR #59, étiquette `web-7.19.0`, commit `0361e89`). **Tout est décidé** le
     même jour (une seule PR, les 7 points, dégradé de 0 à 100 %, infobulle qui dit pourquoi, fonctionnalités plus
-    tard). Les 7 points **codés le même jour**, sur le départ de l'utilisateur, dans une seule PR (branche
-    `web-7-19-corrections`), étiquette `web-7.19` prévue après la fusion.
+    tard). Les 7 points **codés le même jour**, sur le départ de l'utilisateur, dans une seule PR, **fusionnée** sur
+    son accord (PR #60, étiquette `web-7.19`, commit `fc7aa22`) ; branche `web-7-19-corrections` supprimée après
+    avoir vérifié que l'arbre de `main` était le même. 336 tests. Ces notes : PR web.7.19.1, sans étiquette.
+  - **Encore à vérifier par l'utilisateur, en jouant** : web.7.19 sur un vrai téléphone (changer d'onglet pendant la
+    pause du bonus, couleurs de la carte de fin) ; les barres des statistiques avec un vrai lecteur d'écran.
+  - **Après web.7.19, la prochaine étape est à choisir avec l'utilisateur.** Les candidates : celles de « Les
+    améliorations à reprendre » (compteur de la partie libre, mode « métropole seulement », repère « voisine »), les
+    idées nouvelles de web.7.19 (compte à rebours sur la page, silhouette révélée en 🙈, partie libre
+    « départements »), le défi seul (web.8.1), les silhouettes sans limites de départements ; web.8 reste repoussé.
+    Pour une nouvelle passe d'analyse, suivre la même méthode que web.7.18 et web.7.19 (analyse sans rien modifier,
+    PR de plan `web.X.0`, décisions une par une, code sur le départ de l'utilisateur, une seule PR).
   - **web.8** : **repoussé** le 18 octobre 2026 (pas de domaine acheté pour l'instant). Le découpage et ses onze
     questions ont été présentés le 17 octobre 2026 (voir « Le domaine et le défi (web.8) » plus bas) ; l'utilisateur
     n'y a pas encore répondu.
@@ -901,8 +910,8 @@ ordinateur, et à 375 pixels par script (les captures à cette largeur sortaient
 Le plan est fusionné (PR #49, étiquette `web-7.16.0`, commit `d7492e6`), la validation de la maquette notée par une
 petite PR de notes (web.7.16.0.1, sans étiquette).
 
-Étiquettes prévues : `web-7.16.0` à `web-7.16.4`, puis `web-7.16`. **Rien n'est commencé** : le code attend le
-signal de départ de l'utilisateur (règle de `CLAUDE.md`).
+Étiquettes : `web-7.16.0` à `web-7.16.4`, puis `web-7.16`, **toutes posées** (vérifié le 30 octobre 2026). Le code
+est fait et fusionné (voir « Où on en est » plus haut).
 
 ## L'icône de la liste (web.7.17)
 
