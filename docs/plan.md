@@ -310,7 +310,8 @@ squash le 18 octobre 2026 sur l'accord de l'utilisateur, étiquettes `web-7.8` �
   - **Les corrections relevées le 30 octobre 2026 (web.7.19)** : une nouvelle passe de bugs, d'interface et de
     fonctionnalités, faite à la demande de l'utilisateur sans rien modifier, puis notée ici à sa demande (section du
     même nom plus bas). Plan par la PR web.7.19.0 (branche `web-7-19-0-plan`), étiquette `web-7.19.0` prévue après la
-    fusion. **À décider** : le découpage, les points retenus, puis les points ouverts. Rien n'est commencé.
+    fusion. **Tout est décidé** le même jour (une seule PR, les 7 points, dégradé de 0 à 100 %, infobulle qui dit
+    pourquoi, fonctionnalités plus tard). Rien n'est commencé : le code attend le départ de l'utilisateur.
   - **web.8** : **repoussé** le 18 octobre 2026 (pas de domaine acheté pour l'instant). Le découpage et ses onze
     questions ont été présentés le 17 octobre 2026 (voir « Le domaine et le défi (web.8) » plus bas) ; l'utilisateur
     n'y a pas encore répondu.
@@ -1060,7 +1061,10 @@ Noté en passant et corrigé avec ce plan : « Où on en est » disait encore l'
 - **(5) L'infobulle du bouton grisé : elle dit pourquoi** (décidé par l'utilisateur le 30 octobre 2026) :
   « Pas de liste pour cette question », « No list for this question » en anglais. Elle sert aussi de nom au bouton
   pour les lecteurs d'écran (`title`, depuis web.7.17).
-- Le point ouvert : les fonctionnalités à prendre dans cette étape ou plus tard.
+- **Les fonctionnalités : plus tard** (décidé par l'utilisateur le 30 octobre 2026). Web.7.19 ne fait que les 7
+  corrections ; les idées nouvelles (compte à rebours sur la page, silhouette révélée en 🙈, partie libre
+  « départements ») rejoignent les candidates des prochaines étapes.
+- Tout est décidé. Le code attend le signal de départ de l'utilisateur.
 
 ## Les améliorations à reprendre (relevées le 16 octobre 2026)
 
