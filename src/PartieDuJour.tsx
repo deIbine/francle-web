@@ -218,7 +218,7 @@ export function PartieDuJour({ jour, reglages, demandeStats, demandeListe, onLis
         repli={boutonResultats}
       >
         {!enCours(partie) && (
-          <FinDePartie partie={partie} message={textes.fin(partie)} bonus={bonus}>
+          <FinDePartie partie={partie} bonus={bonus}>
             {/* grid-cols-2 : le compte à rebours et le bouton de partage côte à côte */}
             <div className="grid grid-cols-2 items-center gap-2">
               <CompteARebours minuit={minuitSuivant(jour)} />

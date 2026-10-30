@@ -6,7 +6,8 @@ import { CarteFrance } from './CarteFrance.tsx'
 
 interface Props {
   partie: Partie
-  message: string
+  // partie libre : « Perdu ! » plutôt que « ce sera pour demain »
+  libre?: boolean
   // le bonus des départements, s'il a été joué : sa phrase de fin s'affiche sous le résultat, une fois fini
   bonus?: Bonus
   // le bas de la fenêtre : compte à rebours et partage pour la partie du jour, « Nouvelle partie » pour la libre.
@@ -14,17 +15,15 @@ interface Props {
   children: ReactNode
 }
 
-// le haut de la fenêtre de résultats, une fois la partie terminée : le résultat, celui du bonus, la réponse et la carte
-export function FinDePartie({ partie, message, bonus, children }: Props) {
+// le haut de la fenêtre de résultats, une fois la partie terminée : le résultat (la même phrase que dans le bilan sous
+// le plateau, depuis web.7.19 : elle donne aussi la réponse), celui du bonus, et la carte
+export function FinDePartie({ partie, libre = false, bonus, children }: Props) {
   const textes = useTextes()
   const langue = useLangue()
   return (
     <section className="flex flex-col gap-3">
-      <p className="text-lg font-semibold">{message}</p>
+      <p className="text-lg font-semibold">{textes.resultat(partie, partie.cible.nom[langue], libre)}</p>
       {bonus !== undefined && !bonusEnCours(bonus) && <p>{finDuBonus(bonus, textes)}</p>}
-      <p>
-        {textes.reponse} <strong>{partie.cible.nom[langue]}</strong>
-      </p>
       <CarteFrance partie={partie} />
       <div className="border-t border-bord pt-3">{children}</div>
     </section>

@@ -38,20 +38,24 @@ describe('Le partage', () => {
     expect(carres(proximite)).toBe(attendu)
   })
 
-  it('la couleur de la carte de fin va du jaune pâle (50 % ou moins) au vert vif (près)', () => {
-    expect(couleurProximite(50)).toBe('hsl(48, 80%, 82%)')
-    expect(couleurProximite(75)).toBe('hsl(94, 70%, 59%)')
-    expect(couleurProximite(100)).toBe('hsl(140, 60%, 36%)')
-    // sous 50 % (outre-mer contre métropole), jaune pâle ; hors des bornes, on reste dans le dégradé
-    expect(couleurProximite(0)).toBe(couleurProximite(50))
-    expect(couleurProximite(-5)).toBe(couleurProximite(50))
+  it('la couleur de la carte de fin va du jaune (0 %, loin) au vert foncé (près), sans palier', () => {
+    expect(couleurProximite(0)).toBe('hsl(48, 90%, 78%)')
+    expect(couleurProximite(50)).toBe('hsl(94, 75%, 53%)')
+    expect(couleurProximite(100)).toBe('hsl(140, 60%, 28%)')
+    // depuis web.7.19, le dégradé part de 0 % : 0, 32 et 36 % n'ont plus le même jaune
+    expect(couleurProximite(32)).not.toBe(couleurProximite(0))
+    expect(couleurProximite(36)).not.toBe(couleurProximite(32))
+    // hors des bornes, on reste dans le dégradé
+    expect(couleurProximite(-5)).toBe(couleurProximite(0))
     expect(couleurProximite(120)).toBe(couleurProximite(100))
   })
 
-  it('les proximités de la métropole ont des couleurs bien distinctes', () => {
-    // 58 % et 90 % avaient presque le même vert quand le dégradé partait de 0 %
+  it('les verts restent bien distincts', () => {
+    // 58 % et 90 % avaient presque le même vert quand le dégradé partait de 0 % avec une luminosité trop peu variée
+    const luminosite = (p: number) => Number(couleurProximite(p).match(/(\d+)%\)$/)?.[1])
     const teinte = (p: number) => Number(couleurProximite(p).match(/^hsl\((\d+)/)?.[1])
-    expect(teinte(90) - teinte(58)).toBeGreaterThanOrEqual(55)
+    expect(luminosite(58) - luminosite(90)).toBeGreaterThanOrEqual(15)
+    expect(teinte(90) - teinte(58)).toBeGreaterThanOrEqual(25)
   })
 
   it('plus une région est proche, plus sa couleur est foncée', () => {

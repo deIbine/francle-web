@@ -107,7 +107,7 @@ describe('La carte de fin en couleur', () => {
     expect(container.querySelector('figcaption')).toBeNull()
     unmount()
     render(<CarteFrance partie={OCCITANIE} />)
-    expect(document.querySelector('figcaption')?.textContent).toBe('Proximité50\u00a0%99\u00a0%la réponse')
+    expect(document.querySelector('figcaption')?.textContent).toBe('Proximité0\u00a0%99\u00a0%la réponse')
   })
 
   it('une réponse d’outre-mer : son encadré est bordé de bleu, et lui seul', () => {

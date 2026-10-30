@@ -42,19 +42,18 @@ export function carres(proximite: number): string {
   return '🟩'.repeat(verts) + '🟨'.repeat(jaunes) + '⬜'.repeat(CARRES - verts - jaunes)
 }
 
-// où commence le dégradé : en dessous, jaune pâle. En métropole, la proximité dépasse presque toujours 50 % (la
-// formule est pensée pour la France : même la Bretagne vaut 51 % depuis la Martinique). Un dégradé de 0 à 100 %
-// donnait le même vert à 58 % et à 90 % ; de 50 à 100 %, il les distingue (décidé le 25 octobre 2026)
-export const DEBUT_DEGRADE = 50
-
-// la couleur d'un essai sur la carte de fin : un dégradé du jaune pâle (50 % ou moins, loin) au vert vif (100 %,
+// la couleur d'un essai sur la carte de fin : un dégradé continu du jaune (0 %, loin) au vert foncé (100 %,
 // près), les couleurs des carrés 🟨 🟩. En HSL (teinte, saturation, luminosité) : la teinte passe du jaune (48°) au
-// vert (140°) pendant que la couleur fonce, pour qu'une région proche se voie mieux qu'une lointaine
+// vert (140°) pendant que la couleur fonce, pour qu'une région proche se voie mieux qu'une lointaine.
+// De 0 à 100 % depuis web.7.19 (décidé le 30 octobre 2026) : le dégradé commençait à 50 %, mais 90 paires de régions
+// actuelles sur 156 sont sous 50 % pour une réponse en métropole, toutes du même jaune. La luminosité varie fort (de
+// 78 à 28 %) pour que les verts restent distincts (58 % et 90 % se confondaient avec un écart trop faible), et le
+// jaune de 0 % reste assez soutenu pour se détacher des régions non proposées, presque blanches
 export function couleurProximite(proximite: number): string {
-  const t = Math.min(Math.max(proximite - DEBUT_DEGRADE, 0), 100 - DEBUT_DEGRADE) / (100 - DEBUT_DEGRADE)
+  const t = Math.min(Math.max(proximite, 0), 100) / 100
   const teinte = Math.round(48 + t * 92)
-  const saturation = Math.round(80 - t * 20)
-  const luminosite = Math.round(82 - t * 46)
+  const saturation = Math.round(90 - t * 30)
+  const luminosite = Math.round(78 - t * 50)
   return `hsl(${teinte}, ${saturation}%, ${luminosite}%)`
 }
 

@@ -6,7 +6,8 @@ fenêtre doit faire : griser et bloquer la page derrière, garder le focus du cl
 React décrit l'écran, mais showModal() et close() sont des ordres à donner à l'élément : useRef donne accès à
 l'élément lui-même, et useEffect donne l'ordre après chaque affichage où « ouverte » a changé.
  */
-import { useEffect, useId, useRef, type ReactNode, type RefObject } from 'react'
+import { useContext, useEffect, useId, useRef, type ReactNode, type RefObject } from 'react'
+import { PanneauVisible } from '../panneau.ts'
 import { useTextes } from '../textes.ts'
 
 interface Props {
@@ -27,18 +28,21 @@ export function Fenetre({ ouverte, onFermer, titre, children, repli }: Props) {
   // vrai si le bouton de la souris a été enfoncé sur le fond grisé : seul un clic commencé ET fini sur le fond ferme la
   // fenêtre. Une sélection de texte commencée dans la fenêtre et relâchée sur le fond ne la ferme plus
   const appuiSurLeFond = useRef(false)
+  // le panneau de l'onglet est-il affiché ? Une fenêtre demandée dans un panneau caché attend d'y revenir pour
+  // s'ouvrir (voir panneau.ts) : sinon, invisible, elle bloquerait toute la page
+  const visible = useContext(PanneauVisible)
 
   useEffect(() => {
     const element = fenetre.current
     if (element === null) {
       return
     }
-    if (ouverte && !element.open) {
+    if (ouverte && visible && !element.open) {
       element.showModal()
     } else if (!ouverte && element.open) {
       element.close()
     }
-  }, [ouverte])
+  }, [ouverte, visible])
 
   return (
     <dialog

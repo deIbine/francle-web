@@ -107,7 +107,7 @@ describe('Le jeu', () => {
     expect(screen.queryByRole('dialog', { name: 'Résultats' })).toBeNull()
     await joueur.click(screen.getByRole('button', { name: 'Voir les résultats' }))
     const resultats = screen.getByRole('dialog', { name: 'Résultats' })
-    expect(within(resultats).getByText('Bravo, trouvé en 2 essais !')).toBeDefined()
+    expect(within(resultats).getByText(`🎉 ${CIBLE.nom.fr}, trouvée en 2 essais`)).toBeDefined()
     // la carte de fin : la réponse en bleu, puis les essais (leur proximité est vérifiée dans CarteFrance.test.tsx)
     const nom = within(resultats).getByRole('img', { name: /^Carte de France/ }).getAttribute('aria-label')
     expect(nom).toMatch(`Carte de France, la région ${CIBLE.nom.fr} en bleu. Tes essais : 1 ${AUTRES[0].nom.fr}, `)
@@ -124,8 +124,7 @@ describe('Le jeu', () => {
       await proposer(joueur, region.nom.fr)
     }
     const resultats = screen.getByRole('dialog', { name: 'Résultats' })
-    expect(within(resultats).getByText('Perdu, ce sera pour demain.')).toBeDefined()
-    expect(within(resultats).getByText(CIBLE.nom.fr, { selector: 'strong' })).toBeDefined()
+    expect(within(resultats).getByText(`Perdu, ce sera pour demain. La réponse : ${CIBLE.nom.fr}`)).toBeDefined()
     for (const indice of ['Superficie', 'Spécialité', 'Personnalité', 'Capitale', 'Monument']) {
       expect(screen.getByText(indice)).toBeDefined()
     }
@@ -139,7 +138,7 @@ describe('Le jeu', () => {
 
     await joueur.click(screen.getByRole('button', { name: 'Abandonner' }))
     await joueur.click(screen.getByRole('button', { name: 'Oui' }))
-    expect(within(screen.getByRole('dialog')).getByText('Partie abandonnée.')).toBeDefined()
+    expect(within(screen.getByRole('dialog')).getByText(`Partie abandonnée. La réponse : ${CIBLE.nom.fr}`)).toBeDefined()
     expect(screen.queryByRole('combobox')).toBeNull()
 
     // sous le plateau, un seul bloc de bilan : le résultat, la réponse, « Voir les résultats » et « Partager »

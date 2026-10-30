@@ -19,14 +19,10 @@ interface Props {
 export function Bilan({ partie, libre = false, bonus, children }: Props) {
   const textes = useTextes()
   const langue = useLangue()
-  const nom = partie.cible.nom[langue]
   return (
     <section aria-label={textes.bilan.titre} className="flex flex-col items-center gap-2 rounded-lg bg-surface p-3">
-      <p className="text-lg font-bold">
-        {partie.etat === 'gagnee'
-          ? textes.bilan.gagnee(nom, partie.essais.length)
-          : `${textes.fin(partie, libre)} ${textes.reponse} ${nom}`}
-      </p>
+      {/* la même phrase que dans la fenêtre des résultats (FinDePartie.tsx) */}
+      <p className="text-lg font-bold">{textes.resultat(partie, partie.cible.nom[langue], libre)}</p>
       {bonus !== undefined && !bonusEnCours(bonus) && <p>{finDuBonus(bonus, textes)}</p>}
       {/* flex-wrap : les boutons côte à côte, à la ligne s'ils ne tiennent pas */}
       <div className="flex flex-wrap items-start justify-center gap-2">{children}</div>

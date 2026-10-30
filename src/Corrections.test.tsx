@@ -1,7 +1,7 @@
 /*
-Les tests des corrections relevées le 29 octobre 2026 (web.7.18, voir docs/plan.md) : un test par point qui se
-vérifie dans le faux navigateur (jsdom). Les points de pure mise en page (la place du chargement de la carte, les noms
-longs du tableau) se vérifient à l'œil, dans un vrai navigateur.
+Les tests des corrections relevées le 29 octobre 2026 (web.7.18), puis le 30 octobre 2026 (web.7.19, à la fin du
+fichier), voir docs/plan.md : un test par point qui se vérifie dans le faux navigateur (jsdom). Les points de pure mise
+en page (la place du chargement de la carte, les noms longs du tableau) se vérifient à l'œil, dans un vrai navigateur.
  */
 import { act, cleanup, fireEvent, render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
@@ -10,15 +10,22 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import App from './App.tsx'
 import { Fenetre } from './composants/Fenetre.tsx'
 import { DUREE_MESSAGE, Partager } from './composants/Partager.tsx'
+import { nouvellePartie, proposer as proposerDomaine, type Partie } from './domaine/partie.ts'
 import { regionDuJour } from './domaine/regionDuJour.ts'
-import { tirables } from './domaine/regions.ts'
-import { CLE_AIDE } from './reglages.ts'
+import { parId, tirables } from './domaine/regions.ts'
+import { PanneauVisible } from './panneau.ts'
+import { CLE_AIDE, CLE_REGLAGES } from './reglages.ts'
 import { TEXTES } from './textes.ts'
 
 // le jour où l'horloge des tests est arrêtée (voir preparationTests.ts)
 const DATE = new Date(2026, 9, 14, 12)
 const CIBLE = regionDuJour(DATE)
 const AUTRES = tirables('nouvelles').filter((region) => region !== CIBLE)
+// une partie gagnée en 3 essais, pour les textes de fin
+const gagneeEn3 = ['Normandie', 'Pays de la Loire', 'Bretagne'].reduce<Partie>(
+  (partie, nom) => proposerDomaine(partie, nom) ?? partie,
+  nouvellePartie(parId('bretagne'), 'nouvelles'),
+)
 
 type Joueur = ReturnType<typeof userEvent.setup>
 
@@ -198,8 +205,8 @@ describe('(8, 9) Le message du partage', () => {
 
 describe('(10, 12) Les textes', () => {
   it('le nombre d’essais reste collé à « essais »', () => {
-    expect(TEXTES.fr.bilan.gagnee('Bretagne', 3)).toBe('🎉 Bretagne, trouvée en 3 essais')
-    expect(TEXTES.en.bilan.gagnee('Brittany', 3)).toBe('🎉 Brittany, found in 3 tries')
+    expect(TEXTES.fr.resultat(gagneeEn3, 'Bretagne')).toBe('🎉 Bretagne, trouvée en 3 essais')
+    expect(TEXTES.en.resultat(gagneeEn3, 'Brittany')).toBe('🎉 Brittany, found in 3 tries')
   })
 
   it('la superficie suit l’unité des distances', () => {
@@ -217,5 +224,84 @@ describe('(10, 12) Les textes', () => {
     await joueur.click(within(reglages).getByRole('button', { name: 'Fermer' }))
     await proposer(joueur, AUTRES[0].nom.fr)
     expect(within(panneau()).getByText('Superficie').nextElementSibling?.textContent).toMatch(/\d\smi²$/)
+  })
+})
+
+// web.7.19, les corrections relevées le 30 octobre 2026 (le dégradé de la carte, point 2, est vérifié dans
+// domaine/partage.test.ts ; l'infobulle du bouton grisé, point 5, dans ListeDepartements.test.tsx)
+
+describe('web.7.19 (1) Une fenêtre demandée dans un onglet caché', () => {
+  function Essai({ visible }: { visible: boolean }) {
+    return (
+      <PanneauVisible value={visible}>
+        <Fenetre ouverte onFermer={() => {}} titre="Résultats">
+          <p>Le contenu</p>
+        </Fenetre>
+      </PanneauVisible>
+    )
+  }
+
+  it('attend que son onglet soit affiché pour s’ouvrir : sinon, invisible, elle bloquerait toute la page', () => {
+    const { rerender } = render(<Essai visible={false} />)
+    const fenetre = () => document.querySelector('dialog') as HTMLDialogElement
+    expect(fenetre().open).toBe(false)
+    rerender(<Essai visible />)
+    expect(fenetre().open).toBe(true)
+  })
+})
+
+describe('web.7.19 (3) La silhouette à la fin de la partie', () => {
+  it('en modes 🙈 et 🌀, la vraie silhouette, à l’endroit, une fois la partie abandonnée', async () => {
+    localStorage.setItem(CLE_REGLAGES, JSON.stringify({ cachee: true, rotation: true }))
+    // 0,5 : une région au milieu de la liste, et un angle de 180°
+    vi.spyOn(Math, 'random').mockReturnValue(0.5)
+    const joueur = demarrer()
+    await joueur.click(screen.getByRole('tab', { name: 'Partie libre' }))
+    expect(within(panneau()).getByRole('img', { name: /^Silhouette cachée/ })).toBeDefined()
+
+    await joueur.click(within(panneau()).getByRole('button', { name: 'Abandonner' }))
+    await joueur.click(within(panneau()).getByRole('button', { name: 'Oui' }))
+    const image = within(panneau()).getByRole('img', { name: TEXTES.fr.silhouette })
+    expect(image.style.transform).toBe('')
+  })
+})
+
+describe('web.7.19 (4) Les résultats de la partie libre', () => {
+  it('se rouvrent par « Voir les résultats », qui reprend le focus à la fermeture', async () => {
+    const joueur = demarrer()
+    await joueur.click(screen.getByRole('tab', { name: 'Partie libre' }))
+    await joueur.click(within(panneau()).getByRole('button', { name: 'Abandonner' }))
+    await joueur.click(within(panneau()).getByRole('button', { name: 'Oui' }))
+    const resultats = () => screen.queryByRole('dialog', { name: 'Résultats' })
+    await joueur.click(within(resultats()!).getByRole('button', { name: 'Fermer' }))
+    expect(resultats()).toBeNull()
+
+    const bouton = within(panneau()).getByRole('button', { name: 'Voir les résultats' })
+    await joueur.click(bouton)
+    expect(resultats()).not.toBeNull()
+    expect(within(resultats()!).getByRole('img', { name: /^Carte de France/ })).toBeDefined()
+    await joueur.click(within(resultats()!).getByRole('button', { name: 'Fermer' }))
+    expect(document.activeElement).toBe(bouton)
+  })
+})
+
+describe('web.7.19 (6) Le résultat', () => {
+  it('la même phrase dans la fenêtre et dans le bilan sous le plateau', async () => {
+    const joueur = demarrer()
+    await joueur.click(screen.getByRole('button', { name: 'Abandonner' }))
+    await joueur.click(screen.getByRole('button', { name: 'Oui' }))
+    const phrase = `Partie abandonnée. La réponse : ${CIBLE.nom.fr}`
+    expect(within(screen.getByRole('dialog', { name: 'Résultats' })).getByText(phrase)).toBeDefined()
+    expect(within(screen.getByRole('region', { name: 'Résumé de la partie' })).getByText(phrase)).toBeDefined()
+  })
+})
+
+describe('web.7.19 (7) Les barres des statistiques', () => {
+  it('ont un rôle d’image, pour que leur nom soit lu', async () => {
+    const joueur = demarrer()
+    await joueur.click(screen.getByRole('button', { name: 'Voir les statistiques' }))
+    const stats = screen.getByRole('dialog', { name: 'Statistiques' })
+    expect(within(stats).getByRole('img', { name: '0 victoire en 1 essai' })).toBeDefined()
+    expect(within(stats).getAllByRole('img', { name: /victoire/ })).toHaveLength(6)
   })
 })

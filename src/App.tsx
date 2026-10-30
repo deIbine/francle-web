@@ -21,6 +21,7 @@ import { minuitSuivant } from './domaine/temps.ts'
 import { PartieDuJour } from './PartieDuJour.tsx'
 import { PartieLibre } from './PartieLibre.tsx'
 import type { Liste } from './liste.ts'
+import { PanneauVisible } from './panneau.ts'
 import { aideVue, langueAffichee, marquerAideVue, useReglages, useTheme } from './reglages.ts'
 import { LangueContext, TEXTES } from './textes.ts'
 
@@ -166,7 +167,14 @@ export default function App() {
               <button
                 type="button"
                 onClick={() => setDemandeListe((avant) => ({ ...avant, [onglet]: avant[onglet] + 1 }))}
-                title={listes[onglet] === 'departements' ? textes.liste.departements.ouvrir : textes.liste.ouvrir}
+                // grisé, il dit pourquoi (depuis web.7.19) : ce texte est aussi son nom pour les lecteurs d'écran
+                title={
+                  listes[onglet] === 'aucune'
+                    ? textes.liste.aucune
+                    : listes[onglet] === 'departements'
+                      ? textes.liste.departements.ouvrir
+                      : textes.liste.ouvrir
+                }
                 // grisé pendant un bonus sans liste (la question du numéro, en outre-mer) : il n'y aurait rien à choisir.
                 // Grisé plutôt que caché : les autres boutons de l'en-tête ne bougent pas
                 disabled={listes[onglet] === 'aucune'}
@@ -228,18 +236,21 @@ export default function App() {
             // hidden l'emporte sur flex : la classe ne s'applique que quand le panneau est visible
             className="flex flex-col gap-4 [&[hidden]]:hidden"
           >
-            {nom === 'jour' ? (
-              <PartieDuJour
-                key={numero(jour)}
-                jour={jour}
-                reglages={reglages}
-                demandeStats={demandeStats}
-                demandeListe={demandeListe.jour}
-                onListe={signalerListe('jour')}
-              />
-            ) : (
-              <PartieLibre reglages={reglages} demandeListe={demandeListe.libre} onListe={signalerListe('libre')} />
-            )}
+            {/* chaque partie sait si son panneau est affiché : ses fenêtres attendent de l'être pour s'ouvrir */}
+            <PanneauVisible value={onglet === nom}>
+              {nom === 'jour' ? (
+                <PartieDuJour
+                  key={numero(jour)}
+                  jour={jour}
+                  reglages={reglages}
+                  demandeStats={demandeStats}
+                  demandeListe={demandeListe.jour}
+                  onListe={signalerListe('jour')}
+                />
+              ) : (
+                <PartieLibre reglages={reglages} demandeListe={demandeListe.libre} onListe={signalerListe('libre')} />
+              )}
+            </PanneauVisible>
           </section>
         ))}
 
