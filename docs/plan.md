@@ -858,7 +858,7 @@ faire **elle aussi**, avec des maquettes proposées par Claude.
 | (1) Contours | Un message « Impossible de charger la carte. » et un bouton **Réessayer**. Le bonus reste là, « Passer » marche toujours. |
 | (3) « Nouvelle partie » | **Caché** tant que le bonus est en cours : « Passer » suffit pour en sortir. |
 | (4) Score moyen | **« – »** tant qu'aucun bonus n'a été joué. |
-| (11) Le dégradé | Il **commence à 50 %** : en dessous, jaune pâle ; de 50 à 99 %, du jaune au vert. La règle de proximité ne change pas, seulement la couleur (et la légende : « 50 % », « 99 % »). |
+| (11) Le dégradé | Il **commence à 50 %** : en dessous, jaune pâle ; de 50 à 99 %, du jaune au vert. La règle de proximité ne change pas, seulement la couleur (et la légende : « 50 % », « 99 % »). **Remplacé le 30 octobre 2026** (web.7.19) : de 0 à 100 %, la plupart des essais étant sous 50 %. |
 | (10) Les messages | **Neutres** (`text-discret`) pour ce qui explique ; le rouge seulement pour les vraies erreurs. |
 | Phase 4 | **Faite elle aussi**, après les trois autres, **comme la maquette** (ci-dessus, validée le 25 octobre 2026) : les quatre écrans tels quels. |
 | Les autres points | Corrigés comme proposé (2, 5 à 9, 12, 13). |
@@ -1054,8 +1054,10 @@ Noté en passant et corrigé avec ce plan : « Où on en est » disait encore l'
 - **Découpage : une seule PR**, web.7.19, étiquette `web-7.19` (décidé par l'utilisateur le 30 octobre 2026) ;
   `web-7.19.0` pour ce plan.
 - **Points retenus : les 7** (décidé par l'utilisateur le 30 octobre 2026).
-- Les points ouverts : (2) le dégradé (de 0 à 100 %, ou des paliers) ; (5) l'infobulle ; les fonctionnalités à
-  prendre dans cette étape ou plus tard.
+- **(2) Le dégradé : continu, de 0 à 100 %** (décidé par l'utilisateur le 30 octobre 2026), avec la luminosité qui
+  varie assez pour que les verts restent distincts (le défaut relevé à web.7.16 : 58 % et 90 % presque pareils). La
+  légende dit « 0 % » au lieu de « 50 % ». Remplace la décision (11) du 25 octobre 2026 (« Il commence à 50 % »).
+- Les points ouverts : (5) l'infobulle ; les fonctionnalités à prendre dans cette étape ou plus tard.
 
 ## Les améliorations à reprendre (relevées le 16 octobre 2026)
 
