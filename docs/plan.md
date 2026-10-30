@@ -1053,7 +1053,7 @@ Noté en passant et corrigé avec ce plan : « Où on en est » disait encore l'
 
 - **Découpage : une seule PR**, web.7.19, étiquette `web-7.19` (décidé par l'utilisateur le 30 octobre 2026) ;
   `web-7.19.0` pour ce plan.
-- Les points retenus.
+- **Points retenus : les 7** (décidé par l'utilisateur le 30 octobre 2026).
 - Les points ouverts : (2) le dégradé (de 0 à 100 %, ou des paliers) ; (5) l'infobulle ; les fonctionnalités à
   prendre dans cette étape ou plus tard.
 
