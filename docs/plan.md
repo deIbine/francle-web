@@ -309,9 +309,10 @@ squash le 18 octobre 2026 sur l'accord de l'utilisateur, étiquettes `web-7.8` �
     de l'utilisateur, dans une seule PR, **fusionnée** (PR #58, étiquette `web-7.18`, commit `145cc72`).
   - **Les corrections relevées le 30 octobre 2026 (web.7.19)** : une nouvelle passe de bugs, d'interface et de
     fonctionnalités, faite à la demande de l'utilisateur sans rien modifier, puis notée ici à sa demande (section du
-    même nom plus bas). Plan par la PR web.7.19.0 (branche `web-7-19-0-plan`), étiquette `web-7.19.0` prévue après la
-    fusion. **Tout est décidé** le même jour (une seule PR, les 7 points, dégradé de 0 à 100 %, infobulle qui dit
-    pourquoi, fonctionnalités plus tard). Rien n'est commencé : le code attend le départ de l'utilisateur.
+    même nom plus bas). Plan fusionné (PR #59, étiquette `web-7.19.0`, commit `0361e89`). **Tout est décidé** le
+    même jour (une seule PR, les 7 points, dégradé de 0 à 100 %, infobulle qui dit pourquoi, fonctionnalités plus
+    tard). Les 7 points **codés le même jour**, sur le départ de l'utilisateur, dans une seule PR (branche
+    `web-7-19-corrections`), étiquette `web-7.19` prévue après la fusion.
   - **web.8** : **repoussé** le 18 octobre 2026 (pas de domaine acheté pour l'instant). Le découpage et ses onze
     questions ont été présentés le 17 octobre 2026 (voir « Le domaine et le défi (web.8) » plus bas) ; l'utilisateur
     n'y a pas encore répondu.
@@ -1065,6 +1066,35 @@ Noté en passant et corrigé avec ce plan : « Où on en est » disait encore l'
   corrections ; les idées nouvelles (compte à rebours sur la page, silhouette révélée en 🙈, partie libre
   « départements ») rejoignent les candidates des prochaines étapes.
 - Tout est décidé. Le code attend le signal de départ de l'utilisateur.
+
+### Ce qui a été fait (web.7.19, le 30 octobre 2026)
+
+Codé sur le départ de l'utilisateur (« tu peux lancer web.7.19 »), dans une seule PR :
+
+- (1) `panneau.ts` : le contexte `PanneauVisible`, donné par `App.tsx` à chaque onglet ; `Fenetre.tsx` n'appelle
+  `showModal()` que si son panneau est affiché, et s'ouvre au retour sur l'onglet. Vérifié dans le navigateur : la
+  réponse au bonus de la Guadeloupe, puis l'onglet « Partie du jour » dans la seconde : aucune fenêtre ouverte, la page
+  répond (`elementFromPoint` tombe bien sur « Abandonner ») ; de retour sur la partie libre, les résultats sont là.
+- (2) `domaine/partage.ts` : `DEBUT_DEGRADE` disparaît ; le dégradé va de 0 à 100 %, la luminosité de 78 à 28 %
+  (58 % et 90 % : 19 points d'écart). La légende dit « 0 % ». Vu dans le navigateur : un premier essai (luminosité de
+  88 à 28 %) donnait à 0 % un jaune presque blanc, confondu avec les régions non proposées ; le bas du dégradé a été
+  foncé (78 %).
+- (3) `Plateau.tsx` : la partie finie, la silhouette est montrée, à l'endroit, même en modes 🙈 et 🌀.
+- (4) `PartieLibre.tsx` : « Voir les résultats » dans le bilan (bouton bordé, « Nouvelle partie » restant le bouton
+  principal). Il devient aussi le repli du focus à la fermeture de la fenêtre (« Nouvelle partie » est caché pendant le
+  bonus).
+- (5) `textes.liste.aucune` : « Pas de liste pour cette question », titre du bouton liste quand il est grisé.
+- (6) `textes.resultat(partie, nom, libre)` remplace `fin` et `bilan.gagnee` : la même phrase dans le bilan et dans
+  la fenêtre (`FinDePartie` reçoit `libre` au lieu de `message`, et la ligne « La réponse : » à part disparaît).
+- (7) `Statistiques.tsx` : `role="img"` sur les barres.
+
+Vérifié : 336 tests (dont 5 nouveaux dans `Corrections.test.tsx` ; les tests qui citaient « Bravo, trouvé en… »,
+le « 50 % » de la légende et le nom du bouton grisé mis à jour), lint, types, build ; dans le navigateur intégré à
+375 × 812, en clair et en sombre : bug 1 (ci-dessus), carte de fin (0 %, 5 %, 32 %, 36 % de couleurs distinctes),
+silhouette révélée après abandon en modes 🙈 🌀, « Voir les résultats » en partie libre et focus rendu après Échap.
+Une des lectures du focus a d'abord donné `<body>`, puis les deux essais suivants ont donné « Voir les résultats » :
+pas reproduit, sans doute le panneau du navigateur pas au premier plan. Pas vérifié avec un vrai lecteur d'écran (7),
+ni sur un vrai téléphone.
 
 ## Les améliorations à reprendre (relevées le 16 octobre 2026)
 

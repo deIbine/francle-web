@@ -1,9 +1,9 @@
 /*
 Tous les textes de l'écran, en français et en anglais, réunis ici plutôt qu'éparpillés dans les composants.
 
-Les textes qui dépendent d'un nombre ou d'un nom sont des fonctions : « fin(partie) » donne « Bravo, trouvé en 3
-essais ! ». Le type Textes est celui de l'objet français : TypeScript refuse un objet anglais auquel il manquerait un
-texte, ou dont une fonction n'aurait pas les mêmes paramètres. Pas besoin de bibliothèque (Worldle utilisait
+Les textes qui dépendent d'un nombre ou d'un nom sont des fonctions : « resultat(partie, 'Bretagne') » donne
+« 🎉 Bretagne, trouvée en 3 essais ». Le type Textes est celui de l'objet français : TypeScript refuse un objet
+anglais auquel il manquerait un texte, ou dont une fonction n'aurait pas les mêmes paramètres. Pas besoin de bibliothèque (Worldle utilisait
 i18next) : deux langues et une centaine de textes tiennent dans un objet par langue.
 
 En français, l'espace avant « : ; ! ? % » et après « « » est insécable (\u00a0) : sur un écran étroit, la ponctuation
@@ -133,25 +133,19 @@ const fr = {
   oui: 'Oui',
   non: 'Non',
 
-  // le message de fin, selon l'état de la partie (« ce sera pour demain » n'a de sens que pour la partie du jour)
-  fin: (partie: Partie, libre = false) =>
+  // le résultat de la partie finie, la même phrase dans le bilan sous le plateau et dans la fenêtre des résultats
+  // (depuis web.7.19 : la fenêtre disait « Bravo, trouvé en 4 essais ! » quand le bilan disait « 🎉 …, trouvée en 4
+  // essais »). « Ce sera pour demain » n'a de sens que pour la partie du jour
+  resultat: (partie: Partie, nom: string, libre = false) =>
     partie.etat === 'gagnee'
       ? partie.essais.length === 1
-        ? 'Bravo, trouvé du premier coup\u00a0!'
-        : `Bravo, trouvé en ${partie.essais.length}\u00a0essais\u00a0!`
-      : partie.etat === 'perdue'
-        ? libre
-          ? 'Perdu\u00a0!'
-          : 'Perdu, ce sera pour demain.'
-        : 'Partie abandonnée.',
-  reponse: 'La réponse\u00a0:',
+        ? `🎉 ${nom}, trouvée du premier coup`
+        : // \u00a0 : « essais » ne tombe jamais seul sur la ligne suivante, loin de son nombre
+          `🎉 ${nom}, trouvée en ${partie.essais.length}\u00a0essais`
+      : (partie.etat === 'perdue' ? (libre ? 'Perdu\u00a0!' : 'Perdu, ce sera pour demain.') : 'Partie abandonnée.') +
+        ` La réponse\u00a0: ${nom}`,
   // le bilan sous le plateau, une fois la partie finie (depuis web.7.16.4) : un seul bloc, au lieu de phrases répétées
-  bilan: {
-    titre: 'Résumé de la partie',
-    gagnee: (nom: string, essais: number) =>
-      // \u00a0 : « essais » ne tombe jamais seul sur la ligne suivante, loin de son nombre
-      essais === 1 ? `🎉 ${nom}, trouvée du premier coup` : `🎉 ${nom}, trouvée en ${essais}\u00a0essais`,
-  },
+  bilan: { titre: 'Résumé de la partie' },
   // la carte de fin, pour un lecteur d'écran : la réponse, puis chaque essai avec son numéro et sa proximité
   carte: (nom: string, essais: readonly EssaiCarte[]) =>
     `Carte de France, la région ${nom} en bleu` +
@@ -178,6 +172,8 @@ const fr = {
   liste: {
     titre: 'Liste des régions',
     ouvrir: 'Voir la liste des régions',
+    // le bouton grisé (bonus sans liste) : pourquoi il ne s'ouvre pas (depuis web.7.19)
+    aucune: 'Pas de liste pour cette question',
     aide: 'Clique sur une région pour la proposer.',
     finie: 'La partie est finie.',
     dejaProposee: 'déjà proposée',
@@ -369,22 +365,14 @@ const en: Textes = {
   oui: 'Yes',
   non: 'No',
 
-  fin: (partie: Partie, libre = false) =>
+  resultat: (partie: Partie, nom: string, libre = false) =>
     partie.etat === 'gagnee'
       ? partie.essais.length === 1
-        ? 'Well done, first try!'
-        : `Well done, found in ${partie.essais.length}\u00a0tries!`
-      : partie.etat === 'perdue'
-        ? libre
-          ? 'Lost!'
-          : 'Lost. Try again tomorrow.'
-        : 'Game abandoned.',
-  reponse: 'The answer:',
-  bilan: {
-    titre: 'Game summary',
-    gagnee: (nom: string, essais: number) =>
-      essais === 1 ? `🎉 ${nom}, found on the first try` : `🎉 ${nom}, found in ${essais}\u00a0tries`,
-  },
+        ? `🎉 ${nom}, found on the first try`
+        : `🎉 ${nom}, found in ${partie.essais.length}\u00a0tries`
+      : (partie.etat === 'perdue' ? (libre ? 'Lost!' : 'Lost. Try again tomorrow.') : 'Game abandoned.') +
+        ` The answer: ${nom}`,
+  bilan: { titre: 'Game summary' },
   carte: (nom: string, essais: readonly EssaiCarte[]) =>
     `Map of France, the region ${nom} in blue` +
     (essais.length === 0 ? '' : `. Your guesses: ${essais.map((e) => `${e.numero} ${e.nom}, ${e.proximite}%`).join('; ')}`),
@@ -407,6 +395,7 @@ const en: Textes = {
   liste: {
     titre: 'List of regions',
     ouvrir: 'See the list of regions',
+    aucune: 'No list for this question',
     aide: 'Click a region to guess it.',
     finie: 'The game is over.',
     dejaProposee: 'already guessed',

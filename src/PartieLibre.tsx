@@ -52,8 +52,9 @@ export function PartieLibre({ reglages, demandeListe, onListe }: Props) {
   const bonus = bonusGarde && avecDifficulte(bonusGarde, reglages.departementsDifficiles)
   const [focusBonus, setFocusBonus] = useState(false)
   const pause = usePause(() => setFenetre(true))
-  // « Nouvelle partie », où revient le focus quand la fenêtre se ferme et que le bouton qui l'avait a disparu
-  const boutonNouvelle = useRef<HTMLButtonElement>(null)
+  // « Voir les résultats », où revient le focus quand la fenêtre se ferme et que le bouton qui l'avait a disparu
+  // (« Nouvelle partie » jusqu'à web.7.19, mais il est caché pendant le bonus ; celui-ci est toujours là)
+  const boutonResultats = useRef<HTMLButtonElement>(null)
   const listeAuBonus = bonus !== undefined && avecListe(bonus)
   useSignalerListe(listeOuverte(bonus), onListe)
 
@@ -94,6 +95,12 @@ export function PartieLibre({ reglages, demandeListe, onListe }: Props) {
     setBonus(undefined)
     // une pause en cours ouvrirait les résultats de la partie d'avant
     pause.annuler()
+  }
+
+  // le joueur rouvre les résultats lui-même : la pause en cours, s'il y en a une, n'a plus à les ouvrir
+  function ouvrirFenetre() {
+    pause.annuler()
+    setFenetre(true)
   }
 
   // changer d'époque perd la partie en cours : on demande confirmation dès qu'un essai a été joué, et pendant le bonus
@@ -166,10 +173,19 @@ export function PartieLibre({ reglages, demandeListe, onListe }: Props) {
         listeAuBonus={listeAuBonus}
         fin={
           <Bilan partie={partie} libre bonus={bonus}>
+            {/* revoir la carte de fin une fois la fenêtre fermée (depuis web.7.19), comme en partie du jour. Un bouton
+                secondaire (bordé) : la suite naturelle, ici, c'est « Nouvelle partie » */}
+            <button
+              ref={boutonResultats}
+              type="button"
+              onClick={ouvrirFenetre}
+              className="rounded border border-bord px-4 py-2 font-semibold hover:bg-fond"
+            >
+              {textes.voirResultats}
+            </button>
             {/* caché pendant le bonus : un clic le perdrait sans prévenir. « Passer » sert à en sortir */}
             {(bonus === undefined || !bonusEnCours(bonus)) && (
               <button
-                ref={boutonNouvelle}
                 type="button"
                 onClick={() => recommencer(mode)}
                 className="rounded bg-francle-fonce px-4 py-2 font-semibold text-white hover:opacity-90"
@@ -184,9 +200,9 @@ export function PartieLibre({ reglages, demandeListe, onListe }: Props) {
         }
       />
 
-      <Fenetre ouverte={fenetre} onFermer={() => setFenetre(false)} titre={textes.resultats} repli={boutonNouvelle}>
+      <Fenetre ouverte={fenetre} onFermer={() => setFenetre(false)} titre={textes.resultats} repli={boutonResultats}>
         {!enCours(partie) && (
-          <FinDePartie partie={partie} message={textes.fin(partie, true)} bonus={bonus}>
+          <FinDePartie partie={partie} libre bonus={bonus}>
             <button
               type="button"
               onClick={() => recommencer(mode)}

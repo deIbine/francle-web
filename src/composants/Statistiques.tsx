@@ -34,7 +34,11 @@ export function Statistiques({ stats, dernier }: { stats: Stats; dernier?: numbe
           {stats.repartition.map((nombre, index) => (
             <li key={index} className="flex items-center gap-2">
               <span className="w-3 tabular-nums">{index + 1}</span>
+              {/* role="img" : un aria-label n'est sûr d'être lu que sur un élément qui a un rôle ; un <span> n'en a pas,
+                  et certains lecteurs d'écran l'ignoraient (web.7.19). La barre est une petite image, et son nom la
+                  décrit en entier */}
               <span
+                role="img"
                 aria-label={textes.stats.barre(index + 1, nombre)}
                 // la largeur dépend des données : un style calculé, que Tailwind ne peut pas connaître d'avance
                 style={{ width: `${Math.max(8, (nombre * 100) / plusGrande)}%` }}

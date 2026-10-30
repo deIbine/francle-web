@@ -99,7 +99,15 @@ export function Plateau({ partie, onChanger, modes, angle, unite, fin, demandeLi
 
   return (
     <>
-      {bonus ?? <Silhouette region={partie.cible} angle={modes.rotation ? angle : 0} cachee={modes.cachee} />}
+      {/* la partie finie, la vraie silhouette, à l'endroit (depuis web.7.19) : en mode 🙈, le joueur perdant ne l'avait
+          jamais vue, et en mode 🌀 elle restait tournée */}
+      {bonus ?? (
+        <Silhouette
+          region={partie.cible}
+          angle={modes.rotation && enCours(partie) ? angle : 0}
+          cachee={modes.cachee && enCours(partie)}
+        />
+      )}
 
       {enCours(partie) ? (
         <>

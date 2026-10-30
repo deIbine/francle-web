@@ -82,7 +82,7 @@ describe('Le jeu en anglais', () => {
     await proposer(joueur, CIBLE.nom.en)
     await joueur.click(within(panneau()).getByRole('button', { name: 'See results' }))
     const resultats = screen.getByRole('dialog', { name: 'Results' })
-    expect(within(resultats).getByText('Well done, found in 2 tries!')).toBeDefined()
+    expect(within(resultats).getByText(`🎉 ${CIBLE.nom.en}, found in 2 tries`)).toBeDefined()
     await joueur.click(within(resultats).getByRole('button', { name: /Share/ }))
     expect((await navigator.clipboard.readText()).split('\n')[0]).toBe('#Francle #2 2/6')
   })

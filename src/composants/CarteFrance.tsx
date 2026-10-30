@@ -7,7 +7,7 @@ outils/generer_images.py, donne le contour de chaque région : le composant les 
 réponse et les essais. C'est l'avantage d'un SVG écrit dans la page : chaque région est un élément qu'on peut styler.
  */
 import { centreDeGravite } from '../contours.ts'
-import { couleurProximite, DEBUT_DEGRADE } from '../domaine/partage.ts'
+import { couleurProximite } from '../domaine/partage.ts'
 import type { Partie } from '../domaine/partie.ts'
 import type { Mode } from '../domaine/regions.ts'
 import { useLangue, useTextes } from '../textes.ts'
@@ -27,7 +27,7 @@ const CARTES: Record<Mode, Carte> = { anciennes, nouvelles }
 const RAYON = 26
 
 // les couleurs de la légende : quelques étapes du dégradé suffisent, le navigateur fond les couleurs entre elles
-const ETAPES = [0, 0.25, 0.5, 0.75, 1].map((t) => DEBUT_DEGRADE + t * (100 - DEBUT_DEGRADE))
+const ETAPES = [0, 25, 50, 75, 100]
 const DEGRADE = `linear-gradient(to right, ${ETAPES.map(couleurProximite).join(', ')})`
 
 type Encadre = Carte['encadres'][number]
@@ -141,8 +141,8 @@ export function CarteFrance({ partie }: { partie: Partie }) {
       {autresEssais && (
         <figcaption aria-hidden="true" className="flex items-center gap-2 text-xs text-discret">
           <span>{textes.legende.proximite}</span>
-          {/* le dégradé commence à 50 % (DEBUT_DEGRADE) : en dessous, la même couleur que 50 % */}
-          <span>{textes.pourcentage(DEBUT_DEGRADE)}</span>
+          {/* le dégradé va de 0 à 100 % (depuis web.7.19 ; il commençait à 50 %) */}
+          <span>{textes.pourcentage(0)}</span>
           <span className="h-2.5 flex-1 rounded-sm" style={{ background: DEGRADE }} />
           <span>{textes.pourcentage(99)}</span>
           <span className="ml-1 size-2.5 rounded-sm bg-francle-fonce" />

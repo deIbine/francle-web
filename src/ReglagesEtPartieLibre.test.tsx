@@ -127,7 +127,7 @@ describe('La partie libre', () => {
     // une victoire lance le bonus ; « Passer » avant toute réponse ouvre les résultats
     await joueur.click(within(panneau()).getByRole('button', { name: 'Passer' }))
     const resultats = screen.getByRole('dialog', { name: 'Résultats' })
-    expect(within(resultats).getByText('Bravo, trouvé du premier coup !')).toBeDefined()
+    expect(within(resultats).getByText(`🎉 ${cible.nom.fr}, trouvée du premier coup`)).toBeDefined()
     // ni partage ni compte à rebours en partie libre
     expect(within(resultats).queryByRole('button', { name: /Partager/ })).toBeNull()
     await joueur.click(within(resultats).getByRole('button', { name: 'Nouvelle partie' }))
@@ -162,8 +162,9 @@ describe('La partie libre', () => {
     ).toBeDefined()
     expect(within(panneau()).queryAllByRole('row').filter((ligne) => ligne.closest('tbody'))).toHaveLength(0)
     await proposer(joueur, cible.nom.fr)
-    // le bilan de la victoire, sous le bonus qui vient de commencer
-    expect(within(panneau()).getByText(`🎉 ${cible.nom.fr}, trouvée du premier coup`)).toBeDefined()
+    // le bilan de la victoire, sous le bonus qui vient de commencer (la fenêtre des résultats, fermée, a la même phrase)
+    const bilan = within(panneau()).getByRole('region', { name: 'Résumé de la partie' })
+    expect(within(bilan).getByText(`🎉 ${cible.nom.fr}, trouvée du premier coup`)).toBeDefined()
   })
 
   it('changer d’époque pendant une partie commencée demande confirmation', async () => {
@@ -199,7 +200,8 @@ describe('La partie libre', () => {
     for (const region of tirables('nouvelles').filter((r) => r !== cible).slice(0, 6)) {
       await proposer(joueur, region.nom.fr)
     }
-    expect(within(screen.getByRole('dialog', { name: 'Résultats' })).getByText('Perdu !')).toBeDefined()
+    const resultats = screen.getByRole('dialog', { name: 'Résultats' })
+    expect(within(resultats).getByText(`Perdu ! La réponse : ${cible.nom.fr}`)).toBeDefined()
   })
 
   it('les onglets se parcourent au clavier avec les flèches', async () => {

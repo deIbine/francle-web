@@ -207,8 +207,9 @@ describe('La liste des départements, partie libre', () => {
     const { joueur } = await gagnerLibre('guadeloupe')
     expect(await within(panneau()).findByText(/numéro de la Guadeloupe/, {}, { timeout: 5000 })).toBeDefined()
     expect(screen.queryByRole('button', { name: 'Voir la liste des départements' })).toBeNull()
-    // depuis web.7.18 : grisé, plutôt qu'ouvrir la liste des régions, toute grisée puisque la partie est gagnée
-    const bouton = screen.getByRole('button', { name: 'Voir la liste des régions' })
+    // depuis web.7.18 : grisé, plutôt qu'ouvrir la liste des régions, toute grisée puisque la partie est gagnée ;
+    // depuis web.7.19, son infobulle (et son nom) dit pourquoi
+    const bouton = screen.getByRole('button', { name: 'Pas de liste pour cette question' })
     expect((bouton as HTMLButtonElement).disabled).toBe(true)
     await joueur.click(bouton)
     expect(listeRegions()).toBeNull()

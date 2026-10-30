@@ -1647,3 +1647,61 @@ commandes), **comment le penser** (la question à se poser la prochaine fois).
   cadre prend maintenant 256.
 - **Comment le penser** : pour un réglage de mise en page, mesurer d'abord dans le vrai navigateur, puis choisir la
   plus petite modification qui suffit. Et réserver d'avance la place de ce qui arrive plus tard, pour que rien ne saute.
+
+## web.7.19 Les corrections du 30 octobre 2026
+
+### Une fenêtre modale dans un onglet caché
+
+- **Pourquoi** : la page entière se bloquait si l'on changeait d'onglet pendant la pause d'une seconde et demie avant
+  les résultats du bonus. `showModal()` rend tout le reste de la page **inerte** (plus aucun clic), mais une fenêtre
+  posée dans un parent `hidden` ne s'affiche pas : on avait donc une page bloquée par une fenêtre invisible.
+- **Comment le faire** : pour reproduire, se demander « et si l'écran change pendant la minuterie ? », puis le faire.
+  Pour voir ce qui « mange » les clics : `document.elementFromPoint(x, y)` au centre d'un bouton ; s'il ne renvoie
+  pas le bouton, quelque chose est par-dessus (ou la page est inerte). Le correctif : un **contexte React**
+  (`PanneauVisible`, dans `panneau.ts`) que `App` donne à chaque onglet, et que `Fenetre` lit. La fenêtre n'appelle
+  `showModal()` que si son panneau est affiché ; comme « visible » fait partie des dépendances de l'effet, elle
+  s'ouvre d'elle-même au retour sur l'onglet. Un contexte plutôt qu'une prop : les fenêtres sont plusieurs niveaux
+  plus bas (plateau, bonus), et il aurait fallu faire passer la prop par chacun. C'est un peu comme une variable
+  partagée par tout un arbre de composants Swing, sans la passer à chaque constructeur.
+- **Comment le penser** : une action **différée** (minuterie, réponse du réseau) arrive dans un monde qui a pu changer.
+  Avant de la lancer, se demander quelles conditions elle suppose (« l'onglet est affiché ») et qui les vérifie au
+  moment où elle arrive.
+
+### Une règle vérifiée sur une seule partie
+
+- **Pourquoi** : à web.7.16, le dégradé de la carte de fin commençait à 50 %, parce qu'« en pratique, la proximité
+  dépasse presque toujours 50 % ». C'était vrai pour la partie regardée (la Martinique), faux en général : mesuré sur
+  toutes les paires de régions, 90 sur 156 sont sous 50 % pour une réponse en métropole. La plupart des essais avaient
+  donc le même jaune.
+- **Comment le faire** : importer le module dans la console du navigateur
+  (`await import('/francle-web/src/domaine/geographie.ts')`) et calculer la règle sur **tous** les cas. Puis regarder
+  le résultat à l'écran : le premier dégradé de 0 à 100 % donnait à 0 % un jaune presque blanc, que l'œil confondait
+  avec les régions non proposées. Les tests ne le voyaient pas (ils vérifiaient seulement que les couleurs étaient
+  différentes) ; le bas du dégradé a été foncé (luminosité 78 % au lieu de 88 %).
+- **Comment le penser** : « presque toujours » demande un compte. Et une couleur se juge **à côté de ses voisines**
+  (le fond, les autres régions), pas seule : un test peut dire que deux couleurs diffèrent, pas qu'on les distingue.
+
+### Une seule phrase, une seule source
+
+- **Pourquoi** : la fenêtre disait « Bravo, trouvé en 4 essais ! » quand le bilan, juste dessous, disait « 🎉
+  Auvergne-Rhône-Alpes, trouvée en 4 essais ». Deux textes pour dire la même chose finissent par diverger (ici, même
+  l'accord de « trouvé »).
+- **Comment le faire** : une seule fonction, `textes.resultat(partie, nom, libre)`, appelée par `Bilan` et par
+  `FinDePartie`. TypeScript a ensuite montré tous les endroits qui utilisaient les anciens textes (`fin`,
+  `bilan.gagnee`) : on supprime l'ancien, et on corrige ce que le compilateur signale. Piège rencontré dans les tests :
+  la fenêtre fermée reste dans la page (un `<dialog>` fermé est caché, pas retiré), donc `getByText` trouvait
+  maintenant la phrase **deux fois** dans le panneau. Le test cherche d'abord le bilan (`getByRole('region')`), puis la
+  phrase dedans.
+- **Comment le penser** : quand deux endroits doivent dire la même chose, les faire lire à la même source, comme une
+  constante partagée en Java plutôt que deux chaînes recopiées.
+
+### Un nom accessible a besoin d'un rôle
+
+- **Pourquoi** : les barres des statistiques avaient un `aria-label` sur un `<span>`. Un `<span>` n'a pas de rôle
+  (c'est un « générique ») : les règles ARIA interdisent d'y nommer quoi que ce soit, et certains lecteurs d'écran
+  ignorent ce nom.
+- **Comment le faire** : `role="img"` dit « ceci est une petite image », et son `aria-label` la décrit en entier
+  (« 3 victoires en 4 essais »). Le test le vérifie en cherchant ces barres par leur rôle
+  (`getAllByRole('img', { name: /victoire/ })`).
+- **Comment le penser** : `aria-label` nomme un élément ; encore faut-il que l'élément soit **quelque chose** pour le
+  lecteur d'écran (un bouton, une image, une région). Se demander : « quel est le rôle de cet élément ? ».
