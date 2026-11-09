@@ -1783,3 +1783,28 @@ commandes), **comment le penser** (la question à se poser la prochaine fois).
   expression régulière, plus souple), qui montrait l'élément.
 - **Comment le penser** : quand une recherche exacte échoue sur un texte visible, la chercher en plus souple pour voir
   ce qui diffère. La différence est souvent invisible : une espace, une apostrophe courbe, un accent.
+
+## web.7.21 La vérification dans un vrai navigateur
+
+### Ce qu'un faux navigateur ne peut pas voir
+
+- **Pourquoi** : les tests lancent axe dans jsdom, qui construit la page sans jamais la dessiner. axe n'y mesure donc ni
+  les contrastes (il faut les couleurs réellement peintes) ni ce qui est visible (la règle du bouton « EN » de
+  web.7.20). Ces défauts passaient inaperçus.
+- **Comment le faire** : `npm run verifier:navigateur`. Le script `outils/verifier-navigateur.ts` construit le site,
+  le sert en local (`preview` de Vite, appelé depuis le code), ouvre **Edge** par Playwright (`channel: 'msedge'` :
+  le navigateur déjà installé sur Windows, pas de téléchargement), joue une partie à 375 pixels, et injecte axe dans
+  chaque écran (`page.addScriptTag`). Le thème sombre s'obtient sans toucher aux réglages : `colorScheme: 'dark'`
+  imite le choix du système, que le jeu suit par défaut. La région du jour vient du code du jeu lui-même
+  (`import { regionDuJour } from '../src/domaine/regionDuJour.ts'`) : Node lit le TypeScript directement, en
+  effaçant les types.
+- **Éprouver l'outil** : le bug du bouton de langue remis à la main (`aria-label`), le script échoue bien sur quatre
+  écrans, avec la règle et l'élément fautif. Sans cet essai, « 0 problème » ne prouvait rien.
+- **Pièges vus en route** : dans Playwright, `getByRole('button', { name: 'EN' })` cherche une **partie** du nom, et
+  trouvait aussi « Comment jouer » (« Comm**en**t ») : `exact: true`. Et le code passé à `page.evaluate` s'exécute
+  dans la page, mais il est vérifié par TypeScript comme du code Node, sans `window` ni `document` : on décrit à la
+  main le peu qu'il utilise.
+- **Comment le penser** : chaque outil de vérification a un angle mort ; se demander « qu'est-ce que celui-ci ne peut
+  pas voir ? », et le couvrir par un autre. Ici, jsdom pour la logique (rapide, à chaque PR), un vrai navigateur pour
+  ce qui se voit (plus lent, à la main avant une PR d'affichage). axe, même dans un vrai navigateur, ne mesure que le
+  contraste du **texte** : celui d'un contrôle (bouton radio, case) se calcule encore à la main (web.7.20).

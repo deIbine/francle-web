@@ -36,7 +36,12 @@ npm run dev       # le jeu en local : http://localhost:5173/francle-web/
 npm test          # les tests (Vitest)
 npm run lint      # la vérification du code (oxlint)
 npm run build     # le site prêt à publier, dans dist/
+npm run verifier:navigateur   # l'accessibilité (axe) dans un vrai navigateur, en clair et en sombre
 ```
+
+`verifier:navigateur` (`outils/verifier-navigateur.ts`) joue une partie dans Edge ou Chrome, déjà installés, et
+vérifie chaque écran avec axe, contrastes compris, ce que les tests ne peuvent pas faire. Il se lance à la main, pas
+dans la CI. Sans Edge ni Chrome : `npx playwright install chromium`.
 
 Chaque fusion dans `main` publie le site sur GitHub Pages (`.github/workflows/ci.yml`).
 
@@ -50,7 +55,7 @@ Chaque fusion dans `main` publie le site sur GitHub Pages (`.github/workflows/ci
 | `src/textes.ts` | Tous les textes, en français et en anglais. |
 | `src/sauvegarde.ts`, `src/reglages.ts` | Ce qui est gardé dans le navigateur. |
 | `src/images/` | Les silhouettes (SVG), les contours des cartes et ceux des départements, produits par `outils/generer_images.py`. |
-| `outils/` | Le script des images. |
+| `outils/` | Le script des images, et la vérification dans un vrai navigateur. |
 | `docs/plan.md`, `docs/lecons.md` | Le plan du projet et les leçons apprises à chaque étape. |
 
 ### Les images

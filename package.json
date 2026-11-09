@@ -9,7 +9,8 @@
     "lint": "oxlint",
     "test": "vitest run",
     "test:watch": "vitest",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "verifier:navigateur": "vite build && node outils/verifier-navigateur.ts"
   },
   "dependencies": {
     "react": "^19.3.0",
@@ -27,6 +28,7 @@
     "axe-core": "^4.14.0",
     "jsdom": "^30.1.2",
     "oxlint": "^1.88.0",
+    "playwright": "^1.65.0",
     "tailwindcss": "^4.3.3",
     "typescript": "~6.0.2",
     "vite": "^8.3.4",
