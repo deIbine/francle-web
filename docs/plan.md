@@ -333,14 +333,21 @@ squash le 18 octobre 2026 sur l'accord de l'utilisateur, étiquettes `web-7.8` �
     PR de plan `web.X.0`, décisions une par une, code sur le départ de l'utilisateur, une seule PR).
   - **Les corrections relevées le 9 novembre 2026 (web.7.20)** : une nouvelle passe de bugs, de tests et d'interface,
     faite depuis le cloud à la demande de l'utilisateur sans rien modifier, puis notée ici à sa demande (section du même
-    nom plus bas). **Tout sera fait** (décidé par l'utilisateur le 9 novembre 2026), **mais plus tard, dans une session
-    sur le PC**. **Tout est décidé** le 9 novembre 2026, sur le PC (toutes les recommandations acceptées, voir « À
-    décider » dans la section), et **lancé** le même jour par l'utilisateur (« Tu peux commencer »). **Codé le même
-    jour**, en trois PR empilées : #63 (web.7.20.0.1, ces notes), #64 (web.7.20, les points 1 à 8), web.7.21 (le
-    point 9). **En attente de l'accord de l'utilisateur pour fusionner**, dans l'ordre (rebaser chaque branche sur
-    `main`, comparer les arbres, changer la base en `main`, CI, fusion), puis étiquettes `web-7.20` et `web-7.21`.
+    nom plus bas). **Tout est décidé** le 9 novembre 2026, sur le PC (toutes les recommandations acceptées, voir « À
+    décider » dans la section), **lancé** le même jour par l'utilisateur (« Tu peux commencer »), **codé et en ligne**
+    le même jour. Trois PR empilées, fusionnées en squash le 9 novembre 2026 sur l'accord de l'utilisateur (« Tu peux
+    fusionner, étiqueter, supprimer »), dans l'ordre : chaque branche rebasée sur `main`
+    (`git rebase --onto origin/main <ancienne base> <branche>`, arbre identique avant et après), base de la PR changée
+    en `main`, fusion (`--admin` : la CI avait déjà validé ces mêmes arbres). #63 (web.7.20.0.1, `bb581d9`, sans
+    étiquette), #64 (web.7.20, étiquette `web-7.20`, `76baa0e`), #65 (web.7.21, étiquette `web-7.21`, `27828b5`). Les
+    trois branches supprimées en local et sur GitHub, après avoir vérifié que l'arbre de `main` était celui de la
+    dernière. 340 tests ; `npm run verifier:navigateur` : 20 écrans, 0 problème. Ces notes : PR web.7.21.1, sans
+    étiquette.
   - **Encore à vérifier par l'utilisateur, en jouant** : web.7.20 sur un vrai téléphone (fenêtre des résultats, la
     confirmation de « Passer »).
+  - **Après web.7.21, la prochaine étape est à choisir avec l'utilisateur**, parmi les mêmes candidates qu'après
+    web.7.19 (ci-dessus) ; web.8 reste repoussé. Sous PowerShell, `npm` est bloqué par la stratégie d'exécution de
+    Windows (`npm.ps1`) : taper `npm.cmd`, ou passer par cmd ou Git Bash.
   - **web.8** : **repoussé** le 18 octobre 2026 (pas de domaine acheté pour l'instant). Le découpage et ses onze
     questions ont été présentés le 17 octobre 2026 (voir « Le domaine et le défi (web.8) » plus bas) ; l'utilisateur
     n'y a pas encore répondu.
