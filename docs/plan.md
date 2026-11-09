@@ -95,7 +95,7 @@ l'autre, et le web n'a plus à rester égal au Java.
 8. **web.8 Le domaine et le défi** (ancien web.7, renuméroté le 16 octobre 2026) : d'abord le nom de domaine, puis le défi (un lien à envoyer à un ami pour lui
    faire deviner une région). Pas d'archives des jours passés (décidé avant web.4).
 
-## Où on en est (mis à jour le 30 octobre 2026)
+## Où on en est (mis à jour le 9 novembre 2026)
 
 ### À faire sur le PC (liste vide depuis le 23 octobre 2026)
 
@@ -322,6 +322,11 @@ squash le 18 octobre 2026 sur l'accord de l'utilisateur, étiquettes `web-7.8` �
     « départements »), le défi seul (web.8.1), les silhouettes sans limites de départements ; web.8 reste repoussé.
     Pour une nouvelle passe d'analyse, suivre la même méthode que web.7.18 et web.7.19 (analyse sans rien modifier,
     PR de plan `web.X.0`, décisions une par une, code sur le départ de l'utilisateur, une seule PR).
+  - **Les corrections relevées le 9 novembre 2026 (web.7.20)** : une nouvelle passe de bugs, de tests et d'interface,
+    faite depuis le cloud à la demande de l'utilisateur sans rien modifier, puis notée ici à sa demande (section du même
+    nom plus bas). **Tout sera fait** (décidé par l'utilisateur le 9 novembre 2026), **mais plus tard, dans une session
+    sur le PC**. À la reprise : relire la section, poser les deux questions encore ouvertes (point 5 et découpage), puis
+    **attendre le signal de départ** de l'utilisateur (règle de `CLAUDE.md`).
   - **web.8** : **repoussé** le 18 octobre 2026 (pas de domaine acheté pour l'instant). Le découpage et ses onze
     questions ont été présentés le 17 octobre 2026 (voir « Le domaine et le défi (web.8) » plus bas) ; l'utilisateur
     n'y a pas encore répondu.
@@ -1104,6 +1109,68 @@ silhouette révélée après abandon en modes 🙈 🌀, « Voir les résultats 
 Une des lectures du focus a d'abord donné `<body>`, puis les deux essais suivants ont donné « Voir les résultats » :
 pas reproduit, sans doute le panneau du navigateur pas au premier plan. Pas vérifié avec un vrai lecteur d'écran (7),
 ni sur un vrai téléphone.
+
+## Les corrections relevées le 9 novembre 2026 (web.7.20)
+
+Demandé par l'utilisateur le 9 novembre 2026 : « une passe de vérif de bug, de tests et d'amélioration simple comme de
+l'interface », avec un rapport avant de commencer quoi que ce soit. Le jeu a été vérifié **sans rien modifier**, depuis
+le cloud : lint, build et tests (**336 sur 336**, 18 s, aucun avertissement dans la sortie) ; le code relu (App, les
+deux parties, plateau, saisie, fenêtres, bonus, partage, sauvegarde, réglages, statistiques) ; une partie du jour
+(Corse, gagnée en 3 essais, bonus 2 sur 2, partage copié) et des parties libres (anglais et sombre avec les anciennes
+régions ; modes 🌀 + 🙈 jusqu'à l'abandon) jouées dans Chromium piloté par un script Playwright, à 375 × 812 puis en
+taille ordinateur. Les points déjà notés ailleurs (Open Graph, `theme-color`, limites des départements dans les
+silhouettes…) ne sont pas repris.
+
+Vérifié et sans défaut : les noms des régions de chaque époque (18 actuelles, 27 anciennes), en français et en anglais (90 noms), et 5 variantes de chacun (minuscules, sans accents,
+espaces au lieu des tirets, espaces autour, apostrophe courbe), donnent tous la bonne région avec `deviner()` ; aucune
+carte de département n'est chargée avant la victoire (rien ne trahit la réponse dans l'onglet Réseau) ; le focus revient
+bien sur « Voir les résultats » après Échap ; la silhouette est révélée, à l'endroit, après un abandon en 🌀 + 🙈.
+
+### Les bugs
+
+| # | Problème | Pour le reproduire | Cause |
+|---|---|---|---|
+| 1 | Un second clic sur « Partager » dans les 3 s : le message disparaît trop tôt, et un lecteur d'écran ne l'annonce pas une seconde fois | Cliquer sur « Partager », puis encore 2,5 s plus tard : « Résultat copié » s'efface 0,4 s après le second clic (mesuré) | `Partager.tsx` remet le même texte dans l'état : React ne voit aucun changement, l'effet (la minuterie) ne repart pas |
+| 2 | Le bouton FR / EN de l'en-tête s'appelle « Switch to English » pour les lecteurs d'écran : le texte visible « EN » n'est pas dans ce nom, et une commande vocale (« clique sur EN ») ne le trouve pas | axe dans le vrai navigateur, règle `label-content-name-mismatch` (« serious »), en clair et en sombre | `aria-label` remplace le texte visible (`App.tsx`). La règle est « expérimentale » dans axe : les tests ne la lancent pas |
+
+### Les soucis d'interface
+
+| # | Problème | Piste |
+|---|---|---|
+| 3 | « Passer » le bonus n'a pas de confirmation, alors qu'après une réponse il clôt le bonus pour de bon (score figé dans le partage et les statistiques) ; « Abandonner » demande, lui, « Oui / Non » | La même confirmation, seulement après au moins une réponse (avant, « Passer » ne perd rien : le bonus reste à jouer) |
+| 4 | Thème sombre : les boutons radio de l'époque (partie libre) en bleu foncé (`accent-francle-fonce`, `#3a4bc4`) sur le fond sombre (`#111827`) : contraste de **2,5:1**, sous les 3:1 demandés pour un contrôle | `dark:accent-francle-clair` |
+| 5 | « Comment jouer » en anglais montre « 251 km » alors que le jeu en anglais est en miles par défaut. Voulu (commentaire dans `Aide.tsx`), mais depuis web.7.18 la superficie suit l'unité | **À décider** : l'exemple suit l'unité affichée (recommandé : le joueur lit alors la même unité que dans son tableau), ou garde km |
+| 6 | Fenêtre des résultats, à 375 pixels : « Prochaine région dans » passe sur trois lignes, à côté de « Partager » (`grid-cols-2`, `PartieDuJour.tsx`) | Le texte sur une ligne au-dessus du compte à rebours, ou un texte plus court |
+| 7 | Un vide d'environ 60 pixels entre la saisie et le tableau : la ligne réservée au message (`min-h-5`, `Message.tsx`) plus deux espacements (`gap-4`) | Détail : réduire un des espacements, en gardant la ligne réservée (sinon la page sauterait à chaque message) |
+
+### Les tests
+
+- Rien d'instable, pas de bruit. Le trou : axe tourne dans jsdom (`Accessibilite.test.tsx`), qui ne calcule pas les
+  contrastes et ne lance pas les règles expérimentales ; d'où les points 2 et 4, passés inaperçus.
+- (8) Activer `label-content-name-mismatch` dans `Accessibilite.test.tsx` (option `rules` d'axe), et ajouter un test
+  pour le bug 1 (second clic : le message reste 3 s après lui).
+- (9) Un script de vérification dans un vrai navigateur (Playwright, comme cette passe) : axe avec les contrastes, en
+  clair et en sombre, sur les principaux écrans (partie en cours, bilan, résultats, réglages, partie libre). Plus lourd :
+  dire où il vit (`outils/` ?) et s'il tourne dans la CI ou à la main.
+
+### Comment ils ont été trouvés
+
+- (1) Cliquer deux fois et mesurer le temps d'affichage. La question à se poser : « si je donne à React la même
+  valeur, que se passe-t-il ? » Rien : un état inchangé ne relance ni affichage ni effet.
+- (2, 4) axe-core injecté dans la vraie page (`page.addScriptTag({ path: 'node_modules/axe-core/axe.min.js' })`),
+  plutôt que dans jsdom ; pour le 4, le rapport de luminance des deux couleurs, calculé à la main (axe ne mesure que le
+  texte).
+- (3) Chercher chaque action qui perd quelque chose (`passer(`, `abandonner(`) et vérifier qu'elles se protègent
+  toutes de la même façon (la méthode de web.7.18).
+
+### À décider
+
+- **Points retenus : tous**, de 1 à 9 (décidé par l'utilisateur le 9 novembre 2026), **à faire plus tard, dans une
+  session sur le PC**.
+- **(5)** L'exemple de « Comment jouer » suit-il l'unité ? Recommandé : oui. À poser à la reprise.
+- **Découpage** : proposé comme web.7.18 et web.7.19, une seule PR de code (web.7.20, étiquette `web-7.20`) ;
+  `web-7.20.0` pour ce plan. Le point 9 pourrait faire une PR à part (web.7.21) s'il grossit. À confirmer à la reprise.
+- Le code attend le signal de départ de l'utilisateur.
 
 ## Les améliorations à reprendre (relevées le 16 octobre 2026)
 
