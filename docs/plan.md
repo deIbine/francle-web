@@ -97,20 +97,31 @@ l'autre, et le web n'a plus à rester égal au Java.
 
 ## Où on en est (mis à jour le 9 novembre 2026)
 
-### À faire sur le PC (liste vide depuis le 23 octobre 2026)
+### À faire sur le PC (deux lignes depuis le 9 novembre 2026)
 
 Depuis le 19 octobre 2026, le travail se fait aussi **dans le cloud** (Claude Code sur le web, sans le PC). Là-bas,
 Claude peut coder, tester, ouvrir et fusionner les PR (le site est alors publié comme d'habitude), mais **ni poser
 d'étiquette, ni supprimer de branche** : le serveur intermédiaire du cloud refuse ces envois (erreur 403), et les
-outils GitHub du cloud ne savent pas le faire. Les branches du cloud s'appellent toutes `ccr-8009fd8d-mbx5ca`.
+outils GitHub du cloud ne savent pas le faire. Les branches du cloud s'appelaient `ccr-8009fd8d-mbx5ca` en
+octobre ; celle du 9 novembre 2026 s'appelle `ccr-0e77e25d-9vys80` (le nom change d'une session à l'autre).
 
 **À la première conversation sur le PC, avant de commencer quoi que ce soit d'autre**, faire cette liste, puis la
 vider ici (par une petite PR). **Chaque PR fusionnée depuis le cloud y ajoute ses lignes.**
 
-**La liste est vide** (le 23 octobre 2026). Comment s'en servir la prochaine fois : chaque ligne est une commande
-exacte, avec le commit visé (`git tag -a <nom> -m "<message>" <commit>`, puis `git push origin <nom>` ;
-`git push origin --delete <branche>`). Sur le PC, Claude lance tout lui-même (l'utilisateur ne lance aucune
-commande, décidé le 19 octobre 2026), vérifie, puis vide la liste par une petite PR.
+**La liste** (ajoutée le 9 novembre 2026, par la PR web.7.20.0, fusionnée depuis le cloud) :
+
+1. Étiquette `web-7.20.0` sur le commit de cette PR dans `main` (titre « Noter les corrections relevées le
+   9 novembre 2026 (web.7.20.0) » ; son identifiant n'est connu qu'après la fusion : le lire avec
+   `git log --oneline -5 origin/main`) :
+   `git tag -a web-7.20.0 -m "web.7.20.0 Le plan des corrections du 9 novembre 2026" <commit>`, puis
+   `git push origin web-7.20.0`.
+2. Supprimer la branche du cloud, après avoir vérifié que son arbre est celui de `main`
+   (`git diff --stat origin/main origin/ccr-0e77e25d-9vys80` vide) : `git push origin --delete ccr-0e77e25d-9vys80`.
+
+Comment s'en servir : chaque ligne est une commande exacte, avec le commit visé
+(`git tag -a <nom> -m "<message>" <commit>`, puis `git push origin <nom>` ; `git push origin --delete <branche>`).
+Sur le PC, Claude lance tout lui-même (l'utilisateur ne lance aucune commande, décidé le 19 octobre 2026), vérifie,
+puis vide la liste par une petite PR.
 
 **Fait sur le PC le 23 octobre 2026** (un jour avant le retour prévu), par Claude Code, à la demande de l'utilisateur
 (« Lance l'étape 1 et enregistre bien tout ce que tu fais ») :
