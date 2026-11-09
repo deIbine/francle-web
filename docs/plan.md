@@ -1121,8 +1121,9 @@ régions ; modes 🌀 + 🙈 jusqu'à l'abandon) jouées dans Chromium piloté p
 taille ordinateur. Les points déjà notés ailleurs (Open Graph, `theme-color`, limites des départements dans les
 silhouettes…) ne sont pas repris.
 
-Vérifié et sans défaut : les noms des régions de chaque époque (18 actuelles, 27 anciennes), en français et en anglais (90 noms), et 5 variantes de chacun (minuscules, sans accents,
-espaces au lieu des tirets, espaces autour, apostrophe courbe), donnent tous la bonne région avec `deviner()` ; aucune
+Vérifié et sans défaut : les noms des régions de chaque époque (18 actuelles, 27 anciennes), en français et en
+anglais (90 noms), et 5 variantes de chacun (minuscules, sans accents, espaces au lieu des tirets, espaces autour,
+apostrophe courbe), donnent tous la bonne région avec `deviner()` ; aucune
 carte de département n'est chargée avant la victoire (rien ne trahit la réponse dans l'onglet Réseau) ; le focus revient
 bien sur « Voir les résultats » après Échap ; la silhouette est révélée, à l'endroit, après un abandon en 🌀 + 🙈.
 
