@@ -79,6 +79,8 @@ export function JeuBonus({ bonus, onChanger, focaliser = false, demandeListe = 0
   const [demandeFocus, setDemandeFocus] = useState(() => (focaliser && numeroDabord ? 1 : 0))
   const modeChoix = bonus.question === 'choix'
   const [liste, setListe] = useState(false)
+  // la question « Arrêter le bonus pour de bon ? », affichée à la place de « Passer »
+  const [confirmation, setConfirmation] = useState(false)
   // 📃 a été cliqué (même façon de faire que dans Plateau.tsx). La demande vue est notée dans tous les cas : une
   // demande d'avant, qui ne nous concernait pas, ne doit pas ouvrir la liste plus tard
   const [demandeVue, setDemandeVue] = useState(demandeListe)
@@ -254,15 +256,36 @@ export function JeuBonus({ bonus, onChanger, focaliser = false, demandeListe = 0
       </Fenetre>
 
       {/* fini, sa phrase de fin est dans le bilan sous le plateau (Bilan.tsx), et non ici : elle n'est dite qu'une fois */}
-      {enCours && (
-        <button
-          type="button"
-          onClick={() => onChanger(passer(bonus))}
-          className="self-center text-sm text-discret underline hover:text-texte"
-        >
-          {textes.bonus.passer}
-        </button>
-      )}
+      {/* « Passer » demande d'abord, comme « Abandonner », mais seulement après une réponse (depuis web.7.20) : il clôt
+          alors le bonus pour de bon, score figé dans le partage et les statistiques. Avant toute réponse, il ne perd
+          rien (le bonus reste à jouer) : pas de question */}
+      {enCours &&
+        (confirmation ? (
+          <div className="flex items-center justify-center gap-2 text-sm">
+            <span>{textes.bonus.confirmerPasser}</span>
+            <button
+              type="button"
+              onClick={() => {
+                setConfirmation(false)
+                onChanger(passer(bonus))
+              }}
+              className="rounded bg-danger px-3 py-1 text-white"
+            >
+              {textes.oui}
+            </button>
+            <button type="button" onClick={() => setConfirmation(false)} className="rounded border border-bord px-3 py-1">
+              {textes.non}
+            </button>
+          </div>
+        ) : (
+          <button
+            type="button"
+            onClick={() => (bonus.tentatives.length > 0 ? setConfirmation(true) : onChanger(passer(bonus)))}
+            className="self-center text-sm text-discret underline hover:text-texte"
+          >
+            {textes.bonus.passer}
+          </button>
+        ))}
     </section>
   )
 }

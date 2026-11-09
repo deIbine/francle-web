@@ -201,6 +201,36 @@ describe('(8, 9) Le message du partage', () => {
     })
     expect(message().textContent).toBe('')
   })
+
+  it('(web.7.20, 1) un second clic : le message reste 3 secondes après lui, dans un élément neuf', async () => {
+    vi.useFakeTimers({ toFake: ['Date', 'setTimeout', 'clearTimeout'] })
+    Object.defineProperty(navigator, 'clipboard', { value: { writeText: () => Promise.resolve() }, configurable: true })
+    render(<Partager texte="#Francle n° 2 3/6" />)
+    const bouton = screen.getByRole('button', { name: /Partager/ })
+    const message = () => bouton.nextElementSibling!
+    await act(async () => {
+      fireEvent.click(bouton)
+    })
+    const premier = message().firstElementChild
+    act(() => {
+      vi.advanceTimersByTime(2500)
+    })
+    await act(async () => {
+      fireEvent.click(bouton)
+    })
+    // le texte est le même, mais l'élément est neuf : le lecteur d'écran l'annonce une seconde fois
+    expect(message().textContent).toBe(TEXTES.fr.copie)
+    expect(message().firstElementChild).not.toBe(premier)
+    // 2,5 s après le second clic (5 s après le premier) : toujours là
+    act(() => {
+      vi.advanceTimersByTime(2500)
+    })
+    expect(message().textContent).toBe(TEXTES.fr.copie)
+    act(() => {
+      vi.advanceTimersByTime(500)
+    })
+    expect(message().textContent).toBe('')
+  })
 })
 
 describe('(10, 12) Les textes', () => {

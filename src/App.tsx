@@ -22,7 +22,7 @@ import { PartieDuJour } from './PartieDuJour.tsx'
 import { PartieLibre } from './PartieLibre.tsx'
 import type { Liste } from './liste.ts'
 import { PanneauVisible } from './panneau.ts'
-import { aideVue, langueAffichee, marquerAideVue, useReglages, useTheme } from './reglages.ts'
+import { aideVue, langueAffichee, marquerAideVue, uniteAffichee, useReglages, useTheme } from './reglages.ts'
 import { LangueContext, TEXTES } from './textes.ts'
 
 type Onglet = 'jour' | 'libre'
@@ -156,9 +156,12 @@ export default function App() {
             <button
               type="button"
               onClick={() => changerReglages({ langue: langue === 'fr' ? 'en' : 'fr' })}
-              // lang : le nom du bouton est dans l'AUTRE langue (« Switch to English ») : on le dit au lecteur d'écran
+              // lang : le texte du bouton est dans l'AUTRE langue (« Switch to English ») : on le dit au lecteur d'écran
               lang={langue === 'fr' ? 'en' : 'fr'}
-              aria-label={textes.autreLangue.long}
+              // le nom du bouton est son texte visible, « EN » (depuis web.7.20) : avec aria-label, le nom était
+              // « Switch to English », et une commande vocale (« clique sur EN ») ne trouvait pas le bouton. La phrase
+              // entière reste, dans title : une infobulle, et une description lue après le nom
+              title={textes.autreLangue.long}
               className="rounded border border-bord px-1.5 py-0.5 text-xs font-bold hover:bg-surface"
             >
               {textes.autreLangue.court}
@@ -265,6 +268,7 @@ export default function App() {
           titre={textes.aide.titre}
         >
           <Aide
+            unite={uniteAffichee(reglages)}
             onJouer={() => {
               setFenetreAide(false)
               marquerAideVue()

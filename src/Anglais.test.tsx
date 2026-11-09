@@ -57,12 +57,12 @@ describe('Le jeu en anglais', () => {
 
   it('le bouton FR / EN change de langue, et le choix est gardé', async () => {
     const joueur = demarrer()
-    await joueur.click(screen.getByRole('button', { name: 'Switch to English' }))
+    await joueur.click(screen.getByRole('button', { name: 'EN' }))
     expect(screen.getByRole('tab', { name: 'Daily game' })).toBeDefined()
     cleanup()
     const joueur2 = demarrer()
     expect(screen.getByRole('tab', { name: 'Daily game' })).toBeDefined()
-    await joueur2.click(screen.getByRole('button', { name: 'Passer en français' }))
+    await joueur2.click(screen.getByRole('button', { name: 'FR' }))
     expect(screen.getByRole('tab', { name: 'Partie du jour' })).toBeDefined()
   })
 
@@ -113,6 +113,7 @@ describe('Le jeu en anglais', () => {
     expect(within(panneau()).getByText(`Correct: ${departement.nom} (${departement.code}).`)).toBeDefined()
     // une réponse donnée : « Skip » termine le bonus, avec son score partiel
     await joueur.click(within(panneau()).getByRole('button', { name: 'Skip' }))
+    await joueur.click(within(panneau()).getByRole('button', { name: 'Yes' }))
     await joueur.click(within(screen.getByRole('dialog', { name: 'Results' })).getByRole('button', { name: 'Close' }))
     expect(within(panneau()).queryByRole('button', { name: '🗺️ Play the bonus' })).toBeNull()
   })
@@ -145,6 +146,14 @@ describe('L’unité suit la langue, tant que le joueur ne l’a pas choisie', (
     expect(await distanceAffichee(demarrer())).toMatch(/\d\skm/)
   })
 
+  it('(web.7.20, 5) l’exemple de « Comment jouer » est dans l’unité affichée : miles en anglais', async () => {
+    navigateurEn('en-US')
+    const joueur = demarrer()
+    await joueur.click(screen.getByRole('button', { name: 'How to play' }))
+    const exemple = within(screen.getByRole('dialog', { name: 'How to play' })).getByRole('table')
+    expect(within(exemple).getAllByRole('row')[0].textContent).toMatch(/\d\smi/)
+  })
+
   it('une unité choisie l’emporte, même après un changement de langue', async () => {
     navigateurEn('en-US')
     const joueur = demarrer()
@@ -152,8 +161,8 @@ describe('L’unité suit la langue, tant que le joueur ne l’a pas choisie', (
     const reglages = screen.getByRole('dialog', { name: 'Settings' })
     await joueur.click(within(reglages).getByLabelText('Kilometres'))
     await joueur.click(within(reglages).getByRole('button', { name: 'Close' }))
-    await joueur.click(screen.getByRole('button', { name: 'Passer en français' }))
-    await joueur.click(screen.getByRole('button', { name: 'Switch to English' }))
+    await joueur.click(screen.getByRole('button', { name: 'FR' }))
+    await joueur.click(screen.getByRole('button', { name: 'EN' }))
     expect(await distanceAffichee(joueur)).toMatch(/\d\skm/)
   })
 })

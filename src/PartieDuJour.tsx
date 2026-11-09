@@ -219,8 +219,11 @@ export function PartieDuJour({ jour, reglages, demandeStats, demandeListe, onLis
       >
         {!enCours(partie) && (
           <FinDePartie partie={partie} bonus={bonus}>
-            {/* grid-cols-2 : le compte à rebours et le bouton de partage côte à côte */}
-            <div className="grid grid-cols-2 items-center gap-2">
+            {/* le compte à rebours et le bouton de partage côte à côte, chacun à sa largeur (depuis web.7.20). Avant, deux
+                colonnes égales (grid-cols-2) : à 375 pixels, la sienne ne faisait que 150 pixels, et « Prochaine région
+                dans » y passait sur trois lignes avec certaines polices. flex-wrap : si les deux ne tiennent pas sur une
+                ligne, « Partager » passe dessous, plutôt que de couper le texte */}
+            <div className="flex flex-wrap items-center justify-around gap-2">
               <CompteARebours minuit={minuitSuivant(jour)} />
               <Partager texte={textePartage(partie, numero, modes, langue, scoreBonus)} />
             </div>

@@ -1190,6 +1190,23 @@ reco »).
 - **Découpage** : web.7.20.0.1 (ces notes, sans étiquette) ; **web.7.20** (points 1 à 8, étiquette `web-7.20`) ;
   **web.7.21** (point 9, étiquette `web-7.21`). PR empilées, fusionnées sur l'accord de l'utilisateur.
 
+### Fait à web.7.20 (le 9 novembre 2026)
+
+Les points 1 à 8, dans une PR (branche `web-7-20-corrections`). 340 tests, lint et build passent.
+
+- (1) `Partager.tsx` : le message garde un numéro, neuf à chaque clic (minuterie relancée) ; `<span key>` le fait
+  annoncer de nouveau. (2) `App.tsx` : le bouton de langue a pour nom « EN » / « FR », la phrase entière dans `title`.
+  (3) `JeuBonus.tsx` : « Passer » demande « Oui / Non » après au moins une réponse (`textes.bonus.confirmerPasser`).
+  (4) `PartieLibre.tsx` : `dark:accent-francle-clair`, contraste 11:1 mesuré. (5) `Aide.tsx` reçoit l'unité affichée.
+  (6) `PartieDuJour.tsx` et `CompteARebours.tsx` : `flex flex-wrap` et `whitespace-nowrap` ; vérifié à 375 pixels,
+  aussi avec une police plus grande (« Partager » passe dessous). (7) `Plateau.tsx` : la saisie et son message dans un
+  bloc `gap-1` ; le vide passe de 60 à 40 pixels (mesuré).
+- (8) **Écart à la décision** : la règle `label-content-name-mismatch` n'est **pas** activée dans
+  `Accessibilite.test.tsx`. Dans jsdom, axe ne sait pas si un texte est visible et range tous les cas dans « à
+  vérifier », les bons boutons (✕ nommé « Fermer ») comme le mauvais : elle ne peut rien y trouver de sûr. Elle passe
+  dans le script du vrai navigateur (point 9, web.7.21). À la place : un test direct du bouton de langue (nom « EN »,
+  `title`, `lang`). Le test du second clic sur « Partager » est fait, ainsi que ceux des points 3 et 5.
+
 ## Les améliorations à reprendre (relevées le 16 octobre 2026)
 
 Relevées en relisant le code après web.6. Le bug du changement de jour a été corrigé tout de suite (PR #9, étiquette
