@@ -190,6 +190,7 @@ describe('Le bonus des départements, partie du jour', () => {
       within(panneau()).getByText(`Raté : c’était ${nom(DEPS[0])}, en rouge sur la carte (ta réponse : Gironde (33)).`),
     ).toBeDefined()
     await joueur.click(within(panneau()).getByRole('button', { name: 'Passer' }))
+    await joueur.click(within(panneau()).getByRole('button', { name: 'Oui' }))
     await joueur.click(within(resultats()!).getByRole('button', { name: /Partager/ }))
     expect((await navigator.clipboard.readText()).split('\n').at(-2)).toBe(`🗺️ 0/${TOTAL} 💪`)
   })
@@ -233,11 +234,26 @@ describe('Le bonus des départements, partie du jour', () => {
     expect(within(panneau()).getByText(`0 réponse sur ${TOTAL}`)).toBeDefined()
   })
 
+  it('(web.7.20, 3) « Passer » avant toute réponse ne demande rien ; après une réponse, il demande, et « Non » garde le bonus', async () => {
+    const joueur = demarrer()
+    await gagner(joueur)
+    await repondre(joueur, DEPS[0].code, DEPS[0].nom)
+    await joueur.click(within(panneau()).getByRole('button', { name: 'Passer' }))
+    // une espace ordinaire avant « ? » : Testing Library change les espaces insécables de la page en espaces ordinaires
+    expect(within(panneau()).getByText('Arrêter le bonus pour de bon ? Ton score sera gardé tel quel.')).toBeDefined()
+    await joueur.click(within(panneau()).getByRole('button', { name: 'Non' }))
+    // rien n'a changé : le bonus est toujours en cours, avec sa réponse
+    expect(within(panneau()).getByText(`1 réponse sur ${TOTAL}`)).toBeDefined()
+    expect(within(panneau()).getByRole('button', { name: 'Passer' })).toBeDefined()
+    expect(resultats()).toBeNull()
+  })
+
   it('« Passer » après une réponse : le bonus est fini, les résultats s’ouvrent avec son score, partagé et compté', async () => {
     const joueur = demarrer()
     await gagner(joueur)
     await repondre(joueur, DEPS[0].code, DEPS[0].nom)
     await joueur.click(within(panneau()).getByRole('button', { name: 'Passer' }))
+    await joueur.click(within(panneau()).getByRole('button', { name: 'Oui' }))
     expect(within(bilan()).getByText(`Bonus arrêté : 1 département trouvé sur ${TOTAL}.`)).toBeDefined()
     expect(within(panneau()).queryByRole('button', { name: '🗺️ Jouer le bonus' })).toBeNull()
 
@@ -349,6 +365,7 @@ describe('Le bonus des départements, partie libre', () => {
     expect(within(panneau()).queryByRole('button', { name: 'Nouvelle partie' })).toBeNull()
     // passé, il revient ; une nouvelle partie remet la silhouette
     await joueur.click(within(panneau()).getByRole('button', { name: 'Passer' }))
+    await joueur.click(within(panneau()).getByRole('button', { name: 'Oui' }))
     await joueur.click(within(resultats()!).getByRole('button', { name: 'Fermer' }))
     await joueur.click(within(panneau()).getByRole('button', { name: 'Nouvelle partie' }))
     expect(within(panneau()).getByRole('img', { name: /silhouette/ })).toBeDefined()
@@ -360,6 +377,7 @@ describe('Le bonus des départements, partie libre', () => {
     // une réponse fausse : un autre département de la région
     await repondre(joueur, zones[0].getAttribute('data-code')!, zones[1].getAttribute('data-code')!)
     await joueur.click(within(panneau()).getByRole('button', { name: 'Passer' }))
+    await joueur.click(within(panneau()).getByRole('button', { name: 'Oui' }))
     const total = departementsDe(cible).length
     expect(within(resultats()!).getByText(new RegExp(`^Bonus arrêté : \\d département trouvé sur ${total}\\.$`))).toBeDefined()
   })

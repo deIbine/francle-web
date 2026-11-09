@@ -1705,3 +1705,81 @@ commandes), **comment le penser** (la question à se poser la prochaine fois).
   (`getAllByRole('img', { name: /victoire/ })`).
 - **Comment le penser** : `aria-label` nomme un élément ; encore faut-il que l'élément soit **quelque chose** pour le
   lecteur d'écran (un bouton, une image, une région). Se demander : « quel est le rôle de cet élément ? ».
+
+## web.7.20 Les corrections du 9 novembre 2026
+
+### Un état inchangé ne relance rien
+
+- **Pourquoi** : un second clic sur « Partager » dans les 3 secondes remettait le même texte (« Résultat copié… »)
+  dans l'état. React compare l'ancienne et la nouvelle valeur (`Object.is`) : identiques, il ne réaffiche rien et ne
+  relance pas l'effet. La minuterie du premier clic continuait donc, et le message s'effaçait 0,5 seconde après le
+  second clic. Le lecteur d'écran, lui, ne voyait aucun changement dans la zone `aria-live` : rien à annoncer.
+- **Comment le faire** : garder avec le texte un **numéro** qui augmente à chaque clic (`{ texte, numero }`). L'objet
+  est neuf à chaque fois, l'effet repart. Et `<span key={numero}>` : changer la `key` d'un élément oblige React à le
+  remplacer par un autre, ce que le lecteur d'écran voit comme un texte ajouté, qu'il annonce. Le test truque les
+  minuteries (`vi.useFakeTimers`), clique deux fois à 2,5 s d'écart, et vérifie que le message est encore là 2,5 s
+  après le second clic, puis qu'il disparaît à 3 s.
+- **Comment le penser** : se demander « et si je donne à React la même valeur ? ». Rien ne se passe. Quand c'est
+  l'**évènement** qui compte (un clic de plus) et non la valeur, il faut une valeur qui change à chaque évènement. En
+  Java, c'est comme un `PropertyChangeSupport` qui ne prévient personne quand l'ancienne et la nouvelle valeur sont
+  `equals`.
+
+### Le nom d'un bouton contient son texte visible
+
+- **Pourquoi** : le bouton « EN » s'appelait « Switch to English » pour les lecteurs d'écran (`aria-label`). Une
+  personne qui pilote son ordinateur à la voix dit ce qu'elle voit (« clique sur EN ») : le bouton n'avait pas ce nom,
+  la commande échouait.
+- **Comment le faire** : retirer `aria-label` ; le nom redevient le texte visible, « EN ». La phrase entière va dans
+  `title` (une infobulle, et une description lue après le nom), comme pour les autres boutons de l'en-tête depuis
+  web.7.17. Les tests cherchent maintenant `getByRole('button', { name: 'EN' })`.
+- **Piège vu en route** : la règle d'axe qui vérifie cela (`label-content-name-mismatch`) ne sait rien conclure dans
+  jsdom. Il ne dessine rien, donc axe ne sait jamais si un texte est visible : il met tous les boutons concernés dans
+  « à vérifier » (`incomplete`), les bons (✕ nommé « Fermer ») comme le mauvais. Elle est donc lancée dans un vrai
+  navigateur (web.7.21), pas dans les tests.
+- **Comment le penser** : `aria-label` **remplace** le texte visible, il ne s'y ajoute pas. Si un bouton montre un
+  mot, son nom doit commencer par ce mot. Et un outil qui « ne trouve rien » peut simplement ne pas savoir chercher là :
+  regarder aussi ce qu'il range dans « à vérifier ».
+
+### Demander avant ce qui ne se rattrape pas, et seulement alors
+
+- **Pourquoi** : « Abandonner » demandait « Oui / Non », mais « Passer », après une réponse, clôt le bonus pour de bon
+  (score figé dans le partage et les statistiques) sans rien demander.
+- **Comment le faire** : la même confirmation qu'« Abandonner » (un état `confirmation`, les boutons Oui / Non à la
+  place du lien), mais seulement si `bonus.tentatives.length > 0`. Avant toute réponse, « Passer » ne perd rien (le
+  bonus reste à jouer) : une question n'y serait qu'une gêne.
+- **Comment le penser** : une confirmation se mérite. Se demander « qu'est-ce qui est perdu si le joueur s'est
+  trompé ? ». Rien : pas de question. Quelque chose : la même question que pour les autres pertes, pour que le jeu se
+  comporte partout pareil (la méthode de web.7.18, « chercher tous les chemins vers une perte »).
+
+### La couleur d'un contrôle, en clair et en sombre
+
+- **Pourquoi** : les boutons radio de l'époque étaient bleu foncé (`accent-francle-fonce`) dans les deux thèmes. Sur le
+  fond sombre, contraste de 2,5:1, sous les 3:1 demandés pour un contrôle (le texte en demande 4,5).
+- **Comment le faire** : `dark:accent-francle-clair`. Pour vérifier : `getComputedStyle(radio).accentColor`, avec et
+  sans la classe `dark` sur `<html>`, puis le rapport de luminance des deux couleurs (la formule du WCAG, calculée dans
+  la console) : 11:1 maintenant.
+- **Comment le penser** : chaque couleur posée à la main se demande « et en sombre ? ». Les couleurs par rôle
+  (`bg-fond`, `text-discret`) changent toutes seules ; une couleur du jeu (`francle-fonce`) non.
+
+### Une mise en page qui tient avec une autre police
+
+- **Pourquoi** : à 375 pixels, la colonne du compte à rebours faisait 150 pixels (`grid-cols-2`, deux colonnes
+  égales), et « Prochaine région dans » en demande 145 sous Windows. Sous Linux, avec une police un peu plus large, il
+  passait sur trois lignes.
+- **Comment le faire** : `flex flex-wrap justify-around` au lieu de deux colonnes égales, et `whitespace-nowrap` sur
+  le texte. Chaque bloc prend sa largeur ; s'ils ne tiennent pas côte à côte, « Partager » passe dessous. Vérifié en
+  grossissant la police de la page (`document.documentElement.style.fontSize = '19px'`) : le texte reste sur une
+  ligne, le bouton descend.
+- **Comment le penser** : une mise en page « qui tient de justesse » chez soi casse ailleurs (une autre police, une
+  autre langue, un réglage de taille du texte). Tester avec une police plus grande, et laisser le navigateur passer à
+  la ligne plutôt que de compter sur une largeur.
+
+### Les espaces insécables dans les tests
+
+- **Pourquoi** : `getByText('Arrêter le bonus pour de bon ? …')` ne trouvait pas un texte pourtant affiché.
+- **Comment le faire** : Testing Library « normalise » le texte de la page (les espaces, insécables comprises,
+  deviennent une espace ordinaire), mais pas le texte cherché. On écrit donc une espace ordinaire dans le test
+  (« pour de bon ? »), comme les autres tests du projet. Trouvé avec `queryAllByText(/Arrêter le bonus/)` (une
+  expression régulière, plus souple), qui montrait l'élément.
+- **Comment le penser** : quand une recherche exacte échoue sur un texte visible, la chercher en plus souple pour voir
+  ce qui diffère. La différence est souvent invisible : une espace, une apostrophe courbe, un accent.

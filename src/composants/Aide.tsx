@@ -2,6 +2,7 @@ import type { ReactNode } from 'react'
 import { EMOJIS } from '../domaine/geographie.ts'
 import { nouvellePartie, proposer } from '../domaine/partie.ts'
 import { parId } from '../domaine/regions.ts'
+import type { Unite } from '../reglages.ts'
 import { useLangue, useTextes } from '../textes.ts'
 import { IconeReglages } from './Icones.tsx'
 
@@ -24,7 +25,7 @@ function Etape({ icone, children }: { icone: ReactNode; children: ReactNode }) {
 // « Comment jouer » : ouvert à la première visite, puis par le bouton d'aide de l'en-tête. Depuis web.7.16.4, illustré
 // comme la maquette (docs/maquettes/coup-de-neuf.png) : une vraie ligne du tableau, ce que veut dire chaque colonne,
 // puis quatre lignes courtes. Un exemple vaut mieux qu'un paragraphe
-export function Aide({ onJouer }: { onJouer: () => void }) {
+export function Aide({ unite, onJouer }: { unite: Unite; onJouer: () => void }) {
   const textes = useTextes()
   const langue = useLangue()
   const nom = EXEMPLE.region.nom[langue]
@@ -39,8 +40,9 @@ export function Aide({ onJouer }: { onJouer: () => void }) {
           <tbody>
             <tr className="bg-surface">
               <td className="rounded-l px-2 py-1.5 font-medium">{nom}</td>
-              {/* la distance en km, quelle que soit l'unité choisie : c'est une explication, pas un essai */}
-              <td className="px-2 py-1.5 text-right tabular-nums">{textes.distance(EXEMPLE.distance, 'km')}</td>
+              {/* la distance dans l'unité affichée (depuis web.7.20), comme le tableau et la superficie : le joueur lit
+                  ici ce qu'il lira dans ses essais. Avant, toujours en km, même en anglais où le jeu est en miles */}
+              <td className="px-2 py-1.5 text-right tabular-nums">{textes.distance(EXEMPLE.distance, unite)}</td>
               <td className="px-2 py-1.5 text-center">
                 <span role="img" aria-label={textes.directions[EXEMPLE.direction]}>
                   {EMOJIS[EXEMPLE.direction]}

@@ -125,6 +125,7 @@ describe('La liste des départements, partie du jour', () => {
     await cliquer(joueur, DEPS[0].code)
     await joueur.click(within(await ouvrirDepartements(joueur)).getByRole('button', { name: nom(DEPS[0]) }))
     await joueur.click(within(panneau()).getByRole('button', { name: 'Passer' }))
+    await joueur.click(within(panneau()).getByRole('button', { name: 'Oui' }))
     await joueur.click(within(screen.getByRole('dialog', { name: 'Résultats' })).getByRole('button', { name: 'Fermer' }))
 
     const liste = await ouvrirDepartements(joueur)

@@ -244,6 +244,8 @@ const fr = {
     // version simple : un département d'une autre région est refusé, sans coûter de réponse
     autreRegion: (nom: string) => `${nom}\u00a0: ce département n’est pas dans la région.`,
     passer: 'Passer',
+    // après au moins une réponse, « Passer » clôt le bonus : on demande d'abord (depuis web.7.20)
+    confirmerPasser: 'Arrêter le bonus pour de bon\u00a0? Ton score sera gardé tel quel.',
     fini: (score: number, total: number) =>
       `Bonus terminé\u00a0: ${score} département${score > 1 ? 's' : ''} trouvé${score > 1 ? 's' : ''} sur ${total}.`,
     arrete: (score: number, total: number) =>
@@ -456,6 +458,7 @@ const en: Textes = {
     dejaTrouve: (nom: string) => `${nom}: already found elsewhere on the map.`,
     autreRegion: (nom: string) => `${nom}: this department is not in the region.`,
     passer: 'Skip',
+    confirmerPasser: 'Stop the bonus for good? Your score will be kept as it is.',
     fini: (score: number, total: number) =>
       `Bonus over: ${score} department${score === 1 ? '' : 's'} found out of ${total}.`,
     arrete: (score: number, total: number) =>

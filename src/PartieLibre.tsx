@@ -128,7 +128,9 @@ export function PartieLibre({ reglages, demandeListe, onListe }: Props) {
               name={nomGroupe}
               checked={mode === choix}
               onChange={() => choisirEpoque(choix)}
-              className="accent-francle-fonce"
+              // en sombre, le bleu clair (depuis web.7.20) : le bleu foncé sur le fond sombre n'avait qu'un contraste
+              // de 2,5:1, sous les 3:1 demandés pour un contrôle ; le bleu clair en a environ 11
+              className="accent-francle-fonce dark:accent-francle-clair"
             />
             {textes.epoques[choix]}
           </label>

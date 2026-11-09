@@ -19,7 +19,8 @@ export function CompteARebours({ minuit }: { minuit: Date }) {
   }, [])
 
   return (
-    <p className="text-sm">
+    // whitespace-nowrap : « Prochaine région dans » sur une seule ligne, au-dessus du compte à rebours (depuis web.7.20)
+    <p className="text-sm whitespace-nowrap">
       {textes.prochaine}{' '}
       <time className="block text-2xl font-bold tabular-nums" aria-live="off">
         {duree(reste)}

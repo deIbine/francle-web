@@ -110,7 +110,10 @@ export function Plateau({ partie, onChanger, modes, angle, unite, fin, demandeLi
       )}
 
       {enCours(partie) ? (
-        <>
+        // la saisie et son message dans un même bloc, à 4 pixels l'un de l'autre (gap-1, depuis web.7.20) : avec les
+        // 16 pixels du plateau (gap-4) de chaque côté de la ligne réservée au message, il y avait 60 pixels de vide
+        // entre la saisie et le tableau. La ligne réservée reste : sans elle, la page sauterait à chaque message
+        <div className="flex flex-col gap-1">
           <Saisie
             // sans les régions déjà proposées (depuis web.7.18) : les choisir ne mènerait qu'à « déjà proposée ».
             // Tapée en entier, une telle région reçoit toujours ce message
@@ -122,7 +125,7 @@ export function Plateau({ partie, onChanger, modes, angle, unite, fin, demandeLi
             onProposer={jouer}
           />
           <Message message={message} />
-        </>
+        </div>
       ) : (
         fin
       )}

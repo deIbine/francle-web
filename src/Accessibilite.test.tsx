@@ -20,6 +20,9 @@ const DATE = new Date(2026, 9, 14, 12)
 
 // les problèmes trouvés par axe dans la page, résumés : « règle : élément fautif »
 async function problemes(): Promise<string[]> {
+  // la règle « le nom contient le texte visible » (label-content-name-mismatch) n'est pas lancée ici : dans jsdom,
+  // qui ne dessine rien, axe ne sait jamais si un texte est visible, et range tous les cas dans « à vérifier », les
+  // bons (✕ nommé « Fermer ») comme les mauvais. Elle tourne dans un vrai navigateur (outils/verifier-navigateur.ts)
   const resultat = await axe.run(document.body)
   return resultat.violations.flatMap((violation) =>
     violation.nodes.map((noeud) => `${violation.id} : ${noeud.html.slice(0, 120)}`),
@@ -86,6 +89,13 @@ describe('L’accessibilité (axe)', () => {
     const trouves = await problemes()
     expect(trouves.some((probleme) => probleme.startsWith('image-alt'))).toBe(true)
     expect(trouves.some((probleme) => probleme.startsWith('button-name'))).toBe(true)
+  })
+
+  it('(web.7.20, 2) le bouton FR / EN : son nom est son texte visible, la phrase entière en infobulle', () => {
+    render(<App />)
+    const bouton = screen.getByRole('button', { name: 'EN' })
+    expect(bouton.getAttribute('title')).toBe('Switch to English')
+    expect(bouton.getAttribute('lang')).toBe('en')
   })
 
   it('la page de départ', async () => {
@@ -172,7 +182,7 @@ describe('L’accessibilité (axe)', () => {
   it('la partie libre, en anglais', async () => {
     const joueur = userEvent.setup()
     render(<App />)
-    await joueur.click(screen.getByRole('button', { name: 'Switch to English' }))
+    await joueur.click(screen.getByRole('button', { name: 'EN' }))
     await joueur.click(screen.getByRole('tab', { name: 'Free play' }))
     expect(await problemes()).toEqual([])
   })
