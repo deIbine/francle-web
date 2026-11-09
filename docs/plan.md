@@ -335,8 +335,12 @@ squash le 18 octobre 2026 sur l'accord de l'utilisateur, étiquettes `web-7.8` �
     faite depuis le cloud à la demande de l'utilisateur sans rien modifier, puis notée ici à sa demande (section du même
     nom plus bas). **Tout sera fait** (décidé par l'utilisateur le 9 novembre 2026), **mais plus tard, dans une session
     sur le PC**. **Tout est décidé** le 9 novembre 2026, sur le PC (toutes les recommandations acceptées, voir « À
-    décider » dans la section), et **lancé** le même jour par l'utilisateur (« Tu peux commencer »). Trois PR
-    empilées : web.7.20.0.1 (ces notes), web.7.20 (les points 1 à 8), web.7.21 (le point 9).
+    décider » dans la section), et **lancé** le même jour par l'utilisateur (« Tu peux commencer »). **Codé le même
+    jour**, en trois PR empilées : #63 (web.7.20.0.1, ces notes), #64 (web.7.20, les points 1 à 8), web.7.21 (le
+    point 9). **En attente de l'accord de l'utilisateur pour fusionner**, dans l'ordre (rebaser chaque branche sur
+    `main`, comparer les arbres, changer la base en `main`, CI, fusion), puis étiquettes `web-7.20` et `web-7.21`.
+  - **Encore à vérifier par l'utilisateur, en jouant** : web.7.20 sur un vrai téléphone (fenêtre des résultats, la
+    confirmation de « Passer »).
   - **web.8** : **repoussé** le 18 octobre 2026 (pas de domaine acheté pour l'instant). Le découpage et ses onze
     questions ont été présentés le 17 octobre 2026 (voir « Le domaine et le défi (web.8) » plus bas) ; l'utilisateur
     n'y a pas encore répondu.
@@ -1206,6 +1210,22 @@ Les points 1 à 8, dans une PR (branche `web-7-20-corrections`). 340 tests, lint
   vérifier », les bons boutons (✕ nommé « Fermer ») comme le mauvais : elle ne peut rien y trouver de sûr. Elle passe
   dans le script du vrai navigateur (point 9, web.7.21). À la place : un test direct du bouton de langue (nom « EN »,
   `title`, `lang`). Le test du second clic sur « Partager » est fait, ainsi que ceux des points 3 et 5.
+
+### Fait à web.7.21 (le 9 novembre 2026)
+
+Le point 9, dans une PR (branche `web-7-21-verifier-navigateur`), empilée sur web.7.20.
+
+- `outils/verifier-navigateur.ts`, lancé par `npm run verifier:navigateur` (`vite build`, puis le script). Il sert
+  `dist/` en local (`preview` de Vite), ouvre **Edge** (puis Chrome, puis le Chromium de Playwright s'il est installé)
+  par **Playwright** (nouvelle dépendance de développement, `playwright`, sans téléchargement de navigateur), joue une
+  partie du jour à 375 × 812, en clair puis en sombre (`colorScheme`), et lance axe, avec la règle
+  `label-content-name-mismatch`, sur 10 écrans : « Comment jouer », partie en cours avec suggestions, réglages, bonus
+  en cours, confirmation de « Passer », résultats, bilan, partie libre, et deux écrans en anglais. Code 1 s'il trouve
+  un problème.
+- Résultat : **20 écrans, 0 problème**. Éprouvé en remettant l'ancien `aria-label` du bouton de langue : quatre écrans
+  en échec, avec la règle et l'élément.
+- Limite : axe ne mesure que le contraste du texte. Celui d'un contrôle (point 4) n'est pas couvert par le script.
+- `tsconfig.node.json` vérifie aussi `outils/**/*.ts` ; README : la commande, et quoi faire sans Edge ni Chrome.
 
 ## Les améliorations à reprendre (relevées le 16 octobre 2026)
 
