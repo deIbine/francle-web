@@ -95,9 +95,9 @@ l'autre, et le web n'a plus à rester égal au Java.
 8. **web.8 Le domaine et le défi** (ancien web.7, renuméroté le 16 octobre 2026) : d'abord le nom de domaine, puis le défi (un lien à envoyer à un ami pour lui
    faire deviner une région). Pas d'archives des jours passés (décidé avant web.4).
 
-## Où on en est (mis à jour le 9 novembre 2026)
+## Où on en est (mis à jour le 9 novembre 2026, sur le PC)
 
-### À faire sur le PC (deux lignes depuis le 9 novembre 2026)
+### À faire sur le PC (rien depuis le 9 novembre 2026)
 
 Depuis le 19 octobre 2026, le travail se fait aussi **dans le cloud** (Claude Code sur le web, sans le PC). Là-bas,
 Claude peut coder, tester, ouvrir et fusionner les PR (le site est alors publié comme d'habitude), mais **ni poser
@@ -108,15 +108,13 @@ octobre ; celle du 9 novembre 2026 s'appelle `ccr-0e77e25d-9vys80` (le nom chang
 **À la première conversation sur le PC, avant de commencer quoi que ce soit d'autre**, faire cette liste, puis la
 vider ici (par une petite PR). **Chaque PR fusionnée depuis le cloud y ajoute ses lignes.**
 
-**La liste** (ajoutée le 9 novembre 2026, par la PR web.7.20.0, fusionnée depuis le cloud) :
+**La liste** : vide.
 
-1. Étiquette `web-7.20.0` sur le commit de cette PR dans `main` (titre « Noter les corrections relevées le
-   9 novembre 2026 (web.7.20.0) » ; son identifiant n'est connu qu'après la fusion : le lire avec
-   `git log --oneline -5 origin/main`) :
-   `git tag -a web-7.20.0 -m "web.7.20.0 Le plan des corrections du 9 novembre 2026" <commit>`, puis
-   `git push origin web-7.20.0`.
-2. Supprimer la branche du cloud, après avoir vérifié que son arbre est celui de `main`
-   (`git diff --stat origin/main origin/ccr-0e77e25d-9vys80` vide) : `git push origin --delete ccr-0e77e25d-9vys80`.
+**Fait sur le PC le 9 novembre 2026**, par Claude Code, sur le départ de l'utilisateur (« Tu peux commencer ») :
+`git fetch --all --prune` (`main` à `1209d38`, aucune PR ouverte) ; vérifié que `1209d38` est sur `main` et que la
+branche du cloud a le même arbre (`git diff --stat` vide) ; **étiquette `web-7.20.0`** posée sur `1209d38` et
+envoyée ; **branche `ccr-0e77e25d-9vys80` supprimée** sur GitHub (il n'y reste que `main`). Liste vidée par la PR
+web.7.20.0.1 (sans étiquette : ce ne sont que des notes).
 
 Comment s'en servir : chaque ligne est une commande exacte, avec le commit visé
 (`git tag -a <nom> -m "<message>" <commit>`, puis `git push origin <nom>` ; `git push origin --delete <branche>`).
@@ -336,8 +334,9 @@ squash le 18 octobre 2026 sur l'accord de l'utilisateur, étiquettes `web-7.8` �
   - **Les corrections relevées le 9 novembre 2026 (web.7.20)** : une nouvelle passe de bugs, de tests et d'interface,
     faite depuis le cloud à la demande de l'utilisateur sans rien modifier, puis notée ici à sa demande (section du même
     nom plus bas). **Tout sera fait** (décidé par l'utilisateur le 9 novembre 2026), **mais plus tard, dans une session
-    sur le PC**. À la reprise : relire la section, poser les deux questions encore ouvertes (point 5 et découpage), puis
-    **attendre le signal de départ** de l'utilisateur (règle de `CLAUDE.md`).
+    sur le PC**. **Tout est décidé** le 9 novembre 2026, sur le PC (toutes les recommandations acceptées, voir « À
+    décider » dans la section), et **lancé** le même jour par l'utilisateur (« Tu peux commencer »). Trois PR
+    empilées : web.7.20.0.1 (ces notes), web.7.20 (les points 1 à 8), web.7.21 (le point 9).
   - **web.8** : **repoussé** le 18 octobre 2026 (pas de domaine acheté pour l'instant). Le découpage et ses onze
     questions ont été présentés le 17 octobre 2026 (voir « Le domaine et le défi (web.8) » plus bas) ; l'utilisateur
     n'y a pas encore répondu.
@@ -1177,12 +1176,19 @@ bien sur « Voir les résultats » après Échap ; la silhouette est révélée,
 
 ### À décider
 
-- **Points retenus : tous**, de 1 à 9 (décidé par l'utilisateur le 9 novembre 2026), **à faire plus tard, dans une
-  session sur le PC**.
-- **(5)** L'exemple de « Comment jouer » suit-il l'unité ? Recommandé : oui. À poser à la reprise.
-- **Découpage** : proposé comme web.7.18 et web.7.19, une seule PR de code (web.7.20, étiquette `web-7.20`) ;
-  `web-7.20.0` pour ce plan. Le point 9 pourrait faire une PR à part (web.7.21) s'il grossit. À confirmer à la reprise.
-- Le code attend le signal de départ de l'utilisateur.
+Tout est décidé le 9 novembre 2026, sur le PC : l'utilisateur a accepté toutes les recommandations (« Ok pour les
+reco »).
+
+- **Points retenus : tous**, de 1 à 9.
+- **(3)** La même confirmation « Oui / Non » qu'« Abandonner », seulement après au moins une réponse.
+- **(5)** L'exemple de « Comment jouer » **suit l'unité affichée** (miles en anglais par défaut).
+- **(6)** « Prochaine région dans » sur sa propre ligne, au-dessus du compte à rebours, texte gardé en entier.
+- **(7)** Un des deux espacements réduit ; la ligne réservée au message reste.
+- **(9)** Le script vit dans `outils/verifier-navigateur.ts`, se lance **à la main** par
+  `npm run verifier:navigateur`, **pas dans la CI** pour l'instant (installer Chromium à chaque PR la ralentirait
+  d'une à deux minutes).
+- **Découpage** : web.7.20.0.1 (ces notes, sans étiquette) ; **web.7.20** (points 1 à 8, étiquette `web-7.20`) ;
+  **web.7.21** (point 9, étiquette `web-7.21`). PR empilées, fusionnées sur l'accord de l'utilisateur.
 
 ## Les améliorations à reprendre (relevées le 16 octobre 2026)
 
