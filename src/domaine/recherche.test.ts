@@ -117,8 +117,46 @@ describe('deviner', () => {
 
   it('sinon la seule suggestion', () => {
     expect(deviner('bret', 'nouvelles')).toBe(parId('bretagne'))
-    // « Centre » n'existe que chez les anciennes régions : chez les nouvelles, une seule région commence ainsi
+  })
+
+  it("le nom exact d'une région de l'autre époque ne devine rien : le plateau l'explique (depuis web.7.22)", () => {
+    // avant, un mot du nom suffisait : « Aquitaine » jouait Nouvelle-Aquitaine et coûtait un essai
+    for (const nom of ['Aquitaine', 'Auvergne', 'Bourgogne', 'Burgundy', 'Lorraine', 'Rhône-Alpes']) {
+      expect(deviner(nom, 'nouvelles'), nom).toBeUndefined()
+      expect(autreEpoque(nom, 'nouvelles'), nom).toBeDefined()
+    }
+    // et dans l'autre sens : « Normandie » disait « plusieurs » (Haute- et Basse-Normandie)
+    for (const nom of ['Normandie', 'Grand Est', 'Occitanie']) {
+      expect(deviner(nom, 'anciennes'), nom).toBeUndefined()
+      expect(autreEpoque(nom, 'anciennes'), nom).toBeDefined()
+    }
+    // un début de nom reste une suggestion comme une autre
+    expect(deviner('aquit', 'nouvelles')).toBe(parId('nouvelle-aquitaine'))
+  })
+
+  it('une région seulement renommée se joue sous ses deux noms', () => {
     expect(deviner('centre', 'nouvelles')).toBe(parId('centre-val-de-loire'))
+    expect(deviner('Centre-Val de Loire', 'anciennes')).toBe(parId('centre'))
+  })
+
+  it.each([
+    ['PACA', 'nouvelles', 'provence-alpes-cote-dazur'],
+    ['paca', 'anciennes', 'provence-alpes-cote-dazur'],
+    ['IDF', 'nouvelles', 'ile-de-france'],
+    ['ARA', 'nouvelles', 'auvergne-rhone-alpes'],
+    ['B.F.C.', 'nouvelles', 'bourgogne-franche-comte'],
+    ['hdf', 'nouvelles', 'hauts-de-france'],
+    ['NPDC', 'anciennes', 'nord-pas-de-calais'],
+  ] as const)('le sigle %s (%s) : %s', (sigle, mode, id) => {
+    expect(deviner(sigle, mode)).toBe(parId(id))
+    expect(suggestions(sigle, mode, 'fr')[0]).toBe(parId(id))
+  })
+
+  it("un sigle de l'autre époque est expliqué, et un début de sigle ne suggère rien de plus", () => {
+    expect(deviner('ARA', 'anciennes')).toBeUndefined()
+    expect(autreEpoque('ARA', 'anciennes')).toBe(parId('auvergne-rhone-alpes'))
+    expect(autreEpoque('NPDC', 'nouvelles')).toBe(parId('nord-pas-de-calais'))
+    expect(suggestions('pac', 'nouvelles', 'fr')).toEqual([])
   })
 
   it('« plusieurs » quand la saisie évoque plusieurs régions', () => {

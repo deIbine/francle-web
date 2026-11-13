@@ -223,6 +223,8 @@ const fr = {
     departement: (nom: string, code: string) => `${nom} (${code})`,
     juste: (demande: string) => `Juste\u00a0: ${demande}.`,
     faux: (demande: string, donne: string) => `Raté\u00a0: c’était ${demande}, en rouge sur la carte (ta réponse\u00a0: ${donne}).`,
+    // une région d'un seul département (l'outre-mer) : toute la carte est en rouge, inutile de le dire (depuis web.7.22)
+    fauxSeul: (demande: string, donne: string) => `Raté\u00a0: c’était ${demande} (ta réponse\u00a0: ${donne}).`,
     // la carte et ses zones : pendant le bonus, un lecteur d'écran ne doit pas lire les noms (ce serait la réponse)
     carteRegion: 'Carte des départements de la région',
     zone: (rang: number, total: number) => `Zone ${rang} sur ${total}`,
@@ -441,6 +443,7 @@ const en: Textes = {
     departement: (nom: string, code: string) => `${nom} (${code})`,
     juste: (demande: string) => `Correct: ${demande}.`,
     faux: (demande: string, donne: string) => `Wrong: it was ${demande}, in red on the map (your answer: ${donne}).`,
+    fauxSeul: (demande: string, donne: string) => `Wrong: it was ${demande} (your answer: ${donne}).`,
     carteRegion: 'Map of the region’s departments',
     zone: (rang: number, total: number) => `Area ${rang} of ${total}`,
     zoom: 'Paris and its inner suburbs, enlarged',

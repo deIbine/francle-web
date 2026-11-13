@@ -1,6 +1,7 @@
 // lancé par Vitest avant chaque fichier de test (voir setupFiles dans vite.config.ts)
 import { cleanup } from '@testing-library/react'
 import { afterEach, beforeEach, vi } from 'vitest'
+import { chargerCarte } from './cartes.ts'
 
 // l'horloge des tests est arrêtée le 14 octobre 2026 à midi (la partie n° 2) : sans cela, le jeu prendrait le vrai
 // jour, et un test écrit pour la partie n° 2 échouerait dès le lendemain. Seule la date (Date) est truquée : les
@@ -50,3 +51,7 @@ if (typeof HTMLDialogElement !== 'undefined' && HTMLDialogElement.prototype.show
 // d'accessibilité, pour savoir si un caractère est une icône de police (_isIconLigature). On renvoie le même null,
 // sans le message
 HTMLCanvasElement.prototype.getContext = (() => null) as typeof HTMLCanvasElement.prototype.getContext
+
+// les deux cartes de fin, chargées avant les tests (depuis web.7.22, elles arrivent à la demande, voir cartes.ts) :
+// chaque test les trouve alors tout de suite, comme le joueur dont la carte est arrivée pendant la partie
+await Promise.all([chargerCarte('nouvelles'), chargerCarte('anciennes')])

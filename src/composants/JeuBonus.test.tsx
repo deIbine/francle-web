@@ -72,6 +72,16 @@ describe('L’outre-mer : le numéro', () => {
     expect(screen.getByText('Juste : Guadeloupe (971).')).toBeDefined()
   })
 
+  it('une réponse fausse ne parle plus de la carte en rouge, et la carte de fin donne le nom tout de suite (web.7.22)', async () => {
+    const joueur = afficher(bonus())
+    await joueur.type(screen.getByRole('combobox', { name: 'Ta réponse' }), '972{Enter}')
+    // toute la carte est en rouge : « en rouge sur la carte » ne désignait rien
+    expect(await screen.findByText(/^Raté : c’était Guadeloupe \(971\) \(ta réponse : Martinique \(972\)\)\.$/)).toBeDefined()
+    // un seul département : pas de « Clique ou passe sur un département », son nom et son résultat
+    expect(await screen.findByText('Guadeloupe (971), manqué')).toBeDefined()
+    expect(screen.queryByText(/Clique ou passe/)).toBeNull()
+  })
+
   it('lancé par le joueur, le focus va dans la saisie : le numéro se tape tout de suite', () => {
     afficher(bonus(), true)
     expect(document.activeElement).toBe(screen.getByRole('combobox', { name: 'Ta réponse' }))

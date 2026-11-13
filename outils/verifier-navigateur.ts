@@ -118,9 +118,13 @@ async function partieDuJour(navigateur: Browser, adresse: string, theme: Theme):
   const carte = panneau.getByRole('group', { name: 'Carte des départements de la région' })
   await carte.waitFor()
   await verifier(page, theme, 'bonus en cours')
-  const zone = carte.getByRole('button').first()
+  // un département de la carte, et son numéro. En outre-mer (depuis web.7.22 : le script attendait un bouton, et
+  // restait bloqué les jours d'outre-mer), la question demande le numéro sans clic : la zone n'est pas un bouton
+  const zone = carte.locator('[data-code]').first()
   const code = await zone.getAttribute('data-code')
-  await zone.click()
+  if ((await zone.getAttribute('role')) === 'button') {
+    await zone.click()
+  }
   const reponse = panneau.getByRole('combobox', { name: 'Ta réponse' })
   await reponse.fill(code ?? '')
   await reponse.press('Escape')
