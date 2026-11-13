@@ -95,7 +95,7 @@ l'autre, et le web n'a plus à rester égal au Java.
 8. **web.8 Le domaine et le défi** (ancien web.7, renuméroté le 16 octobre 2026) : d'abord le nom de domaine, puis le défi (un lien à envoyer à un ami pour lui
    faire deviner une région). Pas d'archives des jours passés (décidé avant web.4).
 
-## Où on en est (mis à jour le 9 novembre 2026, sur le PC)
+## Où on en est (mis à jour le 13 novembre 2026, sur le PC)
 
 ### À faire sur le PC (rien depuis le 9 novembre 2026)
 
@@ -343,6 +343,10 @@ squash le 18 octobre 2026 sur l'accord de l'utilisateur, étiquettes `web-7.8` �
     trois branches supprimées en local et sur GitHub, après avoir vérifié que l'arbre de `main` était celui de la
     dernière. 340 tests ; `npm run verifier:navigateur` : 20 écrans, 0 problème. Ces notes : PR web.7.21.1, sans
     étiquette.
+  - **Les corrections relevées le 13 novembre 2026 (web.7.22)** : une passe d'optimisation, de bugs et d'interface,
+    demandée par l'utilisateur (« une passe d'optimisation, de vérification de bugs, et d'amélioration d'interface »),
+    faite sur le PC sans rien modifier, puis présentée. **Tout est décidé** le 13 novembre 2026 (« Ok pour les reco »)
+    et **lancé** dans le même message (« tu peux tout lancer ») : section du même nom plus bas.
   - **Encore à vérifier par l'utilisateur, en jouant** : web.7.20 sur un vrai téléphone (fenêtre des résultats, la
     confirmation de « Passer »).
   - **Après web.7.21, la prochaine étape est à choisir avec l'utilisateur**, parmi les mêmes candidates qu'après
@@ -1233,6 +1237,50 @@ Le point 9, dans une PR (branche `web-7-21-verifier-navigateur`), empilée sur w
   en échec, avec la règle et l'élément.
 - Limite : axe ne mesure que le contraste du texte. Celui d'un contrôle (point 4) n'est pas couvert par le script.
 - `tsconfig.node.json` vérifie aussi `outils/**/*.ts` ; README : la commande, et quoi faire sans Edge ni Chrome.
+
+## Les corrections relevées le 13 novembre 2026 (web.7.22)
+
+Demandé par l'utilisateur le 13 novembre 2026 : « une passe d'optimisation, de vérification de bugs, et d'amélioration
+d'interface ». Vérifié **sans rien modifier**, sur le PC : lint, types, build et tests (**340 sur 340**, 19 s) ; le code
+relu (App, les deux parties, plateau, saisie, recherche, partage, compte à rebours, carte de fin) ; une partie du jour
+(Guadeloupe, gagnée en 3 essais, bonus raté exprès) et une partie libre (PACA en 4 essais, avec un doublon, un nom
+inconnu, un nom d'ancienne région) jouées dans le navigateur intégré, à 375 × 812 ; `deviner()` lancé dans la page sur
+une trentaine de saisies, dans les deux époques.
+
+### Les bugs
+
+| # | Problème | Pour le reproduire | Cause |
+|---|---|---|---|
+| 1 | Carte de fin : la pastille numérotée d'une réponse d'outre-mer cache la région | Partie du jour du 13 novembre 2026 (Guadeloupe) : le « 3 » couvre Grande-Terre | `CarteFrance.tsx` pose la pastille dans le coin en haut à droite de l'encadré, là où est justement Grande-Terre |
+| 2 | Régions actuelles : « Aquitaine », « Auvergne », « Bourgogne » sont joués comme la nouvelle région (un essai perdu), quand « Lorraine », « Picardie », « Rhône-Alpes » donnent le message « ancienne région, aujourd'hui… » sans coûter d'essai | Partie libre, régions actuelles, proposer « Aquitaine » | `deviner()` (`recherche.ts`) cherche le nom exact dans l'époque jouée, puis un mot des noms : « aquitaine » est un mot de « Nouvelle-Aquitaine ». `autreEpoque()` n'est jamais consulté |
+
+### Les soucis d'interface
+
+| # | Problème | Piste |
+|---|---|---|
+| 3 | « PACA » : « Cette région n'existe pas ». Les sigles courants ne sont pas acceptés | Une liste fermée de sigles |
+| 4 | Bonus d'un seul département (outre-mer) : « Clique ou passe sur un département pour voir son nom » ne sert à rien ; « c'était Guadeloupe (971), en rouge sur la carte » désigne toute la carte | Des textes à part quand la région n'a qu'un département |
+| 5 | Les encadrés d'outre-mer de la carte de fin font une vingtaine de pixels sur téléphone : une réponse d'outre-mer reste un point | Avec le point 1 |
+
+### L'optimisation
+
+| # | Constat | Piste |
+|---|---|---|
+| 6 | Le code du site fait 115 ko compressés, dont environ 15 ko pour les **deux** cartes de fin, chargées dès l'ouverture alors qu'on ne les voit qu'à la fin, et une seule à la fois | Les charger à la demande, une par époque, comme les contours des départements. Gain modeste (environ 13 %) |
+
+Le reste est sain : React et les données sont légers, les silhouettes et les départements déjà chargés à la demande (sous
+un nom qui ne trahit pas la réponse).
+
+### Les décisions (validées le 13 novembre 2026)
+
+L'utilisateur a accepté toutes les recommandations (« Ok pour les reco, tu peux tout lancer »).
+
+- **Points retenus : tous**, de 1 à 6.
+- **(2)** Un nom **exact** d'une région de l'autre époque donne toujours le message, sans coûter d'essai (la règle de
+  « Lorraine », pour tous).
+- **(3)** Les sigles acceptés, en liste fermée : **PACA, IDF, ARA, BFC, HDF, NPDC**.
+- **Découpage** : web.7.22.0 (ces notes, sans étiquette) ; **web.7.22** (points 1 à 6, étiquette `web-7.22`). PR
+  empilées, fusionnées sur l'accord de l'utilisateur.
 
 ## Les améliorations à reprendre (relevées le 16 octobre 2026)
 
