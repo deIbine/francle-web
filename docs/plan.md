@@ -346,9 +346,14 @@ squash le 18 octobre 2026 sur l'accord de l'utilisateur, étiquettes `web-7.8` �
   - **Les corrections relevées le 13 novembre 2026 (web.7.22)** : une passe d'optimisation, de bugs et d'interface,
     demandée par l'utilisateur (« une passe d'optimisation, de vérification de bugs, et d'amélioration d'interface »),
     faite sur le PC sans rien modifier, puis présentée. **Tout est décidé** le 13 novembre 2026 (« Ok pour les reco »)
-    et **lancé** dans le même message (« tu peux tout lancer ») : section du même nom plus bas. **Codé** le même jour :
-    PR web.7.22.0 (notes) et web.7.22 (le code), empilées, **à fusionner sur l'accord de l'utilisateur**, puis
-    étiquette `web-7.22`.
+    et **lancé** dans le même message (« tu peux tout lancer ») : section du même nom plus bas. **Codé et en ligne** le même
+    jour. Deux PR empilées, fusionnées en squash le 13 novembre 2026 sur l'accord de l'utilisateur (« Tu peux fusionner,
+    étiqueter, supprimer ») : #67 (web.7.22.0, `731f46b`, sans étiquette), puis #68 (web.7.22, étiquette `web-7.22`,
+    `ac846aa`), rebasée sur `main` avant (`git rebase --onto origin/main web-7-22-0-notes web-7-22-corrections`, arbre
+    identique avant et après), base changée en `main`. Les deux branches supprimées en local et sur GitHub, après avoir
+    vérifié que l'arbre de `main` était celui de chacune. Ces notes : PR web.7.22.1, sans étiquette.
+  - **Encore à vérifier par l'utilisateur, en jouant** : la loupe d'outre-mer sur un vrai téléphone, en clair et en
+    sombre (vue dans le navigateur intégré à 375 pixels, en sombre seulement).
   - **Encore à vérifier par l'utilisateur, en jouant** : web.7.20 sur un vrai téléphone (fenêtre des résultats, la
     confirmation de « Passer »).
   - **Après web.7.21, la prochaine étape est à choisir avec l'utilisateur**, parmi les mêmes candidates qu'après
