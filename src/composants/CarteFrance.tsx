@@ -6,25 +6,11 @@ Le jeu Java avait une image par région (35 cartes). Ici, un seul fichier par é
 outils/generer_images.py, donne le contour de chaque région : le composant les dessine tous en SVG, et colore la
 réponse et les essais. C'est l'avantage d'un SVG écrit dans la page : chaque région est un élément qu'on peut styler.
  */
+import { LOUPE, RAYON, useCarte, type Carte } from '../cartes.ts'
 import { centreDeGravite } from '../contours.ts'
 import { couleurProximite } from '../domaine/partage.ts'
 import type { Partie } from '../domaine/partie.ts'
-import type { Mode } from '../domaine/regions.ts'
 import { useLangue, useTextes } from '../textes.ts'
-import anciennes from '../images/cartes/anciennes.json'
-import nouvelles from '../images/cartes/nouvelles.json'
-
-interface Carte {
-  largeur: number
-  hauteur: number
-  encadres: { x: number; y: number; cote: number }[]
-  regions: Record<string, string>
-}
-
-const CARTES: Record<Mode, Carte> = { anciennes, nouvelles }
-
-// le rayon des pastilles numérotées, en unités de la carte (1000 de large) : environ 17 pixels de diamètre à l'écran
-const RAYON = 26
 
 // les couleurs de la légende : quelques étapes du dégradé suffisent, le navigateur fond les couleurs entre elles
 const ETAPES = [0, 25, 50, 75, 100]
@@ -41,16 +27,34 @@ function encadreDe(carte: Carte, d: string): Encadre | undefined {
 }
 
 // où poser la pastille d'une région : en son centre ; mais une région d'outre-mer est trop petite et la pastille la
-// cacherait, elle va donc dans le coin en haut à droite de son encadré
-function placePastille(carte: Carte, d: string): { x: number; y: number } {
+// cacherait, elle va donc dans le coin en haut à droite de son encadré. La réponse, elle, a sa loupe : sa pastille
+// va juste à droite de la loupe, en dehors, pour ne rien cacher (dans le coin, elle couvrait la moitié de la
+// Guadeloupe)
+function placePastille(carte: Carte, d: string, reponse: boolean): { x: number; y: number } {
   const encadre = encadreDe(carte, d)
-  return encadre === undefined ? centreDeGravite(d) : { x: encadre.x + encadre.cote - RAYON, y: encadre.y + RAYON }
+  if (encadre === undefined) {
+    return centreDeGravite(d)
+  }
+  return reponse
+    ? { x: LOUPE.x + LOUPE.cote + 8 + RAYON, y: LOUPE.y + RAYON }
+    : { x: encadre.x + encadre.cote - RAYON, y: encadre.y + RAYON }
 }
 
 export function CarteFrance({ partie }: { partie: Partie }) {
+  const carte = useCarte(partie.mode)
+  // la carte pas encore arrivée (chargée à la demande, voir cartes.ts) : sa place, vide, pour que les résultats ne
+  // sautent pas à son arrivée. aspect-[1000/956] : la hauteur suit la largeur, dans les proportions de la carte
+  if (carte === undefined) {
+    return <div className="mx-auto aspect-[1000/956] w-full max-w-xs" />
+  }
+  return <Dessin partie={partie} carte={carte} />
+}
+
+// la carte elle-même, une fois arrivée. Un composant à part : React demande d'appeler les mêmes hooks à chaque
+// affichage, dans le même ordre ; ceux du dessin ne peuvent donc pas venir après le « return » de l'attente
+function Dessin({ partie, carte }: { partie: Partie; carte: Carte }) {
   const textes = useTextes()
   const langue = useLangue()
-  const carte = CARTES[partie.mode]
   const cible = partie.cible.id
   // chaque région proposée : son numéro d'essai et sa couleur (la réponse, si elle a été trouvée, reste en bleu)
   const essais = new Map(
@@ -117,8 +121,31 @@ export function CarteFrance({ partie }: { partie: Partie }) {
             </path>
           )
         })}
+        {/* la loupe : la réponse d'outre-mer en grand. transform se lit de droite à gauche : on ramène l'encadré à
+            l'origine (translate négatif), on l'agrandit (scale), puis on le pose à la place de la loupe */}
+        {encadreReponse !== undefined && (
+          <g data-loupe="">
+            <rect
+              x={LOUPE.x}
+              y={LOUPE.y}
+              width={LOUPE.cote}
+              height={LOUPE.cote}
+              vectorEffect="non-scaling-stroke"
+              className="fill-fond stroke-francle-fonce stroke-[3] dark:stroke-francle-clair"
+            />
+            <path
+              d={carte.regions[cible]}
+              transform={`translate(${LOUPE.x} ${LOUPE.y}) scale(${LOUPE.cote / encadreReponse.cote}) translate(${-encadreReponse.x} ${-encadreReponse.y})`}
+              vectorEffect="non-scaling-stroke"
+              strokeLinejoin="round"
+              className="fill-francle-fonce stroke-white stroke-[1.5]"
+            >
+              <title>{partie.cible.nom[langue]}</title>
+            </path>
+          </g>
+        )}
         {[...essais].map(([id, { numero }]) => {
-          const { x, y } = placePastille(carte, carte.regions[id])
+          const { x, y } = placePastille(carte, carte.regions[id], id === cible)
           return (
             // pointer-events-none : la souris passe à travers la pastille, et le nom de la région s'affiche quand même
             <g key={id} className="pointer-events-none">

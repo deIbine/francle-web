@@ -7,7 +7,8 @@ Le plateau ne garde pas la partie : il la reçoit, et demande à son parent de l
 joueur propose ou abandonne. C'est le parent qui sait quoi faire ensuite (sauvegarder pour la partie du jour, rien
 pour la partie libre) : le même plateau sert aux deux.
  */
-import { useState, type ReactNode } from 'react'
+import { useEffect, useState, type ReactNode } from 'react'
+import { prechargerCarte } from '../cartes.ts'
 import { abandonner, enCours, indicesAffiches, proposer, type Partie } from '../domaine/partie.ts'
 import type { ModesDifficiles } from '../domaine/partage.ts'
 import { anciennesRegionsDe, nouvelleRegionDe } from '../domaine/departements.ts'
@@ -61,6 +62,10 @@ export function Plateau({ partie, onChanger, modes, angle, unite, fin, demandeLi
       setListe(true)
     }
   }
+
+  // la carte de fin de cette époque, demandée dès le début de la partie (depuis web.7.22) : elle n'est plus dans le
+  // code chargé à l'ouverture, et sera arrivée bien avant la fin (voir cartes.ts)
+  useEffect(() => prechargerCarte(partie.mode), [partie.mode])
 
   function jouer(saisie: string): boolean {
     // le nom tapé, ou la seule région qu'il évoque (« bret » -> Bretagne). Un refus ne coûte jamais d'essai

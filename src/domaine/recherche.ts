@@ -19,6 +19,25 @@ for (const region of REGIONS) {
   PAR_CLE.set(simplifier(region.nom.en), region)
 }
 
+// les sigles courants (depuis web.7.22) : « PACA » est souvent plus connu que le nom entier. Une liste fermée, décidée
+// avec l'utilisateur, plutôt que des initiales calculées : « CVL » ou « PDL » n'aideraient personne. Ils valent comme un
+// nom exact (chercher), et la région s'affiche dans les suggestions dès que le sigle est tapé en entier
+const SIGLES: Readonly<Record<string, string>> = {
+  paca: 'provence-alpes-cote-dazur',
+  idf: 'ile-de-france',
+  ara: 'auvergne-rhone-alpes',
+  bfc: 'bourgogne-franche-comte',
+  hdf: 'hauts-de-france',
+  npdc: 'nord-pas-de-calais',
+}
+for (const [sigle, id] of Object.entries(SIGLES)) {
+  const region = REGIONS.find((candidate) => candidate.id === id)
+  if (region === undefined) {
+    throw new Error(`Sigle ${sigle} : la région ${id} n'existe pas`)
+  }
+  PAR_CLE.set(sigle, region)
+}
+
 // la région correspondant à la saisie du joueur, en français ou en anglais quelle que soit la langue choisie,
 // ou undefined si elle est inconnue ou refusée dans ce mode
 export function chercher(saisie: string, mode: Mode): Region | undefined {
@@ -47,10 +66,12 @@ export function suggestions(saisie: string, mode: Mode, langue: Langue): Region[
   if (debut === '') {
     return []
   }
+  // un sigle tapé en entier (« paca ») : sa région en tête de liste, pour que le joueur voie ce qu'il va proposer
+  const parSigle = debut in SIGLES ? PAR_CLE.get(debut) : undefined
   const parNom: Region[] = []
   const parMot: Region[] = []
   for (const region of REGIONS) {
-    if (!estDansLeMode(region, mode)) {
+    if (!estDansLeMode(region, mode) || region === parSigle) {
       continue
     }
     const noms = [region.nom.fr, region.nom.en]
@@ -65,17 +86,36 @@ export function suggestions(saisie: string, mode: Mode, langue: Langue): Region[
   // comme en Java et dans un dictionnaire (« Languedoc » avant « La Réunion », lu « lareunion »)
   const ordre = new Intl.Collator(langue, { ignorePunctuation: true })
   const alphabetique = (a: Region, b: Region) => ordre.compare(a.nom[langue], b.nom[langue])
-  return [...parNom.sort(alphabetique), ...parMot.sort(alphabetique)]
+  const sigle = parSigle !== undefined && estDansLeMode(parSigle, mode) ? [parSigle] : []
+  return [...sigle, ...parNom.sort(alphabetique), ...parMot.sort(alphabetique)]
+}
+
+// les régions de 2016 qui n'ont fait que changer de nom, sans changer de territoire : l'ancienne -> la nouvelle
+const RENOMMEES: Readonly<Record<string, string>> = { centre: 'centre-val-de-loire' }
+
+// la même région sous son nom de l'autre époque (Centre <-> Centre-Val de Loire), si elle n'a fait que changer de nom
+function renommee(region: Region, mode: Mode): Region | undefined {
+  const id =
+    mode === 'nouvelles'
+      ? RENOMMEES[region.id]
+      : Object.keys(RENOMMEES).find((ancienne) => RENOMMEES[ancienne] === region.id)
+  const autre = REGIONS.find((candidate) => candidate.id === id)
+  return autre !== undefined && estDansLeMode(autre, mode) ? autre : undefined
 }
 
 // la région que le joueur veut dire quand il appuie sur Entrée sans choisir dans la liste : le nom exact s'il l'a
 // tapé, sinon la seule suggestion (« bret » -> Bretagne). « plusieurs » si la saisie en évoque plusieurs (« nor » chez
 // les anciennes régions : Nord-Pas-de-Calais, Basse- et Haute-Normandie) : mieux vaut demander que jouer au hasard
 // l'une d'elles et faire perdre un essai. undefined si elle n'en évoque aucune
+//
+// Le nom exact d'une région de l'AUTRE époque ne devine rien (depuis web.7.22) : « Aquitaine », chez les régions
+// actuelles, jouait Nouvelle-Aquitaine (un mot de son nom) et coûtait un essai, quand « Lorraine » donnait un message
+// sans en coûter. Désormais tous ces noms passent par autreEpoque, et le plateau explique. Sauf une région seulement
+// renommée (RENOMMEES) : c'est le même territoire, le message ne ferait que demander de retaper le nom
 export function deviner(saisie: string, mode: Mode): Region | 'plusieurs' | undefined {
-  const exacte = chercher(saisie, mode)
+  const exacte = PAR_CLE.get(simplifier(saisie))
   if (exacte !== undefined) {
-    return exacte
+    return estDansLeMode(exacte, mode) ? exacte : renommee(exacte, mode)
   }
   // la langue ne change que l'ordre des suggestions, pas leur nombre
   const liste = suggestions(saisie, mode, 'fr')

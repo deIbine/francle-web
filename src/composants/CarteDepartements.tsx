@@ -197,7 +197,12 @@ function Carte({ bonus, onRepondre, choisi, onChoisir, contours }: Props & { con
       </div>
       {fini && (
         <p aria-live="polite" className="min-h-5 text-center text-sm text-discret">
-          {survole === undefined ? textes.bonus.survol : etiquette(survole, 0)}
+          {/* un seul département (l'outre-mer) : rien à survoler, son nom tout de suite (depuis web.7.22) */}
+          {survole === undefined
+            ? bonus.ordre.length === 1
+              ? etiquette(bonus.ordre[0], 0)
+              : textes.bonus.survol
+            : etiquette(survole, 0)}
         </p>
       )}
     </div>

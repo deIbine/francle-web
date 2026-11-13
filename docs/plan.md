@@ -346,7 +346,9 @@ squash le 18 octobre 2026 sur l'accord de l'utilisateur, étiquettes `web-7.8` �
   - **Les corrections relevées le 13 novembre 2026 (web.7.22)** : une passe d'optimisation, de bugs et d'interface,
     demandée par l'utilisateur (« une passe d'optimisation, de vérification de bugs, et d'amélioration d'interface »),
     faite sur le PC sans rien modifier, puis présentée. **Tout est décidé** le 13 novembre 2026 (« Ok pour les reco »)
-    et **lancé** dans le même message (« tu peux tout lancer ») : section du même nom plus bas.
+    et **lancé** dans le même message (« tu peux tout lancer ») : section du même nom plus bas. **Codé** le même jour :
+    PR web.7.22.0 (notes) et web.7.22 (le code), empilées, **à fusionner sur l'accord de l'utilisateur**, puis
+    étiquette `web-7.22`.
   - **Encore à vérifier par l'utilisateur, en jouant** : web.7.20 sur un vrai téléphone (fenêtre des résultats, la
     confirmation de « Passer »).
   - **Après web.7.21, la prochaine étape est à choisir avec l'utilisateur**, parmi les mêmes candidates qu'après
@@ -1281,6 +1283,28 @@ L'utilisateur a accepté toutes les recommandations (« Ok pour les reco, tu peu
 - **(3)** Les sigles acceptés, en liste fermée : **PACA, IDF, ARA, BFC, HDF, NPDC**.
 - **Découpage** : web.7.22.0 (ces notes, sans étiquette) ; **web.7.22** (points 1 à 6, étiquette `web-7.22`). PR
   empilées, fusionnées sur l'accord de l'utilisateur.
+
+### Fait à web.7.22 (le 13 novembre 2026)
+
+Les points 1 à 6, dans une PR (branche `web-7-22-corrections`), empilée sur web.7.22.0. 354 tests, lint, types et
+build passent ; `npm run verifier:navigateur` : 18 écrans, 0 problème.
+
+- (1, 5) `CarteFrance.tsx` : une réponse d'outre-mer a sa **loupe**, son tracé agrandi (220 unités au lieu de 100) dans
+  la Manche, en haut à gauche de la carte ; sa pastille est à droite de la loupe, hors de tout encadré. Un test vérifie,
+  sur les deux cartes, qu'aucune région ne touche la loupe ni sa pastille. Les autres essais d'outre-mer gardent leur
+  pastille dans le coin de leur encadré.
+- (2) `recherche.ts` : le nom exact d'une région de l'autre époque ne devine plus rien, le plateau affiche le message.
+  **Écart à la décision** : « Centre » (devenu Centre-Val de Loire sans changer de territoire) se joue sous ses deux
+  noms, dans les deux époques ; le message n'aurait fait que demander de retaper le nom. C'était déjà le comportement
+  (testé) pour « Centre » chez les régions actuelles.
+- (3) Les sigles PACA, IDF, ARA, BFC, HDF, NPDC, comme un nom exact ; la région en tête des suggestions dès que le sigle
+  est tapé. Un sigle de l'autre époque (« ARA » chez les anciennes régions) donne le message.
+- (4) `textes.ts` (`fauxSeul`), `JeuBonus.tsx`, `CarteDepartements.tsx` : pour un bonus d'un seul département, plus
+  de « en rouge sur la carte », et le nom du département sous la carte de fin à la place de « Clique ou passe… ».
+- (6) `cartes.ts` : les deux cartes de fin chargées à la demande ; le plateau demande celle de l'époque au début de la
+  partie. Code chargé à l'ouverture : **115,2 -> 100,9 Ko** compressés (`npm run build`).
+- En plus, trouvé en vérifiant : `outils/verifier-navigateur.ts` restait bloqué les jours où la région du jour est en
+  outre-mer (il attendait un département à cliquer). Il lit maintenant le numéro sans cliquer.
 
 ## Les améliorations à reprendre (relevées le 16 octobre 2026)
 

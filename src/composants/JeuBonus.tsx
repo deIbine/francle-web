@@ -99,7 +99,8 @@ export function JeuBonus({ bonus, onChanger, focaliser = false, demandeListe = 0
       ? ''
       : juste(derniere)
         ? textes.bonus.juste(nom(derniere.demande))
-        : textes.bonus.faux(nom(derniere.demande), nom(derniere.donne))
+        : // un seul département : toute la carte est en rouge, le message ne le dit plus (depuis web.7.22)
+          (total(bonus) === 1 ? textes.bonus.fauxSeul : textes.bonus.faux)(nom(derniere.demande), nom(derniere.donne))
 
   function repondreClic(departement: Departement) {
     setMessage(AUCUN)

@@ -1808,3 +1808,77 @@ commandes), **comment le penser** (la question à se poser la prochaine fois).
   pas voir ? », et le couvrir par un autre. Ici, jsdom pour la logique (rapide, à chaque PR), un vrai navigateur pour
   ce qui se voit (plus lent, à la main avant une PR d'affichage). axe, même dans un vrai navigateur, ne mesure que le
   contraste du **texte** : celui d'un contrôle (bouton radio, case) se calcule encore à la main (web.7.20).
+
+## web.7.22 Les corrections du 13 novembre 2026
+
+### Deux chemins pour une même saisie : la recherche des régions
+
+- **Pourquoi** : en partie « régions actuelles », « Lorraine » donnait un message sans coûter d'essai, mais
+  « Aquitaine » jouait Nouvelle-Aquitaine et coûtait un essai. Deux noms de même nature (une ancienne région, tapée en
+  entier) suivaient deux chemins : `deviner()` cherchait le nom exact **dans l'époque jouée**, ne le trouvait pas, puis
+  essayait les **mots** des noms ; « aquitaine » est un mot de « Nouvelle-Aquitaine », « lorraine » n'est un mot de
+  rien. Le message d'`autreEpoque()` ne servait donc qu'aux noms qui ne ressemblaient à rien.
+- **Comment le faire** : lancer la fonction elle-même sur une série de saisies, plutôt que jouer une partie par cas.
+  Dans le site lancé par `npm run dev`, la console du navigateur accepte
+  `const R = await import('/francle-web/src/domaine/recherche.ts')`, puis `R.deviner('Aquitaine', 'nouvelles')` :
+  Vite sert chaque fichier du code tel quel, on peut l'importer à la main. Trente saisies en une boucle ont montré
+  l'écart. La correction : `deviner()` regarde le nom exact dans **toutes** les régions ; s'il appartient à l'autre
+  époque, elle ne devine rien, et le plateau passe au message. Une exception, **Centre** (devenue Centre-Val de Loire
+  sans changer de territoire) : le message ne ferait que demander de retaper le nom, elle se joue sous ses deux noms
+  (une table `RENOMMEES` d'une ligne).
+- **Les sigles** (« PACA », « IDF »…) : une liste fermée, rangée dans la même table que les noms (`PAR_CLE`). Ils
+  passent ainsi par les mêmes chemins (époque, déjà proposée, autre époque) sans une ligne de plus. Un contrôle au
+  chargement (`throw` si une région de la liste n'existe pas) transforme une faute de frappe en erreur immédiate, comme
+  une assertion Java au démarrage.
+- **Comment le penser** : quand deux entrées « de la même sorte » donnent deux résultats différents, chercher l'endroit
+  où leurs chemins se séparent, et se demander lequel est voulu. Ici la règle existait déjà (le message) : la corriger,
+  c'était la rendre vraie pour tous les noms.
+
+### Une pastille qui cache ce qu'elle désigne : la loupe de l'outre-mer
+
+- **Pourquoi** : sur la carte de fin, la pastille d'une région d'outre-mer allait dans le coin de son encadré, pensé
+  vide ; sur la Guadeloupe, c'est justement là qu'est Grande-Terre. Et l'encadré ne fait qu'une vingtaine de pixels sur
+  téléphone : même sans pastille, la réponse n'était qu'un point.
+- **Comment le faire** : une réponse d'outre-mer est maintenant redessinée en grand (une « loupe »), dans un coin de
+  mer de la carte. Pour trouver ce coin, `getBBox()` dans le navigateur (le rectangle qui contient un tracé SVG) sur
+  chaque région : rien en haut à gauche avant 247 unités. La loupe réutilise le même tracé, déplacé et agrandi par
+  `transform="translate(…) scale(…) translate(…)"`, qui se lit de droite à gauche (ramener l'encadré à l'origine,
+  agrandir, poser). Un test vérifie, sur les deux cartes, qu'aucun point d'aucune région ne tombe dans la loupe ni
+  dans sa pastille : si le script des images change un jour la projection, le test le dira.
+- **Le piège** : le premier test vérifiait tout le rectangle qui englobe la loupe **et** la pastille, et échouait sur le
+  Cotentin, sous la pastille. Le test était faux, pas la carte : deux carrés à garder libres, pas un grand rectangle.
+- **Comment le penser** : une règle de placement (« dans le coin ») marche pour les cas qu'on a regardés. Pour
+  l'éprouver, la vérifier sur **toutes** les données (ici les cinq régions d'outre-mer, sur les deux cartes), par un
+  test plutôt qu'à l'œil.
+
+### Charger plus tard ce qu'on voit plus tard
+
+- **Pourquoi** : `import anciennes from '../images/cartes/anciennes.json'` en haut d'un fichier met ces données dans
+  le code chargé à l'ouverture du site. Les deux cartes de fin y étaient (15 Ko compressés sur 115), alors qu'on n'en
+  voit qu'une, et seulement à la fin.
+- **Comment le faire** : `npm run build` affiche la taille de chaque morceau ; un fichier de données dans le gros
+  `index-….js` est un candidat. Un `import()` écrit dans une fonction (import dynamique) en fait un morceau à part,
+  téléchargé seulement quand on appelle la fonction (`cartes.ts`, sur le modèle de `contours.ts`). Pour que la carte
+  soit là à la fin, le plateau la demande dès le début de la partie (`prechargerCarte`, dans un `useEffect`) : elle
+  arrive pendant que le joueur réfléchit. En attendant, une place vide aux bonnes proportions
+  (`aspect-[1000/956]`), pour que les résultats ne sautent pas à son arrivée. Résultat : 115,2 -> 100,9 Ko au
+  démarrage, et un joueur de la partie du jour ne télécharge jamais la carte des anciennes régions.
+- **Les tests** : ils dessinent la carte sans rien attendre. Plutôt que de les réécrire tous, `preparationTests.ts`
+  charge les deux cartes avant les tests (un `await` en haut du fichier, permis dans un module) : chaque test les
+  trouve déjà arrivées, comme le joueur.
+- **Une règle de React rencontrée** : les hooks (`useTextes`, `useLangue`) doivent être appelés à chaque affichage,
+  dans le même ordre ; on ne peut pas en appeler après un `return` anticipé (« pas encore arrivée »). D'où un second
+  composant, `Dessin`, qui n'est affiché qu'une fois la carte là. C'est l'équivalent de séparer une méthode en deux
+  quand une partie ne doit tourner que si une condition est vraie.
+- **Comment le penser** : pour chaque donnée chargée au départ, se demander « quand le joueur la voit-il ? ». Si c'est
+  plus tard, la charger plus tard, mais avant qu'il en ait besoin. Et mesurer avant et après : un gain de 12 % se
+  dit, il ne se devine pas.
+
+### Un texte écrit pour le cas courant
+
+- **Pourquoi** : « en rouge sur la carte » et « Clique ou passe sur un département » supposent plusieurs
+  départements. Pour l'outre-mer (un seul), la carte entière est rouge, et il n'y a rien à survoler.
+- **Comment le faire** : un second texte (`fauxSeul`), choisi quand le bonus n'a qu'une question ; sous la carte de
+  fin, le nom du seul département, tout de suite.
+- **Comment le penser** : relire chaque message en se plaçant dans le cas le plus petit (un seul élément, zéro
+  essai, la dernière question) : c'est là qu'une phrase écrite pour le cas courant sonne faux.

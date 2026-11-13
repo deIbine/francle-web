@@ -7,6 +7,7 @@ import nouvelles from '../images/cartes/nouvelles.json'
 import { couleurProximite } from '../domaine/partage.ts'
 import { abandonner, nouvellePartie, proposer, type Partie } from '../domaine/partie.ts'
 import { REGIONS, parId, tirables, type Mode } from '../domaine/regions.ts'
+import { LOUPE, RAYON } from '../cartes.ts'
 import { CarteFrance } from './CarteFrance.tsx'
 
 function jouer(cible: string, ...propositions: string[]): Partie {
@@ -112,7 +113,8 @@ describe('La carte de fin en couleur', () => {
 
   it('une réponse d’outre-mer : son encadré est bordé de bleu, et lui seul', () => {
     const { container, unmount } = render(<CarteFrance partie={jouer('martinique', 'Bretagne', 'Martinique')} />)
-    const encadres = container.querySelectorAll('rect')
+    // les encadrés, sans le cadre de la loupe
+    const encadres = container.querySelectorAll('rect:not([data-loupe] rect)')
     expect(encadres).toHaveLength(nouvelles.encadres.length)
     expect(container.querySelectorAll('rect[data-reponse]')).toHaveLength(1)
     // dessiné en dernier, pour que son trait passe devant ceux des encadrés voisins
@@ -121,6 +123,43 @@ describe('La carte de fin en couleur', () => {
     // une réponse en métropole : aucun encadré mis en avant
     render(<CarteFrance partie={OCCITANIE} />)
     expect(document.querySelectorAll('rect[data-reponse]')).toHaveLength(0)
+  })
+
+  it('une réponse d’outre-mer a sa loupe, et sa pastille ne la cache plus (depuis web.7.22)', () => {
+    // la Guadeloupe trouvée en 3 essais : dans le coin de l'encadré, le « 3 » couvrait Grande-Terre
+    const { container, unmount } = render(<CarteFrance partie={jouer('guadeloupe', 'Bretagne', 'Martinique', 'Guadeloupe')} />)
+    const loupe = container.querySelector('[data-loupe]')
+    expect(loupe?.querySelector('title')?.textContent).toBe('Guadeloupe')
+    // la pastille de la réponse : à droite de la loupe, hors de la loupe et de tout encadré
+    const pastille = [...container.querySelectorAll('g')].find((g) => g.textContent === '3')?.querySelector('circle')
+    const x = Number(pastille?.getAttribute('cx'))
+    const y = Number(pastille?.getAttribute('cy'))
+    expect(x - RAYON).toBeGreaterThan(LOUPE.x + LOUPE.cote)
+    for (const encadre of nouvelles.encadres) {
+      const loin = x + RAYON < encadre.x || x - RAYON > encadre.x + encadre.cote || y + RAYON < encadre.y || y - RAYON > encadre.y + encadre.cote
+      expect(loin).toBe(true)
+    }
+    unmount()
+    // une réponse en métropole : pas de loupe
+    render(<CarteFrance partie={OCCITANIE} />)
+    expect(document.querySelector('[data-loupe]')).toBeNull()
+  })
+
+  it.each([
+    ['nouvelles', nouvelles],
+    ['anciennes', anciennes],
+  ] as const)('carte « %s » : la loupe et sa pastille ne couvrent que la mer', (_mode, carte) => {
+    // deux carrés à garder libres : la loupe, et celui de la pastille, à sa droite (en haut)
+    const libres = [
+      { x: LOUPE.x, y: LOUPE.y, cote: LOUPE.cote },
+      { x: LOUPE.x + LOUPE.cote + 8, y: LOUPE.y, cote: 2 * RAYON },
+    ]
+    const dans = (p: Point, c: (typeof libres)[number]) => p.x >= c.x && p.x <= c.x + c.cote && p.y >= c.y && p.y <= c.y + c.cote
+    for (const [id, d] of Object.entries(carte.regions)) {
+      for (const point of morceaux(d).flat()) {
+        expect(libres.some((c) => dans(point, c)), `${id} (${point.x}, ${point.y})`).toBe(false)
+      }
+    }
   })
 
   it('une partie perdue : les six essais en couleur, la réponse en bleu sans pastille', () => {
