@@ -4,14 +4,18 @@ Les statistiques du joueur, calculées à partir de l'historique de ses parties 
 On ne tient pas de compteurs à part (« parties jouées += 1 ») : on recompte tout à partir de l'historique à chaque
 fois. Les statistiques ne peuvent donc jamais être fausses par rapport aux parties : elles en sont déduites.
  */
+import type { ModesDifficiles } from './partage.ts'
 import { ESSAIS_MAX, type Etat } from './partie.ts'
 
-// ce qu'il faut savoir d'une partie pour les statistiques
+// ce qu'il faut savoir d'une partie pour les statistiques et le score (le « résumé » d'une partie transmise, voir
+// transmission.ts)
 export interface Resultat {
   readonly etat: Etat
   readonly essais: number
   // le bonus des départements, s'il est fini (terminé, ou passé après au moins une réponse)
   readonly bonus?: ScoreBonus
+  // les modes difficiles fixés au premier essai (depuis web.9.1 : absents, aucun mode)
+  readonly modes?: ModesDifficiles
 }
 
 // les départements trouvés, sur le nombre de départements de la région

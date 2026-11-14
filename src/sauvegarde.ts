@@ -31,8 +31,6 @@ import {
   passer,
   rejouer,
   rejouerPaires,
-  score,
-  total,
   type Bonus,
   type EtatBonus,
 } from './domaine/bonus.ts'
@@ -41,6 +39,7 @@ import { SANS_MODE, type ModesDifficiles } from './domaine/partage.ts'
 import { regionDuNumero } from './domaine/regionDuJour.ts'
 import { parId, type Mode, type Region } from './domaine/regions.ts'
 import type { Resultat } from './domaine/statistiques.ts'
+import { resume, type PartieTransmise } from './domaine/transmission.ts'
 
 export const CLE = 'francle.parties-du-jour.v1'
 
@@ -201,16 +200,25 @@ export function modesSauves(sauvee: PartieSauvee): ModesDifficiles {
   return sauvee.modes ?? SANS_MODE
 }
 
-// les résultats de toutes les parties sauvées, pour les statistiques. Le bonus ne compte qu'une fois fini
-export function resultats(parties: ReadonlyMap<number, PartieSauvee>): Map<number, Resultat> {
-  return new Map(
-    [...parties].map(([numero, partie]): [number, Resultat] => {
-      const resultat: Resultat = { etat: partie.etat, essais: partie.regions.length }
-      const bonus = restaurerBonus(numero, partie)
-      if (bonus === undefined || bonusEnCours(bonus)) {
-        return [numero, resultat]
+// les parties sauvées, dans le format transmis (domaine/transmission.ts), dans l'ordre des jours. Le bonus sauvé dans
+// l'ancien format (web.7, « reponses ») est rejoué pour retrouver ses paires : le format transmis n'en a qu'un
+export function transmises(parties: ReadonlyMap<number, PartieSauvee>): PartieTransmise[] {
+  return [...parties]
+    .sort(([a], [b]) => a - b)
+    .map(([jour, partie]): PartieTransmise => {
+      const transmise = { jour, regions: partie.regions, etat: partie.etat, modes: modesSauves(partie) }
+      const bonus = restaurerBonus(jour, partie)
+      if (bonus === undefined) {
+        return transmise
       }
-      return [numero, { ...resultat, bonus: { score: score(bonus), total: total(bonus) } }]
-    }),
-  )
+      const paires = bonus.tentatives.map((tentative) => [tentative.demande.code, tentative.donne.code] as const)
+      return { ...transmise, bonus: { paires, etat: bonus.etat, difficile: bonus.difficile } }
+    })
+}
+
+// les résultats de toutes les parties sauvées, pour les statistiques et le score. Depuis web.9.1, ils passent par le
+// format transmis et son résumé : les statistiques du joueur et celles qu'il envoie (lien, puis serveur) se calculent
+// par le même chemin, et ne peuvent pas différer. Le bonus ne compte qu'une fois fini
+export function resultats(parties: ReadonlyMap<number, PartieSauvee>): Map<number, Resultat> {
+  return new Map(transmises(parties).map((partie): [number, Resultat] => [partie.jour, resume(partie)]))
 }

@@ -32,6 +32,20 @@ export function numero(date: Date = new Date()): number {
   return Math.round((jour - PREMIER_JOUR) / UN_JOUR) + 1
 }
 
+// l'inverse de numero() : la date (à minuit, dans le calendrier du joueur) de la partie n° numeroDuJour. Le calcul se
+// fait en temps universel, où tous les jours durent 24 heures, puis on relit l'année, le mois et le jour obtenus
+export function dateDuNumero(numeroDuJour: number): Date {
+  const universelle = new Date(PREMIER_JOUR + (numeroDuJour - 1) * UN_JOUR)
+  return new Date(universelle.getUTCFullYear(), universelle.getUTCMonth(), universelle.getUTCDate())
+}
+
+// le mois de la partie n° numeroDuJour, en un seul nombre (année × 12 + mois, de 0 à 11) : deux parties du même mois
+// ont le même, et les mois se suivent (décembre 2026 + 1 = janvier 2027)
+export function moisDuNumero(numeroDuJour: number): number {
+  const date = dateDuNumero(numeroDuJour)
+  return date.getFullYear() * 12 + date.getMonth()
+}
+
 // ajouté à la graine : les octets ASCII de « Francle ». Trop grand pour un number exact (56 bits) : un BigInt
 const SEL = 0x4672616e636c65n
 // les octets ASCII de « Angle » : un autre sel, pour que l'angle et le mélange ne viennent pas de la même suite
