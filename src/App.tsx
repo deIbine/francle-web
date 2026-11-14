@@ -12,10 +12,12 @@ C'est App qui surveille le changement de jour, que la partie soit finie ou non (
  */
 import { useEffect, useId, useState, type KeyboardEvent } from 'react'
 import { Aide } from './composants/Aide.tsx'
+import { Comparaison } from './composants/Comparaison.tsx'
 import { Credits } from './composants/Credits.tsx'
 import { Fenetre } from './composants/Fenetre.tsx'
 import { IconeAide, IconeListe, IconeReglages, IconeStats } from './composants/Icones.tsx'
 import { Reglages } from './composants/Reglages.tsx'
+import { bilanDuFragment } from './domaine/comparaison.ts'
 import { numero } from './domaine/regionDuJour.ts'
 import { minuitSuivant } from './domaine/temps.ts'
 import { PartieDuJour } from './PartieDuJour.tsx'
@@ -75,6 +77,33 @@ function useJour(): Date {
   return jour
 }
 
+// le lien de comparaison d'un ami (« #bilan=… » dans l'adresse) : le bilan codé, lu à l'ouverture de la page, puis à
+// chaque changement du fragment (un lien collé dans un onglet déjà ouvert sur le jeu ne recharge pas la page : le
+// navigateur envoie seulement l'évènement « hashchange »). Fermer la fenêtre retire le fragment de l'adresse :
+// recharger la page ne la rouvre pas. replaceState change l'adresse sans recharger, et sans ajouter de page à
+// l'historique (le bouton « Retour » ne ramène pas au lien)
+function useBilanAmi(): [string | undefined, () => void] {
+  const [bilan, setBilan] = useState(() => bilanDuFragment(window.location.hash))
+
+  useEffect(() => {
+    function auChangement() {
+      const nouveau = bilanDuFragment(window.location.hash)
+      if (nouveau !== undefined) {
+        setBilan(nouveau)
+      }
+    }
+    window.addEventListener('hashchange', auChangement)
+    return () => window.removeEventListener('hashchange', auChangement)
+  }, [])
+
+  function oublier() {
+    setBilan(undefined)
+    window.history.replaceState(null, '', window.location.pathname + window.location.search)
+  }
+
+  return [bilan, oublier]
+}
+
 export default function App() {
   const jour = useJour()
   const [onglet, setOnglet] = useState<Onglet>('jour')
@@ -82,6 +111,9 @@ export default function App() {
   const [fenetreReglages, setFenetreReglages] = useState(false)
   // « Comment jouer » : ouvert d'emblée à la première visite
   const [fenetreAide, setFenetreAide] = useState(() => !aideVue())
+  const [bilanAmi, oublierBilanAmi] = useBilanAmi()
+  // arrivé par un lien de comparaison : les résultats de la partie du jour ne s'ouvrent pas d'eux-mêmes (lu une fois)
+  const [comparaisonAuDebut] = useState(() => bilanAmi !== undefined)
   // chaque clic sur 📊 augmente ce compteur : la partie du jour, qui garde la fenêtre des statistiques, l'ouvre
   const [demandeStats, setDemandeStats] = useState(0)
   // de même pour 📃, la liste des régions : un compteur par onglet, et seule la partie affichée ouvre sa liste
@@ -249,6 +281,7 @@ export default function App() {
                   demandeStats={demandeStats}
                   demandeListe={demandeListe.jour}
                   onListe={signalerListe('jour')}
+                  resultatsAuDebut={!comparaisonAuDebut}
                 />
               ) : (
                 <PartieLibre reglages={reglages} demandeListe={demandeListe.libre} onListe={signalerListe('libre')} />
@@ -274,6 +307,17 @@ export default function App() {
               marquerAideVue()
             }}
           />
+        </Fenetre>
+
+        {/* la comparaison attend que « Comment jouer » soit fermé (première visite d'un ami) : deux fenêtres l'une sur
+            l'autre se fermeraient dans le désordre */}
+        <Fenetre
+          ouverte={bilanAmi !== undefined && !fenetreAide}
+          onFermer={oublierBilanAmi}
+          titre={textes.comparaison.titre}
+          enHaut
+        >
+          {bilanAmi !== undefined && <Comparaison texte={bilanAmi} aujourdhui={numero(jour)} />}
         </Fenetre>
 
         <Fenetre ouverte={fenetreReglages} onFermer={() => setFenetreReglages(false)} titre={textes.reglages.titre}>

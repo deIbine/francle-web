@@ -159,6 +159,35 @@ const fr = {
   resultats: 'Résultats',
   fermer: 'Fermer',
   partager: 'Partager',
+  // depuis web.9.1.3 : le lien de comparaison, envoyé depuis les statistiques, ouvert dans sa fenêtre
+  comparaison: {
+    titre: 'Comparaison',
+    envoyerTitre: 'Se comparer à un ami',
+    envoyerAide:
+      'Envoie ton bilan par un lien : ton ami verra vos deux bilans côte à côte. Il contient le résultat de chacune de tes parties, pas tes réponses.',
+    envoyer: 'Envoyer mon bilan 🤝',
+    message: (adresse: string) => `Compare ton Francle au mien : ${adresse}`,
+    copie: 'Lien copié : il n’y a plus qu’à le coller.',
+    illisible:
+      'Ce lien de comparaison est illisible : il a peut-être été coupé en route. Demande à ton ami de le renvoyer.',
+    duLien: (date: string) => `Le bilan de ton ami, envoyé le ${date}.`,
+    tableau: 'Ton bilan et celui de ton ami',
+    statistique: 'Statistique',
+    toi: 'Toi',
+    ami: 'Ton ami',
+    meilleur: '(meilleur)',
+    pointsMois: 'Points ce mois-ci',
+    moyenneMois: 'Moyenne ce mois-ci',
+    pointsToujours: 'Points depuis toujours',
+    moyenneToujours: 'Moyenne depuis toujours',
+    bonus: 'Bonus : score moyen',
+    faceAFace: (jours: number, toi: number, ami: number, egalites: number) =>
+      jours === 0
+        ? 'Vous n’avez encore fini aucune partie le même jour.'
+        : `Sur ${jours === 1 ? 'le jour joué' : `les ${jours} jours joués`} par vous deux : ` +
+          `${toi} pour toi, ${ami} pour ton ami, ${egalites} égalité${egalites > 1 ? 's' : ''}.`,
+    retour: 'Envoie-lui le tien en retour :',
+  },
   copie: 'Résultat copié\u00a0: il n’y a plus qu’à le coller.',
   copieImpossible: 'La copie a échoué. Le navigateur l’a peut-être refusée.',
   prochaine: 'Prochaine région dans',
@@ -432,6 +461,33 @@ const en: Textes = {
   fermer: 'Close',
   partager: 'Share',
   copie: 'Result copied: just paste it.',
+  comparaison: {
+    titre: 'Comparison',
+    envoyerTitre: 'Compare with a friend',
+    envoyerAide:
+      'Send your stats as a link: your friend will see both of your stats side by side. It holds the result of each of your games, not your answers.',
+    envoyer: 'Send my stats 🤝',
+    message: (adresse: string) => `Compare your Francle with mine: ${adresse}`,
+    copie: 'Link copied: just paste it.',
+    illisible: 'This comparison link can’t be read: it may have been cut on the way. Ask your friend to send it again.',
+    duLien: (date: string) => `Your friend’s stats, sent on ${date}.`,
+    tableau: 'Your stats and your friend’s',
+    statistique: 'Statistic',
+    toi: 'You',
+    ami: 'Your friend',
+    meilleur: '(better)',
+    pointsMois: 'Points this month',
+    moyenneMois: 'Average this month',
+    pointsToujours: 'All-time points',
+    moyenneToujours: 'All-time average',
+    bonus: 'Bonus: average score',
+    faceAFace: (jours: number, toi: number, ami: number, egalites: number) =>
+      jours === 0
+        ? 'You haven’t finished a game on the same day yet.'
+        : `On the ${jours === 1 ? 'day' : `${jours} days`} you both played: ` +
+          `${toi} for you, ${ami} for your friend, ${egalites} tie${egalites === 1 ? '' : 's'}.`,
+    retour: 'Send yours back:',
+  },
   copieImpossible: 'Copying failed. The browser may have refused it.',
   prochaine: 'Next region in',
 

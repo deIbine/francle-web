@@ -16,7 +16,15 @@ function surTelephone(): boolean {
   return typeof navigator.share === 'function' && window.matchMedia?.('(pointer: coarse)').matches === true
 }
 
-export function Partager({ texte }: { texte: string }) {
+interface Props {
+  texte: string
+  // le texte du bouton et le message après la copie (depuis web.9.1.3, pour le lien de comparaison) ; par défaut, ceux
+  // du partage du résultat
+  libelle?: string
+  copie?: string
+}
+
+export function Partager({ texte, libelle, copie }: Props) {
   const textes = useTextes()
   // le message et son numéro (depuis web.7.20) : chaque clic donne un numéro neuf. Avec le texte seul, un second clic
   // remettait le même texte dans l'état ; React n'y voyait aucun changement, ne relançait pas la minuterie (le message
@@ -50,7 +58,7 @@ export function Partager({ texte }: { texte: string }) {
       // await : la copie est « asynchrone » (le navigateur peut demander la permission) ; on attend son résultat
       // sans bloquer la page, un peu comme un CompletableFuture
       await navigator.clipboard.writeText(texte)
-      afficher(textes.copie)
+      afficher(copie ?? textes.copie)
     } catch {
       afficher(textes.copieImpossible)
     }
@@ -63,7 +71,7 @@ export function Partager({ texte }: { texte: string }) {
         onClick={partager}
         className="rounded bg-succes px-6 py-2 font-semibold text-white hover:opacity-90"
       >
-        {textes.partager} 📋
+        {libelle ?? `${textes.partager} 📋`}
       </button>
       {/* le message ne prend de place que quand il y en a un (depuis web.7.18) : sa ligne réservée laissait un vide
           sous les boutons du bilan. Le paragraphe reste dans la page, vide : un lecteur d'écran ne lit (aria-live) que
