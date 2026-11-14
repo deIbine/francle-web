@@ -19,9 +19,12 @@ interface Props {
   // bonus, par exemple). Sans cela, le navigateur le laisse sur la page entière (<body>), et un joueur au clavier doit
   // tout reparcourir depuis le haut
   repli?: RefObject<HTMLElement | null>
+  // accrochée en haut de l'écran plutôt que centrée (depuis web.9.1.2) : pour une fenêtre à onglets, dont la hauteur
+  // change d'un onglet à l'autre. Centrée, elle se recentrait à chaque clic, et les onglets se déplaçaient sous le doigt
+  enHaut?: boolean
 }
 
-export function Fenetre({ ouverte, onFermer, titre, children, repli }: Props) {
+export function Fenetre({ ouverte, onFermer, titre, children, repli, enHaut = false }: Props) {
   const textes = useTextes()
   const fenetre = useRef<HTMLDialogElement>(null)
   const idTitre = useId()
@@ -70,7 +73,9 @@ export function Fenetre({ ouverte, onFermer, titre, children, repli }: Props) {
         appuiSurLeFond.current = false
       }}
       // m-auto : centrée ; backdrop: : le fond grisé derrière la fenêtre (le pseudo-élément ::backdrop)
-      className="m-auto w-[min(28rem,calc(100%-2rem))] rounded-lg bg-fond p-0 text-texte shadow-xl backdrop:bg-black/50"
+      // mx-auto mt-4 mb-auto : en haut, avec une marge (le haut d'une fenêtre ouverte par showModal se règle par sa
+      // marge, comme son centrage)
+      className={`${enHaut ? 'mx-auto mt-4 mb-auto' : 'm-auto'} w-[min(28rem,calc(100%-2rem))] rounded-lg bg-fond p-0 text-texte shadow-xl backdrop:bg-black/50`}
     >
       <div className="flex flex-col gap-4 p-5 text-center">
         <header className="flex items-center justify-between">

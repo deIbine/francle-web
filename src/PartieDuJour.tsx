@@ -25,7 +25,6 @@ import { avecDifficulte, avecListe, bonusDuJour, bonusEnCours, commence, score, 
 import { enCours, nouvellePartie, type Partie } from './domaine/partie.ts'
 import { textePartage, type ModesDifficiles } from './domaine/partage.ts'
 import { angleDuJour, MODE_DU_JOUR, numero as numeroDuJour, regionDuJour } from './domaine/regionDuJour.ts'
-import { statistiques } from './domaine/statistiques.ts'
 import { minuitSuivant } from './domaine/temps.ts'
 import { usePause } from './pause.ts'
 import { aideVue, modesReglages, uniteAffichee, type Reglages } from './reglages.ts'
@@ -173,7 +172,6 @@ export function PartieDuJour({ jour, reglages, demandeStats, demandeListe, onLis
     bonus === undefined || bonusEnCours(bonus)
       ? undefined
       : { score: score(bonus), total: total(bonus), difficile: bonus.difficile }
-  const stats = statistiques(resultats(parties), numero)
 
   return (
     <>
@@ -216,6 +214,7 @@ export function PartieDuJour({ jour, reglages, demandeStats, demandeListe, onLis
         onFermer={() => setFenetre(false)}
         titre={enCours(partie) ? textes.stats.titre : textes.resultats}
         repli={boutonResultats}
+        enHaut
       >
         {!enCours(partie) && (
           <FinDePartie partie={partie} bonus={bonus}>
@@ -229,7 +228,11 @@ export function PartieDuJour({ jour, reglages, demandeStats, demandeListe, onLis
             </div>
           </FinDePartie>
         )}
-        <Statistiques stats={stats} dernier={partie.etat === 'gagnee' ? partie.essais.length : undefined} />
+        <Statistiques
+          historique={resultats(parties)}
+          aujourdhui={numero}
+          dernier={partie.etat === 'gagnee' ? partie.essais.length : undefined}
+        />
       </Fenetre>
     </>
   )

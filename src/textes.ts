@@ -14,6 +14,7 @@ choisie (voir plus bas).
  */
 import { createContext, useContext } from 'react'
 import { score, total, type Bonus } from './domaine/bonus.ts'
+import type { EtatCase } from './domaine/calendrier.ts'
 import type { Direction } from './domaine/geographie.ts'
 import type { Indice, Partie } from './domaine/partie.ts'
 import type { Langue } from './domaine/regions.ts'
@@ -201,6 +202,50 @@ const fr = {
     bonus: 'Bonus des départements',
     bonusJoues: 'Bonus joués',
     scoreMoyenBonus: 'Score moyen',
+    // depuis web.9.1.2 : les onglets de la fenêtre, le score Francle, les détails et le calendrier
+    onglets: 'Les statistiques',
+    resume: 'Résumé',
+    details: 'Détails',
+    calendrier: 'Calendrier',
+    score: 'Score Francle',
+    scoreAide:
+      'Jusqu’à 10 points par partie du jour : 6 pour une région trouvée du premier coup… 1 au sixième essai, jusqu’à 2 pour le bonus, 1 par mode difficile.',
+    scoreDuJour: (points: number) => `Partie du jour : ${points}/10 points`,
+    moisEnCours: 'Ce mois-ci',
+    depuisToujours: 'Depuis toujours',
+    points: (points: number) => `${points} point${points > 1 ? 's' : ''}`,
+    moyenne: (moyenne: string, parties: number) =>
+      `moyenne ${moyenne} sur ${parties} partie${parties > 1 ? 's' : ''}`,
+    essaisMoyens: 'Essais par victoire',
+    meilleurMois: 'Meilleur mois',
+    journeesParfaites: 'Parties à 10 points',
+    records: 'Records',
+    mieuxTrouvees: 'Les régions les mieux trouvées',
+    moinsBienTrouvees: 'Les moins bien trouvées',
+    // essais : les essais moyens, et leur écriture dans la langue (« 1,5 ») ; en français, le pluriel commence à 2
+    bilanRegion: (victoires: number, parties: number, essais: number | undefined, ecrit: string) =>
+      `${victoires} sur ${parties}` +
+      (essais === undefined ? '' : ` · ${ecrit} essai${essais >= 2 ? 's' : ''}`),
+    modes: 'Modes difficiles',
+    rotation: '🌀 Silhouette tournée',
+    cachee: '🙈 Silhouette cachée',
+    bilanMode: (victoires: number, jouees: number) =>
+      jouees === 0 ? 'jamais joué' : `${victoires} victoire${victoires > 1 ? 's' : ''} sur ${jouees}`,
+    aucunePartie: 'Aucune partie finie pour l’instant.',
+    moisPrecedent: 'Mois précédent',
+    moisSuivant: 'Mois suivant',
+    legendeGagnee: 'trouvée (essais)',
+    legendePerdue: 'manquée',
+    legendeAbsente: 'pas jouée',
+    // le nom d'une case du calendrier, pour un lecteur d'écran : « 13 novembre : trouvée en 3 essais, 6 points »
+    caseCalendrier: (date: string, etat: EtatCase, essais: number, points: number) =>
+      `${date} : ` +
+      {
+        gagnee: `trouvée en ${essais} essai${essais > 1 ? 's' : ''}, ${points} point${points > 1 ? 's' : ''}`,
+        manquee: 'manquée, 0 point',
+        'en-cours': 'en cours',
+        absente: 'pas jouée',
+      }[etat],
     // le score moyen tant qu'aucun bonus n'a été joué : « 0 % » laisserait croire à un score nul
     aucunScore: '–',
     pourcentage: (p: number) => `${p}\u00a0%`,
@@ -428,6 +473,44 @@ const en: Textes = {
     scoreMoyenBonus: 'Average score',
     aucunScore: '–',
     pourcentage: (p: number) => `${p}%`,
+    onglets: 'Statistics',
+    resume: 'Summary',
+    details: 'Details',
+    calendrier: 'Calendar',
+    score: 'Francle score',
+    scoreAide: 'Up to 10 points per daily game: 6 for a region found on the first try… 1 on the sixth, up to 2 for the bonus, 1 per hard mode.',
+    scoreDuJour: (points: number) => `Today’s game: ${points}/10 points`,
+    moisEnCours: 'This month',
+    depuisToujours: 'All time',
+    points: (points: number) => `${points} point${points === 1 ? '' : 's'}`,
+    moyenne: (moyenne: string, parties: number) => `average ${moyenne} over ${parties} game${parties === 1 ? '' : 's'}`,
+    essaisMoyens: 'Tries per win',
+    meilleurMois: 'Best month',
+    journeesParfaites: '10-point games',
+    records: 'Records',
+    mieuxTrouvees: 'Best found regions',
+    moinsBienTrouvees: 'Least found',
+    bilanRegion: (victoires: number, parties: number, essais: number | undefined, ecrit: string) =>
+      `${victoires} of ${parties}` + (essais === undefined ? '' : ` · ${ecrit} ${essais === 1 ? 'try' : 'tries'}`),
+    modes: 'Hard modes',
+    rotation: '🌀 Rotated outline',
+    cachee: '🙈 Hidden outline',
+    bilanMode: (victoires: number, jouees: number) =>
+      jouees === 0 ? 'never played' : `${victoires} win${victoires === 1 ? '' : 's'} of ${jouees}`,
+    aucunePartie: 'No finished game yet.',
+    moisPrecedent: 'Previous month',
+    moisSuivant: 'Next month',
+    legendeGagnee: 'found (tries)',
+    legendePerdue: 'missed',
+    legendeAbsente: 'not played',
+    caseCalendrier: (date: string, etat: EtatCase, essais: number, points: number) =>
+      `${date}: ` +
+      {
+        gagnee: `found in ${essais} ${essais === 1 ? 'try' : 'tries'}, ${points} point${points === 1 ? '' : 's'}`,
+        manquee: 'missed, 0 points',
+        'en-cours': 'in progress',
+        absente: 'not played',
+      }[etat],
   },
 
   bonus: {
