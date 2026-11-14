@@ -22,7 +22,9 @@ function demarrer() {
 }
 
 // le panneau de l'onglet affiché (l'autre est caché, donc ignoré par getByRole)
-const panneau = () => screen.getByRole('tabpanel')
+// le panneau de l'onglet affiché (partie du jour ou libre) : le premier de la page. Depuis web.9.1.2, la fenêtre des
+// statistiques a aussi ses onglets, et donc un second panneau, à l'intérieur du premier
+const panneau = () => screen.getAllByRole('tabpanel')[0]
 
 async function proposer(joueur: Joueur, nom: string) {
   const champ = within(panneau()).getByRole('combobox')

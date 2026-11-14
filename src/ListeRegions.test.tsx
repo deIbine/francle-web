@@ -26,7 +26,7 @@ async function ouvrirListe(joueur: ReturnType<typeof userEvent.setup>) {
 
 // les lignes du tableau des essais de l'onglet affiché
 const lignes = () =>
-  within(screen.getByRole('tabpanel'))
+  within(screen.getAllByRole('tabpanel')[0])
     .queryAllByRole('row')
     .filter((ligne) => ligne.closest('tbody') !== null)
 
