@@ -1882,3 +1882,74 @@ commandes), **comment le penser** (la question à se poser la prochaine fois).
   fin, le nom du seul département, tout de suite.
 - **Comment le penser** : relire chaque message en se plaçant dans le cas le plus petit (un seul élément, zéro
   essai, la dernière question) : c'est là qu'une phrase écrite pour le cas courant sonne faux.
+
+## web.9.0 Les statistiques des joueurs (le plan, sans code)
+
+Une conversation de décisions, le 14 novembre 2026 : se comparer aux autres joueurs, jusqu'aux classements. Aucun code,
+mais des notions nouvelles pour le projet, qui n'avait jamais eu de serveur.
+
+### Sans serveur, chacun ne voit que soi
+
+- **Pourquoi** : la question « qui est le meilleur joueur ? » n'a pas de réponse aujourd'hui. Les parties sont dans le
+  `localStorage` de chaque navigateur ; ni le site ni l'auteur ne voient celles des autres.
+- **Comment le faire** : pour savoir où vit une donnée, chercher qui l'écrit (`src/sauvegarde.ts`, clé
+  `francle.parties-du-jour.v1`) et se demander si elle quitte un jour la machine du joueur (ici : jamais). Le
+  `localStorage` est rangé par **origine** (protocole + domaine + port, ici `https://deibine.github.io`), pas par
+  chemin : changer de dépôt sous le même compte GitHub ne le perdrait pas, changer de domaine (web.8) si.
+- **Comment le penser** : comparer des personnes demande qu'une donnée sorte de chez chacune. Avant de dessiner un
+  classement, se demander « où sont les données, et qui peut les voir ? » : la réponse décide de toute l'architecture.
+
+### Un serveur, ce n'est pas un PC allumé
+
+- **Pourquoi** : la crainte naturelle est qu'il faille une machine allumée jour et nuit. Non : GitHub Pages sert déjà le
+  site depuis les machines de GitHub ; un service comme Cloudflare Workers fait tourner du code et une base de la même
+  façon, chez lui.
+- **Comment le faire** : trois façons d'avoir un serveur : son propre PC (à éviter : allumé en permanence, ouvert sur
+  Internet), une machine louée (un VPS : on entretient le système soi-même), un service clé en main (on fournit le
+  code et la base, l'hébergeur fait le reste). En Java, c'est la différence entre lancer soi-même Tomcat et déposer son
+  application chez quelqu'un qui le fait tourner.
+- **Comment le penser** : ce qui compte n'est pas « où tourne le code », mais « qui s'occupe de la machine ». Et
+  prévoir que le service tombe : le jeu doit continuer sans lui.
+
+### On ne peut pas cacher au joueur ce qu'on lui montre
+
+- **Pourquoi** : la région du jour est calculée dans le navigateur, donc lisible dans le code de la page : un
+  classement public serait faussé. Même calculée par le serveur, elle se devine : la silhouette affichée se compare par
+  programme aux 18 contours publics, un second compte joue d'abord, une carte ou un ami aide.
+- **Comment le faire** : pour chaque protection, lister ce qu'elle ferme et ce qu'elle laisse ouvert. Ici, le serveur
+  ferme « lire la réponse dans le code », pas le reste. **Erreur faite et corrigée dans la conversation** : le premier
+  tableau disait que la version protégée rendait le classement « fiable » ; c'était trop fort, et la question a été
+  reposée avec les vraies limites avant de noter la décision.
+- **Comment le penser** : tout ce que le navigateur reçoit, le joueur peut le lire, le modifier et le rejouer. Une
+  protection rend la triche plus coûteuse ; elle ne la rend pas impossible. Ne jamais écrire « fiable » ou « sûr » sans
+  avoir cherché comment le contourner.
+
+### Un dépôt ou deux : ce qui change ensemble reste ensemble
+
+- **Pourquoi** : l'idée d'un nouveau dépôt pour le site et le serveur venait d'une bonne intention (pouvoir revenir en
+  arrière sur des changements majeurs). Mais le serveur reprend les règles de `src/domaine/`, et un essai envoyé
+  change des deux côtés à la fois.
+- **Comment le faire** : un seul dépôt, le serveur dans `serveur/` (l'équivalent d'un projet Maven multi-modules).
+  La sécurité vient des outils déjà là : une étiquette de départ, une PR par sous-étape, un interrupteur.
+- **Comment le penser** : séparer en dépôts ce qui évolue séparément ; garder ensemble ce qui partage du code ou doit
+  changer dans le même commit. Et se méfier d'un nouveau départ qui casse l'existant (adresse, liens, numéros de PR).
+
+### Git garde le code, pas les données
+
+- **Pourquoi** : revenir en arrière est facile pour le code (`git revert`, une étiquette), le site (GitHub Pages
+  republie `main`) et le serveur (`wrangler rollback`). Pas pour une base dont on a changé les tables, ni pour le
+  `localStorage` des joueurs, qui reste dans leurs navigateurs.
+- **Comment le faire** : des changements de base qui ajoutent sans rien détruire, une sauvegarde avant chacun ; une
+  nouvelle forme de données dans le navigateur va dans une nouvelle clé (`…v2`), sans effacer l'ancienne.
+- **Comment le penser** : avant chaque changement, se demander « si je reviens au code d'hier, sait-il encore lire
+  les données d'aujourd'hui ? ». Si non, le retour en arrière n'existe pas vraiment.
+
+### Fixer la règle avant les écrans
+
+- **Pourquoi** : le score (10 points au plus par jour) sera repris par les statistiques, le lien de comparaison, les
+  chiffres de tous et les classements. Le changer après coup changerait le sens de classements déjà affichés.
+- **Comment le faire** : une seule formule, dans `src/domaine/`, testée, et un seul format de partie transmise,
+  décidés au début de web.9.1 ; tout le reste les importe.
+- **Comment le penser** : ce que plusieurs parties du programme doivent dire pareil s'écrit une fois, au centre, et
+  se décide d'abord. Les décisions une par une, avec une recommandation, permettent de s'écarter de la recommandation
+  en connaissant le prix : les limites acceptées sont notées à côté de chaque décision.
