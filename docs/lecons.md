@@ -1953,3 +1953,101 @@ mais des notions nouvelles pour le projet, qui n'avait jamais eu de serveur.
 - **Comment le penser** : ce que plusieurs parties du programme doivent dire pareil s'écrit une fois, au centre, et
   se décide d'abord. Les décisions une par une, avec une recommandation, permettent de s'écarter de la recommandation
   en connaissant le prix : les limites acceptées sont notées à côté de chaque décision.
+
+## web.9.1 Les statistiques sans serveur (le 14 novembre 2026)
+
+Quatre PR empilées, enchaînées sans arrêt sur le signal de départ : les décisions (web.9.1.0), le score et le format
+(web.9.1.1), les statistiques en onglets (web.9.1.2), le lien de comparaison (web.9.1.3).
+
+### Deux bonnes réponses peuvent faire une mauvaise paire
+
+- **Pourquoi** : posées d'un coup, les questions ont reçu « le format complet » (pour le serveur) et « toutes les
+  parties dans le lien ». Chacune se défendait ; ensemble, le lien aurait fait 7 000 à 15 000 caractères après un an,
+  trop pour certaines messageries.
+- **Comment le faire** : après une série de réponses, relire les décisions deux par deux et chiffrer ce qu'elles
+  donnent ensemble (ici : octets par partie × jours). La question a été reposée, avec une issue qui garde les deux :
+  le format complet reste la référence, le lien n'en transmet que le résumé.
+- **Comment le penser** : une décision se vérifie seule, un ensemble de décisions se vérifie ensemble. « Ces choix,
+  mis ensemble, tiennent-ils encore ? »
+
+### Un seul chemin pour un même chiffre
+
+- **Pourquoi** : le score s'affiche dans la fenêtre 📊, part dans le lien, et partira au serveur. Calculé par deux
+  chemins, il finirait par différer.
+- **Comment le faire** : `resultats()` (la sauvegarde) passe maintenant par `transmises()` puis `resume()`, le même
+  chemin que ce qui est envoyé. La formule (`score.ts`) est écrite une fois, testée d'abord, sans rien d'affiché.
+  Comme en Java : la règle dans une classe du domaine, que l'interface appelle sans la recopier.
+- **Comment le penser** : quand deux écrans doivent dire la même chose, se demander « d'où vient ce chiffre, ici et
+  là ? ». S'il y a deux réponses, il y aura un jour deux chiffres.
+
+### Comparer des entiers plutôt que des pourcentages
+
+- **Pourquoi** : la règle du bonus parle de quarts (« de 25 % à 75 % inclus »). 1 sur 3 donne 33,333… %, et une
+  comparaison de nombres à virgule peut se tromper d'un cheveu sur une borne.
+- **Comment le faire** : multiplier de part et d'autre : `score / total < 1/4` devient `4 × score < total`. Les
+  tests prennent les bornes exactes (1 sur 4, 3 sur 4) et leurs voisines.
+- **Comment le penser** : sur une borne, une égalité doit être exacte ; tant que c'est possible, rester en nombres
+  entiers (comme on préfère `BigDecimal` ou des centimes à `double` pour de l'argent en Java).
+
+### Un format à soi, petit et vérifié
+
+- **Pourquoi** : en JSON, une année de parties ferait des dizaines de milliers de caractères dans l'adresse. Le lien
+  code chaque jour en deux caractères de l'alphabet base64url (sûrs dans une adresse), et ne transmet pas ce qui se
+  retrouve (le nombre de départements de la région du jour). Un numéro de version en tête refuse un lien d'un autre
+  format au lieu de le lire de travers.
+- **Comment le faire** : écrire le codage et la lecture ensemble, et tester l'aller-retour (`lire(coder(x))` redonne
+  `x`), puis chaque façon d'abîmer un lien. **Défaut trouvé ainsi** : un lien coupé au milieu d'un jour laissait un
+  texte vide, et `''.indexOf…` cherché dans l'alphabet renvoie… 0, pas −1 (le texte vide est « au début » de tout
+  texte). Le jour incomplet passait pour « sans bonus ».
+- **Comment le penser** : tout ce qui arrive de l'extérieur (une adresse, un fichier, un serveur) se vérifie entièrement
+  avant usage. Et les cas limites (vide, coupé, trop grand) méritent chacun leur test.
+
+### Le fragment d'une adresse
+
+- **Pourquoi** : le bilan est placé après `#`. Le navigateur n'envoie jamais cette partie au serveur (GitHub ne voit
+  que `/francle-web/`), et la changer ne recharge pas la page.
+- **Comment le faire** : lire `window.location.hash` à l'ouverture ; écouter l'évènement `hashchange` pour un lien
+  collé dans un onglet déjà ouvert ; à la fermeture, `history.replaceState` retire le fragment sans recharger ni
+  ajouter de page à l'historique.
+- **Comment le penser** : une adresse a trois morceaux qui ne vont pas au même endroit : le chemin et les paramètres
+  (`?`) partent au serveur, le fragment (`#`) reste dans le navigateur. Choisir le morceau selon qui doit voir la donnée.
+
+### Deux fenêtres ne s'ouvrent pas en même temps
+
+- **Pourquoi** : un ami qui arrive par le lien peut aussi voir s'ouvrir « Comment jouer » (première visite) ou les
+  résultats de sa partie du jour (déjà finie). Deux `<dialog>` l'une sur l'autre se ferment dans le désordre (vu à
+  web.7.18).
+- **Comment le faire** : la comparaison attend que « Comment jouer » soit fermé ; arrivé par un lien, les résultats ne
+  s'ouvrent pas d'eux-mêmes (`resultatsAuDebut`). Un test pour chaque cas.
+- **Comment le penser** : chaque nouvelle façon d'arriver sur la page (un lien, une notification) demande : « qu'est-ce
+  qui s'ouvre déjà tout seul à ce moment-là ? ».
+
+### Ce que les tests ne voient pas, le navigateur le montre
+
+- **Pourquoi** : trois défauts n'ont été vus qu'à l'écran, dans le navigateur intégré à 375 pixels : « 1 essais »
+  (le pluriel calculé sur un texte déjà mis en forme), les onglets qui bougeaient sous le doigt (la fenêtre centrée se
+  recentrait quand sa hauteur changeait) et le vert du meilleur, trop sombre sur fond sombre.
+- **Comment le faire** : remplir le navigateur de fausses parties (un script dans la console qui écrit
+  `localStorage`), regarder chaque onglet en clair et en sombre, et **mesurer** un contraste douteux (ici 9,97 pour 1
+  après correction, contre 4,5 pour 1 demandé pour du texte) plutôt que de le juger à l'œil. La fenêtre à onglets est
+  maintenant accrochée en haut (`enHaut`).
+- **Comment le penser** : un test vérifie ce qu'on a pensé à vérifier ; regarder l'écran montre ce à quoi on n'a pas
+  pensé. Les deux, à chaque PR visible.
+
+### Testing Library et les espaces insécables
+
+- **Pourquoi** : un test cherchait « Lien copié : il n'y a plus… » avec l'espace insécable des textes français, et ne
+  trouvait rien alors que le texte était affiché.
+- **Comment le faire** : `getByText` normalise les espaces **du texte affiché** (l'insécable devient une espace
+  ordinaire), pas ceux du texte cherché. Écrire une espace ordinaire dans le test, comme les tests plus anciens.
+- **Comment le penser** : quand une recherche échoue sur un texte visiblement présent, comparer les octets
+  (`od -c`) avant de soupçonner le code.
+
+### Une hypothèse sur les données, à vérifier par le code
+
+- **Pourquoi** : un test supposait que le jour 19 retombait sur la région du jour 1 (un cycle dure 18 jours). Faux :
+  chaque cycle est mélangé à nouveau.
+- **Comment le faire** : laisser le test trouver lui-même le jour voulu (`find` parmi les jours 19 à 36), au lieu
+  d'écrire un nombre deviné.
+- **Comment le penser** : un nombre « évident » dans un test est une affirmation sur les données ; le calculer, c'est
+  ne plus pouvoir se tromper.

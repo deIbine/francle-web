@@ -374,7 +374,12 @@ squash le 18 octobre 2026 sur l'accord de l'utilisateur, étiquettes `web-7.8` �
     Quatre PR **empilées**, enchaînées sans arrêt sur son signal de départ (« Lance 9.1.0, 9.1.1, 9.1.2 et 9.1.3
     successivement »), relues puis fusionnées à la fin : web.9.1.0 (ces notes), web.9.1.1 (le score et le format),
     web.9.1.2 (les statistiques), web.9.1.3 (le lien de comparaison). Étiquette `web-9.1` après la dernière fusion.
+    **Les quatre PR sont écrites le 14 novembre 2026 (#73 à #76), en attente de relecture et de l'accord de fusion**
+    (« Fait à web.9.1 » plus bas). À la fusion : dans l'ordre #73, #74, #75, #76, chacune rebasée sur `main` après
+    la précédente (`git rebase --onto main <ancienne pointe> <branche>`, base changée en `main`), arbres comparés.
     Avant la première PR de web.9.2 : poser l'étiquette `web-avant-serveur` et revérifier les offres de Cloudflare.
+  - **Encore à vérifier par l'utilisateur, en jouant** : web.9.1 sur un vrai téléphone (les onglets et le calendrier
+    de la fenêtre 📊, le bouton « Envoyer mon bilan » qui ouvre le menu de partage, un lien reçu par une messagerie).
   - **web.8** : **repoussé** le 18 octobre 2026 (pas de domaine acheté pour l'instant). Le découpage et ses onze
     questions ont été présentés le 17 octobre 2026 (voir « Le domaine et le défi (web.8) » plus bas) ; l'utilisateur
     n'y a pas encore répondu.
@@ -1516,6 +1521,22 @@ l'alphabet base64url (`A`–`Z`, `a`–`z`, `0`–`9`, `-`, `_`, que les message
 Le `1` du début est le numéro de version : un lien d'une version inconnue s'affiche comme illisible, au lieu d'être
 mal lu. « Le jour du lien » sert à calculer la série en cours de l'ami au jour où il l'a envoyé. Le fragment (`#…`)
 n'est jamais envoyé à GitHub par le navigateur : le bilan ne quitte pas les deux joueurs.
+
+#### Fait à web.9.1 (le 14 novembre 2026, PR #73 à #76, empilées)
+
+- **web.9.1.1** : `domaine/score.ts` (points, cumuls par mois et depuis toujours), `domaine/transmission.ts` (le
+  format complet, `{ v: 1, parties }`, et son résumé), `domaine/lien.ts` (le codage du lien, dans son propre fichier
+  plutôt que dans `transmission.ts`), `dateDuNumero` et `moisDuNumero`. La sauvegarde calcule ses résultats par le
+  format transmis : un seul chemin pour les statistiques et ce qui est envoyé.
+- **web.9.1.2** : `domaine/details.ts` et `domaine/calendrier.ts` ; la fenêtre 📊 en trois onglets (Résumé avec le
+  score Francle, Détails, Calendrier) ; la fenêtre accrochée en haut (`enHaut`), pour que les onglets ne bougent pas.
+  Choix faits (décision 10) : trois onglets ; les records sont les essais moyens, le meilleur mois et les parties à
+  10 points ; une case verte avec les essais, grise avec ✕, vide si pas jouée ; semaine du lundi, aussi en anglais.
+- **web.9.1.3** : `domaine/comparaison.ts` (l'adresse du bilan, le face-à-face) ; « Envoyer mon bilan 🤝 » au bas du
+  résumé, dès une partie finie ; la fenêtre « Comparaison » (« Toi » et « Ton ami », comme le tutoiement du jeu,
+  plutôt que « Vous » ; une étoile et « (meilleur) » pour les lecteurs d'écran) ; elle attend « Comment jouer » à
+  la première visite, et empêche les résultats de s'ouvrir par-dessus. « Ce mois-ci » est le même mois pour les deux
+  (celui de celui qui ouvre le lien) ; la série de l'ami est celle du jour du lien.
 
 ## Les améliorations à reprendre (relevées le 16 octobre 2026)
 
