@@ -374,12 +374,23 @@ squash le 18 octobre 2026 sur l'accord de l'utilisateur, étiquettes `web-7.8` �
     Quatre PR **empilées**, enchaînées sans arrêt sur son signal de départ (« Lance 9.1.0, 9.1.1, 9.1.2 et 9.1.3
     successivement »), relues puis fusionnées à la fin : web.9.1.0 (ces notes), web.9.1.1 (le score et le format),
     web.9.1.2 (les statistiques), web.9.1.3 (le lien de comparaison). Étiquette `web-9.1` après la dernière fusion.
-    **Les quatre PR sont écrites le 14 novembre 2026 (#73 à #76), en attente de relecture et de l'accord de fusion**
-    (« Fait à web.9.1 » plus bas). À la fusion : dans l'ordre #73, #74, #75, #76, chacune rebasée sur `main` après
-    la précédente (`git rebase --onto main <ancienne pointe> <branche>`, base changée en `main`), arbres comparés.
-    Avant la première PR de web.9.2 : poser l'étiquette `web-avant-serveur` et revérifier les offres de Cloudflare.
-  - **Encore à vérifier par l'utilisateur, en jouant** : web.9.1 sur un vrai téléphone (les onglets et le calendrier
-    de la fenêtre 📊, le bouton « Envoyer mon bilan » qui ouvre le menu de partage, un lien reçu par une messagerie).
+    **Faite et en ligne** (« Fait à web.9.1 » plus bas) : les quatre PR (#73 à #76), écrites le 14 novembre 2026,
+    sont **fusionnées en squash le même jour** sur l'accord de l'utilisateur (« Tu peux fusionner les quatre PR,
+    étiqueter et supprimer »), dans l'ordre : chaque branche rebasée sur `main` après la précédente
+    (`git rebase --onto origin/main <ancienne pointe> <branche>`, poussée avec `--force-with-lease`, base de la PR
+    changée en `main` **avant** de supprimer l'ancienne base), arbres identiques avant et après le rebase, et sur
+    `main` après la fusion. Commits sur `main` : `2b10831`, `e8b6445`, `653bbd5`, `5300a8d` ; étiquette annotée
+    `web-9.1` sur `5300a8d` ; branches supprimées en local et sur GitHub. Notes de la fusion : PR web.9.1.4, sans
+    étiquette.
+  - **Prochaine étape de web.9, à choisir avec l'utilisateur : web.9.2 Les chiffres de tous** (un petit serveur
+    Cloudflare, voir « Les trois sous-phases »). La prochaine conversation en présente le découpage et les questions,
+    puis attend le signal de départ. Avant sa première PR : poser l'étiquette `web-avant-serveur` sur `main` et
+    revérifier les offres de Cloudflare (tarifs, quotas, hébergement en Europe, durée de « Time Travel » de D1) ; le
+    compte est à créer par l'utilisateur. web.9.3 (profils, ligues, classement public) vient après.
+  - **Encore à vérifier par l'utilisateur, en jouant** : web.9.1 sur un vrai téléphone, sur le site en ligne (les
+    onglets et le calendrier de la fenêtre 📊, le bouton « Envoyer mon bilan » qui ouvre le menu de partage, un lien
+    reçu par une messagerie). Le partage ne marche que sur une page sécurisée (https, ou localhost) : par le réseau
+    local (`npm.cmd run dev -- --host`, adresse en `http://192.168…`), il affiche « La copie a échoué ».
   - **web.8** : **repoussé** le 18 octobre 2026 (pas de domaine acheté pour l'instant). Le découpage et ses onze
     questions ont été présentés le 17 octobre 2026 (voir « Le domaine et le défi (web.8) » plus bas) ; l'utilisateur
     n'y a pas encore répondu.
@@ -1337,7 +1348,7 @@ build passent ; `npm run verifier:navigateur` : 18 écrans, 0 problème.
 Idée du 14 novembre 2026, proposée à la demande de l'utilisateur (« savoir qui est le meilleur joueur, faire des
 classements »), sans rien commencer. Notée ici comme nouvelle phase à sa demande, avec trois sous-phases (PR #70,
 web.9.0). **Les six questions sont décidées le 14 novembre 2026** (« Les décisions » plus bas, PR web.9.0.1), avec
-l'organisation du dépôt et les règles pour revenir en arrière. **web.9.1 est découpée et lancée le 14 novembre 2026**
+l'organisation du dépôt et les règles pour revenir en arrière. **web.9.1 est faite et fusionnée le 14 novembre 2026**
 (« Le découpage de web.9.1 » plus bas) ; web.9.2 et web.9.3 attendent leur découpage, puis le signal de départ.
 
 ### Le point de départ
@@ -1522,7 +1533,7 @@ Le `1` du début est le numéro de version : un lien d'une version inconnue s'af
 mal lu. « Le jour du lien » sert à calculer la série en cours de l'ami au jour où il l'a envoyé. Le fragment (`#…`)
 n'est jamais envoyé à GitHub par le navigateur : le bilan ne quitte pas les deux joueurs.
 
-#### Fait à web.9.1 (le 14 novembre 2026, PR #73 à #76, empilées)
+#### Fait à web.9.1 (le 14 novembre 2026, PR #73 à #76, empilées, fusionnées le même jour, étiquette `web-9.1`)
 
 - **web.9.1.1** : `domaine/score.ts` (points, cumuls par mois et depuis toujours), `domaine/transmission.ts` (le
   format complet, `{ v: 1, parties }`, et son résumé), `domaine/lien.ts` (le codage du lien, dans son propre fichier
