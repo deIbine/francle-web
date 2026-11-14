@@ -100,7 +100,7 @@ l'autre, et le web n'a plus à rester égal au Java.
    Cloudflare Workers + D1, dans `serveur/` du même dépôt), web.9.3 des ligues entre amis et un classement public
    protégé. Détail plus bas dans « Les statistiques des joueurs (web.9) ».
 
-## Où on en est (mis à jour le 14 novembre 2026, sur le PC)
+## Où on en est (mis à jour le 14 novembre 2026, sur le PC, après le découpage de web.9.2)
 
 ### À faire sur le PC (rien depuis le 9 novembre 2026)
 
@@ -382,11 +382,23 @@ squash le 18 octobre 2026 sur l'accord de l'utilisateur, étiquettes `web-7.8` �
     `main` après la fusion. Commits sur `main` : `2b10831`, `e8b6445`, `653bbd5`, `5300a8d` ; étiquette annotée
     `web-9.1` sur `5300a8d` ; branches supprimées en local et sur GitHub. Notes de la fusion : PR web.9.1.4, sans
     étiquette.
-  - **Prochaine étape de web.9, à choisir avec l'utilisateur : web.9.2 Les chiffres de tous** (un petit serveur
-    Cloudflare, voir « Les trois sous-phases »). La prochaine conversation en présente le découpage et les questions,
-    puis attend le signal de départ. Avant sa première PR : poser l'étiquette `web-avant-serveur` sur `main` et
-    revérifier les offres de Cloudflare (tarifs, quotas, hébergement en Europe, durée de « Time Travel » de D1) ; le
-    compte est à créer par l'utilisateur. web.9.3 (profils, ligues, classement public) vient après.
+  - **web.9.2 Les chiffres de tous : découpée et décidée le 14 novembre 2026, rien n'est commencé** (« Le découpage
+    de web.9.2 » dans la section web.9 plus bas : les offres de Cloudflare vérifiées ce jour-là, les huit décisions,
+    les quatre PR, ce qui revient à l'utilisateur). Notes : PR web.9.2.0, sans étiquette. L'utilisateur a demandé
+    d'enregistrer et de continuer plus tard.
+  - **Pour reprendre web.9.2 (noté le 14 novembre 2026)** : la prochaine conversation lit « Le découpage de web.9.2 »,
+    rappelle en quelques lignes où on en est, puis **attend le signal de départ** de l'utilisateur. Rien n'est à
+    redécider. Au départ, dans l'ordre :
+    1. poser l'étiquette annotée `web-avant-serveur` sur `main` (le point de retour d'avant le serveur), et la pousser ;
+    2. guider l'utilisateur pour créer son compte Cloudflare et la base D1 (juridiction UE à la création, sinon
+       l'indication `weur`, décision 6) : c'est à lui de le faire, Claude ne crée ni compte ni clé ;
+    3. écrire **web.9.2.1 (le serveur seul)**, la vérifier, l'ouvrir en PR, et **s'arrêter** (décision 8) : fusion
+       sur l'accord de l'utilisateur, après qu'il a rangé la clé Cloudflare dans les secrets de GitHub (décision 7) ;
+    4. seulement ensuite, et sur un nouveau signal : web.9.2.2 et web.9.2.3, empilées et fusionnées ensemble.
+    Méthode des décisions dans ces conversations : les questions posées par lots avec l'outil de questions (quatre
+    au plus par lot), chacune compréhensible seule, une recommandation en premier ; les limites des choix écartés de
+    la recommandation notées à côté ; après les réponses, vérifier qu'elles tiennent **ensemble**. web.9.3 (profils,
+    ligues, classement public) vient après web.9.2.
   - **Encore à vérifier par l'utilisateur, en jouant** : web.9.1 sur un vrai téléphone, sur le site en ligne (les
     onglets et le calendrier de la fenêtre 📊, le bouton « Envoyer mon bilan » qui ouvre le menu de partage, un lien
     reçu par une messagerie). Le partage ne marche que sur une page sécurisée (https, ou localhost) : par le réseau
@@ -1349,7 +1361,8 @@ Idée du 14 novembre 2026, proposée à la demande de l'utilisateur (« savoir q
 classements »), sans rien commencer. Notée ici comme nouvelle phase à sa demande, avec trois sous-phases (PR #70,
 web.9.0). **Les six questions sont décidées le 14 novembre 2026** (« Les décisions » plus bas, PR web.9.0.1), avec
 l'organisation du dépôt et les règles pour revenir en arrière. **web.9.1 est faite et fusionnée le 14 novembre 2026**
-(« Le découpage de web.9.1 » plus bas) ; web.9.2 et web.9.3 attendent leur découpage, puis le signal de départ.
+(« Le découpage de web.9.1 » plus bas) ; **web.9.2 est découpée et décidée le même jour, sans rien commencer**
+(« Le découpage de web.9.2 » plus bas) ; web.9.3 attend son découpage.
 
 ### Le point de départ
 
@@ -1548,6 +1561,72 @@ n'est jamais envoyé à GitHub par le navigateur : le bilan ne quitte pas les de
   plutôt que « Vous » ; une étoile et « (meilleur) » pour les lecteurs d'écran) ; elle attend « Comment jouer » à
   la première visite, et empêche les résultats de s'ouvrir par-dessus. « Ce mois-ci » est le même mois pour les deux
   (celui de celui qui ouvre le lien) ; la série de l'ami est celle du jour du lien.
+
+### Le découpage de web.9.2 (décidé le 14 novembre 2026)
+
+Présenté puis décidé dans la même conversation que la fusion de web.9.1. **Rien n'est commencé** : ni l'étiquette
+`web-avant-serveur`, ni le compte Cloudflare, ni le code. Ce qu'on attend de web.9.2 (rappel de « Les trois
+sous-phases ») : « 152 joueurs aujourd'hui, 81 % ont trouvé ; tu fais mieux que 72 % », sans nom.
+
+#### Les offres de Cloudflare (vérifiées le 14 novembre 2026, à revérifier si on reprend longtemps après)
+
+- **Workers, offre gratuite** : 100 000 requêtes par jour (remise à zéro à minuit UTC ; au-delà, erreur 1027). Une
+  partie finie coûte un envoi et une lecture : large. Source : developers.cloudflare.com/workers/platform/limits/.
+- **D1, offre gratuite** : 10 bases, 500 Mo par base, 5 millions de lignes lues et 100 000 écrites par jour. **Depuis
+  le 1er septembre 2026, une requête au-delà échoue** jusqu'à minuit UTC : le jeu doit marcher sans le serveur.
+  Source : developers.cloudflare.com/d1/platform/limits/.
+- **L'Europe** : D1 a une « juridiction UE » (données gardées et traitées en Europe), **choisie à la création de la
+  base, impossible à changer ensuite**. La documentation ne dit pas si elle est permise avec l'offre gratuite. À
+  défaut : l'indication d'emplacement `weur` (Europe de l'Ouest), sans garantie. Source :
+  developers.cloudflare.com/d1/configuration/data-location/.
+- **L'adresse du serveur** : le sous-domaine gratuit `….workers.dev` (le domaine de web.8 est repoussé).
+- Pas encore vérifié : la durée de « Time Travel » (restauration de D1 à une date passée) et le prix de l'offre
+  payante (environ 5 $ par mois, de mémoire).
+
+#### Les décisions
+
+| # | Question | Décision |
+|---|---|---|
+| 1 | Ce que le navigateur envoie | **Le format complet** de web.9.1 (`domaine/transmission.ts`), avec son numéro de version (recommandé : le résumé). **Limite** : plus que ce qu'exigent les chiffres du jour ; la page de confidentialité le justifie (il prépare web.9.3, où le serveur vérifie les coups). Aucun chiffre en plus n'est tiré des régions proposées pour l'instant. |
+| 2 | Les chiffres montrés (fenêtre des résultats, partie du jour seulement) | **Le nombre de joueurs et le taux de victoire du jour ; ton rang en points** (« tu fais mieux que 72 % », avec le score de `domaine/score.ts`) ; **la répartition des essais de tous**, à côté de la tienne (recommandé). Pas le bonus moyen de tous. |
+| 3 | L'accord du joueur | **Envoi par défaut, refusable** (recommandé) : un interrupteur dans les réglages (« Partager mes résultats anonymes »), la page de confidentialité ; sans cookie, et l'adresse IP **n'est pas gardée en base**. Ce n'est pas un avis juridique. |
+| 4 | Les doublons | **Un numéro tiré au hasard pour chaque partie** (recommandé), gardé avec elle : la renvoyer remplace l'envoi au lieu d'en ajouter un. Il change chaque jour et ne relie pas deux parties. |
+| 5 | Les parties d'avant web.9.2 | **Tout l'historique, une fois** (recommandé : la partie du jour seulement), à la première ouverture si l'envoi est activé, puis chaque partie à sa fin. **Limite** : ces parties ont pu être modifiées à la main et n'ont jamais été vues par le serveur. |
+| 6 | Où héberger la base | **La juridiction UE ; si l'offre gratuite la refuse, l'indication `weur`**, et la page de confidentialité le dit (recommandé). |
+| 7 | La mise en ligne du serveur | **Par la CI, à chaque fusion** (recommandé), comme le site : vérifié sur chaque PR, publié à la fusion. Une clé Cloudflare dans les secrets de GitHub, rangée par l'utilisateur. Retour en arrière : `wrangler rollback` ou annuler la PR. |
+| 8 | Le découpage | **S'arrêter après le serveur** (recommandé : les quatre d'un coup) : web.9.2.0 et web.9.2.1 d'abord, fusionnées, le serveur regardé tournant seul ; puis web.9.2.2 et web.9.2.3 ensemble. **Limite** : plus lent. Les petits choix (textes, mise en page, noms des adresses) : Claude, expliqués dans les PR. |
+
+**Une limite née de trois réponses ensemble (1, 4 et 5)** : le numéro par partie empêche de relier deux parties,
+mais un historique envoyé d'un bloc, au format complet, montre au serveur, le temps de l'envoi, que ces parties
+viennent du même navigateur. Donc : le serveur range chaque partie **séparément**, avec son seul numéro, **sans garder
+l'IP ni le regroupement de l'envoi** (pas de numéro d'envoi, pas d'heure d'arrivée commune) ; la page de
+confidentialité le dit.
+
+#### Les quatre PR
+
+1. **web.9.2.0 Les décisions** : ces notes (sans étiquette). L'étiquette `web-avant-serveur` sera posée sur `main`
+   au départ de web.9.2.1, avant tout code du serveur.
+2. **web.9.2.1 Le serveur seul**, dans `serveur/` (un seul dépôt, décidé à web.9.0.1) : le Worker en TypeScript, qui
+   importe `src/domaine/` (lecture du format transmis, `resume()`, `points()`) ; la table de la base (une partie par
+   ligne : son numéro tiré, le jour, la partie transmise, ses points ; rien d'autre), créée par une migration qui
+   ajoute sans détruire ; deux adresses : recevoir des parties, donner les chiffres d'un jour ; une limite de taille
+   des envois ; les tests ; la CI qui vérifie et publie aussi le serveur. **Branché à rien** : le site ne change pas.
+   **Arrêt après cette PR** (décision 8).
+3. **web.9.2.2 Le site s'en sert** : le numéro tiré par partie (gardé avec la partie dans le navigateur, sans changer
+   de clé `localStorage` si la forme reste lisible par l'ancien code, sinon une clé `…v2` sans effacer `…v1`) ;
+   l'envoi en fin de partie et l'historique une fois ; l'interrupteur des réglages ; les chiffres dans la fenêtre des
+   résultats ; un jeu qui marche si le serveur ne répond pas (rien ne s'affiche, aucun message d'erreur bloquant).
+4. **web.9.2.3 La confidentialité** : ce qui est envoyé, pourquoi, où (Europe ou non), combien de temps, comment
+   refuser ; le bas de page « aucune donnée collectée » revu. **Fusionnée avec web.9.2.2** : le site n'envoie rien
+   avant de dire ce qu'il envoie.
+
+#### Ce qui revient à l'utilisateur
+
+- Avant web.9.2.1 : créer le compte Cloudflare, puis la base D1 (Claude le guide pas à pas ; la juridiction se choisit
+  à la création).
+- Avant la fusion de web.9.2.1 : créer une clé d'API Cloudflare limitée au Worker et à D1, et la ranger dans les
+  secrets du dépôt GitHub (Claude ne manipule pas la clé elle-même).
+- Après : surveiller les e-mails et les quotas de Cloudflare.
 
 ## Les améliorations à reprendre (relevées le 16 octobre 2026)
 

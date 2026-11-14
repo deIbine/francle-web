@@ -2051,3 +2051,50 @@ Quatre PR empilées, enchaînées sans arrêt sur le signal de départ : les dé
   d'écrire un nombre deviné.
 - **Comment le penser** : un nombre « évident » dans un test est une affirmation sur les données ; le calculer, c'est
   ne plus pouvoir se tromper.
+
+## web.9.1 (fusion) et web.9.2.0 Le découpage du serveur (le 14 novembre 2026)
+
+La fusion des quatre PR empilées de web.9.1, puis le découpage et les décisions de web.9.2, sans code.
+
+### Fusionner des PR empilées sans rien perdre
+
+- **Pourquoi** : chaque PR partait de la précédente. Après la fusion « squash » de l'une (un seul commit neuf sur
+  `main`), la suivante contenait encore les anciens commits de la branche fusionnée.
+- **Comment le faire** : noter d'abord la pointe et l'arbre de chaque branche (`git rev-parse <branche>^{tree}`) ;
+  puis, pour chacune : `git rebase --onto origin/main <ancienne pointe de la précédente> <branche>` (ne garde que ses
+  propres commits), `git push --force-with-lease` (refuse d'écraser un travail inattendu), `gh pr edit <n> --base
+  main`, fusion, et comparer l'arbre de `main` à celui de la branche. Changer la base d'une PR **avant** de supprimer
+  sa branche de base : supprimer une branche sur GitHub ferme les PR qui la prennent pour base.
+- **Comment le penser** : l'arbre (l'état des fichiers) est la preuve. Si l'arbre est le même avant le rebase, après
+  le rebase et sur `main`, rien ne s'est perdu ni ajouté en route, quel que soit l'historique des commits.
+
+### Une page sécurisée pour le partage
+
+- **Pourquoi** : pour essayer le jeu sur un téléphone avant la fusion, on peut ouvrir le serveur de développement au
+  Wi-Fi (`npm.cmd run dev -- --host`, adresse `http://192.168…`). Mais le menu de partage (`navigator.share`) et la
+  copie (`navigator.clipboard`) n'existent que sur une page « sécurisée » : en https, ou sur `localhost`.
+- **Comment le faire** : vérifier l'affichage par le Wi-Fi ; vérifier le partage sur le site en ligne (https), après
+  la fusion. Dans la console du navigateur, `window.isSecureContext` dit si la page est sécurisée.
+- **Comment le penser** : certaines fonctions du navigateur dépendent de l'endroit d'où vient la page, pas du code.
+  Quand une fonction marche sur le PC et pas ailleurs, se demander : « la page est-elle servie de la même façon ? ».
+
+### Vérifier les offres avant de décider, et dater ce qu'on a vérifié
+
+- **Pourquoi** : les questions de web.9.2 dépendaient des limites de Cloudflare (quotas, Europe). Depuis le
+  1er septembre 2026, une requête D1 au-delà du quota gratuit échoue : le jeu doit marcher sans le serveur. Et la
+  documentation ne dit pas si la « juridiction UE » est permise gratuitement, ce qui a donné une question à part.
+- **Comment le faire** : chercher dans la documentation officielle de l'hébergeur, noter dans le plan ce qui a été
+  vérifié, **avec la date et la source**, et ce qui ne l'a pas été (la durée de « Time Travel », le prix de l'offre
+  payante).
+- **Comment le penser** : une offre gratuite change ; une décision prise sur un chiffre périmé est fausse sans qu'on
+  le sache. Écrire « vérifié le … » permet à la conversation suivante de savoir s'il faut revérifier.
+
+### Anonyme, partie par partie, mais pas envoi par envoi
+
+- **Pourquoi** : trois réponses ensemble (le format complet, un numéro par partie, tout l'historique envoyé une fois)
+  laissaient un trou : un historique envoyé d'un bloc montre au serveur que ces parties viennent du même navigateur,
+  ce que le numéro par partie voulait justement éviter.
+- **Comment le faire** : ne pas reposer la question, mais fixer comment le serveur range les données : chaque partie
+  séparément, sans l'IP, sans numéro ni heure d'envoi commune. Le noter à côté des décisions.
+- **Comment le penser** : l'anonymat se joue sur ce qu'on **garde**, pas seulement sur ce qu'on envoie. Pour chaque
+  donnée reçue, se demander : « une fois rangée, permet-elle de relier deux choses qu'on voulait garder séparées ? ».
