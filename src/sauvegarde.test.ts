@@ -5,7 +5,7 @@ import { SANS_MODE } from './domaine/partage.ts'
 import { abandonner, nouvellePartie, proposer, type Partie } from './domaine/partie.ts'
 import { parId } from './domaine/regions.ts'
 import { regionDuNumero } from './domaine/regionDuJour.ts'
-import { CLE, enregistrer, enregistrerBonus, lire, restaurer, restaurerBonus, resultats } from './sauvegarde.ts'
+import { CLE, enregistrer, enregistrerBonus, lire, restaurer, restaurerBonus, resultats, transmises } from './sauvegarde.ts'
 
 const BRETAGNE = parId('bretagne')
 
@@ -35,8 +35,8 @@ describe('La sauvegarde', () => {
     expect(restaurer(parties.get(2)!, BRETAGNE, 'nouvelles').etat).toBe('abandonnee')
     expect(resultats(parties)).toEqual(
       new Map([
-        [1, { etat: 'en-cours', essais: 1 }],
-        [2, { etat: 'abandonnee', essais: 2 }],
+        [1, { etat: 'en-cours', essais: 1, modes: SANS_MODE }],
+        [2, { etat: 'abandonnee', essais: 2, modes: SANS_MODE }],
       ]),
     )
   })
@@ -144,13 +144,13 @@ describe('La sauvegarde du bonus', () => {
     enregistrerBonus(1, passer(repondu(['76', '76'])))
     const bonus = restaurerBonus(1, lire().get(1))!
     expect(bonus.etat).toBe('passe')
-    expect(resultats(lire()).get(1)).toEqual({ etat: 'gagnee', essais: 1, bonus: { score: 1, total: 5 } })
+    expect(resultats(lire()).get(1)).toEqual({ etat: 'gagnee', essais: 1, modes: SANS_MODE, bonus: { score: 1, total: 5 } })
   })
 
   it('un bonus en cours ne compte pas encore dans les résultats', () => {
     enregistrer(1, gagnee())
     enregistrerBonus(1, repondu(['76', '76']))
-    expect(resultats(lire()).get(1)).toEqual({ etat: 'gagnee', essais: 1 })
+    expect(resultats(lire()).get(1)).toEqual({ etat: 'gagnee', essais: 1, modes: SANS_MODE })
   })
 
   it('réenregistrer la partie garde le bonus', () => {
@@ -170,5 +170,35 @@ describe('La sauvegarde du bonus', () => {
       }),
     )
     expect([...lire().keys()]).toEqual([1])
+  })
+})
+
+describe('Les parties dans le format transmis (web.9.1)', () => {
+  it('dans l’ordre des jours, et le bonus de web.7 retrouve ses paires', () => {
+    localStorage.setItem(
+      CLE,
+      JSON.stringify({
+        2: { regions: ['corse'], etat: 'perdue' },
+        1: { regions: ['normandie'], etat: 'gagnee', bonus: { reponses: ['76', '14'], etat: 'en-cours' } },
+      }),
+    )
+    expect(transmises(lire())).toEqual([
+      {
+        jour: 1,
+        regions: ['normandie'],
+        etat: 'gagnee',
+        modes: SANS_MODE,
+        bonus: {
+          paires: [
+            ['76', '76'],
+            ['27', '14'],
+          ],
+          etat: 'en-cours',
+          difficile: true,
+        },
+      },
+      // une sauvegarde d'avant web.4 n'a pas de modes : aucun
+      { jour: 2, regions: ['corse'], etat: 'perdue', modes: SANS_MODE },
+    ])
   })
 })

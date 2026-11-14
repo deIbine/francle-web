@@ -1494,7 +1494,7 @@ limites d'un choix écarté de la recommandation sont notées à côté.
      finies.
    - `transmission.ts` : le format complet d'une partie transmise, `PartieTransmise` (jour, régions, état, modes,
      bonus), dans une enveloppe `{ v: 1, parties: [...] }` ; sa vérification à la lecture ; le résumé qui s'en déduit ;
-     et le codage compact du résumé pour le lien (ci-dessous).
+     et, dans `lien.ts`, le codage compact du résumé pour le lien (ci-dessous).
 3. **web.9.1.2 Les statistiques** : les nouveaux chiffres dans `statistiques.ts`, et la fenêtre 📊 en trois onglets :
    « Résumé » (l'actuel, avec le score), « Détails » (essais moyens, records, régions, modes), « Calendrier » (un mois,
    flèches pour changer de mois).
