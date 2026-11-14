@@ -100,7 +100,7 @@ l'autre, et le web n'a plus à rester égal au Java.
    Cloudflare Workers + D1, dans `serveur/` du même dépôt), web.9.3 des ligues entre amis et un classement public
    protégé. Détail plus bas dans « Les statistiques des joueurs (web.9) ».
 
-## Où on en est (mis à jour le 13 novembre 2026, sur le PC)
+## Où on en est (mis à jour le 14 novembre 2026, sur le PC)
 
 ### À faire sur le PC (rien depuis le 9 novembre 2026)
 
@@ -367,8 +367,24 @@ squash le 18 octobre 2026 sur l'accord de l'utilisateur, étiquettes `web-7.8` �
   - **Nouvelle candidate le 14 novembre 2026 : web.9 Les statistiques des joueurs** (section du même nom plus bas),
     notée à la demande de l'utilisateur avec ses trois sous-phases (web.9.1 à web.9.3), PR #70 (web.9.0, sans
     étiquette). **Les six décisions, l'organisation (un seul dépôt, dossier `serveur/`) et les règles pour revenir en
-    arrière sont validées le même jour** (PR web.9.0.1, sans étiquette). Rien n'est commencé : présenter le découpage
-    de web.9.1, puis attendre le signal de départ.
+    arrière sont validées le même jour** (PR #71, web.9.0.1, sans étiquette). Leçons et notes de reprise : PR
+    web.9.0.2, sans étiquette. Rien n'est commencé.
+  - **Pour reprendre web.9 (noté le 14 novembre 2026, à la fin de la conversation des décisions)** : la prochaine
+    conversation **présente le découpage de web.9.1** et ses questions, puis attend le signal de départ. Méthode
+    demandée par l'utilisateur pour les décisions : **une question à la fois** (outil de questions à choix), chacune
+    avec son enjeu, un tableau des réponses possibles et une recommandation en premier ; les limites d'un choix écarté
+    de la recommandation sont notées à côté de la décision. Points à trancher dans le découpage de web.9.1 (pas encore
+    présentés) :
+    - quelles statistiques en plus (essais moyens, records, régions les mieux et les moins bien trouvées, parties en
+      🌀 et 🙈, calendrier des jours joués), et où (la fenêtre 📊, un onglet de plus ?) ;
+    - le score sur 10 points dans `src/domaine/` (fonction et tests d'abord), et son affichage (total du mois,
+      moyenne par partie) ; il compte toutes les parties déjà jouées (décision 5) ;
+    - le **format d'une partie transmise** (jour, essais, état, bonus, modes), le même pour le lien, web.9.2 et
+      web.9.3, avec un numéro de version ;
+    - le lien de comparaison (`…#bilan=…`) : ce qu'il contient (le bilan, pas l'historique entier ?), comment il est
+      codé, l'écran « vos deux bilans côte à côte », et son lien avec le défi de web.8 (même mécanique) ;
+    - une PR ou plusieurs (par exemple : le score et les statistiques, puis le lien).
+    Avant la première PR de web.9.2 : poser l'étiquette `web-avant-serveur` et revérifier les offres de Cloudflare.
   - **web.8** : **repoussé** le 18 octobre 2026 (pas de domaine acheté pour l'instant). Le découpage et ses onze
     questions ont été présentés le 17 octobre 2026 (voir « Le domaine et le défi (web.8) » plus bas) ; l'utilisateur
     n'y a pas encore répondu.
