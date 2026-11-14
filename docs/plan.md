@@ -369,21 +369,11 @@ squash le 18 octobre 2026 sur l'accord de l'utilisateur, étiquettes `web-7.8` �
     étiquette). **Les six décisions, l'organisation (un seul dépôt, dossier `serveur/`) et les règles pour revenir en
     arrière sont validées le même jour** (PR #71, web.9.0.1, sans étiquette). Leçons et notes de reprise : PR
     web.9.0.2, sans étiquette. Rien n'est commencé.
-  - **Pour reprendre web.9 (noté le 14 novembre 2026, à la fin de la conversation des décisions)** : la prochaine
-    conversation **présente le découpage de web.9.1** et ses questions, puis attend le signal de départ. Méthode
-    demandée par l'utilisateur pour les décisions : **une question à la fois** (outil de questions à choix), chacune
-    avec son enjeu, un tableau des réponses possibles et une recommandation en premier ; les limites d'un choix écarté
-    de la recommandation sont notées à côté de la décision. Points à trancher dans le découpage de web.9.1 (pas encore
-    présentés) :
-    - quelles statistiques en plus (essais moyens, records, régions les mieux et les moins bien trouvées, parties en
-      🌀 et 🙈, calendrier des jours joués), et où (la fenêtre 📊, un onglet de plus ?) ;
-    - le score sur 10 points dans `src/domaine/` (fonction et tests d'abord), et son affichage (total du mois,
-      moyenne par partie) ; il compte toutes les parties déjà jouées (décision 5) ;
-    - le **format d'une partie transmise** (jour, essais, état, bonus, modes), le même pour le lien, web.9.2 et
-      web.9.3, avec un numéro de version ;
-    - le lien de comparaison (`…#bilan=…`) : ce qu'il contient (le bilan, pas l'historique entier ?), comment il est
-      codé, l'écran « vos deux bilans côte à côte », et son lien avec le défi de web.8 (même mécanique) ;
-    - une PR ou plusieurs (par exemple : le score et les statistiques, puis le lien).
+  - **web.9.1 Sans serveur : découpée et décidée le 14 novembre 2026** (« Le découpage de web.9.1 » dans la section
+    web.9 plus bas). Toutes les questions posées d'un coup, à la demande de l'utilisateur, recommandation en premier.
+    Quatre PR **empilées**, enchaînées sans arrêt sur son signal de départ (« Lance 9.1.0, 9.1.1, 9.1.2 et 9.1.3
+    successivement »), relues puis fusionnées à la fin : web.9.1.0 (ces notes), web.9.1.1 (le score et le format),
+    web.9.1.2 (les statistiques), web.9.1.3 (le lien de comparaison). Étiquette `web-9.1` après la dernière fusion.
     Avant la première PR de web.9.2 : poser l'étiquette `web-avant-serveur` et revérifier les offres de Cloudflare.
   - **web.8** : **repoussé** le 18 octobre 2026 (pas de domaine acheté pour l'instant). Le découpage et ses onze
     questions ont été présentés le 17 octobre 2026 (voir « Le domaine et le défi (web.8) » plus bas) ; l'utilisateur
@@ -1342,8 +1332,8 @@ build passent ; `npm run verifier:navigateur` : 18 écrans, 0 problème.
 Idée du 14 novembre 2026, proposée à la demande de l'utilisateur (« savoir qui est le meilleur joueur, faire des
 classements »), sans rien commencer. Notée ici comme nouvelle phase à sa demande, avec trois sous-phases (PR #70,
 web.9.0). **Les six questions sont décidées le 14 novembre 2026** (« Les décisions » plus bas, PR web.9.0.1), avec
-l'organisation du dépôt et les règles pour revenir en arrière. **Rien n'est commencé** : chaque sous-phase attend son
-découpage, puis le signal de départ de l'utilisateur.
+l'organisation du dépôt et les règles pour revenir en arrière. **web.9.1 est découpée et lancée le 14 novembre 2026**
+(« Le découpage de web.9.1 » plus bas) ; web.9.2 et web.9.3 attendent leur découpage, puis le signal de départ.
 
 ### Le point de départ
 
@@ -1474,6 +1464,58 @@ justifierait que si le serveur ne partageait aucun code avec le site.
 - **Les données des joueurs** (`localStorage`, qui restent dans les navigateurs même après un retour en arrière) : une
   nouvelle forme va dans une **nouvelle clé** (`…v2`), **sans effacer l'ancienne** (`francle.parties-du-jour.v1`), pour
   que l'ancienne version retrouve toujours ses données.
+
+### Le découpage de web.9.1 (décidé le 14 novembre 2026)
+
+Toutes les questions posées d'un coup (demandé par l'utilisateur), une recommandation en premier à chaque fois. Les
+limites d'un choix écarté de la recommandation sont notées à côté.
+
+| # | Question | Décision |
+|---|---|---|
+| 1 | Quelles statistiques en plus ? | Essais moyens et records ; régions les mieux et les moins bien trouvées ; parties en 🌀 et 🙈 ; **et le calendrier des jours joués** (recommandé : sans le calendrier). **Limite** : le plus long à faire et le plus encombrant sur téléphone ; il va dans son propre onglet. |
+| 2 | Où les afficher ? | **Des onglets dans la fenêtre 📊** (recommandé). |
+| 3 | Comment afficher le score ? | **Le mois en cours et depuis toujours** (recommandé) : total et moyenne par partie pour chacun. Le mois est celui du calendrier du joueur, comme le jour de la partie (minuit chez lui). |
+| 4 | Que contient une partie transmise ? | **Le format complet** (recommandé : le résumé) : le jour, les régions proposées, l'état, les modes, les réponses du bonus (département demandé, département donné), sa version et son état. **Limite** : plus de données envoyées au serveur à partir de web.9.2, à justifier dans la page de confidentialité ; le résumé (de quoi recalculer le score) s'en déduit. |
+| 5 | Que contient le lien de comparaison ? | **Toutes les parties** (recommandé : le bilan et les jours du mois), **en résumé** (recommandé, question reposée parce que « complet » et « toutes les parties » ensemble donnaient un lien de 7 000 à 15 000 caractères après un an) : jour, essais, état, modes, départements trouvés. **Limite** : le lien grandit chaque jour (de l'ordre de 2 000 caractères après un an). |
+| 6 | L'écran de comparaison ? | **Une fenêtre à deux colonnes** (recommandé) : « Vous » et « Votre ami », une ligne par chiffre, le meilleur des deux mis en avant ; la fermer ramène au jeu et nettoie l'adresse. |
+| 7 | Combien de PR ? | **Quatre** (recommandé), empilées, fusionnées à la fin après relecture (recommandé). Étiquette `web-9.1` à la fin. |
+| 8 | Les bornes du bonus | **Moins de 25 % : 0 ; de 25 % à 75 % inclus : 1 ; plus de 75 % : 2** (recommandé). Les versions simple et difficile rapportent autant. Corse 1 sur 2 : 1 ; Bretagne 3 sur 4 : 1 ; 4 sur 4 : 2. |
+| 9 | Un nom dans le lien ? | **Aucun** (recommandé : un prénom facultatif). **Limite** : avec les liens de plusieurs amis, on ne sait pas lequel est lequel (l'écran indique seulement la date du lien). |
+| 10 | Les petits choix d'affichage | **Claude décide et les explique dans chaque PR** (recommandé) ; l'utilisateur corrige à la relecture. |
+
+#### Les quatre PR
+
+1. **web.9.1.0 Les décisions** : ces notes, sans code.
+2. **web.9.1.1 Le score et le format** (dans `src/domaine/`, les tests d'abord, rien de visible) :
+   - `score.ts` : les points d'une partie, 10 au plus. Victoire en *n* essais : 7 − *n* (6 à 1) ; défaite ou abandon :
+     0, et rien d'autre. En cas de victoire, s'ajoutent le bonus (0, 1 ou 2, bornes ci-dessus ; un bonus en cours ne
+     compte pas encore, un bonus passé après au moins une réponse compte) et +1 pour 🌀, +1 pour 🙈. Une partie en
+     cours ne compte pas. Puis les totaux et moyennes par mois et depuis toujours ; la moyenne divise par les parties
+     finies.
+   - `transmission.ts` : le format complet d'une partie transmise, `PartieTransmise` (jour, régions, état, modes,
+     bonus), dans une enveloppe `{ v: 1, parties: [...] }` ; sa vérification à la lecture ; le résumé qui s'en déduit ;
+     et le codage compact du résumé pour le lien (ci-dessous).
+3. **web.9.1.2 Les statistiques** : les nouveaux chiffres dans `statistiques.ts`, et la fenêtre 📊 en trois onglets :
+   « Résumé » (l'actuel, avec le score), « Détails » (essais moyens, records, régions, modes), « Calendrier » (un mois,
+   flèches pour changer de mois).
+4. **web.9.1.3 Le lien de comparaison** : un bouton dans l'onglet « Résumé » partage le lien (menu de partage sur
+   téléphone, copie ailleurs, comme « Partager ») ; ouvert, il montre la fenêtre à deux colonnes, avec en plus le face
+   à face sur les jours joués par les deux (qui a eu le plus de points).
+
+#### Le lien, codé
+
+`https://deibine.github.io/francle-web/#bilan=1.<jour du lien>.<premier jour>.<un morceau par jour>` : les numéros de
+jour en base 36, puis, du premier jour joué au dernier, `~` pour un jour sans partie finie, ou deux caractères de
+l'alphabet base64url (`A`–`Z`, `a`–`z`, `0`–`9`, `-`, `_`, que les messageries laissent intacts) :
+
+- le premier : l'état et les essais (victoire en 1 à 6 : 0 à 5 ; défaite : 6 ; abandon après 0 à 5 essais : 7 à 12),
+  fois 4, plus les modes (🌀 : 1, 🙈 : 2) ;
+- le second : 0 sans bonus fini, sinon le nombre de départements trouvés + 1. Le nombre de départements de la région se
+  retrouve avec le jour (la région du jour est la même pour tous) : inutile de le transmettre.
+
+Le `1` du début est le numéro de version : un lien d'une version inconnue s'affiche comme illisible, au lieu d'être
+mal lu. « Le jour du lien » sert à calculer la série en cours de l'ami au jour où il l'a envoyé. Le fragment (`#…`)
+n'est jamais envoyé à GitHub par le navigateur : le bilan ne quitte pas les deux joueurs.
 
 ## Les améliorations à reprendre (relevées le 16 octobre 2026)
 
