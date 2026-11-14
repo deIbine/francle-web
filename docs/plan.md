@@ -94,6 +94,10 @@ l'autre, et le web n'a plus à rester égal au Java.
    en option « version difficile » (décidé le 23 octobre 2026, détail plus bas dans « Le bonus simplifié »).
 8. **web.8 Le domaine et le défi** (ancien web.7, renuméroté le 16 octobre 2026) : d'abord le nom de domaine, puis le défi (un lien à envoyer à un ami pour lui
    faire deviner une région). Pas d'archives des jours passés (décidé avant web.4).
+9. **web.9 Les statistiques des joueurs** (idée du 14 novembre 2026, rien de décidé) : se comparer aux autres
+   joueurs, en trois sous-phases empilées : web.9.1 sans serveur (statistiques plus riches, score Francle, comparaison
+   par un lien), web.9.2 des chiffres anonymes pour tous (un petit serveur), web.9.3 des classements avec pseudos, de
+   préférence en ligues entre amis. Détail plus bas dans « Les statistiques des joueurs (web.9) ».
 
 ## Où on en est (mis à jour le 13 novembre 2026, sur le PC)
 
@@ -359,6 +363,9 @@ squash le 18 octobre 2026 sur l'accord de l'utilisateur, étiquettes `web-7.8` �
   - **Après web.7.21, la prochaine étape est à choisir avec l'utilisateur**, parmi les mêmes candidates qu'après
     web.7.19 (ci-dessus) ; web.8 reste repoussé. Sous PowerShell, `npm` est bloqué par la stratégie d'exécution de
     Windows (`npm.ps1`) : taper `npm.cmd`, ou passer par cmd ou Git Bash.
+  - **Nouvelle candidate le 14 novembre 2026 : web.9 Les statistiques des joueurs** (section du même nom plus bas),
+    notée à la demande de l'utilisateur avec ses trois sous-phases (web.9.1 à web.9.3). Rien de décidé ni de commencé :
+    présenter le découpage et les questions « À décider », puis attendre le signal de départ.
   - **web.8** : **repoussé** le 18 octobre 2026 (pas de domaine acheté pour l'instant). Le découpage et ses onze
     questions ont été présentés le 17 octobre 2026 (voir « Le domaine et le défi (web.8) » plus bas) ; l'utilisateur
     n'y a pas encore répondu.
@@ -1310,6 +1317,96 @@ build passent ; `npm run verifier:navigateur` : 18 écrans, 0 problème.
   partie. Code chargé à l'ouverture : **115,2 -> 100,9 Ko** compressés (`npm run build`).
 - En plus, trouvé en vérifiant : `outils/verifier-navigateur.ts` restait bloqué les jours où la région du jour est en
   outre-mer (il attendait un département à cliquer). Il lit maintenant le numéro sans cliquer.
+
+## Les statistiques des joueurs (web.9)
+
+Idée du 14 novembre 2026, proposée à la demande de l'utilisateur (« savoir qui est le meilleur joueur, faire des
+classements »), sans rien commencer. Notée ici comme nouvelle phase à sa demande, avec trois sous-phases. **Rien n'est
+décidé** : ni l'ordre, ni le nombre de sous-phases à faire, ni les réponses aux questions plus bas.
+
+### Le point de départ
+
+Aujourd'hui, tout reste dans le navigateur de chaque joueur : les parties du jour sont dans `localStorage` (clé
+`francle.parties-du-jour.v1`, `src/sauvegarde.ts`), et les statistiques en sont recalculées à chaque fois
+(`src/domaine/statistiques.ts`). Personne, ni le site ni l'auteur, ne voit les parties des autres : c'est voulu
+(« aucune statistique de visite », « aucune donnée collectée » dans le bas de page). Comparer des joueurs demande donc
+qu'une donnée sorte du navigateur, sauf en web.9.1.
+
+### Les trois sous-phases
+
+Elles s'empilent : chacune réutilise ce que la précédente a construit, et chacune est complète seule (on peut s'arrêter
+après n'importe laquelle).
+
+1. **web.9.1 Sans serveur** (dans l'esprit actuel du projet) :
+   - des statistiques personnelles plus riches : essais moyens, records, régions les mieux et les moins bien trouvées,
+     parties en 🌀 et 🙈, calendrier des jours joués ;
+   - un **score Francle**, une seule note qui combine victoires, essais et bonus des départements ;
+   - **se comparer à un ami par un lien** : le bilan codé dans l'adresse (`…#bilan=…`), affiché à côté de celui de
+     l'ami qui l'ouvre ; même mécanique que le défi de web.8.
+   - Limite : pas de classement général, et on fait confiance à l'autre.
+2. **web.9.2 Des chiffres anonymes pour tous** (un petit serveur), comme Wordle : « 38 % des joueurs ont trouvé en
+   3 essais aujourd'hui, tu fais mieux que 72 % ». En fin de partie, le navigateur envoie seulement le numéro du jour,
+   le nombre d'essais et gagné ou perdu, sans identifiant.
+   - Demande un service hébergé avec une base (Supabase, ou Cloudflare Workers avec D1 ; offres gratuites suffisantes,
+     à revérifier au moment de choisir) ; une page de confidentialité ; le bas de page à revoir (« aucune donnée
+     collectée » ne serait plus vrai : le serveur voit passer l'adresse IP).
+   - Limite : se comparer à tous, mais pas de « meilleur joueur » nommé.
+3. **web.9.3 Des classements avec pseudos**, de préférence en **ligues entre amis** (un code pour rejoindre) plutôt
+   qu'un classement mondial public. Demande :
+   - une identité : un pseudo lié à un code secret gardé dans le navigateur (ou de vrais comptes), et un moyen de la
+     retrouver sur un autre appareil ;
+   - le RGPD : un pseudo est une donnée personnelle (confidentialité, suppression de ses données, hébergement en Europe
+     de préférence) ;
+   - la modération des pseudos (presque rien dans une ligue privée) ;
+   - **la triche** : la région du jour est calculée dans le navigateur, donc lisible dans le code de la page. Le serveur
+     peut vérifier que les essais sont cohérents, pas que le joueur ignorait la réponse. Dans une ligue entre amis, on
+     l'accepte ; un classement public honnête demanderait de calculer la région du jour sur le serveur (réécrire le
+     cœur de la partie du jour, et plus de jeu sans réseau).
+   - Découpage estimé (ligues entre amis) : environ cinq PR, de la taille du bonus des départements : le serveur et la
+     base (avec les règles d'accès), l'identité, l'envoi des parties vérifié, les ligues et les classements (par mois et
+     depuis toujours, avec un minimum de parties), la confidentialité. Un classement public : à peu près le double.
+
+### Le serveur, en pratique
+
+Rien à garder allumé chez l'utilisateur : comme GitHub Pages sert déjà le site depuis ses machines, un service clé en
+main (Supabase, Cloudflare Workers, Firebase…) fait tourner la base dans ses centres de données. Un PC à soi est à
+éviter (allumé jour et nuit, ouvert sur Internet) ; une machine louée (VPS) est possible mais demande d'entretenir le
+système soi-même. À savoir : un projet Supabase gratuit se met en pause après une semaine sans activité (à revérifier).
+Si le service tombe, **le jeu continue** (il tourne dans le navigateur) : seuls les chiffres et classements manquent,
+et l'affichage doit le prévoir. À la charge de l'utilisateur : créer le compte chez l'hébergeur, garder les clés
+(rangées ensuite dans les secrets de GitHub), surveiller les quotas et les e-mails de l'hébergeur.
+
+### Ce qui rend les trois compatibles
+
+- **Une seule formule du score**, écrite une fois dans `src/domaine/` et reprise partout (lien, chiffres, ligues), pour
+  ne jamais montrer deux scores différents.
+- **Un seul format de résultat transmis** (ce que contient une partie envoyée), le même pour le lien, l'envoi anonyme
+  et la ligue.
+- **Anonyme par défaut**, le pseudo seulement si le joueur rejoint une ligue (le RGPD demande de ne collecter que le
+  nécessaire).
+- **L'historique ne se rattrape pas** : une partie envoyée anonymement ne peut pas être rattachée à un joueur après
+  coup. Le classement d'une ligue commence quand on la rejoint ; les parties d'avant restent dans les statistiques
+  personnelles.
+- Le lien de comparaison de web.9.1 fera un peu doublon avec les ligues, sans gêner : il reste utile sans ligue.
+
+Les deux premiers points engagent la suite : à décider dès web.9.1, même si on s'arrête là.
+
+### Recommandation (présentée le 14 novembre 2026)
+
+Par paliers : web.9.1 d'abord ; web.9.2 si l'utilisateur veut se comparer à tous (le meilleur compromis entre
+l'intérêt et le coût, et il pose le serveur réutilisé par web.9.3) ; web.9.3 seulement en ligues entre amis, et
+seulement si les deux premières donnent envie d'aller plus loin.
+
+### À décider
+
+1. Sortir du « site sans serveur, aucune donnée collectée » ? Non (web.9.1 seulement), jusqu'à web.9.2, ou jusqu'à
+   web.9.3 ?
+2. « Le meilleur joueur » : le pourcentage de victoires, le moins d'essais en moyenne, la plus longue série, ou un score
+   qui combine tout ? (la formule du score)
+3. Le bonus des départements et les modes 🌀 🙈 rapportent-ils plus de points ?
+4. Classements pour tout le monde, ou entre amis ?
+5. Compter les parties déjà jouées, qui ne sont que dans les navigateurs et invérifiables ?
+6. Pour web.9.2 et web.9.3 : quel hébergeur (Supabase ou Cloudflare Workers, à comparer au moment de choisir) ?
 
 ## Les améliorations à reprendre (relevées le 16 octobre 2026)
 
