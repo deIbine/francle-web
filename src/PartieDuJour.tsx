@@ -15,6 +15,7 @@ import { useRef, useState } from 'react'
 import { Bilan } from './composants/Bilan.tsx'
 import { BoutonBonus } from './composants/BoutonBonus.tsx'
 import { CompteARebours } from './composants/CompteARebours.tsx'
+import { EnvoyerBilan } from './composants/Comparaison.tsx'
 import { Fenetre } from './composants/Fenetre.tsx'
 import { FinDePartie } from './composants/FinDePartie.tsx'
 import { JeuBonus } from './composants/JeuBonus.tsx'
@@ -66,9 +67,13 @@ interface Props {
   demandeListe: number
   // prévient App de la liste qu'ouvre 📃, pour le nom du bouton
   onListe?: (liste: Liste) => void
+  // faux si une autre fenêtre s'ouvre déjà à l'arrivée (la comparaison d'un ami, depuis web.9.1.3) : les résultats
+  // d'une partie finie ne s'ouvrent pas alors d'eux-mêmes. Deux fenêtres l'une sur l'autre se fermeraient dans le
+  // désordre (voir web.7.18). Lu une seule fois, à l'ouverture de la page
+  resultatsAuDebut?: boolean
 }
 
-export function PartieDuJour({ jour, reglages, demandeStats, demandeListe, onListe }: Props) {
+export function PartieDuJour({ jour, reglages, demandeStats, demandeListe, onListe, resultatsAuDebut = true }: Props) {
   const textes = useTextes()
   const langue = useLangue()
   const numero = numeroDuJour(jour)
@@ -89,7 +94,7 @@ export function PartieDuJour({ jour, reglages, demandeStats, demandeListe, onLis
   // attend son bouton. Sauf à la première visite : « Comment jouer » s'ouvre alors (App.tsx), et deux fenêtres
   // l'une sur l'autre se fermeraient dans le désordre (depuis web.7.18)
   const [fenetre, setFenetre] = useState(
-    () => !enCours(partie) && (bonus === undefined || !bonusEnCours(bonus)) && aideVue(),
+    () => !enCours(partie) && (bonus === undefined || !bonusEnCours(bonus)) && aideVue() && resultatsAuDebut,
   )
   // vrai quand le bonus vient d'être lancé par le joueur (victoire ou bouton) : le focus du clavier va alors sur son
   // titre, la saisie ou le bouton qu'il vient d'utiliser ayant disparu. Pas quand on reprend un bonus en revenant
@@ -167,6 +172,10 @@ export function PartieDuJour({ jour, reglages, demandeStats, demandeListe, onLis
     setFenetre(true)
   }
 
+  // les résultats de toutes les parties du jour : pour les statistiques, et pour le lien de comparaison
+  const historique = resultats(parties)
+  const unePartieFinie = [...historique.values()].some((resultat) => resultat.etat !== 'en-cours')
+
   // le score du bonus, pour le partage, une fois le bonus fini
   const scoreBonus =
     bonus === undefined || bonusEnCours(bonus)
@@ -229,9 +238,11 @@ export function PartieDuJour({ jour, reglages, demandeStats, demandeListe, onLis
           </FinDePartie>
         )}
         <Statistiques
-          historique={resultats(parties)}
+          historique={historique}
           aujourdhui={numero}
           dernier={partie.etat === 'gagnee' ? partie.essais.length : undefined}
+          // le lien de comparaison, dès qu'il y a une partie finie à comparer
+          enPlus={unePartieFinie && <EnvoyerBilan historique={historique} aujourdhui={numero} />}
         />
       </Fenetre>
     </>
