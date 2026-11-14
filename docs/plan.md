@@ -94,10 +94,11 @@ l'autre, et le web n'a plus à rester égal au Java.
    en option « version difficile » (décidé le 23 octobre 2026, détail plus bas dans « Le bonus simplifié »).
 8. **web.8 Le domaine et le défi** (ancien web.7, renuméroté le 16 octobre 2026) : d'abord le nom de domaine, puis le défi (un lien à envoyer à un ami pour lui
    faire deviner une région). Pas d'archives des jours passés (décidé avant web.4).
-9. **web.9 Les statistiques des joueurs** (idée du 14 novembre 2026, rien de décidé) : se comparer aux autres
-   joueurs, en trois sous-phases empilées : web.9.1 sans serveur (statistiques plus riches, score Francle, comparaison
-   par un lien), web.9.2 des chiffres anonymes pour tous (un petit serveur), web.9.3 des classements avec pseudos, de
-   préférence en ligues entre amis. Détail plus bas dans « Les statistiques des joueurs (web.9) ».
+9. **web.9 Les statistiques des joueurs** (idée du 14 novembre 2026, décisions validées le même jour, rien de
+   commencé) : se comparer aux autres joueurs, en trois sous-phases empilées : web.9.1 sans serveur (statistiques plus
+   riches, score Francle sur 10 points, comparaison par un lien), web.9.2 des chiffres anonymes pour tous (un serveur
+   Cloudflare Workers + D1, dans `serveur/` du même dépôt), web.9.3 des ligues entre amis et un classement public
+   protégé. Détail plus bas dans « Les statistiques des joueurs (web.9) ».
 
 ## Où on en est (mis à jour le 13 novembre 2026, sur le PC)
 
@@ -364,8 +365,10 @@ squash le 18 octobre 2026 sur l'accord de l'utilisateur, étiquettes `web-7.8` �
     web.7.19 (ci-dessus) ; web.8 reste repoussé. Sous PowerShell, `npm` est bloqué par la stratégie d'exécution de
     Windows (`npm.ps1`) : taper `npm.cmd`, ou passer par cmd ou Git Bash.
   - **Nouvelle candidate le 14 novembre 2026 : web.9 Les statistiques des joueurs** (section du même nom plus bas),
-    notée à la demande de l'utilisateur avec ses trois sous-phases (web.9.1 à web.9.3). Rien de décidé ni de commencé :
-    présenter le découpage et les questions « À décider », puis attendre le signal de départ.
+    notée à la demande de l'utilisateur avec ses trois sous-phases (web.9.1 à web.9.3), PR #70 (web.9.0, sans
+    étiquette). **Les six décisions, l'organisation (un seul dépôt, dossier `serveur/`) et les règles pour revenir en
+    arrière sont validées le même jour** (PR web.9.0.1, sans étiquette). Rien n'est commencé : présenter le découpage
+    de web.9.1, puis attendre le signal de départ.
   - **web.8** : **repoussé** le 18 octobre 2026 (pas de domaine acheté pour l'instant). Le découpage et ses onze
     questions ont été présentés le 17 octobre 2026 (voir « Le domaine et le défi (web.8) » plus bas) ; l'utilisateur
     n'y a pas encore répondu.
@@ -1321,8 +1324,10 @@ build passent ; `npm run verifier:navigateur` : 18 écrans, 0 problème.
 ## Les statistiques des joueurs (web.9)
 
 Idée du 14 novembre 2026, proposée à la demande de l'utilisateur (« savoir qui est le meilleur joueur, faire des
-classements »), sans rien commencer. Notée ici comme nouvelle phase à sa demande, avec trois sous-phases. **Rien n'est
-décidé** : ni l'ordre, ni le nombre de sous-phases à faire, ni les réponses aux questions plus bas.
+classements »), sans rien commencer. Notée ici comme nouvelle phase à sa demande, avec trois sous-phases (PR #70,
+web.9.0). **Les six questions sont décidées le 14 novembre 2026** (« Les décisions » plus bas, PR web.9.0.1), avec
+l'organisation du dépôt et les règles pour revenir en arrière. **Rien n'est commencé** : chaque sous-phase attend son
+découpage, puis le signal de départ de l'utilisateur.
 
 ### Le point de départ
 
@@ -1365,6 +1370,10 @@ après n'importe laquelle).
    - Découpage estimé (ligues entre amis) : environ cinq PR, de la taille du bonus des départements : le serveur et la
      base (avec les règles d'accès), l'identité, l'envoi des parties vérifié, les ligues et les classements (par mois et
      depuis toujours, avec un minimum de parties), la confidentialité. Un classement public : à peu près le double.
+   - **Choisi le 14 novembre 2026 : ligues et classement public protégé** (décision 4), donc le double. S'ajoutent :
+     une partie du jour dont le serveur garde la réponse et calcule chaque essai (le cœur du jeu réécrit, derrière un
+     interrupteur, voir « Revenir en arrière ») ; la modération des pseudos publics. Le découpage exact sera présenté
+     avant de commencer web.9.3.
 
 ### Le serveur, en pratique
 
@@ -1397,16 +1406,58 @@ Par paliers : web.9.1 d'abord ; web.9.2 si l'utilisateur veut se comparer à tou
 l'intérêt et le coût, et il pose le serveur réutilisé par web.9.3) ; web.9.3 seulement en ligues entre amis, et
 seulement si les deux premières donnent envie d'aller plus loin.
 
-### À décider
+### Les décisions (validées le 14 novembre 2026)
 
-1. Sortir du « site sans serveur, aucune donnée collectée » ? Non (web.9.1 seulement), jusqu'à web.9.2, ou jusqu'à
-   web.9.3 ?
-2. « Le meilleur joueur » : le pourcentage de victoires, le moins d'essais en moyenne, la plus longue série, ou un score
-   qui combine tout ? (la formule du score)
-3. Le bonus des départements et les modes 🌀 🙈 rapportent-ils plus de points ?
-4. Classements pour tout le monde, ou entre amis ?
-5. Compter les parties déjà jouées, qui ne sont que dans les navigateurs et invérifiables ?
-6. Pour web.9.2 et web.9.3 : quel hébergeur (Supabase ou Cloudflare Workers, à comparer au moment de choisir) ?
+Posées une par une, avec une recommandation à chaque fois.
+
+| # | Question | Décision |
+|---|---|---|
+| 1 | Sortir du « site sans serveur, aucune donnée collectée » ? | **Oui, jusqu'à web.9.3** (recommandé : jusqu'à web.9.2, web.9.3 décidée plus tard). Il faudra une page de confidentialité et revoir le bas de page dès web.9.2. |
+| 2 | Qu'est-ce qui fait « le meilleur joueur » ? | **Des points par partie** (recommandé) : victoire en 1 essai = 6 points, en 2 = 5… en 6 = 1 ; défaite ou abandon = 0. Classement au **total du mois** (tout le monde repart de zéro le 1er), avec la **moyenne par partie** affichée à côté. |
+| 3 | Le bonus et les modes 🌀 🙈 rapportent-ils des points ? | **Les deux, 10 points au plus par jour** (recommandé). Bonus : 0 point sous un quart des départements trouvés, 1 de un quart à trois quarts, 2 au-delà (la Corse pèse autant que l'Occitanie). 🌀 et 🙈 : +1 chacun, seulement en cas de victoire (les modes sont fixés au premier essai). Points entiers. |
+| 4 | Classements ouverts à tous, ou entre amis ? | **Ligues entre amis et classement public protégé** (recommandé : ligues seulement). La région du jour vient du serveur au lieu d'être lisible dans la page. **Limites connues et acceptées** : la triche devient plus difficile, pas impossible ni détectable (la silhouette reconnaissable par programme parmi 18, un second compte joué d'abord, une carte ou un ami) ; deux fois plus de travail ; plus de partie du jour hors ligne (la partie libre reste hors ligne). |
+| 5 | Compter les parties déjà jouées ? | **Partout**, ligues et classement public compris (recommandé : jamais dans les classements). **Limite acceptée** : ces parties, gardées dans le navigateur, sont modifiables et n'ont jamais été vues par le serveur ; le classement public n'est donc pas protégé sur cette période (avec un classement au mois, surtout le premier mois et la vue « depuis toujours »). |
+| 6 | Quel hébergeur ? | **Cloudflare Workers + D1** (recommandé) : fonctions en TypeScript qui reprennent les règles de `src/domaine/`, base SQL (SQLite), pas de mise en pause. Tarifs, quotas et hébergement en Europe à revérifier au début de web.9.2, avant de créer le compte (par l'utilisateur). |
+
+Ce qui en découle pour web.9.1 : la formule des 10 points et le format d'une partie transmise sont fixés dès le
+début, puisque web.9.2 et web.9.3 les reprennent.
+
+### L'organisation : un seul dépôt (décidé le 14 novembre 2026)
+
+L'utilisateur a proposé un nouveau dépôt pour réunir le site et le serveur. Décidé : **on reste dans
+`deIbine/francle-web`**, avec le serveur dans son propre dossier :
+
+```
+francle-web/
+├── src/          le site, comme aujourd'hui (src/domaine/ partagé avec le serveur)
+├── serveur/      le Worker Cloudflare : son code, sa base, ses tests
+└── .github/      la CI : vérifie les deux, publie chacun de son côté
+```
+
+Pourquoi : le serveur importe directement les règles de `src/domaine/` (deux dépôts obligeraient à les copier et à les
+garder identiques à la main) ; un changement de ce qu'envoie un essai touche le site et le serveur dans une seule PR,
+testée d'un bloc ; un nouveau dépôt changerait l'adresse du jeu (liens partagés cassés) et repartirait de zéro pour la
+numérotation des PR et les étiquettes. C'est l'équivalent d'un projet Maven multi-modules. Un dépôt séparé ne se
+justifierait que si le serveur ne partageait aucun code avec le site.
+
+### Revenir en arrière (décidé le 14 novembre 2026)
+
+- **Une étiquette avant de commencer** : `web-avant-serveur` sur `main`, posée avant la première PR de web.9.2 :
+  le point de retour exact (`git diff web-avant-serveur`, `git checkout web-avant-serveur -- src/`).
+- **Le code** : une branche et une PR par sous-étape, comme d'habitude ; une PR s'annule par `git revert`. Le serveur,
+  isolé dans `serveur/`, ne peut rien casser tant qu'il n'est pas branché au site.
+- **Le site en ligne** : GitHub Pages republie `main` à chaque fusion ; annuler une PR remet l'ancien site.
+- **Un interrupteur** pour la partie du jour protégée (web.9.3) : construite à côté de l'actuelle, activée par un
+  réglage ; en cas de problème, on remet l'ancienne en un commit, sans annuler le travail.
+- **Le serveur en ligne** : Cloudflare garde les versions d'un Worker (`wrangler rollback`). Le site doit **continuer à
+  marcher si le serveur ne répond pas** (seuls les chiffres et classements manquent).
+- **La base du serveur** (Git n'en garde pas l'historique) : des changements de tables **qui ajoutent sans rien
+  détruire** (ajouter une colonne plutôt que la renommer), pour que l'ancien code lise encore la base ; une **sauvegarde
+  exportée** avant chaque changement de base ; la restauration à une date passée de D1 (« Time Travel », durée à
+  revérifier).
+- **Les données des joueurs** (`localStorage`, qui restent dans les navigateurs même après un retour en arrière) : une
+  nouvelle forme va dans une **nouvelle clé** (`…v2`), **sans effacer l'ancienne** (`francle.parties-du-jour.v1`), pour
+  que l'ancienne version retrouve toujours ses données.
 
 ## Les améliorations à reprendre (relevées le 16 octobre 2026)
 
