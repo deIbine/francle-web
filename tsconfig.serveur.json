@@ -3,8 +3,9 @@
     "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.serveur.tsbuildinfo",
     "target": "es2023",
     "lib": ["ES2023"],
-    // Request, Response, fetch et crypto : les mêmes dans un Worker et dans Node, dont on prend les types
-    "types": ["node"],
+    // Request, Response, fetch et crypto : les mêmes dans un Worker et dans Node, dont on prend les types ;
+    // vite/client pour import.meta.glob (base-de-test.ts, dans les tests seulement)
+    "types": ["node", "vite/client"],
     "skipLibCheck": true,
 
     "module": "esnext",

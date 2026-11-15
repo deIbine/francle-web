@@ -24,6 +24,9 @@ export interface Reglages {
   // le bonus des départements dans sa version difficile : la liste 📃 et les suggestions proposent les 101 départements,
   // pas seulement ceux de la région (depuis web.7.14 ; non par défaut)
   readonly departementsDifficiles: boolean
+  // depuis web.9.2.2 : les parties du jour finies sont envoyées au serveur des chiffres de tous, sans rien qui dise
+  // qui joue (oui par défaut, décision 3 de web.9.2). Non : le site ne contacte plus du tout le serveur
+  readonly envoi: boolean
 }
 
 export const PAR_DEFAUT: Reglages = {
@@ -34,6 +37,7 @@ export const PAR_DEFAUT: Reglages = {
   cachee: false,
   liste: true,
   departementsDifficiles: false,
+  envoi: true,
 }
 
 export const CLE_REGLAGES = 'francle.reglages.v1'
@@ -51,6 +55,7 @@ export function lireReglages(stockage: Storage = localStorage): Reglages {
       cachee: lu.cachee === true,
       liste: lu.liste !== false,
       departementsDifficiles: lu.departementsDifficiles === true,
+      envoi: lu.envoi !== false,
     }
   } catch {
     return PAR_DEFAUT

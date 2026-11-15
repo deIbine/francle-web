@@ -39,6 +39,7 @@ import { SANS_MODE, type ModesDifficiles } from './domaine/partage.ts'
 import { regionDuNumero } from './domaine/regionDuJour.ts'
 import { parId, type Mode, type Region } from './domaine/regions.ts'
 import type { Resultat } from './domaine/statistiques.ts'
+import { FORME_TIRAGE, tirer, type PartieEnvoyee } from './domaine/chiffres.ts'
 import { resume, type PartieTransmise } from './domaine/transmission.ts'
 
 export const CLE = 'francle.parties-du-jour.v1'
@@ -50,6 +51,12 @@ export interface PartieSauvee {
   readonly modes?: ModesDifficiles
   // le bonus des départements, une fois commencé (absent avant web.7, ou tant qu'il n'a pas commencé)
   readonly bonus?: BonusSauve
+  // depuis web.9.2.2, pour l'envoi au serveur des chiffres de tous : le numéro tiré au hasard pour cette partie
+  // (domaine/chiffres.ts), et l'empreinte de ce qui a été envoyé la dernière fois (voir empreinte() plus bas). Deux
+  // champs facultatifs de plus : l'ancien code les ignore et les garde (il recopie la partie sauvée avant de la
+  // compléter), la clé « v1 » reste donc lisible par les deux versions
+  readonly tirage?: string
+  readonly envoyee?: string
 }
 
 export interface BonusSauve {
@@ -221,4 +228,57 @@ export function transmises(parties: ReadonlyMap<number, PartieSauvee>): PartieTr
 // par le même chemin, et ne peuvent pas différer. Le bonus ne compte qu'une fois fini
 export function resultats(parties: ReadonlyMap<number, PartieSauvee>): Map<number, Resultat> {
   return new Map(transmises(parties).map((partie): [number, Resultat] => [partie.jour, resume(partie)]))
+}
+
+// l'empreinte d'une partie transmise : ce qui change quand elle avance (son état, ses essais, son bonus). Une partie ne
+// fait qu'avancer (on ajoute un essai, une réponse ; on ne retire rien) : deux empreintes égales, c'est la même partie,
+// inutile de la renvoyer. Plus court que la partie entière, que l'on n'a pas besoin de recopier
+export function empreinte(partie: PartieTransmise): string {
+  return [partie.etat, partie.regions.length, partie.bonus?.etat ?? '-', partie.bonus?.paires.length ?? 0].join('.')
+}
+
+// les parties finies à envoyer au serveur : jamais envoyées, ou changées depuis (le bonus fini après la victoire).
+// Une partie qui n'a pas encore de tirage en reçoit un, gardé avec elle (les parties d'avant web.9.2 aussi : c'est
+// ainsi que tout l'historique part une fois, décision 5)
+export function aEnvoyer(stockage: Storage = localStorage): PartieEnvoyee[] {
+  const parties = lire(stockage)
+  let tiree = false
+  for (const [jour, partie] of parties) {
+    // un tirage abîmé (sauvegarde modifiée à la main) est retiré au sort : le serveur refuserait tout l'envoi qui le
+    // contient, et plus rien ne partirait
+    if (partie.etat !== 'en-cours' && !(typeof partie.tirage === 'string' && FORME_TIRAGE.test(partie.tirage))) {
+      parties.set(jour, { ...partie, tirage: tirer() })
+      tiree = true
+    }
+  }
+  if (tiree) {
+    ecrire(parties, stockage)
+  }
+  return transmises(parties).flatMap((transmise) => {
+    const sauvee = parties.get(transmise.jour)
+    return transmise.etat !== 'en-cours' && sauvee?.tirage !== undefined && sauvee.envoyee !== empreinte(transmise)
+      ? [{ ...transmise, tirage: sauvee.tirage }]
+      : []
+  })
+}
+
+// note que ces parties ont été reçues par le serveur. On relit la sauvegarde d'abord : pendant l'envoi, le joueur a pu
+// avancer (une réponse du bonus) ; on note l'empreinte de ce qui est PARTI, et la partie avancée repartira
+export function marquerEnvoyees(envoyees: readonly PartieEnvoyee[], stockage: Storage = localStorage): void {
+  const parties = lire(stockage)
+  for (const envoyee of envoyees) {
+    const partie = parties.get(envoyee.jour)
+    if (partie?.tirage === envoyee.tirage) {
+      parties.set(envoyee.jour, { ...partie, envoyee: empreinte(envoyee) })
+    }
+  }
+  ecrire(parties, stockage)
+}
+
+// vrai si la partie du jour n° jour, telle qu'elle est maintenant, a été reçue par le serveur : elle est alors déjà
+// comptée dans les chiffres de tous
+export function estEnvoyee(jour: number, stockage: Storage = localStorage): boolean {
+  const parties = lire(stockage)
+  const transmise = transmises(parties).find((partie) => partie.jour === jour)
+  return transmise !== undefined && parties.get(jour)?.envoyee === empreinte(transmise)
 }

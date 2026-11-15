@@ -1,11 +1,23 @@
 import { describe, expect, it } from 'vitest'
-import { avecDifficulte, bonusDuJour, passer, repondreChoix, type Bonus } from './domaine/bonus.ts'
+import { avecDifficulte, bonusDuJour, passer, repondreChoix, restants, type Bonus } from './domaine/bonus.ts'
 import { parCode } from './domaine/departements.ts'
 import { SANS_MODE } from './domaine/partage.ts'
 import { abandonner, nouvellePartie, proposer, type Partie } from './domaine/partie.ts'
 import { parId } from './domaine/regions.ts'
 import { regionDuNumero } from './domaine/regionDuJour.ts'
-import { CLE, enregistrer, enregistrerBonus, lire, restaurer, restaurerBonus, resultats, transmises } from './sauvegarde.ts'
+import {
+  aEnvoyer,
+  CLE,
+  enregistrer,
+  enregistrerBonus,
+  estEnvoyee,
+  lire,
+  marquerEnvoyees,
+  restaurer,
+  restaurerBonus,
+  resultats,
+  transmises,
+} from './sauvegarde.ts'
 
 const BRETAGNE = parId('bretagne')
 
@@ -200,5 +212,42 @@ describe('Les parties dans le format transmis (web.9.1)', () => {
       // une sauvegarde d'avant web.4 n'a pas de modes : aucun
       { jour: 2, regions: ['corse'], etat: 'perdue', modes: SANS_MODE },
     ])
+  })
+})
+
+// depuis web.9.2.2 : ce qui reste à envoyer au serveur des chiffres de tous
+describe('Les envois au serveur', () => {
+  const cible = regionDuNumero(2)
+
+  it('une partie finie reçoit un tirage, gardé ensuite ; une partie en cours ne part pas', () => {
+    enregistrer(1, nouvellePartie(regionDuNumero(1), 'nouvelles'))
+    enregistrer(2, proposer(nouvellePartie(cible, 'nouvelles'), cible.nom.fr)!)
+    const [envoyee, ...autres] = aEnvoyer()
+    expect(autres).toEqual([])
+    expect(envoyee.jour).toBe(2)
+    expect(envoyee.tirage).toMatch(/^[0-9a-f]{32}$/)
+    expect(lire().get(1)!.tirage).toBeUndefined()
+    // le tirage survit à un nouvel enregistrement de la partie, et à un second appel
+    enregistrer(2, proposer(nouvellePartie(cible, 'nouvelles'), cible.nom.fr)!)
+    expect(aEnvoyer()[0].tirage).toBe(envoyee.tirage)
+  })
+
+  it('une partie envoyée ne repart que si elle a avancé (le bonus)', () => {
+    const gagnee = proposer(nouvellePartie(cible, 'nouvelles'), cible.nom.fr)!
+    enregistrer(2, gagnee)
+    marquerEnvoyees(aEnvoyer())
+    expect(aEnvoyer()).toEqual([])
+    expect(estEnvoyee(2)).toBe(true)
+    const bonus = bonusDuJour(cible, 2)
+    const premier = restants(bonus)[0]
+    enregistrerBonus(2, repondreChoix(bonus, premier, premier) as Bonus)
+    expect(estEnvoyee(2)).toBe(false)
+    const [renvoyee] = aEnvoyer()
+    expect(renvoyee.bonus?.paires).toHaveLength(1)
+  })
+
+  it('un tirage abîmé est tiré à nouveau', () => {
+    localStorage.setItem(CLE, JSON.stringify({ 2: { regions: [cible.id], etat: 'gagnee', tirage: 'abîmé' } }))
+    expect(aEnvoyer()[0].tirage).toMatch(/^[0-9a-f]{32}$/)
   })
 })
