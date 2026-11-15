@@ -7,6 +7,8 @@ import { useTextes } from '../textes.ts'
 interface Props {
   reglages: LesReglages
   onChanger: (changement: Partial<LesReglages>) => void
+  // ouvre la page de confidentialité (depuis web.9.2.3)
+  onConfidentialite: () => void
 }
 
 // un groupe de boutons radio (un seul choix possible), avec son titre. Depuis web.7.16.4, les choix sont dessinés
@@ -72,7 +74,7 @@ function Case(props: { libelle: string; aide: string; coche: boolean; onChanger:
   )
 }
 
-export function Reglages({ reglages, onChanger }: Props) {
+export function Reglages({ reglages, onChanger, onConfidentialite }: Props) {
   const textes = useTextes()
   return (
     <div className="flex flex-col gap-4 text-left">
@@ -137,6 +139,9 @@ export function Reglages({ reglages, onChanger }: Props) {
           coche={reglages.envoi}
           onChanger={(envoi) => onChanger({ envoi })}
         />
+        <button type="button" onClick={onConfidentialite} className="self-start text-sm underline hover:text-texte">
+          {textes.reglages.envoiDetails}
+        </button>
       </fieldset>
     </div>
   )

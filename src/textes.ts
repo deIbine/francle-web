@@ -368,7 +368,67 @@ const fr = {
     licence: 'licence ouverte Etalab',
     inspiration: 'Inspiré de Worldle',
     code: 'Code source',
-    vie: 'Aucune donnée collectée\u00a0: tout reste dans ton navigateur.',
+    // depuis web.9.2.3 : « aucune donnée collectée » n'est plus vrai, si le joueur accepte l'envoi
+    vie: 'Ni compte, ni cookie, ni publicité. Tes résultats anonymes servent aux chiffres de tous, si tu le veux.',
+    confidentialite: 'Confidentialité',
+  },
+
+  // la page de confidentialité (web.9.2.3), dans une fenêtre : des parties courtes, chacune une question
+  confidentialite: {
+    titre: 'Confidentialité',
+    parties: [
+      {
+        titre: 'En bref',
+        textes: [
+          'Francle ne te demande ni nom, ni e-mail, ni compte. Pas de cookie, pas de publicité, pas de mesure d’audience. Tes parties sont gardées dans ton navigateur.',
+          'Si tu l’acceptes (c’est le réglage de départ), chaque partie du jour finie est aussi envoyée au serveur du jeu, sans rien qui dise qui tu es, pour calculer les chiffres de tous les joueurs.',
+        ],
+      },
+      {
+        titre: 'Ce qui est envoyé',
+        textes: [
+          'Pour chaque partie du jour finie\u00a0: le numéro du jour, les régions proposées dans l’ordre, le résultat (trouvée, perdue ou abandonnée), les modes difficiles, les réponses du bonus des départements, et un numéro tiré au hasard pour cette partie seulement.',
+          'Ce numéro sert à remplacer la partie quand elle avance (le bonus fini après la victoire). Il change à chaque partie\u00a0: il ne relie pas tes parties entre elles.',
+          'La première fois, tes parties du jour déjà jouées partent aussi, une fois. La partie libre n’est jamais envoyée.',
+        ],
+      },
+      {
+        titre: 'Pourquoi',
+        textes: [
+          'Pour les chiffres du jour\u00a0: combien de joueurs, combien ont trouvé, et où tu te situes. Les régions proposées sont envoyées, et pas seulement le résultat, pour que le serveur vérifie qu’une partie est possible, et pour de futurs classements entre amis.',
+        ],
+      },
+      {
+        titre: 'Ce qui est gardé, et où',
+        textes: [
+          'Le serveur range chaque partie à part\u00a0: son numéro tiré, le jour, la partie et ses points. Il ne garde ni ton adresse IP, ni l’heure d’arrivée, ni rien qui relierait deux parties envoyées ensemble, et ne tient aucun journal des requêtes.',
+          'La base est chez Cloudflare, gardée et traitée dans l’Union européenne. Comme pour tout site, GitHub (qui sert les pages du jeu) et Cloudflare (qui fait tourner le serveur) voient passer ton adresse IP pour te répondre\u00a0; leurs propres règles s’appliquent.',
+        ],
+      },
+      {
+        titre: 'Combien de temps',
+        textes: [
+          'Tant que le jeu existe\u00a0: ce sont des chiffres anonymes. Une partie supprimée peut subsister jusqu’à 7\u00a0jours dans les sauvegardes automatiques de la base.',
+        ],
+      },
+      {
+        titre: 'Refuser',
+        textes: [
+          'Dans les réglages, désactive «\u00a0Partager mes résultats anonymes\u00a0»\u00a0: le site ne contacte plus du tout le serveur, et les chiffres de tous ne s’affichent plus. Tes parties restent dans ton navigateur, comme avant.',
+        ],
+      },
+      {
+        titre: 'Une question, une suppression',
+        textes: [
+          'Ouvre un ticket sur le dépôt du jeu, sur GitHub. Il est public\u00a0: n’y écris rien de personnel.',
+          'Rien ne relie tes parties à toi\u00a0: pour les supprimer, il faut leurs numéros tirés. Ils sont ci-dessous, à recopier dans le ticket.',
+        ],
+      },
+    ],
+    ticket: 'Ouvrir un ticket sur GitHub',
+    numeros: 'Mes numéros tirés',
+    aucunNumero: 'Aucune partie envoyée pour l’instant.',
+    numero: (date: string, tirage: string) => `${date}\u00a0: ${tirage}`,
   },
 
   reglages: {
@@ -397,6 +457,7 @@ const fr = {
     envoi: 'Partager mes résultats anonymes',
     envoiAide:
       'Chaque partie du jour finie part, sans rien qui dise qui tu es, pour les chiffres de tous les joueurs. Désactivé, le site ne contacte plus le serveur.',
+    envoiDetails: 'Ce qui est envoyé, et pourquoi',
   },
 }
 
@@ -660,7 +721,65 @@ const en: Textes = {
     licence: 'Etalab open licence',
     inspiration: 'Inspired by Worldle',
     code: 'Source code',
-    vie: 'No data collected: everything stays in your browser.',
+    vie: 'No account, no cookies, no ads. Your anonymous results feed everyone’s figures, if you like.',
+    confidentialite: 'Privacy',
+  },
+
+  confidentialite: {
+    titre: 'Privacy',
+    parties: [
+      {
+        titre: 'In short',
+        textes: [
+          'Francle asks for no name, no email and no account. No cookies, no ads, no visitor tracking. Your games are kept in your browser.',
+          'If you agree (it is the default setting), each finished daily game is also sent to the game’s server, with nothing that says who you are, to work out the figures of all players.',
+        ],
+      },
+      {
+        titre: 'What is sent',
+        textes: [
+          'For each finished daily game: the day number, the regions guessed in order, the result (found, lost or given up), the hard modes, the answers of the departments bonus, and a number drawn at random for that game only.',
+          'This number lets the game be replaced when it moves on (the bonus finished after the win). It changes with every game: it does not link your games together.',
+          'The first time, your daily games already played are sent too, once. Free play is never sent.',
+        ],
+      },
+      {
+        titre: 'Why',
+        textes: [
+          'For the day’s figures: how many players, how many found it, and where you stand. The regions guessed are sent, not only the result, so that the server can check that a game is possible, and for future leagues between friends.',
+        ],
+      },
+      {
+        titre: 'What is kept, and where',
+        textes: [
+          'The server stores each game on its own: its random number, the day, the game and its points. It keeps neither your IP address, nor the arrival time, nor anything that would link two games sent together, and keeps no request log.',
+          'The database is at Cloudflare, stored and processed in the European Union. As for any website, GitHub (which serves the game’s pages) and Cloudflare (which runs the server) see your IP address in order to reply; their own rules apply.',
+        ],
+      },
+      {
+        titre: 'How long',
+        textes: [
+          'As long as the game exists: these are anonymous figures. A deleted game may remain for up to 7 days in the database’s automatic backups.',
+        ],
+      },
+      {
+        titre: 'Saying no',
+        textes: [
+          'In the settings, turn off “Share my anonymous results”: the site no longer contacts the server at all, and everyone’s figures are no longer shown. Your games stay in your browser, as before.',
+        ],
+      },
+      {
+        titre: 'A question, a deletion',
+        textes: [
+          'Open an issue on the game’s repository, on GitHub. It is public: do not write anything personal in it.',
+          'Nothing links your games to you: to delete them, their random numbers are needed. They are below, to copy into the issue.',
+        ],
+      },
+    ],
+    ticket: 'Open an issue on GitHub',
+    numeros: 'My random numbers',
+    aucunNumero: 'No game sent yet.',
+    numero: (date: string, tirage: string) => `${date}: ${tirage}`,
   },
 
   reglages: {
@@ -689,6 +808,7 @@ const en: Textes = {
     envoi: 'Share my anonymous results',
     envoiAide:
       'Each finished daily game is sent, with nothing that says who you are, for the figures of all players. When off, the site no longer contacts the server.',
+    envoiDetails: 'What is sent, and why',
   },
 }
 
