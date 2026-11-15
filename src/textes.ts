@@ -351,6 +351,18 @@ const fr = {
     jouer: 'Jouer',
   },
 
+  // depuis web.9.2.2 : les chiffres de tous les joueurs du jour, dans la fenêtre des résultats
+  tous: {
+    titre: 'Les joueurs du jour',
+    resume: (joueurs: number, taux: number) =>
+      `${joueurs.toLocaleString('fr-FR')} joueur${joueurs > 1 ? 's' : ''} aujourd’hui · ${taux} % ${joueurs > 1 ? 'ont' : 'a'} trouvé`,
+    mieuxQue: (pourcentage: number, points: number) =>
+      `Avec ${points} point${points > 1 ? 's' : ''}, tu fais mieux que ${pourcentage} % des joueurs.`,
+    repartition: 'Victoires de tous par nombre d’essais',
+    barre: (essais: number, pourcentage: number, toi: boolean) =>
+      `${pourcentage} % des victoires en ${essais} essai${essais > 1 ? 's' : ''}${toi ? ', comme toi' : ''}`,
+  },
+
   credits: {
     contours: 'Contours des régions et des départements\u00a0: IGN et INSEE',
     licence: 'licence ouverte Etalab',
@@ -381,6 +393,10 @@ const fr = {
     departementsDifficiles: 'Départements\u00a0: version difficile',
     departementsDifficilesAide:
       'La liste et les suggestions proposent les 101 départements, pas seulement ceux de la région. Fixé à la première réponse du bonus.',
+    envoiTitre: 'Chiffres de tous',
+    envoi: 'Partager mes résultats anonymes',
+    envoiAide:
+      'Chaque partie du jour finie part, sans rien qui dise qui tu es, pour les chiffres de tous les joueurs. Désactivé, le site ne contacte plus le serveur.',
   },
 }
 
@@ -628,6 +644,17 @@ const en: Textes = {
     jouer: 'Play',
   },
 
+  tous: {
+    titre: 'Today’s players',
+    resume: (joueurs: number, taux: number) =>
+      `${joueurs.toLocaleString('en-GB')} player${joueurs > 1 ? 's' : ''} today · ${taux}% found it`,
+    mieuxQue: (pourcentage: number, points: number) =>
+      `With ${points} point${points > 1 ? 's' : ''}, you did better than ${pourcentage}% of players.`,
+    repartition: 'Everyone’s wins by number of guesses',
+    barre: (essais: number, pourcentage: number, toi: boolean) =>
+      `${pourcentage}% of wins in ${essais} guess${essais > 1 ? 'es' : ''}${toi ? ', like you' : ''}`,
+  },
+
   credits: {
     contours: 'Region and department outlines: IGN and INSEE',
     licence: 'Etalab open licence',
@@ -658,6 +685,10 @@ const en: Textes = {
     departementsDifficiles: 'Departments: hard version',
     departementsDifficilesAide:
       'The list and the suggestions offer all 101 departments, not only those of the region. Set at the bonus’s first answer.',
+    envoiTitre: 'Everyone’s figures',
+    envoi: 'Share my anonymous results',
+    envoiAide:
+      'Each finished daily game is sent, with nothing that says who you are, for the figures of all players. When off, the site no longer contacts the server.',
   },
 }
 

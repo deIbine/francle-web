@@ -3,17 +3,22 @@ Une vraie base SQLite en mémoire, pour les tests : node:sqlite, fourni avec Nod
 interface que D1 (base.ts). D1 est du SQLite : le SQL du serveur et les migrations sont ainsi vraiment exécutés par les
 tests, et non imités.
  */
-import { readdirSync, readFileSync } from 'node:fs'
+// les types de Node, nommés ici : ce fichier est aussi importé par un test du site (src/ChiffresDeTous.test.tsx), dont
+// la configuration TypeScript (tsconfig.app.json) ne les connaît pas, le site ne tournant pas dans Node
+/// <reference types="node" />
 import { DatabaseSync } from 'node:sqlite'
 import type { Base, Requete } from './base.ts'
 
-const MIGRATIONS = new URL('../migrations/', import.meta.url)
+// toutes les migrations, lues comme du texte au moment de construire les tests : import.meta.glob est une fonction de
+// Vite (donc de Vitest), qui marche aussi bien dans les tests du serveur que dans ceux du site (faux navigateur), où
+// l'on ne peut pas lire un dossier du disque par son adresse. « ?raw » : le contenu du fichier, tel quel
+const MIGRATIONS = import.meta.glob<string>('../migrations/*.sql', { query: '?raw', import: 'default', eager: true })
 
-// une base neuve, avec toutes les migrations appliquées dans l'ordre, comme le fait wrangler en ligne
+// une base neuve, avec toutes les migrations appliquées dans l'ordre de leurs noms (0001, 0002…), comme wrangler
 export function baseDeTest(): Base & { lignes(): Record<string, unknown>[] } {
   const sqlite = new DatabaseSync(':memory:')
-  for (const fichier of readdirSync(MIGRATIONS).filter((nom) => nom.endsWith('.sql')).sort()) {
-    sqlite.exec(readFileSync(new URL(fichier, MIGRATIONS), 'utf8'))
+  for (const fichier of Object.keys(MIGRATIONS).sort()) {
+    sqlite.exec(MIGRATIONS[fichier])
   }
 
   function requete(sql: string, valeurs: unknown[]): Requete & { executer(): void } {

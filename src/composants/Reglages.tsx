@@ -129,6 +129,15 @@ export function Reglages({ reglages, onChanger }: Props) {
           onChanger={(departementsDifficiles) => onChanger({ departementsDifficiles })}
         />
       </fieldset>
+      <fieldset className="flex flex-col gap-3 border-t border-bord pt-3">
+        <legend className="float-left mb-1 font-semibold">{textes.reglages.envoiTitre}</legend>
+        <Case
+          libelle={textes.reglages.envoi}
+          aide={textes.reglages.envoiAide}
+          coche={reglages.envoi}
+          onChanger={(envoi) => onChanger({ envoi })}
+        />
+      </fieldset>
     </div>
   )
 }

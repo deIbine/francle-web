@@ -11,9 +11,10 @@ son score. Il est sauvé à chaque réponse : commencé puis quitté (page ferm�
 fenêtre par-dessus. Passé avant toute réponse, ou pas encore lancé quand on revient sur la page, il reste à jouer
 jusqu'à minuit, par le bouton « 🗺️ Jouer le bonus ».
  */
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Bilan } from './composants/Bilan.tsx'
 import { BoutonBonus } from './composants/BoutonBonus.tsx'
+import { ChiffresDeTous } from './composants/ChiffresDeTous.tsx'
 import { CompteARebours } from './composants/CompteARebours.tsx'
 import { EnvoyerBilan } from './composants/Comparaison.tsx'
 import { Fenetre } from './composants/Fenetre.tsx'
@@ -27,6 +28,7 @@ import { enCours, nouvellePartie, type Partie } from './domaine/partie.ts'
 import { textePartage, type ModesDifficiles } from './domaine/partage.ts'
 import { angleDuJour, MODE_DU_JOUR, numero as numeroDuJour, regionDuJour } from './domaine/regionDuJour.ts'
 import { minuitSuivant } from './domaine/temps.ts'
+import { synchroniser } from './envoi.ts'
 import { usePause } from './pause.ts'
 import { aideVue, modesReglages, uniteAffichee, type Reglages } from './reglages.ts'
 import { useChangementAilleurs } from './onglets.ts'
@@ -118,6 +120,15 @@ export function PartieDuJour({ jour, reglages, demandeStats, demandeListe, onLis
     setBonus((avant) => restaurerBonus(numero, toutes.get(numero)) ?? avant)
   })
 
+  // l'envoi au serveur des chiffres de tous (depuis web.9.2.2), si le joueur l'accepte : à l'ouverture de la page
+  // (tout l'historique pas encore envoyé, une fois), puis à chaque partie sauvée (une partie finie, un bonus fini).
+  // synchroniser() n'envoie que ce qui a changé, et ne fait rien du tout s'il n'y a rien de nouveau
+  useEffect(() => {
+    if (reglages.envoi) {
+      void synchroniser()
+    }
+  }, [reglages.envoi, parties])
+
   // 📊 a été cliqué : on ouvre la fenêtre. On compare à la dernière demande vue PENDANT l'affichage, plutôt que
   // dans un useEffect : React le recommande pour « ajuster un état quand une prop change », sans affichage de trop
   const [demandeVue, setDemandeVue] = useState(demandeStats)
@@ -175,6 +186,7 @@ export function PartieDuJour({ jour, reglages, demandeStats, demandeListe, onLis
   // les résultats de toutes les parties du jour : pour les statistiques, et pour le lien de comparaison
   const historique = resultats(parties)
   const unePartieFinie = [...historique.values()].some((resultat) => resultat.etat !== 'en-cours')
+  const duJour = historique.get(numero)
 
   // le score du bonus, pour le partage, une fois le bonus fini
   const scoreBonus =
@@ -227,6 +239,11 @@ export function PartieDuJour({ jour, reglages, demandeStats, demandeListe, onLis
       >
         {!enCours(partie) && (
           <FinDePartie partie={partie} bonus={bonus}>
+            {/* les chiffres de tous (depuis web.9.2.2), seulement si le joueur accepte l'envoi : sinon le site ne
+                contacte pas du tout le serveur. Pas pendant le bonus : la partie n'est pas encore à son score final */}
+            {reglages.envoi && duJour !== undefined && (bonus === undefined || !bonusEnCours(bonus)) && (
+              <ChiffresDeTous jour={numero} resultat={duJour} />
+            )}
             {/* le compte à rebours et le bouton de partage côte à côte, chacun à sa largeur (depuis web.7.20). Avant, deux
                 colonnes égales (grid-cols-2) : à 375 pixels, la sienne ne faisait que 150 pixels, et « Prochaine région
                 dans » y passait sur trois lignes avec certaines polices. flex-wrap : si les deux ne tiennent pas sur une

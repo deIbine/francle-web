@@ -17,6 +17,7 @@ describe('Les réglages', () => {
       cachee: false,
       liste: false,
       departementsDifficiles: true,
+      envoi: false,
     } as const
     enregistrerReglages(reglages)
     expect(lireReglages()).toEqual(reglages)

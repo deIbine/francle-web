@@ -26,6 +26,14 @@ beforeEach(() => localStorage.setItem('francle.aide-vue.v1', '1'))
 // et on retire le thème sombre qu'un test aurait posé sur <html> (la page, elle, n'est pas effacée par cleanup)
 afterEach(() => document.documentElement.classList.remove('dark'))
 
+// pas de réseau dans les tests (depuis web.9.2.2) : sans cela, chaque partie finie dans un test enverrait une vraie
+// requête au serveur des chiffres de tous. Le fetch par défaut échoue, comme un serveur qui ne répond pas : c'est
+// aussi la preuve, à chaque test, que le jeu marche sans lui. Un test qui veut un serveur le remplace (vi.spyOn)
+beforeEach(() => {
+  vi.spyOn(globalThis, 'fetch').mockRejectedValue(new TypeError('pas de réseau dans les tests'))
+})
+afterEach(() => vi.restoreAllMocks())
+
 // jsdom se présente comme un navigateur en anglais (en-US) : les tests jouent en français, sauf ceux qui changent
 // la langue exprès (voir Anglais.test.tsx)
 Object.defineProperty(navigator, 'languages', { value: ['fr-FR'], configurable: true })
