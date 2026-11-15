@@ -2293,3 +2293,17 @@ modération (web.9.3.3), la confidentialité et les notes (web.9.3.4).
   à 375 pixels, en clair et en sombre. Ici, la moyenne est passée sous le pseudo : une colonne de moins.
 - **Comment le penser** : les tests vérifient le contenu, pas la place qu'il prend. Un tableau se juge à sa ligne la
   plus longue, sur le plus petit écran.
+
+### Vérifier qu'une donnée est arrivée, et fusionner une pile qui publie (la fusion de web.9.3)
+
+- **Pourquoi** : avant la fusion, l'utilisateur voulait savoir si ses parties arrivaient bien au serveur, sans
+  attendre la mise en ligne. Puis chaque fusion de la pile publiait le serveur avec une nouvelle migration (0002,
+  0003, 0004) : une migration ratée au milieu aurait laissé le code d'une étape sans ses tables.
+- **Comment le faire** : le serveur local (`npm run dev` dans `serveur/`) a sa propre base ; on la lit directement,
+  par exemple `npx wrangler d1 execute francle --local --command "SELECT …"` (`--remote` pour la vraie base, ou la
+  console D1 du tableau de bord de Cloudflare). L'onglet Réseau (F12) montre l'envoi et la réponse du serveur. Pour
+  la pile : fusionner une PR, attendre la tâche `publier-serveur` de `main` et lire dans son journal la migration
+  marquée ✅, puis seulement reposer et fusionner la suivante.
+- **Comment le penser** : se demander où la donnée doit arriver, et l'y lire sans passer par le site : un affichage
+  peut se tromper sans rien montrer. Quand chaque fusion change la production, une pile se fusionne à la vitesse de
+  sa publication, pas à celle des clics.

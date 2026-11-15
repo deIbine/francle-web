@@ -100,7 +100,7 @@ l'autre, et le web n'a plus à rester égal au Java.
    Cloudflare Workers + D1, dans `serveur/` du même dépôt), web.9.3 des ligues entre amis et un classement public
    protégé. Détail plus bas dans « Les statistiques des joueurs (web.9) ».
 
-## Où on en est (mis à jour le 15 novembre 2026, sur le PC : web.9.3 écrite, quatre PR à relire)
+## Où on en est (mis à jour le 15 novembre 2026, sur le PC : web.9.3 fusionnée et en ligne)
 
 ### À faire sur le PC (rien depuis le 9 novembre 2026)
 
@@ -425,11 +425,19 @@ squash le 18 octobre 2026 sur l'accord de l'utilisateur, étiquettes `web-7.8` �
     bas) : un pseudo et un code secret, une seule ligue par joueur, tout profil dans le classement public, **sans
     protection de la partie du jour** (revient sur la décision 4 du 14 novembre), tout d'affilée. Notes : PR #85
     (web.9.3.0), sans étiquette. **Lancée le même jour** (« Lance web.9.3, et 12 mois pour les anonymes ») et
-    **écrite le même jour** : quatre PR empilées, **ouvertes, pas fusionnées** (« Fait à web.9.3 » plus bas).
-    **Pour reprendre** : l'utilisateur relit, range la clé de modération (« Ce qui revient à l'utilisateur » dans la
-    section web.9.3), puis donne l'accord de fusion ; fusionner dans l'ordre avec la méthode de web.9.1 ; à la
-    fusion de web.9.3.1, surveiller la tâche CI `publier-serveur` (les migrations 0002 à 0004, puis la tâche
-    planifiée) ; étiquette `web-9.3` après la dernière ; puis l'utilisateur essaie la ligue en vrai, entre amis.
+    **écrite le même jour** : quatre PR empilées (« Fait à web.9.3 » plus bas), essayées en local par l'utilisateur
+    (serveur `wrangler dev` et site branché dessus, dans le navigateur intégré). **Fusionnées en squash le même
+    jour, en ligne**, sur l'accord de l'utilisateur (« tu peux fusionner les quatre PR, étiqueter et supprimer »),
+    avec la méthode de web.9.1, une PR à la fois : `cd9fbe7` (#86), `4997358` (#87), `6e56de4` (#88), `158ccba`
+    (#89), arbres identiques avant, après et sur `main`. Après chaque fusion, la tâche CI `publier-serveur` a été
+    attendue avant la suivante : migrations 0002, 0003 puis 0004 appliquées à la vraie base, Worker publié avec sa
+    tâche planifiée (`schedule: 0 3 * * *`). Étiquette annotée `web-9.3` sur `158ccba` ; les quatre branches
+    supprimées en local et sur GitHub. Vérifié ensuite : le classement public en ligne répond (vide, 0 joueur), la
+    modération répond « fermée » (le secret `MODERATION` n'est pas encore rangé). Ces notes : PR web.9.3.5, sans
+    étiquette.
+  - **Encore à faire par l'utilisateur** : ranger la clé de modération (« Ce qui revient à l'utilisateur » dans la
+    section web.9.3) ; essayer la ligue en vrai, entre amis, sur téléphone ; surveiller les signalements. Ensuite,
+    la prochaine étape est à choisir avec l'utilisateur.
   - **Encore à vérifier par l'utilisateur, en jouant** : web.9.1 sur un vrai téléphone, sur le site en ligne (les
     onglets et le calendrier de la fenêtre 📊, le bouton « Envoyer mon bilan » qui ouvre le menu de partage, un lien
     reçu par une messagerie). Le partage ne marche que sur une page sécurisée (https, ou localhost) : par le réseau
@@ -1779,9 +1787,11 @@ ligue, elle passe au membre le plus ancien.
   le Worker `chiffres`, Paramètres (Settings), Variables et secrets, Ajouter : type **Secret**, nom `MODERATION`. Un
   secret reste en place d'une publication à l'autre. Sans lui, la modération est simplement fermée (le reste marche).
   Pour modérer : ouvrir `https://deibine.github.io/francle-web/#moderation`, y coller la clé.
-- Relire les PR et donner l'accord de fusion ; essayer la ligue en vrai, entre amis ; surveiller les signalements.
+- ~~Relire les PR et donner l'accord de fusion~~ : fait le 15 novembre 2026.
+- Reste : ranger la clé de modération (ci-dessus) ; essayer la ligue en vrai, entre amis ; surveiller les
+  signalements.
 
-#### Fait à web.9.3 (le 15 novembre 2026, quatre PR empilées, à relire)
+#### Fait à web.9.3 (le 15 novembre 2026, PR #86 à #89, empilées, fusionnées le même jour, étiquette `web-9.3`)
 
 - **web.9.3.1 Les profils** : `serveur/migrations/0002_profils.sql` (profils, parties_profil) ; `serveur/src/profils.ts`
   (créer, lire, supprimer, code de secours, parties rattachées), `http.ts` (ce que partagent les adresses) ;
