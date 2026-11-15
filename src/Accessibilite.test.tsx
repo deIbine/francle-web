@@ -64,7 +64,7 @@ describe('Comment jouer', () => {
 })
 
 describe('Le bas de page', () => {
-  it('cite les sources et le code, et dit qu’aucune donnée n’est collectée', () => {
+  it('cite les sources et le code, et dit ce que le jeu fait des données', () => {
     render(<App />)
     const pied = screen.getByRole('contentinfo')
     expect(within(pied).getByRole('link', { name: /^Contours des régions et des départements\s:\sIGN et INSEE$/ })).toBeDefined()
@@ -73,7 +73,9 @@ describe('Le bas de page', () => {
     expect(within(pied).getByRole('link', { name: 'Code source' }).getAttribute('href')).toBe(
       'https://github.com/deIbine/francle-web',
     )
-    expect(within(pied).getByText(/Aucune donnée collectée/)).toBeDefined()
+    // depuis web.9.2.3 : plus « Aucune donnée collectée », mais ce qui l'est, et la page de confidentialité
+    expect(within(pied).getByText(/Ni compte, ni cookie, ni publicité/)).toBeDefined()
+    expect(within(pied).getByRole('button', { name: 'Confidentialité' })).toBeDefined()
   })
 })
 
@@ -176,6 +178,15 @@ describe('L’accessibilité (axe)', () => {
     }
     expect(within(carte).queryAllByRole('button')).toHaveLength(0)
     // axe se lance avant la fin de la pause : la fenêtre des résultats n'est pas encore ouverte par-dessus
+    expect(await problemes()).toEqual([])
+  })
+
+  it('la page de confidentialité, ses numéros dépliés', async () => {
+    const joueur = userEvent.setup()
+    render(<App />)
+    await joueur.click(screen.getByRole('button', { name: 'Confidentialité' }))
+    const page = screen.getByRole('dialog', { name: 'Confidentialité' })
+    await joueur.click(within(page).getByText('Mes numéros tirés'))
     expect(await problemes()).toEqual([])
   })
 

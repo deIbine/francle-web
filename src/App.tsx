@@ -13,6 +13,7 @@ C'est App qui surveille le changement de jour, que la partie soit finie ou non (
 import { useEffect, useId, useState, type KeyboardEvent } from 'react'
 import { Aide } from './composants/Aide.tsx'
 import { Comparaison } from './composants/Comparaison.tsx'
+import { Confidentialite } from './composants/Confidentialite.tsx'
 import { Credits } from './composants/Credits.tsx'
 import { Fenetre } from './composants/Fenetre.tsx'
 import { IconeAide, IconeListe, IconeReglages, IconeStats } from './composants/Icones.tsx'
@@ -104,6 +105,8 @@ function useBilanAmi(): [string | undefined, () => void] {
   return [bilan, oublier]
 }
 
+const FRAGMENT_CONFIDENTIALITE = '#confidentialite'
+
 export default function App() {
   const jour = useJour()
   const [onglet, setOnglet] = useState<Onglet>('jour')
@@ -112,8 +115,30 @@ export default function App() {
   // « Comment jouer » : ouvert d'emblée à la première visite
   const [fenetreAide, setFenetreAide] = useState(() => !aideVue())
   const [bilanAmi, oublierBilanAmi] = useBilanAmi()
-  // arrivé par un lien de comparaison : les résultats de la partie du jour ne s'ouvrent pas d'eux-mêmes (lu une fois)
-  const [comparaisonAuDebut] = useState(() => bilanAmi !== undefined)
+  // la page de confidentialité (depuis web.9.2.3) : ouverte d'emblée par l'adresse …/#confidentialite, un lien qu'on
+  // peut donner, ou quand ce lien est ouvert dans un onglet déjà sur le jeu (seul le fragment change : la page ne se
+  // recharge pas, le navigateur envoie « hashchange »). La fermer retire le fragment, comme pour le lien de comparaison
+  const [fenetreConfidentialite, setFenetreConfidentialite] = useState(
+    () => window.location.hash === FRAGMENT_CONFIDENTIALITE,
+  )
+  useEffect(() => {
+    function auChangement() {
+      if (window.location.hash === FRAGMENT_CONFIDENTIALITE) {
+        setFenetreConfidentialite(true)
+      }
+    }
+    window.addEventListener('hashchange', auChangement)
+    return () => window.removeEventListener('hashchange', auChangement)
+  }, [])
+  function fermerConfidentialite() {
+    setFenetreConfidentialite(false)
+    if (window.location.hash === FRAGMENT_CONFIDENTIALITE) {
+      window.history.replaceState(null, '', window.location.pathname + window.location.search)
+    }
+  }
+  // arrivé par un lien de comparaison ou par celui de la confidentialité : les résultats de la partie du jour ne
+  // s'ouvrent pas d'eux-mêmes (lu une fois). Deux fenêtres l'une sur l'autre se fermeraient dans le désordre
+  const [autreFenetreAuDebut] = useState(() => bilanAmi !== undefined || fenetreConfidentialite)
   // chaque clic sur 📊 augmente ce compteur : la partie du jour, qui garde la fenêtre des statistiques, l'ouvre
   const [demandeStats, setDemandeStats] = useState(0)
   // de même pour 📃, la liste des régions : un compteur par onglet, et seule la partie affichée ouvre sa liste
@@ -281,7 +306,7 @@ export default function App() {
                   demandeStats={demandeStats}
                   demandeListe={demandeListe.jour}
                   onListe={signalerListe('jour')}
-                  resultatsAuDebut={!comparaisonAuDebut}
+                  resultatsAuDebut={!autreFenetreAuDebut}
                 />
               ) : (
                 <PartieLibre reglages={reglages} demandeListe={demandeListe.libre} onListe={signalerListe('libre')} />
@@ -290,7 +315,7 @@ export default function App() {
           </section>
         ))}
 
-        <Credits />
+        <Credits onConfidentialite={() => setFenetreConfidentialite(true)} />
 
         <Fenetre
           ouverte={fenetreAide}
@@ -321,7 +346,26 @@ export default function App() {
         </Fenetre>
 
         <Fenetre ouverte={fenetreReglages} onFermer={() => setFenetreReglages(false)} titre={textes.reglages.titre}>
-          <Reglages reglages={reglages} onChanger={changerReglages} />
+          <Reglages
+            reglages={reglages}
+            onChanger={changerReglages}
+            // une fenêtre à la fois : les réglages se ferment, la confidentialité s'ouvre (deux fenêtres l'une sur
+            // l'autre se fermeraient dans le désordre, voir web.7.18)
+            onConfidentialite={() => {
+              setFenetreReglages(false)
+              setFenetreConfidentialite(true)
+            }}
+          />
+        </Fenetre>
+
+        {/* comme la comparaison, elle attend que « Comment jouer » soit fermé, à la première visite */}
+        <Fenetre
+          ouverte={fenetreConfidentialite && !fenetreAide}
+          onFermer={fermerConfidentialite}
+          titre={textes.confidentialite.titre}
+          enHaut
+        >
+          <Confidentialite />
         </Fenetre>
       </main>
     </LangueContext>

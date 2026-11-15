@@ -23,8 +23,11 @@ victoire, un bonus : nommer chaque département de la région trouvée.
   ou cachée 🙈.
 - **Deux langues** : français et anglais.
 
-Tout se passe dans le navigateur : il n'y a pas de serveur, et aucune donnée n'est collectée. Les parties et les
-réglages restent sur l'appareil du joueur (`localStorage`).
+Le jeu tourne dans le navigateur : les parties et les réglages restent sur l'appareil du joueur (`localStorage`), et
+le jeu marche sans réseau une fois la page chargée. Depuis web.9.2, si le joueur l'accepte (c'est le réglage de
+départ), chaque partie du jour finie est aussi envoyée, sans rien qui dise qui il est, à un petit serveur
+(`serveur/`, un Worker Cloudflare) qui calcule les chiffres de tous les joueurs du jour. Le détail est dans la page
+de confidentialité du jeu (en bas de page, ou `…/#confidentialite`).
 
 ## Développer
 
@@ -38,6 +41,19 @@ npm run lint      # la vérification du code (oxlint)
 npm run build     # le site prêt à publier, dans dist/
 npm run verifier:navigateur   # l'accessibilité (axe) dans un vrai navigateur, en clair et en sombre
 ```
+
+Le serveur des chiffres de tous (`serveur/`) a ses propres dépendances (wrangler, l'outil de Cloudflare). Ses tests
+tournent avec ceux du site (`npm test`), sur une vraie base SQLite en mémoire. Pour le faire tourner en local, avec
+une base locale :
+
+```bash
+cd serveur
+npm ci
+npm run dev       # le serveur en local : http://localhost:8787
+```
+
+puis, dans un autre terminal, `VITE_SERVEUR=http://localhost:8787 npm run dev` pour que le site s'en serve. Il est
+publié par la CI à chaque fusion dans `main` (la migration de la base, puis le Worker).
 
 `verifier:navigateur` (`outils/verifier-navigateur.ts`) joue une partie dans Edge ou Chrome, déjà installés, et
 vérifie chaque écran avec axe, contrastes compris, ce que les tests ne peuvent pas faire. Il se lance à la main, pas

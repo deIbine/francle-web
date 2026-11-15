@@ -17,7 +17,7 @@ Node lit ce fichier TypeScript tel quel (il efface les types, depuis Node 23.6) 
 import { createRequire } from 'node:module'
 import { chromium, type Browser, type Page } from 'playwright'
 import { preview } from 'vite'
-import { regionDuJour } from '../src/domaine/regionDuJour.ts'
+import { numero, regionDuJour } from '../src/domaine/regionDuJour.ts'
 
 // le chemin d'axe-core dans node_modules, injecté dans chaque page vérifiée
 const AXE = createRequire(import.meta.url).resolve('axe-core/axe.min.js')
@@ -85,6 +85,20 @@ async function partieDuJour(navigateur: Browser, adresse: string, theme: Theme):
   // un contexte neuf : aucune sauvegarde (« Comment jouer » s'ouvre donc tout seul), le thème du système imité
   // (colorScheme) ; le jeu suit le thème du système tant que le joueur n'en a pas choisi un
   const contexte = await navigateur.newContext({ colorScheme: theme, locale: 'fr-FR', viewport: { width: 375, height: 812 } })
+  // le serveur des chiffres de tous (depuis web.9.2.2), imité : Playwright répond lui-même aux requêtes, sans réseau.
+  // La fenêtre des résultats montre ainsi ses chiffres, et axe les vérifie (le contraste des barres, entre autres)
+  await contexte.route('**/parties', (requete) => requete.fulfill({ json: { rangees: 1, ignorees: 0 } }))
+  await contexte.route('**/chiffres/*', (requete) =>
+    requete.fulfill({
+      json: {
+        jour: numero(new Date()),
+        joueurs: 10,
+        victoires: 8,
+        repartition: [1, 3, 3, 1, 0, 0],
+        points: [2, 0, 0, 1, 3, 2, 1, 1, 0, 0, 0],
+      },
+    }),
+  )
   const page = await contexte.newPage()
   await page.goto(adresse)
 
@@ -139,9 +153,18 @@ async function partieDuJour(navigateur: Browser, adresse: string, theme: Theme):
 
   const resultats = page.getByRole('dialog', { name: 'Résultats' })
   await resultats.waitFor()
-  await verifier(page, theme, 'fenêtre des résultats')
+  await resultats.getByRole('region', { name: 'Les joueurs du jour' }).waitFor()
+  await verifier(page, theme, 'fenêtre des résultats, avec les chiffres de tous')
   await resultats.getByRole('button', { name: 'Fermer', exact: true }).click()
   await verifier(page, theme, 'bilan de la partie')
+
+  // la page de confidentialité (depuis web.9.2.3), par le bas de page, ses numéros dépliés
+  // (le <footer> est dans <main> : un vrai navigateur ne lui donne pas le rôle « contentinfo », on prend le bouton seul)
+  await page.getByRole('button', { name: 'Confidentialité', exact: true }).click()
+  const confidentialite = page.getByRole('dialog', { name: 'Confidentialité' })
+  await confidentialite.getByText('Mes numéros tirés').click()
+  await verifier(page, theme, 'page de confidentialité')
+  await confidentialite.getByRole('button', { name: 'Fermer', exact: true }).click()
 
   await page.getByRole('tab', { name: 'Partie libre' }).click()
   await verifier(page, theme, 'partie libre')

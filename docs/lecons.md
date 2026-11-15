@@ -2112,3 +2112,80 @@ La fusion des quatre PR empilées de web.9.1, puis le découpage et les décisio
   le droit** (un jeton, un mot de passe). Le premier peut s'écrire ; le second ne se recopie jamais, et on vérifie
   qu'il existe sans le lire. Au passage : Cloudflare avait proposé un sous-domaine tiré de l'adresse e-mail ; tout ce
   qui finit dans une adresse publique se relit avant de servir.
+
+## web.9.2 Le serveur des chiffres de tous (le 15 novembre 2026)
+
+Un Worker Cloudflare et sa base D1 (web.9.2.1), le site qui s'en sert (web.9.2.2), la page de confidentialité
+(web.9.2.3). Trois PR empilées, écrites d'affilée.
+
+### Tester un serveur sur une vraie base, sans l'hébergeur
+
+- **Pourquoi** : le serveur parle à D1, la base de Cloudflare, qui n'existe pas dans les tests. Imiter ses réponses à
+  la main ne prouverait rien sur le SQL lui-même (une faute dans un `GROUP BY` passerait).
+- **Comment le faire** : décrire dans une interface (`serveur/src/base.ts`) le peu de D1 dont on se sert
+  (`prepare`, `bind`, `all`, `run`, `batch`), puis l'implémenter une seconde fois sur `node:sqlite`, fourni avec Node
+  (`base-de-test.ts`). D1 est du SQLite : les migrations et les requêtes sont vraiment exécutées. Les migrations sont
+  lues par `import.meta.glob(…, { query: '?raw' })`, qui marche dans les deux environnements de test.
+- **Comment le penser** : c'est l'interface Java implémentée deux fois (une en production, une en test), mais en
+  choisissant la seconde aussi proche que possible de la vraie. Se demander : « mon faux peut-il réussir là où le vrai
+  échouerait ? ». Si oui, il cache des bugs.
+
+### Deux environnements de test dans une seule suite
+
+- **Pourquoi** : les tests du site tournent dans un faux navigateur (jsdom, avec `localStorage` et des dialogues
+  imités) ; le serveur tourne sans page. Le fichier de préparation du site plantait dans Node.
+- **Comment le faire** : deux « projets » Vitest dans `vite.config.ts` (`site` en jsdom, `serveur` en Node), lancés
+  ensemble par `npm test`. Et un troisième `tsconfig` (`tsconfig.serveur.json`) pour vérifier les types du serveur.
+- **Comment le penser** : comme deux modules Maven avec chacun sa configuration de test. Un code qui ne tourne pas au
+  même endroit mérite son propre environnement, pas des gardes dans le code (`if (typeof window …)`).
+
+### Le navigateur protège la réponse, pas la requête (CORS)
+
+- **Pourquoi** : le site (`deibine.github.io`) et le serveur (`chiffres.francle.workers.dev`) n'ont pas la même
+  origine. Sans en-tête `Access-Control-Allow-Origin`, le navigateur envoie bien la requête, mais cache la réponse à la
+  page.
+- **Comment le faire** : le serveur répond `Access-Control-Allow-Origin: <origine>` pour une liste d'origines connues
+  (le site, `localhost`). Côté site, le JSON part en `text/plain` : c'est une requête « simple », sans question
+  préalable (`OPTIONS`) au serveur, donc une requête au lieu de deux, ce qui compte avec un quota quotidien.
+- **Comment le penser** : CORS n'est pas une sécurité du serveur (n'importe quel programme hors navigateur peut
+  l'appeler) ; c'est une protection du joueur contre les autres sites. La vraie défense du serveur reste de tout
+  vérifier à l'arrivée (taille, forme, parties possibles).
+
+### Un réglage se vérifie au moment d'agir
+
+- **Pourquoi** : le test « envoi refusé » a échoué : la page ne lançait pas l'envoi, mais la fonction d'envoi, appelée
+  directement, envoyait quand même. Un autre appelant (un autre onglet, un futur bouton) aurait pu en faire autant.
+- **Comment le faire** : `synchroniser()` relit le réglage dans le stockage juste avant d'envoyer, en plus de la
+  vérification de la page.
+- **Comment le penser** : pour une règle qui protège le joueur (« rien ne part si j'ai refusé »), la vérification va
+  au plus près de l'action, là où aucun chemin ne peut la contourner.
+
+### Une adresse « #… » ne recharge pas la page
+
+- **Pourquoi** : aller de `…/francle-web/` à `…/francle-web/#confidentialite` dans le même onglet ne recharge pas la
+  page : l'état de React (le réglage d'avant) restait, et la page de confidentialité ne s'ouvrait pas. De plus, arrivé
+  par ce lien avec une partie finie, la fenêtre des résultats s'ouvrait aussi, par-dessus.
+- **Comment le faire** : écouter l'évènement `hashchange` (comme pour le lien de comparaison), et ne pas ouvrir les
+  résultats d'eux-mêmes quand une autre fenêtre est demandée par l'adresse. Dans le navigateur intégré, recharger
+  vraiment (`location.reload()`) avant de conclure.
+- **Comment le penser** : une adresse peut arriver de deux façons, au chargement ou pendant que la page vit. Tester
+  les deux. Et un écran vérifié après une navigation doit d'abord prouver qu'il a bien été rechargé.
+
+### Ce que l'hébergeur garde par défaut
+
+- **Pourquoi** : la page de confidentialité devait dire ce que gardent les journaux de Cloudflare. Leur documentation
+  (pages du 12 novembre 2026) : les « Workers Logs » sont **activés par défaut** sur un nouveau Worker, gardés 3 jours
+  sur l'offre gratuite, et contiennent chaque requête.
+- **Comment le faire** : les couper dans la configuration (`"observability": { "enabled": false }`), plutôt que de
+  compter sur le réglage par défaut ; ne rien écrire dans la console. Noter ce qui n'a pas été vérifié (les
+  statistiques agrégées de Cloudflare).
+- **Comment le penser** : une promesse de confidentialité vaut ce que vaut le réglage par défaut le moins favorable.
+  Écrire explicitement chaque réglage qui la soutient, même s'il semble déjà bon.
+
+### La version de l'outil limite la date de compatibilité
+
+- **Pourquoi** : `wrangler dev` refusait de démarrer : le Worker demandait les règles de Cloudflare du 1er novembre
+  2026, et le moteur local de wrangler 4.155.0 (du 28 octobre) ne les connaissait pas.
+- **Comment le faire** : une `compatibility_date` au plus égale à la date de la version de wrangler choisie.
+- **Comment le penser** : choisir une version d'outil un peu ancienne (par prudence) engage tout ce qui en dépend.
+  Quand on fixe une version, vérifier ce qu'elle limite.

@@ -100,7 +100,7 @@ l'autre, et le web n'a plus à rester égal au Java.
    Cloudflare Workers + D1, dans `serveur/` du même dépôt), web.9.3 des ligues entre amis et un classement public
    protégé. Détail plus bas dans « Les statistiques des joueurs (web.9) ».
 
-## Où on en est (mis à jour le 15 novembre 2026, sur le PC : web.9.2 prête à lancer)
+## Où on en est (mis à jour le 15 novembre 2026, sur le PC : web.9.2 écrite, trois PR à relire)
 
 ### À faire sur le PC (rien depuis le 9 novembre 2026)
 
@@ -382,7 +382,7 @@ squash le 18 octobre 2026 sur l'accord de l'utilisateur, étiquettes `web-7.8` �
     `main` après la fusion. Commits sur `main` : `2b10831`, `e8b6445`, `653bbd5`, `5300a8d` ; étiquette annotée
     `web-9.1` sur `5300a8d` ; branches supprimées en local et sur GitHub. Notes de la fusion : PR web.9.1.4, sans
     étiquette.
-  - **web.9.2 Les chiffres de tous : découpée et décidée le 14 novembre 2026, rien n'est commencé** (« Le découpage
+  - **web.9.2 Les chiffres de tous : découpée et décidée le 14 novembre 2026, écrite le 15 (ci-dessous)** (« Le découpage
     de web.9.2 » dans la section web.9 plus bas : les offres de Cloudflare vérifiées ce jour-là, les neuf décisions,
     les quatre PR, ce qui revient à l'utilisateur). Notes : PR #78 (web.9.2.0), #79 (web.9.2.0.1) et web.9.2.0.2,
     sans étiquette. **Le 15 novembre 2026, l'utilisateur a fait toutes les actions manuelles d'avant le départ** (le
@@ -405,6 +405,14 @@ squash le 18 octobre 2026 sur l'accord de l'utilisateur, étiquettes `web-7.8` �
     au plus par lot), chacune compréhensible seule, une recommandation en premier ; les limites des choix écartés de
     la recommandation notées à côté ; après les réponses, vérifier qu'elles tiennent **ensemble**. web.9.3 (profils,
     ligues, classement public) vient après web.9.2.
+  - **web.9.2 lancée le 15 novembre 2026** (« lance web.9.2 ») et **écrite le même jour** (« Fait à web.9.2 » dans
+    la section web.9 plus bas) : étiquette `web-avant-serveur` posée sur `462806f` et poussée ; trois PR empilées,
+    **ouvertes, pas fusionnées** : #81 (web.9.2.1, le serveur), #82 (web.9.2.2, le site s'en sert, base #81), #83
+    (web.9.2.3, la confidentialité, base #82, avec ces notes). **Pour reprendre** : l'utilisateur relit, puis donne
+    l'accord de fusion ; fusionner dans l'ordre avec la méthode de web.9.1 (rebase sur `main`, base changée en
+    `main` avant de supprimer l'ancienne, arbres comparés) ; à la fusion de #81, surveiller la tâche CI
+    `publier-serveur` (migration, puis publication) ; étiquette `web-9.2` après la dernière ; puis l'utilisateur
+    vérifie sur son téléphone, sur le site en ligne.
   - **Encore à vérifier par l'utilisateur, en jouant** : web.9.1 sur un vrai téléphone, sur le site en ligne (les
     onglets et le calendrier de la fenêtre 📊, le bouton « Envoyer mon bilan » qui ouvre le menu de partage, un lien
     reçu par une messagerie). Le partage ne marche que sur une page sécurisée (https, ou localhost) : par le réseau
@@ -1570,8 +1578,8 @@ n'est jamais envoyé à GitHub par le navigateur : le bilan ne quitte pas les de
 
 ### Le découpage de web.9.2 (décidé le 14 novembre 2026)
 
-Présenté puis décidé dans la même conversation que la fusion de web.9.1. **Rien n'est commencé** : ni l'étiquette
-`web-avant-serveur`, ni le compte Cloudflare, ni le code. Ce qu'on attend de web.9.2 (rappel de « Les trois
+Présenté puis décidé dans la même conversation que la fusion de web.9.1. **Écrit le 15 novembre 2026** (« Fait à
+web.9.2 » plus bas). Ce qu'on attend de web.9.2 (rappel de « Les trois
 sous-phases ») : « 152 joueurs aujourd'hui, 81 % ont trouvé ; tu fais mieux que 72 % », sans nom.
 
 #### Les offres de Cloudflare (vérifiées le 14 novembre 2026, à revérifier si on reprend longtemps après)
@@ -1661,9 +1669,34 @@ confidentialité le dit.
   (ci-dessus). Si la clé ne marche pas à la première publication (permission manquante), c'est l'utilisateur qui la
   corrige dans Cloudflare : Claude lit seulement l'erreur de la CI.
 - ~~Choisir le contact de la page de confidentialité~~ : **les issues du dépôt** (décision 9).
-- Reste : donner le signal de départ ; relire les trois PR et donner l'accord de fusion ; vérifier sur un vrai
-  téléphone, sur le site en ligne (les chiffres de tous dans la fenêtre des résultats, l'interrupteur des réglages,
-  la page de confidentialité) ; puis surveiller les e-mails et les quotas de Cloudflare.
+- ~~Donner le signal de départ~~ : donné le 15 novembre 2026.
+- Reste : relire les trois PR et donner l'accord de fusion ; vérifier sur un vrai téléphone, sur le site en ligne
+  (les chiffres de tous dans la fenêtre des résultats, l'interrupteur des réglages, la page de confidentialité) ;
+  puis surveiller les e-mails et les quotas de Cloudflare.
+
+#### Fait à web.9.2 (le 15 novembre 2026, PR #81 à #83, empilées, à relire)
+
+- **web.9.2.1** (#81) : `serveur/` (Worker `chiffres`, adresse `https://chiffres.francle.workers.dev`), deux
+  adresses (`POST /parties`, `GET /chiffres/<jour>`) ; la table `parties` (tirage, jour, partie, points) par
+  `serveur/migrations/0001_parties.sql` ; `src/domaine/chiffres.ts` (le format, partagé) et
+  `src/domaine/verification.ts` (une partie impossible est ignorée, en rejouant ses coups) ; journaux de Cloudflare
+  coupés ; tests sur une vraie base SQLite (`node:sqlite`), dans un projet Vitest `serveur` ; CI : construction à
+  blanc sur chaque PR, migration puis publication à chaque fusion. wrangler 4.155.0, date de compatibilité
+  2026-10-28.
+- **web.9.2.2** (#82) : `src/envoi.ts` (envoi par morceaux de 50, l'un après l'autre ; demande des chiffres) ; dans la
+  sauvegarde, `tirage` et `envoyee` (l'empreinte du dernier envoi), sous la clé `v1` ; le réglage `envoi` (oui par
+  défaut ; non : aucun contact avec le serveur, relu au moment d'envoyer) ; `composants/ChiffresDeTous.tsx` dans la
+  fenêtre des résultats. Dans les tests, `fetch` échoue par défaut ; `ChiffresDeTous.test.tsx` branche le vrai
+  serveur derrière `fetch`.
+- **web.9.2.3** (#83) : `composants/Confidentialite.tsx` (bas de page, ⚙️, adresse `…/#confidentialite`), avec les
+  numéros tirés des parties envoyées, pour demander leur suppression ; bas de page et README revus ;
+  `npm run verifier:navigateur` imite le serveur et vérifie aussi les chiffres et la page (22 écrans, 0 problème).
+- **Choix faits en route, à valider à la relecture** : refuser l'envoi coupe aussi l'affichage des chiffres ; rien
+  pendant le bonus ; durée de conservation « tant que le jeu existe » (pas décidée avant : à confirmer) ; une partie
+  impossible est ignorée sans refuser tout l'envoi.
+- Pour développer avec le serveur en local : dans `serveur/`, `npm ci` puis `npm run dev` ; le site avec
+  `VITE_SERVEUR=http://localhost:8787`. npm 11 bloque le script d'installation de `workerd` (le moteur local) : il
+  a marché quand même le 15 novembre 2026.
 
 ## Les améliorations à reprendre (relevées le 16 octobre 2026)
 
