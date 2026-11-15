@@ -1,0 +1,29 @@
+// La configuration du Worker, lue par wrangler (l'outil de Cloudflare) pour le construire et le publier.
+// Rien de secret ici : la clé d'API et l'identifiant du compte sont dans les secrets de GitHub (CI) ou dans
+// l'environnement de celui qui publie. L'identifiant de la base désigne la base, il ne donne aucun droit dessus.
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  // le nom du Worker : son adresse sera https://chiffres.francle.workers.dev
+  "name": "chiffres",
+  "main": "src/index.ts",
+  // la version des règles de Cloudflare suivie par le Worker : une date fixe, pour qu'une nouveauté de Cloudflare ne
+  // change pas son comportement sans qu'on le décide
+  "compatibility_date": "2026-11-01",
+  // l'adresse en .workers.dev ; pas d'adresse d'essai par version (« preview URLs »), inutile ici
+  "workers_dev": true,
+  "preview_urls": false,
+  // pas de journaux gardés chez Cloudflare (« Workers Logs ») : ils noteraient chaque requête. Le serveur n'écrit
+  // d'ailleurs rien dans la console
+  "observability": { "enabled": false },
+  // et pas de statistiques d’usage envoyées par wrangler lui-même à Cloudflare
+  "send_metrics": false,
+  "d1_databases": [
+    {
+      // le nom sous lequel le code voit la base (env.BASE)
+      "binding": "BASE",
+      "database_name": "francle",
+      "database_id": "8a09c0d9-40de-4c5a-94e8-d908b7c25ada",
+      "migrations_dir": "migrations"
+    }
+  ]
+}
