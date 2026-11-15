@@ -49,7 +49,9 @@ describe('La fenêtre des statistiques', () => {
     const calendrier = within(fenetre).getByRole('tab', { name: 'Calendrier' })
     expect(calendrier.getAttribute('aria-selected')).toBe('true')
     expect(document.activeElement).toBe(calendrier)
-    // → depuis le dernier : retour au premier
+    // → depuis le calendrier : le classement (depuis web.9.3.2), puis, depuis le dernier, retour au premier
+    await joueur.keyboard('{ArrowRight}')
+    expect(within(fenetre).getByRole('tab', { name: 'Classement' }).getAttribute('aria-selected')).toBe('true')
     await joueur.keyboard('{ArrowRight}')
     expect(within(fenetre).getByRole('tab', { name: 'Résumé' }).getAttribute('aria-selected')).toBe('true')
   })

@@ -19,9 +19,11 @@ import { moisDuNumero } from '../domaine/regionDuJour.ts'
 import { cumul, cumulDuMois, points, type Cumul } from '../domaine/score.ts'
 import { statistiques, type Resultat } from '../domaine/statistiques.ts'
 import { useLangue, useTextes } from '../textes.ts'
+import { Classements } from './Classements.tsx'
 
-type Onglet = 'resume' | 'details' | 'calendrier'
-const ONGLETS: readonly Onglet[] = ['resume', 'details', 'calendrier']
+// depuis web.9.3.2, un quatrième : le classement de la ligue (Classements.tsx)
+type Onglet = 'resume' | 'details' | 'calendrier' | 'classement'
+const ONGLETS: readonly Onglet[] = ['resume', 'details', 'calendrier', 'classement']
 
 interface Props {
   // toutes les parties du jour du joueur (numéro -> résumé), et le numéro d'aujourd'hui
@@ -72,7 +74,7 @@ export function Statistiques({ historique, aujourdhui, dernier, enPlus }: Props)
               onglet === nom ? 'border-francle-fonce text-texte' : 'border-transparent text-discret hover:text-texte'
             }`}
           >
-            {textes.stats[nom]}
+            {nom === 'classement' ? textes.ligue.onglet : textes.stats[nom]}
           </button>
         ))}
       </div>
@@ -82,6 +84,7 @@ export function Statistiques({ historique, aujourdhui, dernier, enPlus }: Props)
         )}
         {onglet === 'details' && <Details historique={historique} />}
         {onglet === 'calendrier' && <Calendrier historique={historique} aujourdhui={aujourdhui} />}
+        {onglet === 'classement' && <Classements aujourdhui={aujourdhui} />}
       </div>
     </section>
   )

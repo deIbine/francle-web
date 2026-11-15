@@ -8,7 +8,7 @@ Ce que la clé peut contenir :
     { "id": "…", "pseudo": "Zoé", "code": "…" }   un profil
     { "perdu": "Zoé" }                             un profil que le serveur ne reconnaît plus
  */
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { ADRESSE_SERVEUR } from './adresse.ts'
 import type { RefusPseudo } from './domaine/pseudo.ts'
 import { useChangementAilleurs } from './onglets.ts'
@@ -49,6 +49,11 @@ export function profilActuel(stockage: Storage = localStorage): Profil | undefin
   return estProfil(etat) ? etat : undefined
 }
 
+// l'évènement qui prévient tous les composants de CETTE page qu'un profil a changé. Le navigateur ne prévient que les
+// autres onglets (l'évènement « storage ») : sans cela, un profil créé dans la fenêtre d'invitation restait inconnu
+// de cette fenêtre même (vu à web.9.3.2), chaque composant ayant sa propre copie du profil
+const CHANGEMENT = 'francle-profil'
+
 export function ecrireProfil(etat: EtatProfil, stockage: Storage = localStorage): void {
   try {
     if (etat === undefined) {
@@ -59,6 +64,7 @@ export function ecrireProfil(etat: EtatProfil, stockage: Storage = localStorage)
   } catch {
     // stockage refusé : le profil ne vaut que pour cette visite
   }
+  window.dispatchEvent(new Event(CHANGEMENT))
 }
 
 // le serveur ne reconnaît plus le code : on oublie le profil, en gardant son pseudo pour le dire au joueur
@@ -69,17 +75,17 @@ export function perdreProfil(stockage: Storage = localStorage): void {
   }
 }
 
-// le profil, tenu à jour quand il change ici (changer) ou dans un autre onglet
+// le profil, tenu à jour quand il change, dans cette page (n'importe quel composant, ou l'envoi des parties qui
+// découvre un profil perdu) ou dans un autre onglet
 export function useProfil(): [EtatProfil, (etat: EtatProfil) => void] {
   const [etat, setEtat] = useState(() => lireProfil())
   useChangementAilleurs(CLE_PROFIL, () => setEtat(lireProfil()))
-  return [
-    etat,
-    (nouveau) => {
-      ecrireProfil(nouveau)
-      setEtat(nouveau)
-    },
-  ]
+  useEffect(() => {
+    const relire = () => setEtat(lireProfil())
+    window.addEventListener(CHANGEMENT, relire)
+    return () => window.removeEventListener(CHANGEMENT, relire)
+  }, [])
+  return [etat, ecrireProfil]
 }
 
 // une requête au serveur pour le profil : le code secret dans l'en-tête Authorization (jamais dans l'adresse)

@@ -14,6 +14,7 @@ import { useEffect, useId, useState, type KeyboardEvent } from 'react'
 import { Aide } from './composants/Aide.tsx'
 import { Comparaison } from './composants/Comparaison.tsx'
 import { Confidentialite } from './composants/Confidentialite.tsx'
+import { RejoindreLigue } from './composants/RejoindreLigue.tsx'
 import { Credits } from './composants/Credits.tsx'
 import { Fenetre } from './composants/Fenetre.tsx'
 import { IconeAide, IconeListe, IconeReglages, IconeStats } from './composants/Icones.tsx'
@@ -23,6 +24,7 @@ import { numero } from './domaine/regionDuJour.ts'
 import { minuitSuivant } from './domaine/temps.ts'
 import { PartieDuJour } from './PartieDuJour.tsx'
 import { PartieLibre } from './PartieLibre.tsx'
+import { codeDuFragment } from './ligue.ts'
 import type { Liste } from './liste.ts'
 import { PanneauVisible } from './panneau.ts'
 import { aideVue, langueAffichee, marquerAideVue, uniteAffichee, useReglages, useTheme } from './reglages.ts'
@@ -121,24 +123,42 @@ export default function App() {
   const [fenetreConfidentialite, setFenetreConfidentialite] = useState(
     () => window.location.hash === FRAGMENT_CONFIDENTIALITE,
   )
+  // de même pour une invitation dans une ligue (depuis web.9.3.2) : « …/#ligue=ABC234 », son code
+  const [invitation, setInvitation] = useState(() => codeDuFragment(window.location.hash))
   useEffect(() => {
     function auChangement() {
       if (window.location.hash === FRAGMENT_CONFIDENTIALITE) {
         setFenetreConfidentialite(true)
       }
+      const code = codeDuFragment(window.location.hash)
+      if (code !== undefined) {
+        setInvitation(code)
+      }
     }
     window.addEventListener('hashchange', auChangement)
     return () => window.removeEventListener('hashchange', auChangement)
   }, [])
+  // retire le fragment de l'adresse, sans recharger : recharger la page ne rouvrira pas la fenêtre
+  function oublierFragment() {
+    window.history.replaceState(null, '', window.location.pathname + window.location.search)
+  }
   function fermerConfidentialite() {
     setFenetreConfidentialite(false)
     if (window.location.hash === FRAGMENT_CONFIDENTIALITE) {
-      window.history.replaceState(null, '', window.location.pathname + window.location.search)
+      oublierFragment()
     }
   }
-  // arrivé par un lien de comparaison ou par celui de la confidentialité : les résultats de la partie du jour ne
+  function fermerInvitation() {
+    setInvitation(undefined)
+    if (codeDuFragment(window.location.hash) !== undefined) {
+      oublierFragment()
+    }
+  }
+  // arrivé par un lien de comparaison, de confidentialité ou d'invitation : les résultats de la partie du jour ne
   // s'ouvrent pas d'eux-mêmes (lu une fois). Deux fenêtres l'une sur l'autre se fermeraient dans le désordre
-  const [autreFenetreAuDebut] = useState(() => bilanAmi !== undefined || fenetreConfidentialite)
+  const [autreFenetreAuDebut] = useState(
+    () => bilanAmi !== undefined || fenetreConfidentialite || invitation !== undefined,
+  )
   // chaque clic sur 📊 augmente ce compteur : la partie du jour, qui garde la fenêtre des statistiques, l'ouvre
   const [demandeStats, setDemandeStats] = useState(0)
   // de même pour 📃, la liste des régions : un compteur par onglet, et seule la partie affichée ouvre sa liste
@@ -366,6 +386,16 @@ export default function App() {
           enHaut
         >
           <Confidentialite />
+        </Fenetre>
+
+        {/* l'invitation dans une ligue (depuis web.9.3.2), elle aussi après « Comment jouer » */}
+        <Fenetre
+          ouverte={invitation !== undefined && !fenetreAide && !fenetreConfidentialite}
+          onFermer={fermerInvitation}
+          titre={textes.ligue.invitation.titre}
+          enHaut
+        >
+          {invitation !== undefined && <RejoindreLigue code={invitation} />}
         </Fenetre>
       </main>
     </LangueContext>

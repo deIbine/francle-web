@@ -28,29 +28,37 @@ export function nettoyerPseudo(saisie: string): string {
 // les mots refusés dans un pseudo, déjà simplifiés. Les mots longs sont cherchés partout dans le pseudo ; les mots
 // courts (4 lettres au plus) seulement comme mot entier, sinon « habitant » serait refusé pour un mot de 4 lettres.
 // S'y ajoutent les mots qui feraient passer un joueur pour l'équipe du jeu
-const MOTS_REFUSES = [
+const GROSSIERS = [
   'connard', 'connasse', 'salope', 'salaud', 'putain', 'encule', 'batard', 'couille', 'merde', 'niquer', 'nique',
   'pute', 'bite', 'cul', 'pd', 'pede', 'tapette', 'negre', 'bougnoul', 'youpin', 'nazi', 'hitler', 'fuck', 'shit',
-  'bitch', 'cunt', 'nigger', 'nigga', 'faggot', 'whore', 'dick', 'cock', 'pussy', 'asshole', 'admin', 'moderat',
-  'francle', 'officiel', 'official',
+  'bitch', 'cunt', 'nigger', 'nigga', 'faggot', 'whore', 'dick', 'cock', 'pussy', 'asshole',
 ]
+const MOTS_REFUSES = [...GROSSIERS, 'admin', 'moderat', 'francle', 'officiel', 'official']
 
 export type RefusPseudo = 'longueur' | 'caracteres' | 'mot'
 
 // pourquoi un pseudo est refusé, ou undefined s'il est permis. Les lettres de toutes les langues (\p{L}), les
-// chiffres, l'espace et - _ . ' sont permis ; il faut au moins trois lettres ou chiffres
-export function refusPseudo(saisie: string): RefusPseudo | undefined {
+// chiffres, l'espace et - _ . ' sont permis ; il faut au moins trois lettres ou chiffres. max et mots : la longueur
+// permise et les mots refusés (depuis web.9.3.2, les mêmes règles servent au nom d'une ligue, voir refusNomLigue)
+export function refusPseudo(saisie: string, max = PSEUDO_MAX, mots = MOTS_REFUSES): RefusPseudo | undefined {
   const pseudo = nettoyerPseudo(saisie)
-  if ([...pseudo].length < PSEUDO_MIN || [...pseudo].length > PSEUDO_MAX || clePseudo(pseudo).length < PSEUDO_MIN) {
+  if ([...pseudo].length < PSEUDO_MIN || [...pseudo].length > max || clePseudo(pseudo).length < PSEUDO_MIN) {
     return 'longueur'
   }
   if (!/^[\p{L}\p{N} _.'’-]+$/u.test(pseudo)) {
     return 'caracteres'
   }
   const cle = clePseudo(pseudo)
-  const mots = pseudo.split(/[^\p{L}\p{N}]+/u).map(simplifier)
-  const refuse = MOTS_REFUSES.some((mot) => (mot.length <= 4 ? mots.includes(mot) || cle === mot : cle.includes(mot)))
+  const decoupe = pseudo.split(/[^\p{L}\p{N}]+/u).map(simplifier)
+  const refuse = mots.some((mot) => (mot.length <= 4 ? decoupe.includes(mot) || cle === mot : cle.includes(mot)))
   return refuse ? 'mot' : undefined
+}
+
+// le nom d'une ligue (depuis web.9.3.2) : les règles d'un pseudo, jusqu'à 30 caractères, et seulement les mots
+// grossiers (« Les Francleurs » est un beau nom de ligue)
+export const NOM_LIGUE_MAX = 30
+export function refusNomLigue(saisie: string): RefusPseudo | undefined {
+  return refusPseudo(saisie, NOM_LIGUE_MAX, GROSSIERS)
 }
 
 // l'alphabet des codes à lire ou recopier : sans 0, O, 1, I ni L, qu'on confond à l'œil

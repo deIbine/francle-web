@@ -6,13 +6,16 @@ tests, et non imités.
 // les types de Node, nommés ici : ce fichier est aussi importé par un test du site (src/ChiffresDeTous.test.tsx), dont
 // la configuration TypeScript (tsconfig.app.json) ne les connaît pas, le site ne tournant pas dans Node
 /// <reference types="node" />
+import { readdirSync, readFileSync } from 'node:fs'
+import { join } from 'node:path'
 import { DatabaseSync } from 'node:sqlite'
 import type { Base, Requete } from './base.ts'
 
-// toutes les migrations, lues comme du texte au moment de construire les tests : import.meta.glob est une fonction de
-// Vite (donc de Vitest), qui marche aussi bien dans les tests du serveur que dans ceux du site (faux navigateur), où
-// l'on ne peut pas lire un dossier du disque par son adresse. « ?raw » : le contenu du fichier, tel quel
-const MIGRATIONS = import.meta.glob<string>('../migrations/*.sql', { query: '?raw', import: 'default', eager: true })
+// le dossier des migrations, depuis la racine du projet, d'où les tests sont toujours lancés (npm test). Ni
+// import.meta.url (une adresse qui n'est pas un fichier dans le faux navigateur des tests du site), ni import.meta.glob
+// de Vite : son résultat est gardé dans le cache de Vitest, qui ne sait pas qu'une nouvelle migration le change (vu à
+// web.9.3.2 : la migration 0003 était absente des tests, sans erreur). Lire le dossier à chaque fois ne coûte presque rien
+const MIGRATIONS = join(process.cwd(), 'serveur', 'migrations')
 
 // une base neuve, avec toutes les migrations appliquées dans l'ordre de leurs noms (0001, 0002…), comme wrangler
 export function baseDeTest(): Base & {
@@ -20,8 +23,8 @@ export function baseDeTest(): Base & {
   sql(texte: string): Record<string, unknown>[]
 } {
   const sqlite = new DatabaseSync(':memory:')
-  for (const fichier of Object.keys(MIGRATIONS).sort()) {
-    sqlite.exec(MIGRATIONS[fichier])
+  for (const fichier of readdirSync(MIGRATIONS).filter((nom) => nom.endsWith('.sql')).sort()) {
+    sqlite.exec(readFileSync(join(MIGRATIONS, fichier), 'utf8'))
   }
 
   function requete(sql: string, valeurs: unknown[]): Requete & { executer(): void } {
