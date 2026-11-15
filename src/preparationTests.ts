@@ -34,6 +34,13 @@ beforeEach(() => {
 })
 afterEach(() => vi.restoreAllMocks())
 
+// jsdom n'a pas crypto.subtle (le calcul d'empreintes), que les vrais navigateurs et Cloudflare ont : les tests du
+// site qui font tourner le vrai serveur (depuis web.9.3.1, pour les codes des profils) prennent celui de Node
+if (globalThis.crypto.subtle === undefined) {
+  const { webcrypto } = await import('node:crypto')
+  Object.defineProperty(globalThis.crypto, 'subtle', { value: webcrypto.subtle, configurable: true })
+}
+
 // jsdom se présente comme un navigateur en anglais (en-US) : les tests jouent en français, sauf ceux qui changent
 // la langue exprès (voir Anglais.test.tsx)
 Object.defineProperty(navigator, 'languages', { value: ['fr-FR'], configurable: true })

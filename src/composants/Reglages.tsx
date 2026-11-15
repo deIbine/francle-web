@@ -3,6 +3,7 @@ import type { Langue } from '../domaine/regions.ts'
 import type { Reglages as LesReglages, Theme, Unite } from '../reglages.ts'
 import { langueAffichee, uniteAffichee } from '../reglages.ts'
 import { useTextes } from '../textes.ts'
+import { ProfilReglages } from './ProfilReglages.tsx'
 
 interface Props {
   reglages: LesReglages
@@ -143,6 +144,8 @@ export function Reglages({ reglages, onChanger, onConfidentialite }: Props) {
           {textes.reglages.envoiDetails}
         </button>
       </fieldset>
+      {/* le profil (depuis web.9.3.1) : pour la ligue et le classement public */}
+      <ProfilReglages />
     </div>
   )
 }

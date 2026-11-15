@@ -15,7 +15,10 @@ import type { Base, Requete } from './base.ts'
 const MIGRATIONS = import.meta.glob<string>('../migrations/*.sql', { query: '?raw', import: 'default', eager: true })
 
 // une base neuve, avec toutes les migrations appliquées dans l'ordre de leurs noms (0001, 0002…), comme wrangler
-export function baseDeTest(): Base & { lignes(): Record<string, unknown>[] } {
+export function baseDeTest(): Base & {
+  lignes(): Record<string, unknown>[]
+  sql(texte: string): Record<string, unknown>[]
+} {
   const sqlite = new DatabaseSync(':memory:')
   for (const fichier of Object.keys(MIGRATIONS).sort()) {
     sqlite.exec(MIGRATIONS[fichier])
@@ -48,5 +51,10 @@ export function baseDeTest(): Base & { lignes(): Record<string, unknown>[] } {
     },
     // tout le contenu de la table, pour vérifier ce qui a été rangé (et rien d'autre)
     lignes: () => sqlite.prepare('SELECT * FROM parties ORDER BY jour, tirage').all() as Record<string, unknown>[],
+    // n'importe quelle requête, pour préparer ou vérifier la base dans un test : les lignes d'un SELECT, rien sinon
+    sql: (texte) =>
+      /^\s*select/i.test(texte)
+        ? (sqlite.prepare(texte).all() as Record<string, unknown>[])
+        : (sqlite.exec(texte), []),
   }
 }

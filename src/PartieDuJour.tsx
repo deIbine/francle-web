@@ -120,13 +120,12 @@ export function PartieDuJour({ jour, reglages, demandeStats, demandeListe, onLis
     setBonus((avant) => restaurerBonus(numero, toutes.get(numero)) ?? avant)
   })
 
-  // l'envoi au serveur des chiffres de tous (depuis web.9.2.2), si le joueur l'accepte : à l'ouverture de la page
-  // (tout l'historique pas encore envoyé, une fois), puis à chaque partie sauvée (une partie finie, un bonus fini).
-  // synchroniser() n'envoie que ce qui a changé, et ne fait rien du tout s'il n'y a rien de nouveau
+  // l'envoi au serveur (depuis web.9.2.2) : à l'ouverture de la page (tout l'historique pas encore envoyé, une fois),
+  // puis à chaque partie sauvée (une partie finie, un bonus fini). synchroniser() décide elle-même de ce qui peut
+  // partir (anonyme si le réglage l'accepte, au profil s'il y en a un, depuis web.9.3.1), n'envoie que ce qui a
+  // changé, et ne contacte pas le serveur s'il n'y a rien de nouveau
   useEffect(() => {
-    if (reglages.envoi) {
-      void synchroniser()
-    }
+    void synchroniser()
   }, [reglages.envoi, parties])
 
   // 📊 a été cliqué : on ouvre la fenêtre. On compare à la dernière demande vue PENDANT l'affichage, plutôt que
