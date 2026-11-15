@@ -110,3 +110,58 @@ export function codeDuFragment(fragment: string): string | undefined {
   const code = normaliserCode(decodeURIComponent(fragment.slice(PREFIXE.length)))
   return /^[A-Z0-9]{6}$/.test(code) ? code : undefined
 }
+
+// depuis web.9.3.3 : le classement public, lisible sans profil (avec un profil, il contient aussi la ligne du joueur)
+export async function classementPublic(profil: Profil | undefined, mois: number): Promise<Classement | undefined> {
+  const reponse = await appeler<unknown>(`/classement?mois=${mois}`, profil)
+  return reponse?.statut === 200 ? lireClassement(reponse.corps) : undefined
+}
+
+// signale un pseudo à la modération : vrai si c'est fait
+export async function signaler(profil: Profil, vise: string): Promise<boolean> {
+  const reponse = await appeler('/signaler', profil, { method: 'POST', body: JSON.stringify({ profil: vise }) })
+  return reponse?.statut === 200
+}
+
+// la modération retire-t-elle le pseudo du joueur du classement public ? undefined si le serveur ne répond pas
+export async function estMasque(profil: Profil): Promise<boolean | undefined> {
+  const reponse = await appeler<{ masque?: boolean }>('/profil', profil)
+  return reponse?.statut === 200 ? reponse.corps.masque === true : undefined
+}
+
+export interface Signale {
+  readonly id: string
+  readonly pseudo: string
+  readonly masque: boolean
+  readonly signalements: number
+}
+
+// la modération (depuis web.9.3.3) : la clé de modération remplace le code d'un profil dans l'en-tête Authorization
+const cleDeModeration = (cle: string) => ({ id: '', pseudo: '', code: cle })
+
+// les pseudos signalés ou retirés ; 'refusee' si la clé n'est pas la bonne, undefined si le serveur ne répond pas
+export async function listeModeration(cle: string): Promise<Signale[] | 'refusee' | undefined> {
+  try {
+    const reponse = await demander('/moderation', {}, cleDeModeration(cle))
+    if (reponse.status === 403) {
+      return 'refusee'
+    }
+    return reponse.ok ? ((await reponse.json()) as Signale[]) : undefined
+  } catch {
+    return undefined
+  }
+}
+
+// retire un pseudo du classement public (masque), ou l'y remet : vrai si c'est fait
+export async function masquer(cle: string, profil: string, masque: boolean): Promise<boolean> {
+  try {
+    const reponse = await demander(
+      '/moderation/masquer',
+      { method: 'POST', body: JSON.stringify({ profil, masque }) },
+      cleDeModeration(cle),
+    )
+    return reponse.ok
+  } catch {
+    return false
+  }
+}

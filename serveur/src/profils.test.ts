@@ -75,7 +75,7 @@ describe('Le code secret', () => {
   it('ouvre le profil ; sans lui ou avec un faux, 401', async () => {
     const { profil } = await creer('Zoé')
     const reponse = await demander('GET', '/profil', undefined, profil.code)
-    expect(await reponse.json()).toEqual({ id: profil.id, pseudo: 'Zoé', ligue: null })
+    expect(await reponse.json()).toEqual({ id: profil.id, pseudo: 'Zoé', masque: false, ligue: null })
     expect((await demander('GET', '/profil')).status).toBe(401)
     expect((await demander('GET', '/profil', undefined, 'f'.repeat(32))).status).toBe(401)
   })

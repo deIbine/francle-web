@@ -28,6 +28,8 @@ export interface ProfilLu {
   readonly pseudo: string
   // l'identifiant de sa ligue, ou null (depuis web.9.3.2)
   readonly ligue: string | null
+  // 1 si la modération a retiré son pseudo du classement public (depuis web.9.3.3)
+  readonly masque: number
 }
 
 // le profil dont la requête porte le code secret, ou undefined (pas de code, ou un code inconnu)
@@ -37,7 +39,7 @@ export async function profilDe(requete: Request, base: Base): Promise<ProfilLu |
     return undefined
   }
   const { results } = await base
-    .prepare('SELECT id, pseudo, ligue FROM profils WHERE empreinte_code = ?')
+    .prepare('SELECT id, pseudo, ligue, masque FROM profils WHERE empreinte_code = ?')
     .bind(await empreinte(code))
     .all<ProfilLu>()
   return results[0]
@@ -89,8 +91,14 @@ export async function lire(requete: Request, base: Base): Promise<Response> {
   if (profil === undefined) {
     return json(requete, 401, SANS_PROFIL)
   }
-  const { ligue, ...reste } = profil
-  return json(requete, 200, { ...reste, ligue: ligue === null ? null : await infosLigue(base, ligue, profil.id) })
+  // masque : le joueur sait que son pseudo a été retiré du classement public (les réglages le lui disent)
+  const { id, pseudo, ligue, masque } = profil
+  return json(requete, 200, {
+    id,
+    pseudo,
+    masque: masque === 1,
+    ligue: ligue === null ? null : await infosLigue(base, ligue, profil.id),
+  })
 }
 
 export async function supprimer(requete: Request, base: Base): Promise<Response> {
@@ -108,7 +116,7 @@ export async function secours(requete: Request, base: Base): Promise<Response> {
     return json(requete, 400, { erreur: 'demande-illisible' })
   }
   const { results } = await base
-    .prepare('SELECT id, pseudo, ligue FROM profils WHERE empreinte_secours = ?')
+    .prepare('SELECT id, pseudo, ligue, masque FROM profils WHERE empreinte_secours = ?')
     .bind(await empreinte(normaliserCode(code)))
     .all<ProfilLu>()
   const profil = results[0]

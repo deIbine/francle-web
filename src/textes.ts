@@ -456,6 +456,32 @@ const fr = {
     },
   },
 
+  // depuis web.9.3.3 : le classement public (dans l'onglet « Classement »), et la modération (…/#moderation)
+  public: {
+    maLigue: 'Ma ligue',
+    public: 'Public',
+    vues: 'Quel classement',
+    aide: 'Tous les joueurs qui ont un profil et ont joué ce mois-ci. À la confiance\u00a0: le jeu ne peut pas empêcher la triche.',
+    joueurs: (nombre: number) => `${nombre}\u00a0joueur${nombre > 1 ? 's' : ''} classé${nombre > 1 ? 's' : ''}`,
+    tableau: (mois: string) => `Classement public, ${mois}`,
+    personne: 'Personne n’a encore joué ce mois-ci.',
+    signaler: (pseudo: string) => `Signaler ${pseudo}`,
+    signale: 'Signalé',
+    masque: 'La modération a retiré ton pseudo du classement public. Tu restes dans ta ligue.',
+  },
+
+  moderation: {
+    titre: 'Modération',
+    cle: 'Clé de modération',
+    ouvrir: 'Ouvrir',
+    refusee: 'Cette clé n’est pas la bonne.',
+    aucun: 'Aucun pseudo signalé.',
+    signalements: (nombre: number) => `${nombre}\u00a0signalement${nombre > 1 ? 's' : ''}`,
+    retire: '(retiré du public)',
+    retirer: (pseudo: string) => `Retirer ${pseudo} du public`,
+    remettre: (pseudo: string) => `Remettre ${pseudo}`,
+  },
+
   credits: {
     contours: 'Contours des régions et des départements\u00a0: IGN et INSEE',
     licence: 'licence ouverte Etalab',
@@ -894,6 +920,31 @@ const en: Textes = {
       rejoindre: 'Join the league',
       bienvenue: (nom: string) => `Welcome to “${nom}”! Its ranking is in the statistics (📊), Ranking tab.`,
     },
+  },
+
+  public: {
+    maLigue: 'My league',
+    public: 'Public',
+    vues: 'Which ranking',
+    aide: 'All players with a profile who played this month. On trust: the game cannot prevent cheating.',
+    joueurs: (nombre: number) => `${nombre} ranked player${nombre > 1 ? 's' : ''}`,
+    tableau: (mois: string) => `Public ranking, ${mois}`,
+    personne: 'Nobody has played yet this month.',
+    signaler: (pseudo: string) => `Report ${pseudo}`,
+    signale: 'Reported',
+    masque: 'Moderation has removed your nickname from the public ranking. You remain in your league.',
+  },
+
+  moderation: {
+    titre: 'Moderation',
+    cle: 'Moderation key',
+    ouvrir: 'Open',
+    refusee: 'This key is not the right one.',
+    aucun: 'No reported nickname.',
+    signalements: (nombre: number) => `${nombre} report${nombre > 1 ? 's' : ''}`,
+    retire: '(removed from public)',
+    retirer: (pseudo: string) => `Remove ${pseudo} from public`,
+    remettre: (pseudo: string) => `Restore ${pseudo}`,
   },
 
   credits: {

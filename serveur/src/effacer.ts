@@ -27,10 +27,13 @@ export function quitterLigues(base: Base, condition: string, valeur: unknown): R
   ]
 }
 
-// efface des profils et tout ce qui leur est rattaché : leur place dans la ligue, leurs parties
+// efface des profils et tout ce qui leur est rattaché : leur place dans la ligue, leurs parties, et les signalements
+// qui les visent ou qu'ils ont faits (depuis web.9.3.3)
 export function effacerProfils(base: Base, condition: string, valeur: unknown): Requete[] {
+  const partants = `SELECT id FROM profils WHERE ${condition}`
   return [
     ...quitterLigues(base, condition, valeur),
+    base.prepare(`DELETE FROM signalements WHERE profil IN (${partants}) OR par IN (${partants})`).bind(valeur, valeur),
     base.prepare(`DELETE FROM parties_profil WHERE profil IN (SELECT id FROM profils WHERE ${condition})`).bind(valeur),
     base.prepare(`DELETE FROM profils WHERE ${condition}`).bind(valeur),
   ]

@@ -14,12 +14,14 @@ import { moisDuNumero } from '../domaine/regionDuJour.ts'
 import {
   changerCode,
   classementLigue,
+  classementPublic,
   creerLigue,
   lienInvitation,
   maLigue,
   quitterLigue,
   rejoindreLigue,
   retirerMembre,
+  signaler,
   type ErreurLigue,
   type InfosLigue,
 } from '../ligue.ts'
@@ -38,14 +40,106 @@ interface Props {
   aujourdhui: number
 }
 
+// depuis web.9.3.3, deux vues : « Ma ligue » et « Public ». Deux boutons dont l'un est enfoncé (aria-pressed) : un
+// lecteur d'écran dit lequel est choisi
 export function Classements({ aujourdhui }: Props) {
   const textes = useTextes()
   const [etat] = useProfil()
-  if (!estProfil(etat)) {
-    return <p className="text-sm">{textes.ligue.sansProfil}</p>
+  const profil = estProfil(etat) ? etat : undefined
+  const [vue, setVue] = useState<'ligue' | 'public'>('ligue')
+  const bouton = (nom: 'ligue' | 'public', libelle: string) => (
+    <button
+      type="button"
+      aria-pressed={vue === nom}
+      onClick={() => setVue(nom)}
+      className="flex-1 rounded-md px-3 py-1 text-sm text-discret aria-pressed:bg-francle-fonce aria-pressed:font-semibold aria-pressed:text-white"
+    >
+      {libelle}
+    </button>
+  )
+  return (
+    <div className="flex flex-col gap-4">
+      <div role="group" aria-label={textes.public.vues} className="flex rounded-lg bg-surface p-0.5">
+        {bouton('ligue', textes.public.maLigue)}
+        {bouton('public', textes.public.public)}
+      </div>
+      {vue === 'public' ? (
+        <ClassementPublic profil={profil} aujourdhui={aujourdhui} />
+      ) : profil === undefined ? (
+        <p className="text-sm">{textes.ligue.sansProfil}</p>
+      ) : (
+        // key : un autre profil (après une suppression et une création) repart d'une vue neuve
+        <MaLigue key={profil.id} profil={profil} aujourdhui={aujourdhui} />
+      )}
+    </div>
+  )
+}
+
+// les mois qu'on peut consulter : de celui de la première partie du jeu à celui d'aujourd'hui
+function moisPossibles(aujourdhui: number): [number, number] {
+  const dernier = moisDuNumero(aujourdhui)
+  return [Math.min(moisDuNumero(1), dernier), dernier]
+}
+
+// le classement public du mois (web.9.3.3), lisible sans profil. Avec un profil, la ligne du joueur (même au-delà des
+// 100 premiers) et un bouton « Signaler » à côté des autres pseudos
+function ClassementPublic({ profil, aujourdhui }: { profil: Profil | undefined; aujourdhui: number }) {
+  const textes = useTextes()
+  const langue = useLangue()
+  const [premier, dernier] = moisPossibles(aujourdhui)
+  const [mois, setMois] = useState(dernier)
+  const classement = useClassement(() => classementPublic(profil, mois), `${mois}:${profil?.id ?? ''}`)
+  const [signales, setSignales] = useState<ReadonlySet<string>>(new Set())
+  const nomDuMois = dateDuMois(mois).toLocaleDateString(langue, { month: 'long', year: 'numeric' })
+
+  async function signalerPseudo(id: string) {
+    if (profil !== undefined && (await signaler(profil, id))) {
+      setSignales((avant) => new Set([...avant, id]))
+    }
   }
-  // key : un autre profil (après une suppression et une création) repart d'un onglet neuf
-  return <MaLigue key={etat.id} profil={etat} aujourdhui={aujourdhui} />
+
+  return (
+    <div className="flex flex-col gap-3">
+      <p className="text-xs text-discret">{textes.public.aide}</p>
+      <ChoixMois mois={mois} premier={premier} dernier={dernier} onChoisir={setMois} />
+      {classement === 'chargement' ? (
+        <p className="text-sm text-discret">{textes.ligue.chargement}</p>
+      ) : classement === undefined ? (
+        <p className="text-sm">{textes.ligue.injoignable}</p>
+      ) : classement.lignes.length === 0 ? (
+        <p className="text-sm">{textes.public.personne}</p>
+      ) : (
+        <>
+          <p className="text-sm text-discret">{textes.public.joueurs(classement.joueurs ?? classement.lignes.length)}</p>
+          <TableauClassement
+            lignes={classement.lignes}
+            moi={classement.moi}
+            monId={profil?.id ?? ''}
+            titre={textes.public.tableau(nomDuMois)}
+            enPlus={
+              profil === undefined
+                ? undefined
+                : (ligne) =>
+                    ligne.id !== profil.id &&
+                    (signales.has(ligne.id) ? (
+                      <span className="text-xs text-discret">{textes.public.signale}</span>
+                    ) : (
+                      <button
+                        type="button"
+                        aria-label={textes.public.signaler(ligne.pseudo)}
+                        title={textes.public.signaler(ligne.pseudo)}
+                        onClick={() => void signalerPseudo(ligne.id)}
+                        className="rounded px-1 text-discret hover:bg-surface hover:text-texte"
+                      >
+                        ⚑
+                      </button>
+                    ))
+            }
+          />
+        </>
+      )}
+    </div>
+  )
 }
 
 function MaLigue({ profil, aujourdhui }: { profil: Profil; aujourdhui: number }) {
@@ -193,9 +287,7 @@ function AvecLigue(props: {
   const { profil, ligue, aujourdhui, onLigue } = props
   const textes = useTextes()
   const langue = useLangue()
-  const dernier = moisDuNumero(aujourdhui)
-  // le premier mois : celui de la première partie du jeu
-  const premier = Math.min(moisDuNumero(1), dernier)
+  const [premier, dernier] = moisPossibles(aujourdhui)
   const [mois, setMois] = useState(dernier)
   // la clé : le mois, et les membres (un départ ou un retrait change le classement)
   const membres = ligue.membres.map((membre) => membre.id).join(',')
