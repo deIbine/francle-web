@@ -100,7 +100,7 @@ l'autre, et le web n'a plus à rester égal au Java.
    Cloudflare Workers + D1, dans `serveur/` du même dépôt), web.9.3 des ligues entre amis et un classement public
    protégé. Détail plus bas dans « Les statistiques des joueurs (web.9) ».
 
-## Où on en est (mis à jour le 15 novembre 2026, sur le PC : web.9.2 écrite, trois PR à relire)
+## Où on en est (mis à jour le 15 novembre 2026, sur le PC : web.9.2 fusionnée et en ligne)
 
 ### À faire sur le PC (rien depuis le 9 novembre 2026)
 
@@ -407,12 +407,21 @@ squash le 18 octobre 2026 sur l'accord de l'utilisateur, étiquettes `web-7.8` �
     ligues, classement public) vient après web.9.2.
   - **web.9.2 lancée le 15 novembre 2026** (« lance web.9.2 ») et **écrite le même jour** (« Fait à web.9.2 » dans
     la section web.9 plus bas) : étiquette `web-avant-serveur` posée sur `462806f` et poussée ; trois PR empilées,
-    **ouvertes, pas fusionnées** : #81 (web.9.2.1, le serveur), #82 (web.9.2.2, le site s'en sert, base #81), #83
-    (web.9.2.3, la confidentialité, base #82, avec ces notes). **Pour reprendre** : l'utilisateur relit, puis donne
-    l'accord de fusion ; fusionner dans l'ordre avec la méthode de web.9.1 (rebase sur `main`, base changée en
-    `main` avant de supprimer l'ancienne, arbres comparés) ; à la fusion de #81, surveiller la tâche CI
-    `publier-serveur` (migration, puis publication) ; étiquette `web-9.2` après la dernière ; puis l'utilisateur
-    vérifie sur son téléphone, sur le site en ligne.
+    #81 (web.9.2.1, le serveur), #82 (web.9.2.2, le site s'en sert), #83 (web.9.2.3, la confidentialité).
+    **Fusionnées en squash le même jour, en ligne**, sur l'accord de l'utilisateur (« Tu peux fusionner les trois PR
+    et étiqueter et supprimer »), avec la méthode de web.9.1 (rebase sur `main`, base changée en `main` avant de
+    supprimer l'ancienne, arbres identiques avant, après et sur `main`) : `de29bf4` (#81), `024d0bc` (#82),
+    `f33c975` (#83) ; étiquette annotée `web-9.2` sur `f33c975` ; les trois branches supprimées en local et sur
+    GitHub (seule `main` y reste, aucune PR ouverte). À la fusion de #81, la publication du serveur a d'abord échoué
+    (le secret `CLOUDFLARE_ACCOUNT_ID` contenait l'identifiant de la base) ; corrigé par l'utilisateur, la tâche
+    relancée a créé la table et publié le Worker. Vérifié ensuite : le serveur répond
+    (`/chiffres/34`, CORS pour le site seulement), et le site en ligne a le nouveau bas de page et la page de
+    confidentialité. Ces notes : PR web.9.2.4, sans étiquette.
+  - **Encore à vérifier par l'utilisateur, en jouant** : web.9.2 sur un vrai téléphone, sur le site en ligne (les
+    chiffres de tous dans la fenêtre des résultats, l'interrupteur de ⚙️, la page de confidentialité) ; puis
+    surveiller les e-mails et les quotas de Cloudflare. **À confirmer** : la durée de conservation écrite dans la
+    page (« tant que le jeu existe »), qui n'avait pas été décidée avant. Ensuite, la prochaine étape est à choisir
+    avec l'utilisateur : web.9.3 (ligues et classement public, découpage à présenter), ou une autre candidate.
   - **Encore à vérifier par l'utilisateur, en jouant** : web.9.1 sur un vrai téléphone, sur le site en ligne (les
     onglets et le calendrier de la fenêtre 📊, le bouton « Envoyer mon bilan » qui ouvre le menu de partage, un lien
     reçu par une messagerie). Le partage ne marche que sur une page sécurisée (https, ou localhost) : par le réseau
@@ -1670,11 +1679,12 @@ confidentialité le dit.
   corrige dans Cloudflare : Claude lit seulement l'erreur de la CI.
 - ~~Choisir le contact de la page de confidentialité~~ : **les issues du dépôt** (décision 9).
 - ~~Donner le signal de départ~~ : donné le 15 novembre 2026.
-- Reste : relire les trois PR et donner l'accord de fusion ; vérifier sur un vrai téléphone, sur le site en ligne
-  (les chiffres de tous dans la fenêtre des résultats, l'interrupteur des réglages, la page de confidentialité) ;
-  puis surveiller les e-mails et les quotas de Cloudflare.
+- ~~Relire les trois PR et donner l'accord de fusion~~ : fait le 15 novembre 2026 ; ~~corriger le secret
+  `CLOUDFLARE_ACCOUNT_ID`~~ (il contenait l'identifiant de la base) : fait le même jour.
+- Reste : vérifier sur un vrai téléphone, sur le site en ligne (les chiffres de tous dans la fenêtre des résultats,
+  l'interrupteur des réglages, la page de confidentialité) ; puis surveiller les e-mails et les quotas de Cloudflare.
 
-#### Fait à web.9.2 (le 15 novembre 2026, PR #81 à #83, empilées, à relire)
+#### Fait à web.9.2 (le 15 novembre 2026, PR #81 à #83, empilées, fusionnées le même jour, étiquette `web-9.2`)
 
 - **web.9.2.1** (#81) : `serveur/` (Worker `chiffres`, adresse `https://chiffres.francle.workers.dev`), deux
   adresses (`POST /parties`, `GET /chiffres/<jour>`) ; la table `parties` (tirage, jour, partie, points) par
