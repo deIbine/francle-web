@@ -12,11 +12,14 @@ import { traiter } from './serveur.ts'
 
 interface Env {
   readonly BASE: Base
+  // la clé de modération (depuis web.9.3.3) : un secret du Worker, rangé par l'utilisateur dans Cloudflare
+  // (« npx wrangler secret put MODERATION », ou le tableau de bord), jamais dans le dépôt. Absente : modération fermée
+  readonly MODERATION?: string
 }
 
 export default {
   fetch(requete: Request, env: Env): Promise<Response> {
-    return traiter(requete, env.BASE, new Date())
+    return traiter(requete, env.BASE, new Date(), env.MODERATION)
   },
   scheduled(_controle: unknown, env: Env): Promise<void> {
     return entretien(env.BASE, new Date())

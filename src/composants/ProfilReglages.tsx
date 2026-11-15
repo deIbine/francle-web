@@ -5,7 +5,8 @@ choisir), noter son code de secours (montré une seule fois), le retrouver avec 
 Les réglages sont déjà une fenêtre : la confirmation de la suppression s'affiche donc dans la fenêtre, à la place du
 bouton, plutôt que dans une seconde fenêtre par-dessus (deux fenêtres l'une sur l'autre se ferment dans le désordre).
  */
-import { useId, useState, type FormEvent } from 'react'
+import { useEffect, useId, useState, type FormEvent } from 'react'
+import { estMasque } from '../ligue.ts'
 import { synchroniser } from '../envoi.ts'
 import { creerProfil, estProfil, restaurerProfil, supprimerProfil, useProfil, type ErreurProfil } from '../profil.ts'
 import { useTextes } from '../textes.ts'
@@ -26,6 +27,18 @@ export function ProfilReglages() {
   const [patience, setPatience] = useState(false)
   const [confirmation, setConfirmation] = useState(false)
   const champ = useId()
+  // la modération a-t-elle retiré le pseudo du classement public ? (depuis web.9.3.3 ; demandé au serveur à l'ouverture)
+  const [masque, setMasque] = useState(false)
+  const profil = estProfil(etat) ? etat : undefined
+  useEffect(() => {
+    let annule = false
+    if (profil !== undefined) {
+      void estMasque(profil).then((retire) => !annule && setMasque(retire === true))
+    }
+    return () => {
+      annule = true
+    }
+  }, [profil])
 
   async function creer(evenement: FormEvent) {
     // un formulaire HTML recharge la page à l'envoi : preventDefault l'en empêche, React s'occupe de tout
@@ -87,6 +100,7 @@ export function ProfilReglages() {
         <>
           <p>{textes.profil.connecte(etat.pseudo)}</p>
           <p className="text-sm text-discret">{textes.profil.public}</p>
+          {masque && <p className="text-sm font-semibold">{textes.public.masque}</p>}
           {secours !== undefined && (
             // role="status" : un lecteur d'écran annonce ce bloc quand il apparaît
             <div role="status" className="flex flex-col gap-2 rounded border-2 border-francle-fonce p-3">

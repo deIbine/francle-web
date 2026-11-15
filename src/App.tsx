@@ -14,6 +14,7 @@ import { useEffect, useId, useState, type KeyboardEvent } from 'react'
 import { Aide } from './composants/Aide.tsx'
 import { Comparaison } from './composants/Comparaison.tsx'
 import { Confidentialite } from './composants/Confidentialite.tsx'
+import { Moderation } from './composants/Moderation.tsx'
 import { RejoindreLigue } from './composants/RejoindreLigue.tsx'
 import { Credits } from './composants/Credits.tsx'
 import { Fenetre } from './composants/Fenetre.tsx'
@@ -108,6 +109,8 @@ function useBilanAmi(): [string | undefined, () => void] {
 }
 
 const FRAGMENT_CONFIDENTIALITE = '#confidentialite'
+// la modération (depuis web.9.3.3) : une adresse que rien n'affiche dans le jeu
+const FRAGMENT_MODERATION = '#moderation'
 
 export default function App() {
   const jour = useJour()
@@ -123,12 +126,17 @@ export default function App() {
   const [fenetreConfidentialite, setFenetreConfidentialite] = useState(
     () => window.location.hash === FRAGMENT_CONFIDENTIALITE,
   )
+  // de même pour la modération (depuis web.9.3.3)
+  const [fenetreModeration, setFenetreModeration] = useState(() => window.location.hash === FRAGMENT_MODERATION)
   // de même pour une invitation dans une ligue (depuis web.9.3.2) : « …/#ligue=ABC234 », son code
   const [invitation, setInvitation] = useState(() => codeDuFragment(window.location.hash))
   useEffect(() => {
     function auChangement() {
       if (window.location.hash === FRAGMENT_CONFIDENTIALITE) {
         setFenetreConfidentialite(true)
+      }
+      if (window.location.hash === FRAGMENT_MODERATION) {
+        setFenetreModeration(true)
       }
       const code = codeDuFragment(window.location.hash)
       if (code !== undefined) {
@@ -148,6 +156,12 @@ export default function App() {
       oublierFragment()
     }
   }
+  function fermerModeration() {
+    setFenetreModeration(false)
+    if (window.location.hash === FRAGMENT_MODERATION) {
+      oublierFragment()
+    }
+  }
   function fermerInvitation() {
     setInvitation(undefined)
     if (codeDuFragment(window.location.hash) !== undefined) {
@@ -157,7 +171,7 @@ export default function App() {
   // arrivé par un lien de comparaison, de confidentialité ou d'invitation : les résultats de la partie du jour ne
   // s'ouvrent pas d'eux-mêmes (lu une fois). Deux fenêtres l'une sur l'autre se fermeraient dans le désordre
   const [autreFenetreAuDebut] = useState(
-    () => bilanAmi !== undefined || fenetreConfidentialite || invitation !== undefined,
+    () => bilanAmi !== undefined || fenetreConfidentialite || invitation !== undefined || fenetreModeration,
   )
   // chaque clic sur 📊 augmente ce compteur : la partie du jour, qui garde la fenêtre des statistiques, l'ouvre
   const [demandeStats, setDemandeStats] = useState(0)
@@ -396,6 +410,10 @@ export default function App() {
           enHaut
         >
           {invitation !== undefined && <RejoindreLigue code={invitation} />}
+        </Fenetre>
+
+        <Fenetre ouverte={fenetreModeration && !fenetreAide} onFermer={fermerModeration} titre={textes.moderation.titre} enHaut>
+          <Moderation />
         </Fenetre>
       </main>
     </LangueContext>

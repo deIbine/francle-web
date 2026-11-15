@@ -3,7 +3,8 @@ Le serveur des chiffres de tous (web.9.2.1), et des profils depuis web.9.3.1.
 
     POST /parties          reçoit des parties finies anonymes (src/domaine/chiffres.ts), les vérifie et les range
     GET  /chiffres/<jour>  donne les chiffres d'un jour : joueurs, victoires, répartition des essais et des points
-    …                      les profils : voir profils.ts ; la ligue : voir ligues.ts
+    …                      les profils : voir profils.ts ; la ligue : voir ligues.ts ; le classement public et la
+                           modération : voir public.ts
 
 Un Worker Cloudflare est une seule fonction : elle reçoit une requête HTTP (Request) et rend une réponse (Response),
 comme une servlet Java, mais sans serveur à faire tourner soi-même. Cloudflare la lance à chaque requête, dans le
@@ -22,9 +23,11 @@ import type { Base } from './base.ts'
 import { entetesCors, ILLISIBLE, json, jourDuServeur, lireCorps, TROP_GROS } from './http.ts'
 import { apercu, changerCode, classementLigue, creerLigue, quitter, rejoindre, retirer } from './ligues.ts'
 import { creer, lire, recevoirParties, secours, supprimer } from './profils.ts'
+import { classementPublic, listeModeration, masquer, signaler } from './public.ts'
 
 // les adresses fixes : « MÉTHODE /chemin » -> ce qui y répond
-type Traitement = (requete: Request, base: Base, maintenant: Date) => Promise<Response>
+// moderation : la clé de modération (le secret MODERATION du Worker), pour les adresses de la modération (public.ts)
+type Traitement = (requete: Request, base: Base, maintenant: Date, moderation?: string) => Promise<Response>
 const ADRESSES: Record<string, Traitement> = {
   'POST /parties': recevoir,
   'POST /profils': creer,
@@ -38,10 +41,19 @@ const ADRESSES: Record<string, Traitement> = {
   'POST /ligue/retirer': retirer,
   'POST /ligue/code': changerCode,
   'GET /ligue/classement': classementLigue,
+  'GET /classement': classementPublic,
+  'POST /signaler': signaler,
+  'GET /moderation': (requete, base, _maintenant, moderation) => listeModeration(requete, base, moderation),
+  'POST /moderation/masquer': (requete, base, _maintenant, moderation) => masquer(requete, base, moderation),
 }
 
 // le point d'entrée : maintenant est passé en paramètre (et non lu ici) pour que les tests choisissent le jour
-export async function traiter(requete: Request, base: Base, maintenant: Date): Promise<Response> {
+export async function traiter(
+  requete: Request,
+  base: Base,
+  maintenant: Date,
+  moderation?: string,
+): Promise<Response> {
   const chemin = new URL(requete.url).pathname
   try {
     if (requete.method === 'OPTIONS') {
@@ -50,7 +62,7 @@ export async function traiter(requete: Request, base: Base, maintenant: Date): P
     }
     const traitement = ADRESSES[`${requete.method} ${chemin}`]
     if (traitement !== undefined) {
-      return await traitement(requete, base, maintenant)
+      return await traitement(requete, base, maintenant, moderation)
     }
     // l'aperçu d'une ligue par son code d'invitation (ligues.ts)
     const invitation = /^\/ligues\/([A-Za-z0-9]{1,12})$/.exec(chemin)

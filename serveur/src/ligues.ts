@@ -209,17 +209,23 @@ export function moisDemande(requete: Request): number | undefined {
   return Number.isSafeInteger(mois) && mois > 0 && mois < 100_000 ? mois : undefined
 }
 
-// les lignes d'un classement du mois : les profils choisis par filtre (un « WHERE » sur profils p, avec ses
-// valeurs), leur total et leurs parties du mois, et leur rang (RANK(), voir domaine/classement.ts). avecZero : garder
-// les joueurs sans partie ce mois-là (dans une ligue, on voit tous ses membres)
-export async function lignes(
-  base: Base,
-  mois: number,
-  filtre: string,
-  valeurs: unknown[],
-  avecZero: boolean,
-  limite = 1000,
-): Promise<LigneClassement[]> {
+export interface OptionsClassement {
+  // un « WHERE » sur profils p, et ses valeurs : les joueurs classés
+  readonly filtre: string
+  readonly valeurs: readonly unknown[]
+  // garder les joueurs sans partie ce mois-là (dans une ligue, on voit tous ses membres ; pas en public)
+  readonly avecZero: boolean
+  // le nombre de lignes rendues, au plus
+  readonly limite?: number
+  // seulement la ligne de ce profil, avec son rang parmi TOUS les classés (le « toi » du classement public, web.9.3.3)
+  readonly seul?: string
+}
+
+// les lignes d'un classement du mois : leur total et leurs parties du mois, et leur rang (RANK(), voir
+// domaine/classement.ts). Le rang est calculé sur tous les classés AVANT de ne garder que les premiers ou une seule
+// ligne : le 250e joueur reçoit bien « 250 »
+export async function lignes(base: Base, mois: number, options: OptionsClassement): Promise<LigneClassement[]> {
+  const { filtre, valeurs, avecZero, limite = 1000, seul } = options
   const [premier, dernier] = joursDuMois(mois)
   const { results } = await base
     .prepare(
@@ -229,11 +235,13 @@ export async function lignes(
          WHERE ${filtre}
          GROUP BY p.id
          ${avecZero ? '' : 'HAVING COUNT(pp.jour) > 0'}
+       ), classes AS (
+         SELECT id, pseudo, total, parties, RANK() OVER (ORDER BY total DESC, parties ASC) AS rang FROM totaux
        )
-       SELECT id, pseudo, total, parties, RANK() OVER (ORDER BY total DESC, parties ASC) AS rang
-       FROM totaux ORDER BY rang, pseudo LIMIT ?`,
+       SELECT id, pseudo, total, parties, rang FROM classes ${seul === undefined ? '' : 'WHERE id = ?'}
+       ORDER BY rang, pseudo LIMIT ?`,
     )
-    .bind(premier, dernier, ...valeurs, limite)
+    .bind(premier, dernier, ...valeurs, ...(seul === undefined ? [] : [seul]), limite)
     .all<LigneClassement>()
   return results
 }
@@ -247,6 +255,9 @@ export async function classementLigue(requete: Request, base: Base): Promise<Res
   if (mois === undefined || profil.ligue === null) {
     return json(requete, 400, { erreur: mois === undefined ? 'mois-invalide' : 'sans-ligue' })
   }
-  const classement: Classement = { mois, lignes: await lignes(base, mois, 'p.ligue = ?', [profil.ligue], true) }
+  const classement: Classement = {
+    mois,
+    lignes: await lignes(base, mois, { filtre: 'p.ligue = ?', valeurs: [profil.ligue], avecZero: true }),
+  }
   return json(requete, 200, classement)
 }
