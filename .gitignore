@@ -12,3 +12,6 @@ dist/
 .claude/
 # Le serveur (serveur/) : la base locale de « wrangler dev » et le Worker construit
 .wrangler/
+
+# Les secrets du serveur en local (wrangler dev), comme la clé de modération : jamais dans le dépôt
+.dev.vars

@@ -2229,3 +2229,67 @@ Les décisions de web.9.3, sans code.
   revenir, partir) avec toutes les décisions à la fois ; poser une question de plus pour chaque trou trouvé.
 - **Comment le penser** : comme à web.9.2 (« anonyme, partie par partie »), les ennuis naissent aux croisements. Se
   demander : « que se passe-t-il quand ça tourne mal, avec tout ce qu'on vient de décider ? ».
+
+## web.9.3 Les profils, la ligue et le classement public (le 15 novembre 2026)
+
+Quatre PR empilées, écrites d'affilée : les profils (web.9.3.1), la ligue (web.9.3.2), le classement public et sa
+modération (web.9.3.3), la confidentialité et les notes (web.9.3.4).
+
+### Un « catch » trop large ment
+
+- **Pourquoi** : à la création d'un profil, une erreur quelconque (ici, l'empreinte impossible à calculer dans le faux
+  navigateur des tests) était prise pour une contrainte d'unicité, et le joueur aurait lu « Ce pseudo est déjà pris »
+  sur une base vide.
+- **Comment le faire** : ne mettre dans le `try` que l'instruction qui peut échouer pour la raison attendue
+  (l'insertion), calculer le reste avant ; dans le `catch`, vérifier que c'est bien l'erreur attendue (« UNIQUE »),
+  sinon la relancer (`throw erreur`).
+- **Comment le penser** : un `catch` dit « je sais ce qui s'est passé ». Se demander : « quelles autres erreurs
+  peuvent arriver ici, et que lirait le joueur pour chacune ? ».
+
+### L'ordre des requêtes d'un même lot
+
+- **Pourquoi** : créer une ligue, c'était « insérer la ligue », puis « quitter l'ancienne, entrer dans la nouvelle ».
+  Le départ visait les ligues dont le joueur est créateur… y compris la toute nouvelle, et la base refusait de lui ôter
+  son créateur.
+- **Comment le faire** : un lot (`batch`) s'exécute dans l'ordre, chaque requête voyant l'effet des précédentes. Écrire
+  l'ordre voulu en toutes lettres (« partir, puis créer, puis entrer »), et le tester sur une vraie base.
+- **Comment le penser** : comme une transaction JDBC, tout passe ou rien ; mais à l'intérieur, l'ordre compte. Une
+  requête générale (« les ligues de ce joueur ») attrape aussi ce qu'on vient d'ajouter.
+
+### Un cache qui cache un fichier
+
+- **Pourquoi** : la migration 0003 n'était pas appliquée dans les tests, sans erreur. `import.meta.glob` liste les
+  fichiers à la construction, et Vitest garde ce résultat en cache (`node_modules/.vitest-cache`) sans savoir qu'un
+  nouveau fichier le change. La CI, partie de zéro, n'aurait rien vu.
+- **Comment le faire** : lister le dossier à chaque fois (`readdirSync`), depuis la racine du projet ; pour un doute
+  sur le cache, lister ce que le test voit vraiment (ici, les tables de la base).
+- **Comment le penser** : un résultat mis en cache doit dépendre de tout ce qui le change. Quand « ça marche en CI
+  mais pas ici » ou l'inverse, soupçonner un cache.
+
+### Prévenir toute la page, pas seulement les autres onglets
+
+- **Pourquoi** : un profil créé dans la fenêtre d'invitation restait inconnu de cette fenêtre : chaque composant avait
+  sa copie du profil, et l'évènement « storage » du navigateur ne prévient que les AUTRES onglets.
+- **Comment le faire** : à chaque écriture, envoyer un évènement maison (`window.dispatchEvent(new Event(…))`), que
+  chaque copie écoute, en plus de « storage ».
+- **Comment le penser** : un état gardé en plusieurs exemplaires doit avoir un seul chemin d'écriture, qui prévient
+  tout le monde. C'est le patron « observateur » de Java.
+
+### Ce qui n'est montré qu'une fois ne doit pas disparaître avec son composant
+
+- **Pourquoi** : dans la fenêtre d'invitation, le bloc du profil disparaissait dès le profil créé, et avec lui le code
+  de secours, montré une seule fois. Puis le message de bienvenue remplaçait toute la fenêtre. Les tests ne le
+  voyaient pas : ils ne cherchaient pas le code après coup.
+- **Comment le faire** : garder le composant affiché tant que son information compte (`profilCreeIci`), et remplacer
+  le bouton plutôt que la fenêtre ; ajouter au test la vérification « le code est toujours là après la suite ».
+- **Comment le penser** : pour une information unique (un code, un mot de passe provisoire), se demander : « qu'est-ce
+  qui pourrait la faire disparaître avant que le joueur l'ait notée ? ».
+
+### Regarder à la taille du téléphone, avec de vraies données
+
+- **Pourquoi** : le tableau du classement passait les tests et axe, mais à 375 pixels, avec le drapeau « Signaler »,
+  la colonne des pseudos devenait si étroite que « Loutre bretonne » se coupait au milieu des mots.
+- **Comment le faire** : remplir la base locale avec des pseudos réalistes (longs, accentués), regarder chaque écran
+  à 375 pixels, en clair et en sombre. Ici, la moyenne est passée sous le pseudo : une colonne de moins.
+- **Comment le penser** : les tests vérifient le contenu, pas la place qu'il prend. Un tableau se juge à sa ligne la
+  plus longue, sur le plus petit écran.

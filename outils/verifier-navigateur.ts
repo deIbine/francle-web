@@ -17,7 +17,7 @@ Node lit ce fichier TypeScript tel quel (il efface les types, depuis Node 23.6) 
 import { createRequire } from 'node:module'
 import { chromium, type Browser, type Page } from 'playwright'
 import { preview } from 'vite'
-import { numero, regionDuJour } from '../src/domaine/regionDuJour.ts'
+import { moisDuNumero, numero, regionDuJour } from '../src/domaine/regionDuJour.ts'
 
 // le chemin d'axe-core dans node_modules, injecté dans chaque page vérifiée
 const AXE = createRequire(import.meta.url).resolve('axe-core/axe.min.js')
@@ -99,6 +99,36 @@ async function partieDuJour(navigateur: Browser, adresse: string, theme: Theme):
       },
     }),
   )
+  // les profils, la ligue et les classements (depuis web.9.3.4), imités de même : un profil créé, une ligue de deux
+  // membres, et le même classement pour la ligue et le public
+  const mois = moisDuNumero(numero(new Date()))
+  const lignes = [
+    { id: 'a', pseudo: 'Loutre bretonne', rang: 1, total: 23, parties: 4 },
+    { id: 'moi', pseudo: 'Testeur', rang: 2, total: 17, parties: 4 },
+  ]
+  const ligue = {
+    id: 'l',
+    nom: 'La famille',
+    code: 'ABC234',
+    createur: true,
+    membres: [
+      { id: 'moi', pseudo: 'Testeur', createur: true },
+      { id: 'a', pseudo: 'Loutre bretonne', createur: false },
+    ],
+  }
+  await contexte.route('**/profils', (requete) =>
+    requete.fulfill({
+      status: 201,
+      json: { id: 'moi', pseudo: 'Testeur', code: 'c'.repeat(32), secours: 'ABCD-EFGH-JKMN-PQRS' },
+    }),
+  )
+  await contexte.route('**/profil', (requete) =>
+    requete.fulfill({ json: { id: 'moi', pseudo: 'Testeur', masque: false, ligue } }),
+  )
+  await contexte.route('**/profil/parties', (requete) => requete.fulfill({ json: { rangees: 1, ignorees: 0 } }))
+  await contexte.route(/\/(ligue\/)?classement\?/, (requete) =>
+    requete.fulfill({ json: { mois, lignes, joueurs: 2 } }),
+  )
   const page = await contexte.newPage()
   await page.goto(adresse)
 
@@ -165,6 +195,27 @@ async function partieDuJour(navigateur: Browser, adresse: string, theme: Theme):
   await confidentialite.getByText('Mes numéros tirés').click()
   await verifier(page, theme, 'page de confidentialité')
   await confidentialite.getByRole('button', { name: 'Fermer', exact: true }).click()
+
+  // le profil (depuis web.9.3.4) : créé dans les réglages, son code de secours affiché
+  await page.getByRole('button', { name: 'Ouvrir les réglages' }).click()
+  const reglages = page.getByRole('dialog', { name: 'Réglages' })
+  await reglages.getByLabel('Ton pseudo').fill('Testeur')
+  await reglages.getByRole('button', { name: 'Créer mon profil' }).click()
+  await reglages.getByRole('status').waitFor()
+  await verifier(page, theme, 'réglages, profil créé et son code de secours')
+  await reglages.getByRole('button', { name: 'Fermer', exact: true }).click()
+
+  // la ligue et le classement public, dans l'onglet « Classement » des statistiques
+  await page.getByRole('button', { name: 'Voir les statistiques' }).click()
+  // la partie du jour est finie : la fenêtre de 📊 s'appelle « Résultats »
+  const statistiques = page.getByRole('dialog', { name: 'Résultats' })
+  await statistiques.getByRole('tab', { name: 'Classement' }).click()
+  await statistiques.getByRole('table').waitFor()
+  await verifier(page, theme, 'onglet Classement, la ligue')
+  await statistiques.getByRole('button', { name: 'Public', exact: true }).click()
+  await statistiques.getByRole('table').waitFor()
+  await verifier(page, theme, 'onglet Classement, le classement public')
+  await statistiques.getByRole('button', { name: 'Fermer', exact: true }).click()
 
   await page.getByRole('tab', { name: 'Partie libre' }).click()
   await verifier(page, theme, 'partie libre')

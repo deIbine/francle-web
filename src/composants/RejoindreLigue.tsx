@@ -21,6 +21,9 @@ export function RejoindreLigue({ code }: { code: string }) {
   const [actuelle, setActuelle] = useState<InfosLigue | null>()
   const [rejointe, setRejointe] = useState<InfosLigue>()
   const [erreur, setErreur] = useState<ErreurLigue>()
+  // sans profil à l'ouverture, le bloc du profil reste affiché après la création : il montre le code de secours, qui
+  // n'est montré qu'une fois (vu à web.9.3.4 : le bloc disparaissait aussitôt le profil créé, et le code avec lui)
+  const [profilCreeIci] = useState(() => profil === undefined)
 
   useEffect(() => {
     let annule = false
@@ -61,18 +64,21 @@ export function RejoindreLigue({ code }: { code: string }) {
   if (apercu === null) {
     return <p className="text-sm">{textes.ligue.invitation.inconnue}</p>
   }
-  if (rejointe !== undefined) {
-    return <p role="status">{textes.ligue.invitation.bienvenue(rejointe.nom)}</p>
-  }
   const deja = actuelle !== undefined && actuelle !== null && actuelle.code === code
   return (
     <div className="flex flex-col gap-3 text-left">
       <p className="text-lg font-semibold break-words">{textes.ligue.invitation.apercu(apercu.nom, apercu.membres)}</p>
-      {profil === undefined ? (
+      {profilCreeIci && (
         <>
-          <p className="text-sm">{textes.ligue.invitation.creerProfil}</p>
+          {profil === undefined && <p className="text-sm">{textes.ligue.invitation.creerProfil}</p>}
           <ProfilReglages />
         </>
+      )}
+      {profil === undefined ? null : rejointe !== undefined ? (
+        // à la place du bouton, et non de toute la fenêtre : le code de secours, s'il est affiché, le reste
+        <p role="status" className="font-semibold">
+          {textes.ligue.invitation.bienvenue(rejointe.nom)}
+        </p>
       ) : deja ? (
         <p className="text-sm">{textes.ligue.invitation.deja}</p>
       ) : (

@@ -22,12 +22,17 @@ victoire, un bonus : nommer chaque département de la région trouvée.
 - **Les réglages** : thème clair ou sombre, kilomètres ou miles, et deux modes difficiles : la silhouette tournée 🌀
   ou cachée 🙈.
 - **Deux langues** : français et anglais.
+- **Les statistiques** : le score Francle (10 points au plus par jour), les détails, le calendrier, un bilan à
+  comparer avec un ami par un lien, et les chiffres de tous les joueurs du jour.
+- **Les classements** (facultatif) : avec un profil (un pseudo, sans e-mail ni mot de passe), une ligue entre amis
+  qu'on rejoint par un lien, et le classement public du mois.
 
 Le jeu tourne dans le navigateur : les parties et les réglages restent sur l'appareil du joueur (`localStorage`), et
 le jeu marche sans réseau une fois la page chargée. Depuis web.9.2, si le joueur l'accepte (c'est le réglage de
 départ), chaque partie du jour finie est aussi envoyée, sans rien qui dise qui il est, à un petit serveur
-(`serveur/`, un Worker Cloudflare) qui calcule les chiffres de tous les joueurs du jour. Le détail est dans la page
-de confidentialité du jeu (en bas de page, ou `…/#confidentialite`).
+(`serveur/`, un Worker Cloudflare) qui calcule les chiffres de tous les joueurs du jour. Depuis web.9.3, un joueur
+qui crée un profil y rattache ses parties, pour sa ligue et le classement public. Le détail est dans la page de
+confidentialité du jeu (en bas de page, ou `…/#confidentialite`).
 
 ## Développer
 
