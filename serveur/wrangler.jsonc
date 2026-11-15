@@ -7,8 +7,9 @@
   "name": "chiffres",
   "main": "src/index.ts",
   // la version des règles de Cloudflare suivie par le Worker : une date fixe, pour qu'une nouveauté de Cloudflare ne
-  // change pas son comportement sans qu'on le décide
-  "compatibility_date": "2026-11-01",
+  // change pas son comportement sans qu’on le décide. Pas plus récente que la version de wrangler (4.155.0, du
+  // 28 octobre 2026) : son moteur local refuse une date qu’il ne connaît pas encore
+  "compatibility_date": "2026-10-28",
   // l'adresse en .workers.dev ; pas d'adresse d'essai par version (« preview URLs »), inutile ici
   "workers_dev": true,
   "preview_urls": false,
