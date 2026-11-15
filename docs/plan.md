@@ -100,7 +100,7 @@ l'autre, et le web n'a plus à rester égal au Java.
    Cloudflare Workers + D1, dans `serveur/` du même dépôt), web.9.3 des ligues entre amis et un classement public
    protégé. Détail plus bas dans « Les statistiques des joueurs (web.9) ».
 
-## Où on en est (mis à jour le 14 novembre 2026, sur le PC, après le découpage de web.9.2)
+## Où on en est (mis à jour le 15 novembre 2026, sur le PC : web.9.2 prête à lancer)
 
 ### À faire sur le PC (rien depuis le 9 novembre 2026)
 
@@ -383,18 +383,24 @@ squash le 18 octobre 2026 sur l'accord de l'utilisateur, étiquettes `web-7.8` �
     `web-9.1` sur `5300a8d` ; branches supprimées en local et sur GitHub. Notes de la fusion : PR web.9.1.4, sans
     étiquette.
   - **web.9.2 Les chiffres de tous : découpée et décidée le 14 novembre 2026, rien n'est commencé** (« Le découpage
-    de web.9.2 » dans la section web.9 plus bas : les offres de Cloudflare vérifiées ce jour-là, les huit décisions,
-    les quatre PR, ce qui revient à l'utilisateur). Notes : PR web.9.2.0, sans étiquette. L'utilisateur a demandé
-    d'enregistrer et de continuer plus tard.
-  - **Pour reprendre web.9.2 (noté le 14 novembre 2026)** : la prochaine conversation lit « Le découpage de web.9.2 »,
-    rappelle en quelques lignes où on en est, puis **attend le signal de départ** de l'utilisateur. Rien n'est à
-    redécider. Au départ, dans l'ordre :
+    de web.9.2 » dans la section web.9 plus bas : les offres de Cloudflare vérifiées ce jour-là, les neuf décisions,
+    les quatre PR, ce qui revient à l'utilisateur). Notes : PR #78 (web.9.2.0), #79 (web.9.2.0.1) et web.9.2.0.2,
+    sans étiquette. **Le 15 novembre 2026, l'utilisateur a fait toutes les actions manuelles d'avant le départ** (le
+    compte, le sous-domaine, la base, la clé d'API, les deux secrets GitHub), choisi le contact et revu la
+    décision 8 (d'affilée), puis demandé d'enregistrer pour une prochaine conversation, **sans rien lancer**.
+  - **Pour reprendre web.9.2 (mis à jour le 15 novembre 2026)** : la prochaine conversation lit « Le découpage de
+    web.9.2 », rappelle en quelques lignes où on en est, puis **attend le signal de départ** de l'utilisateur
+    (par exemple « lance web.9.2 »). **Rien n'est à redécider et rien n'est à demander** : toutes les actions
+    manuelles d'avant le départ sont faites (« Ce qui est déjà en place chez Cloudflare » et « Ce qui revient à
+    l'utilisateur » plus bas). Au départ, **d'affilée** (décision 8, revue le 15 novembre 2026) :
     1. poser l'étiquette annotée `web-avant-serveur` sur `main` (le point de retour d'avant le serveur), et la pousser ;
-    2. ~~guider l'utilisateur pour créer son compte Cloudflare et la base D1~~ : **fait par l'utilisateur le
-       15 novembre 2026** (« Ce qui est déjà en place chez Cloudflare » plus bas). Claude ne crée ni compte ni clé ;
-    3. écrire **web.9.2.1 (le serveur seul)**, la vérifier, l'ouvrir en PR, et **s'arrêter** (décision 8) : fusion
-       sur l'accord de l'utilisateur, après qu'il a rangé la clé Cloudflare dans les secrets de GitHub (décision 7) ;
-    4. seulement ensuite, et sur un nouveau signal : web.9.2.2 et web.9.2.3, empilées et fusionnées ensemble.
+    2. écrire les **quatre PR empilées** : web.9.2.0 est déjà faite (les notes, #78 et suivantes), donc web.9.2.1 (le
+       serveur seul), web.9.2.2 (le site s'en sert), web.9.2.3 (la confidentialité), chacune vérifiée (tests, et le
+       navigateur intégré pour ce qui se voit) et ouverte en PR, comme web.9.1 ;
+    3. s'arrêter quand les trois sont prêtes : relecture, puis fusion **sur l'accord de l'utilisateur**, dans l'ordre,
+       chacune rebasée sur `main` après la précédente (méthode de web.9.1) ; à la fusion de web.9.2.1, la CI publie le
+       serveur et crée la table avec les secrets GitHub ; étiquette `web-9.2` après la dernière fusion ;
+    4. après la mise en ligne : l'utilisateur vérifie sur son téléphone, sur le site en ligne.
     Méthode des décisions dans ces conversations : les questions posées par lots avec l'outil de questions (quatre
     au plus par lot), chacune compréhensible seule, une recommandation en premier ; les limites des choix écartés de
     la recommandation notées à côté ; après les réponses, vérifier qu'elles tiennent **ensemble**. web.9.3 (profils,
@@ -1580,8 +1586,8 @@ sous-phases ») : « 152 joueurs aujourd'hui, 81 % ont trouvé ; tu fais mieux q
   **elle l'est** (constaté le 15 novembre 2026, à la création de la base). Source :
   developers.cloudflare.com/d1/configuration/data-location/.
 - **L'adresse du serveur** : le sous-domaine gratuit `….workers.dev` (le domaine de web.8 est repoussé).
-- Pas encore vérifié : la durée de « Time Travel » (restauration de D1 à une date passée) et le prix de l'offre
-  payante (environ 5 $ par mois, de mémoire).
+- « Time Travel » : 7 jours sur l'offre gratuite (constaté le 15 novembre 2026, voir plus bas). Pas vérifié : le
+  prix de l'offre payante (environ 5 $ par mois, de mémoire), inutile tant que l'offre gratuite suffit.
 
 #### Les décisions
 
@@ -1594,7 +1600,8 @@ sous-phases ») : « 152 joueurs aujourd'hui, 81 % ont trouvé ; tu fais mieux q
 | 5 | Les parties d'avant web.9.2 | **Tout l'historique, une fois** (recommandé : la partie du jour seulement), à la première ouverture si l'envoi est activé, puis chaque partie à sa fin. **Limite** : ces parties ont pu être modifiées à la main et n'ont jamais été vues par le serveur. |
 | 6 | Où héberger la base | **La juridiction UE ; si l'offre gratuite la refuse, l'indication `weur`**, et la page de confidentialité le dit (recommandé). |
 | 7 | La mise en ligne du serveur | **Par la CI, à chaque fusion** (recommandé), comme le site : vérifié sur chaque PR, publié à la fusion. Une clé Cloudflare dans les secrets de GitHub, rangée par l'utilisateur. Retour en arrière : `wrangler rollback` ou annuler la PR. |
-| 8 | Le découpage | **S'arrêter après le serveur** (recommandé : les quatre d'un coup) : web.9.2.0 et web.9.2.1 d'abord, fusionnées, le serveur regardé tournant seul ; puis web.9.2.2 et web.9.2.3 ensemble. **Limite** : plus lent. Les petits choix (textes, mise en page, noms des adresses) : Claude, expliqués dans les PR. |
+| 8 | Le découpage | ~~S'arrêter après le serveur~~ (décidé le 14 novembre). **Revu le 15 novembre 2026 : d'affilée** (c'était la recommandation) : web.9.2.1, 9.2.2 et 9.2.3 empilées, écrites sans arrêt, relues puis fusionnées ensemble. **Limite** : le serveur n'est vu en vrai qu'une fois tout fusionné ; sans gravité, le jeu marchant sans le serveur, et une PR s'annulant par `git revert`. Les petits choix (textes, mise en page, noms des adresses) : Claude, expliqués dans les PR. |
+| 9 | Le contact de la page de confidentialité | **Les « issues » du dépôt GitHub** (décidé le 15 novembre 2026, recommandé) : un lien pour poser une question ou demander la suppression de ses données ; rien de personnel n'est publié. |
 
 **Une limite née de trois réponses ensemble (1, 4 et 5)** : le numéro par partie empêche de relier deux parties,
 mais un historique envoyé d'un bloc, au format complet, montre au serveur, le temps de l'envoi, que ces parties
@@ -1604,21 +1611,26 @@ confidentialité le dit.
 
 #### Les quatre PR
 
-1. **web.9.2.0 Les décisions** : ces notes (sans étiquette). L'étiquette `web-avant-serveur` sera posée sur `main`
-   au départ de web.9.2.1, avant tout code du serveur.
+1. **web.9.2.0 Les décisions** : ces notes (sans étiquette), faites : PR #78, puis #79 (le compte et la base) et
+   web.9.2.0.2 (les réponses du 15 novembre). L'étiquette `web-avant-serveur` sera posée sur `main` au départ de
+   web.9.2.1, avant tout code du serveur.
 2. **web.9.2.1 Le serveur seul**, dans `serveur/` (un seul dépôt, décidé à web.9.0.1) : le Worker en TypeScript, qui
    importe `src/domaine/` (lecture du format transmis, `resume()`, `points()`) ; la table de la base (une partie par
    ligne : son numéro tiré, le jour, la partie transmise, ses points ; rien d'autre), créée par une migration qui
    ajoute sans détruire ; deux adresses : recevoir des parties, donner les chiffres d'un jour ; une limite de taille
    des envois ; les tests ; la CI qui vérifie et publie aussi le serveur. **Branché à rien** : le site ne change pas.
-   **Arrêt après cette PR** (décision 8).
+   Plus d'arrêt après cette PR (décision 8 revue) : la suivante s'empile dessus.
 3. **web.9.2.2 Le site s'en sert** : le numéro tiré par partie (gardé avec la partie dans le navigateur, sans changer
    de clé `localStorage` si la forme reste lisible par l'ancien code, sinon une clé `…v2` sans effacer `…v1`) ;
    l'envoi en fin de partie et l'historique une fois ; l'interrupteur des réglages ; les chiffres dans la fenêtre des
    résultats ; un jeu qui marche si le serveur ne répond pas (rien ne s'affiche, aucun message d'erreur bloquant).
 4. **web.9.2.3 La confidentialité** : ce qui est envoyé, pourquoi, où (Europe ou non), combien de temps, comment
    refuser ; le bas de page « aucune donnée collectée » revu. **Fusionnée avec web.9.2.2** : le site n'envoie rien
-   avant de dire ce qu'il envoie.
+   avant de dire ce qu'il envoie. À y écrire : données gardées et traitées **dans l'Union européenne** (juridiction
+   de la base) ; le contact par les **issues du dépôt GitHub** (décision 9) ; les sauvegardes de Cloudflare
+   (« Time Travel » : restauration possible jusqu'à **7 jours** en arrière, donc une donnée supprimée peut subsister
+   jusqu'à 7 jours dans ces sauvegardes) ; ce que gardent les journaux de Cloudflare (« Observability »), à vérifier
+   en écrivant web.9.2.1.
 
 #### Ce qui est déjà en place chez Cloudflare (le 15 novembre 2026, fait par l'utilisateur)
 
@@ -1630,17 +1642,28 @@ confidentialité le dit.
   région choisie par Cloudflare : Europe de l'Est. La page de confidentialité pourra dire « données gardées et
   traitées dans l'Union européenne ». Aucune table : c'est la migration de web.9.2.1 qui la crée, décrite dans le dépôt.
 - **La réplication en lecture (« Read replication », bêta) reste désactivée** : inutile pour un petit jeu.
-- Encore à noter : la durée de « Time Travel » (onglet du même nom sur la page de la base).
+- **« Time Travel » : 7 jours** (constaté le 15 novembre 2026 sur l'offre gratuite) : la base peut être restaurée à
+  n'importe quel moment des 7 derniers jours, ou à un « bookmark » (un repère pris avant un changement de table).
+  Avant une migration qui change une table, noter le bookmark du moment (« Get current Bookmark ID »), en plus de
+  la sauvegarde exportée prévue dans « Revenir en arrière ».
+- **La clé d'API**, créée par l'utilisateur le 15 novembre 2026 (modèle « Edit Cloudflare Workers », plus la
+  permission D1 en modification, limitée à son compte). Claude ne l'a jamais vue.
+- **Les deux secrets du dépôt GitHub**, rangés par l'utilisateur le 15 novembre 2026 : `CLOUDFLARE_API_TOKEN` et
+  `CLOUDFLARE_ACCOUNT_ID`. Vérifié le même jour par `gh secret list` (les noms et la date seulement : GitHub ne
+  montre jamais la valeur d'un secret). La CI les lira par `${{ secrets.CLOUDFLARE_API_TOKEN }}` et
+  `${{ secrets.CLOUDFLARE_ACCOUNT_ID }}`, seulement dans le travail de publication sur `main` (les PR venues de
+  l'extérieur n'y ont pas accès).
 
 #### Ce qui revient à l'utilisateur
 
 - ~~Avant web.9.2.1 : créer le compte Cloudflare, puis la base D1~~ : **fait le 15 novembre 2026** (ci-dessus).
-- Avant la fusion de web.9.2.1 : créer une clé d'API Cloudflare limitée au Worker et à D1, et la ranger dans les
-  secrets du dépôt GitHub (Claude ne manipule pas la clé elle-même) : `CLOUDFLARE_API_TOKEN` (le jeton) et
-  `CLOUDFLARE_ACCOUNT_ID` (l'identifiant du compte, affiché dans « Workers & Pages », cadre « Account details »).
-- Avant la fusion de web.9.2.3 : choisir le contact publié dans la page de confidentialité (le RGPD demande de dire
-  qui est responsable des données et comment le joindre) : une adresse e-mail dédiée, ou les « issues » du dépôt.
-- Après : surveiller les e-mails et les quotas de Cloudflare.
+- ~~Avant la fusion de web.9.2.1 : la clé d'API et les deux secrets GitHub~~ : **faits le 15 novembre 2026**
+  (ci-dessus). Si la clé ne marche pas à la première publication (permission manquante), c'est l'utilisateur qui la
+  corrige dans Cloudflare : Claude lit seulement l'erreur de la CI.
+- ~~Choisir le contact de la page de confidentialité~~ : **les issues du dépôt** (décision 9).
+- Reste : donner le signal de départ ; relire les trois PR et donner l'accord de fusion ; vérifier sur un vrai
+  téléphone, sur le site en ligne (les chiffres de tous dans la fenêtre des résultats, l'interrupteur des réglages,
+  la page de confidentialité) ; puis surveiller les e-mails et les quotas de Cloudflare.
 
 ## Les améliorations à reprendre (relevées le 16 octobre 2026)
 
