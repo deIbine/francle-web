@@ -2189,3 +2189,17 @@ Un Worker Cloudflare et sa base D1 (web.9.2.1), le site qui s'en sert (web.9.2.2
 - **Comment le faire** : une `compatibility_date` au plus égale à la date de la version de wrangler choisie.
 - **Comment le penser** : choisir une version d'outil un peu ancienne (par prudence) engage tout ce qui en dépend.
   Quand on fixe une version, vérifier ce qu'elle limite.
+
+### Un secret masqué qui en trahit un autre (la fusion de web.9.2)
+
+- **Pourquoi** : à la fusion du serveur, la migration a échoué (« Could not route to /accounts/***/d1/database/***…,
+  perhaps your object identifier is invalid »). L'identifiant de la base, pourtant écrit en clair dans
+  `serveur/wrangler.jsonc`, apparaissait lui aussi en `***`.
+- **Comment le faire** : GitHub remplace par `***` toute valeur égale à un secret, partout dans le journal. Une valeur
+  publique masquée veut donc dire qu'un secret contient cette valeur : ici, `CLOUDFLARE_ACCOUNT_ID` contenait
+  l'identifiant de la base (avec tirets) au lieu de celui du compte (32 caractères sans tirets). L'utilisateur a
+  corrigé le secret ; `gh secret list` montre la nouvelle date ; `gh run rerun <n> --failed` relance la seule tâche
+  échouée. La migration (`IF NOT EXISTS`) pouvait être rejouée sans risque.
+- **Comment le penser** : on ne peut pas lire un secret, mais on peut raisonner sur ce que le masquage cache. Et
+  avant d'enchaîner les fusions, regarder la première publication d'un nouveau service : ici, s'arrêter après #81 a
+  évité de brancher le site sur un serveur absent.
