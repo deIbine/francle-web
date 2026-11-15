@@ -93,6 +93,7 @@ function useBilanAmi(): [string | undefined, () => void] {
     function auChangement() {
       const nouveau = bilanDuFragment(window.location.hash)
       if (nouveau !== undefined) {
+        fermerLesFenetres()
         setBilan(nouveau)
       }
     }
@@ -106,6 +107,16 @@ function useBilanAmi(): [string | undefined, () => void] {
   }
 
   return [bilan, oublier]
+}
+
+// ferme les fenêtres ouvertes, avant d'en ouvrir une demandée par un lien arrivé dans un onglet déjà sur le jeu (depuis
+// web.9.3.4 : vu dans le navigateur intégré, une invitation s'ouvrait par-dessus les résultats, et deux fenêtres l'une
+// sur l'autre se ferment dans le désordre, voir web.7.18). close() envoie l'évènement « close », que chaque Fenetre
+// transmet à celui qui la garde (onFermer) : son état reste juste
+function fermerLesFenetres(): void {
+  for (const fenetre of document.querySelectorAll<HTMLDialogElement>('dialog[open]')) {
+    fenetre.close()
+  }
 }
 
 const FRAGMENT_CONFIDENTIALITE = '#confidentialite'
@@ -132,13 +143,17 @@ export default function App() {
   const [invitation, setInvitation] = useState(() => codeDuFragment(window.location.hash))
   useEffect(() => {
     function auChangement() {
-      if (window.location.hash === FRAGMENT_CONFIDENTIALITE) {
+      const fragment = window.location.hash
+      const code = codeDuFragment(fragment)
+      if (fragment === FRAGMENT_CONFIDENTIALITE || fragment === FRAGMENT_MODERATION || code !== undefined) {
+        fermerLesFenetres()
+      }
+      if (fragment === FRAGMENT_CONFIDENTIALITE) {
         setFenetreConfidentialite(true)
       }
-      if (window.location.hash === FRAGMENT_MODERATION) {
+      if (fragment === FRAGMENT_MODERATION) {
         setFenetreModeration(true)
       }
-      const code = codeDuFragment(window.location.hash)
       if (code !== undefined) {
         setInvitation(code)
       }

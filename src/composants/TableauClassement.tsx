@@ -31,16 +31,20 @@ export function TableauClassement({ lignes, moi, monId, titre, enPlus }: Props) 
         key={l.id}
         className={`${cEstMoi ? 'bg-francle-fonce/15 font-semibold' : ''} ${separee ? 'border-t-2 border-dashed border-bord' : ''}`}
       >
-        <td className="px-2 py-1 text-right tabular-nums">{l.rang}</td>
-        <td className="px-2 py-1 break-all">
+        <td className="px-2 py-1 text-right align-top tabular-nums">{l.rang}</td>
+        {/* text-left : la fenêtre centre son texte, la colonne des pseudos suit son titre, à gauche. La moyenne et les
+            parties sous le pseudo, en petit (depuis web.9.3.4) : dans leur propre colonne, à 375 pixels et avec le
+            drapeau « Signaler », il ne restait au pseudo qu'une colonne étroite, coupée au milieu des mots.
+            break-words : un pseudo trop long passe à la ligne entre deux mots, ou au pire dans un mot très long */}
+        <td className="px-2 py-1 text-left break-words">
           {l.pseudo}
           {cEstMoi && <span className="font-normal text-discret"> {textes.ligue.toi}</span>}
+          <span className="block text-xs font-normal text-discret tabular-nums">
+            {textes.ligue.detail(moyenne(l).toLocaleString(langue), l.parties)}
+          </span>
         </td>
-        <td className="px-2 py-1 text-right tabular-nums">{l.total}</td>
-        <td className="px-2 py-1 text-right text-xs text-discret tabular-nums whitespace-nowrap">
-          {textes.ligue.detail(moyenne(l).toLocaleString(langue), l.parties)}
-        </td>
-        {enPlus && <td className="px-1 py-1 text-right">{enPlus(l)}</td>}
+        <td className="px-2 py-1 text-right align-top tabular-nums">{l.total}</td>
+        {enPlus && <td className="px-1 py-1 text-right align-top">{enPlus(l)}</td>}
       </tr>
     )
   }
@@ -57,9 +61,6 @@ export function TableauClassement({ lignes, moi, monId, titre, enPlus }: Props) 
           </th>
           <th scope="col" className="px-2 py-1 text-right font-normal">
             {textes.ligue.points}
-          </th>
-          <th scope="col" className="px-2 py-1 text-right font-normal">
-            {textes.ligue.moyenne}
           </th>
           {enPlus && <td />}
         </tr>

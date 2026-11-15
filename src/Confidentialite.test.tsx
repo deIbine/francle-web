@@ -16,10 +16,13 @@ describe('La page de confidentialité', () => {
     render(<App />)
     await joueur.click(screen.getByRole('button', { name: 'Confidentialité' }))
     const page = screen.getByRole('dialog', { name: 'Confidentialité' })
-    for (const titre of ['Ce qui est envoyé', 'Ce qui est gardé, et où', 'Combien de temps', 'Refuser']) {
+    for (const titre of ['Ce qui est envoyé', 'Le profil', 'Ce qui est gardé, et où', 'Combien de temps', 'Refuser']) {
       expect(within(page).getByRole('heading', { name: titre })).toBeDefined()
     }
     expect(within(page).getByText(/dans l’Union européenne/)).toBeDefined()
+    // 12 mois pour les parties anonymes comme pour les profils (web.9.3.4)
+    expect(within(page).getByText(/^Une partie anonyme est effacée 12\smois après son jour/)).toBeDefined()
+    expect(within(page).getByText(/^Le classement public se fait à la confiance/)).toBeDefined()
     expect(within(page).getByRole('link', { name: 'Ouvrir un ticket sur GitHub' }).getAttribute('href')).toBe(
       'https://github.com/deIbine/francle-web/issues/new',
     )
@@ -48,6 +51,15 @@ describe('La page de confidentialité', () => {
     expect(screen.queryByRole('dialog')).toBeNull()
     window.location.hash = '#confidentialite'
     expect(await screen.findByRole('dialog', { name: 'Confidentialité' })).toBeDefined()
+  })
+
+  it('arrivée par un lien dans un onglet déjà sur le jeu : les résultats ouverts se ferment d’abord (web.9.3.4)', async () => {
+    localStorage.setItem(CLE, JSON.stringify({ 2: { regions: [], etat: 'abandonnee' } }))
+    render(<App />)
+    expect(screen.getByRole('dialog', { name: 'Résultats' })).toBeDefined()
+    window.location.hash = '#confidentialite'
+    expect(await screen.findByRole('dialog', { name: 'Confidentialité' })).toBeDefined()
+    expect(screen.queryByRole('dialog', { name: 'Résultats' })).toBeNull()
   })
 
   it('s’ouvre depuis les réglages, qui se ferment (une fenêtre à la fois)', async () => {

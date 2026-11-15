@@ -100,7 +100,7 @@ l'autre, et le web n'a plus à rester égal au Java.
    Cloudflare Workers + D1, dans `serveur/` du même dépôt), web.9.3 des ligues entre amis et un classement public
    protégé. Détail plus bas dans « Les statistiques des joueurs (web.9) ».
 
-## Où on en est (mis à jour le 15 novembre 2026, sur le PC : web.9.2 fusionnée et en ligne)
+## Où on en est (mis à jour le 15 novembre 2026, sur le PC : web.9.3 écrite, quatre PR à relire)
 
 ### À faire sur le PC (rien depuis le 9 novembre 2026)
 
@@ -421,11 +421,15 @@ squash le 18 octobre 2026 sur l'accord de l'utilisateur, étiquettes `web-7.8` �
     chiffres de tous dans la fenêtre des résultats, l'interrupteur de ⚙️, la page de confidentialité) ; puis
     surveiller les e-mails et les quotas de Cloudflare. **À confirmer** : la durée de conservation écrite dans la
     page (« tant que le jeu existe »), qui n'avait pas été décidée avant.
-  - **web.9.3 découpée et décidée le 15 novembre 2026, rien n'est commencé** (« Le découpage de web.9.3 » dans la
-    section web.9 plus bas) : un pseudo et un code secret, une seule ligue par joueur, tout profil dans le classement
-    public, **sans protection de la partie du jour** (revient sur la décision 4 du 14 novembre), tout d'affilée.
-    Notes : PR web.9.3.0, sans étiquette. **Pour reprendre** : rappeler où on en est, puis attendre le signal de
-    départ ; au départ, écrire web.9.3.1 à web.9.3.4 d'affilée, puis s'arrêter pour la relecture.
+  - **web.9.3 découpée et décidée le 15 novembre 2026** (« Le découpage de web.9.3 » dans la section web.9 plus
+    bas) : un pseudo et un code secret, une seule ligue par joueur, tout profil dans le classement public, **sans
+    protection de la partie du jour** (revient sur la décision 4 du 14 novembre), tout d'affilée. Notes : PR #85
+    (web.9.3.0), sans étiquette. **Lancée le même jour** (« Lance web.9.3, et 12 mois pour les anonymes ») et
+    **écrite le même jour** : quatre PR empilées, **ouvertes, pas fusionnées** (« Fait à web.9.3 » plus bas).
+    **Pour reprendre** : l'utilisateur relit, range la clé de modération (« Ce qui revient à l'utilisateur » dans la
+    section web.9.3), puis donne l'accord de fusion ; fusionner dans l'ordre avec la méthode de web.9.1 ; à la
+    fusion de web.9.3.1, surveiller la tâche CI `publier-serveur` (les migrations 0002 à 0004, puis la tâche
+    planifiée) ; étiquette `web-9.3` après la dernière ; puis l'utilisateur essaie la ligue en vrai, entre amis.
   - **Encore à vérifier par l'utilisateur, en jouant** : web.9.1 sur un vrai téléphone, sur le site en ligne (les
     onglets et le calendrier de la fenêtre 📊, le bouton « Envoyer mon bilan » qui ouvre le menu de partage, un lien
     reçu par une messagerie). Le partage ne marche que sur une page sécurisée (https, ou localhost) : par le réseau
@@ -1720,7 +1724,7 @@ confidentialité le dit.
 Présenté juste après la fusion de web.9.2, à la demande de l'utilisateur (« On passe en 9.3, balance les
 questions »). Les questions posées par lots (quatre au plus), une recommandation en premier, les limites des choix
 écartés de la recommandation notées à côté ; les réponses vérifiées ensemble, ce qui a donné une question de plus
-(décision 3). **Rien n'est commencé.**
+(décision 3). **Écrite le 15 novembre 2026** (« Fait à web.9.3 » plus bas).
 
 Ce que la décision 4 du 14 novembre n'avait pas assez dit : **le code du jeu est public** (le dépôt l'est). Toute
 personne peut donc calculer la région de demain à partir du code ; la cacher demanderait que le serveur la tire avec
@@ -1744,8 +1748,8 @@ un secret, en changeant les régions des jours à venir. D'où la question 12, r
 | 12 | La protection | **Aucune** (recommandé : une partie classée à part, tirée en secret par le serveur). Le classement public se fait sur la partie du jour actuelle ; le serveur vérifie seulement que les coups sont possibles (`domaine/verification.ts`). **Revient sur la décision 4 du 14 novembre** (plus de partie du jour protégée, ni d'interrupteur). **Limite** : tricher reste à la portée de qui lit le code ou modifie son historique, et le haut du classement public peut être faux. La décision 5 du 14 novembre (les parties déjà jouées comptent partout) reste valable. |
 | 13 | Le découpage | **Tout d'affilée** (recommandé : en deux temps), comme web.9.2 : les PR écrites à la suite, relues et fusionnées ensemble. **Limite** : beaucoup à relire d'un coup, et la ligue n'est essayée en vrai qu'à la fin. |
 
-Encore ouverte (posée le 15 novembre 2026, depuis web.9.2) : la durée de conservation des **chiffres anonymes**,
-écrite « tant que le jeu existe » dans la page de confidentialité, ou 12 mois comme les profils.
+**Décidée au départ de web.9.3** (« et 12 mois pour les anonymes », le 15 novembre 2026) : les **chiffres anonymes**
+sont gardés 12 mois, comme les profils (avant : « tant que le jeu existe »).
 
 #### Les PR (empilées, écrites d'affilée)
 
@@ -1769,10 +1773,40 @@ ligue, elle passe au membre le plus ancien.
 
 #### Ce qui revient à l'utilisateur
 
-- Donner le signal de départ.
-- Ranger une **clé de modération** (un nouveau secret, pour que lui seul puisse retirer un pseudo du public), quand
-  web.9.3.3 l'expliquera.
+- ~~Donner le signal de départ~~ : donné le 15 novembre 2026.
+- Ranger la **clé de modération** : un texte long et tiré au hasard, choisi par l'utilisateur et gardé par lui (un
+  gestionnaire de mots de passe), jamais dans le dépôt ni dans la conversation. Dans Cloudflare : Workers et Pages,
+  le Worker `chiffres`, Paramètres (Settings), Variables et secrets, Ajouter : type **Secret**, nom `MODERATION`. Un
+  secret reste en place d'une publication à l'autre. Sans lui, la modération est simplement fermée (le reste marche).
+  Pour modérer : ouvrir `https://deibine.github.io/francle-web/#moderation`, y coller la clé.
 - Relire les PR et donner l'accord de fusion ; essayer la ligue en vrai, entre amis ; surveiller les signalements.
+
+#### Fait à web.9.3 (le 15 novembre 2026, quatre PR empilées, à relire)
+
+- **web.9.3.1 Les profils** : `serveur/migrations/0002_profils.sql` (profils, parties_profil) ; `serveur/src/profils.ts`
+  (créer, lire, supprimer, code de secours, parties rattachées), `http.ts` (ce que partagent les adresses) ;
+  l'entretien de chaque nuit (tâche planifiée « 0 3 * * * », permise sur l'offre gratuite : 5 par compte, vérifié le
+  15 novembre 2026) efface les profils sans partie depuis 365 jours et les parties anonymes de plus de 365 jours ;
+  `src/domaine/pseudo.ts` (pseudos et codes) ; côté site, `profil.ts`, le bloc « Profil » des réglages
+  (`ProfilReglages.tsx`), l'envoi au profil dans `envoi.ts` (même si l'envoi anonyme est refusé).
+- **web.9.3.2 La ligue** : `0003_ligues.sql` ; `serveur/src/ligues.ts`, `effacer.ts` (le départ d'une ligue et
+  l'effacement, écrits une fois) ; `src/domaine/classement.ts` ; côté site, `ligue.ts`, l'onglet « Classement » des
+  statistiques (`Classements.tsx`, `TableauClassement.tsx`), la fenêtre d'un lien `#ligue=CODE`
+  (`RejoindreLigue.tsx`). Choix : 100 membres au plus par ligue.
+- **web.9.3.3 Le classement public et la modération** : `0004_moderation.sql` ; `serveur/src/public.ts` (les 100
+  premiers, le nombre de classés, la ligne du joueur avec son vrai rang ; « Signaler » ; la modération, fermée sans
+  le secret `MODERATION`) ; côté site, « Ma ligue » / « Public », ⚑ pour signaler, la fenêtre `#moderation`
+  (`Moderation.tsx`).
+- **web.9.3.4 La confidentialité et les notes** : la page de confidentialité (le profil, le pseudo public, 12 mois
+  partout, le classement à la confiance) ; le bas de page (« ni e-mail ») et le README ; `verifier:navigateur` imite
+  aussi les profils et les classements (28 écrans, 0 problème) ; ces notes et les leçons.
+- **Trouvé en vérifiant, corrigé, avec un test** : une erreur quelconque prise pour « pseudo pris » ; la création
+  d'une ligue qui faisait quitter la nouvelle ligue ; le cache de Vitest qui cachait la migration 0003 ; un profil
+  créé dans une fenêtre inconnu des autres composants ; le code de secours qui disparaissait dans la fenêtre
+  d'invitation ; un lien arrivé dans un onglet déjà ouvert qui ouvrait sa fenêtre par-dessus les résultats ; les
+  pseudos coupés au milieu des mots à 375 pixels (la moyenne passe sous le pseudo).
+- 493 tests ; vérifié dans le navigateur intégré, avec le vrai serveur en local (`wrangler dev`, les migrations
+  appliquées à la base locale) : invitation, création du profil, classement de la ligue et classement public.
 
 ## Les améliorations à reprendre (relevées le 16 octobre 2026)
 

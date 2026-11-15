@@ -425,9 +425,9 @@ const fr = {
     rang: 'Rang',
     joueur: 'Joueur',
     points: 'Points',
-    moyenne: 'Moyenne',
     toi: '(toi)',
-    detail: (moyenne: string, parties: number) => `${moyenne} · ${parties}\u00a0partie${parties > 1 ? 's' : ''}`,
+    // sous le pseudo, en petit (depuis web.9.3.4, plus de colonne à part : le mot « moyenne » dit ce qu'est ce nombre)
+    detail: (moyenne: string, parties: number) => `moyenne ${moyenne} · ${parties}\u00a0partie${parties > 1 ? 's' : ''}`,
     inviter: 'Inviter des amis',
     codeLigue: (code: string) => `Code\u00a0: ${code}`,
     envoyerLien: 'Envoyer le lien 🔗',
@@ -488,7 +488,8 @@ const fr = {
     inspiration: 'Inspiré de Worldle',
     code: 'Code source',
     // depuis web.9.2.3 : « aucune donnée collectée » n'est plus vrai, si le joueur accepte l'envoi
-    vie: 'Ni compte, ni cookie, ni publicité. Tes résultats anonymes servent aux chiffres de tous, si tu le veux.',
+    // depuis web.9.3.4 : « ni compte » n'est plus tout à fait vrai avec les profils (facultatifs)
+    vie: 'Ni e-mail, ni cookie, ni publicité. Tes résultats anonymes servent aux chiffres de tous, si tu le veux.',
     confidentialite: 'Confidentialité',
   },
 
@@ -499,48 +500,60 @@ const fr = {
       {
         titre: 'En bref',
         textes: [
-          'Francle ne te demande ni nom, ni e-mail, ni compte. Pas de cookie, pas de publicité, pas de mesure d’audience. Tes parties sont gardées dans ton navigateur.',
+          'Francle ne te demande ni nom, ni e-mail, ni mot de passe. Pas de cookie, pas de publicité, pas de mesure d’audience. Tes parties sont gardées dans ton navigateur.',
           'Si tu l’acceptes (c’est le réglage de départ), chaque partie du jour finie est aussi envoyée au serveur du jeu, sans rien qui dise qui tu es, pour calculer les chiffres de tous les joueurs.',
+          'Si tu crées un profil (c’est facultatif), ton pseudo apparaît dans le classement public et dans ta ligue, et tes parties du jour sont rattachées à ton profil.',
         ],
       },
       {
         titre: 'Ce qui est envoyé',
         textes: [
-          'Pour chaque partie du jour finie\u00a0: le numéro du jour, les régions proposées dans l’ordre, le résultat (trouvée, perdue ou abandonnée), les modes difficiles, les réponses du bonus des départements, et un numéro tiré au hasard pour cette partie seulement.',
-          'Ce numéro sert à remplacer la partie quand elle avance (le bonus fini après la victoire). Il change à chaque partie\u00a0: il ne relie pas tes parties entre elles.',
-          'La première fois, tes parties du jour déjà jouées partent aussi, une fois. La partie libre n’est jamais envoyée.',
+          'Pour chaque partie du jour finie\u00a0: le numéro du jour, les régions proposées dans l’ordre, le résultat (trouvée, perdue ou abandonnée), les modes difficiles et les réponses du bonus des départements.',
+          'Envoyée anonymement, elle porte un numéro tiré au hasard pour elle seule, qui sert à la remplacer quand elle avance (le bonus fini après la victoire). Il change à chaque partie\u00a0: il ne relie pas tes parties entre elles.',
+          'La première fois, tes parties du jour déjà jouées partent aussi, une fois (et à ton profil, quand tu en crées un). La partie libre n’est jamais envoyée.',
+        ],
+      },
+      {
+        titre: 'Le profil',
+        textes: [
+          'Ton pseudo, que tout le monde voit dans le classement public, et les membres de ta ligue dans la sienne. Tes parties du jour y sont rattachées, pour calculer tes points.',
+          'Un code secret, gardé dans ton navigateur, prouve au serveur que c’est toi. Le serveur ne garde pas ce code, seulement une empreinte qui ne permet pas de le retrouver\u00a0; de même pour ton code de secours.',
+          'Le bouton «\u00a0Signaler\u00a0» prévient la modération, qui peut retirer un pseudo du classement public. Le serveur garde qui a signalé qui, jusqu’à ce que la modération ait tranché.',
         ],
       },
       {
         titre: 'Pourquoi',
         textes: [
-          'Pour les chiffres du jour\u00a0: combien de joueurs, combien ont trouvé, et où tu te situes. Les régions proposées sont envoyées, et pas seulement le résultat, pour que le serveur vérifie qu’une partie est possible, et pour de futurs classements entre amis.',
+          'Pour les chiffres du jour (combien de joueurs, combien ont trouvé, où tu te situes), et pour les classements de ta ligue et du public. Les régions proposées sont envoyées, et pas seulement le résultat, pour que le serveur vérifie qu’une partie est possible.',
+          'Le classement public se fait à la confiance\u00a0: le jeu ne peut pas empêcher quelqu’un de tricher.',
         ],
       },
       {
         titre: 'Ce qui est gardé, et où',
         textes: [
-          'Le serveur range chaque partie à part\u00a0: son numéro tiré, le jour, la partie et ses points. Il ne garde ni ton adresse IP, ni l’heure d’arrivée, ni rien qui relierait deux parties envoyées ensemble, et ne tient aucun journal des requêtes.',
+          'Le serveur ne garde ni ton adresse IP, ni l’heure à laquelle tes parties arrivent, et ne tient aucun journal des requêtes. Il range chaque partie anonyme à part, sans rien qui relierait deux parties envoyées ensemble.',
           'La base est chez Cloudflare, gardée et traitée dans l’Union européenne. Comme pour tout site, GitHub (qui sert les pages du jeu) et Cloudflare (qui fait tourner le serveur) voient passer ton adresse IP pour te répondre\u00a0; leurs propres règles s’appliquent.',
         ],
       },
       {
         titre: 'Combien de temps',
         textes: [
-          'Tant que le jeu existe\u00a0: ce sont des chiffres anonymes. Une partie supprimée peut subsister jusqu’à 7\u00a0jours dans les sauvegardes automatiques de la base.',
+          'Une partie anonyme est effacée 12\u00a0mois après son jour. Un profil sans partie pendant 12\u00a0mois est effacé, avec ses parties et sa place dans sa ligue\u00a0; son pseudo redevient libre.',
+          'Une donnée effacée peut subsister jusqu’à 7\u00a0jours dans les sauvegardes automatiques de la base.',
         ],
       },
       {
         titre: 'Refuser',
         textes: [
-          'Dans les réglages, désactive «\u00a0Partager mes résultats anonymes\u00a0»\u00a0: le site ne contacte plus du tout le serveur, et les chiffres de tous ne s’affichent plus. Tes parties restent dans ton navigateur, comme avant.',
+          'Dans les réglages, désactive «\u00a0Partager mes résultats anonymes\u00a0»\u00a0: tes parties ne partent plus anonymement, et les chiffres de tous ne s’affichent plus. Sans profil, le site ne contacte alors plus du tout le serveur.',
+          'Le profil est facultatif. «\u00a0Supprimer mon profil\u00a0», dans les réglages, efface aussitôt ton profil, tes parties envoyées et ta place dans ta ligue.',
         ],
       },
       {
         titre: 'Une question, une suppression',
         textes: [
           'Ouvre un ticket sur le dépôt du jeu, sur GitHub. Il est public\u00a0: n’y écris rien de personnel.',
-          'Rien ne relie tes parties à toi\u00a0: pour les supprimer, il faut leurs numéros tirés. Ils sont ci-dessous, à recopier dans le ticket.',
+          'Rien ne relie tes parties anonymes à toi\u00a0: pour les supprimer, il faut leurs numéros tirés. Ils sont ci-dessous, à recopier dans le ticket.',
         ],
       },
     ],
@@ -892,9 +905,8 @@ const en: Textes = {
     rang: 'Rank',
     joueur: 'Player',
     points: 'Points',
-    moyenne: 'Average',
     toi: '(you)',
-    detail: (moyenne: string, parties: number) => `${moyenne} · ${parties} game${parties > 1 ? 's' : ''}`,
+    detail: (moyenne: string, parties: number) => `average ${moyenne} · ${parties} game${parties > 1 ? 's' : ''}`,
     inviter: 'Invite friends',
     codeLigue: (code: string) => `Code: ${code}`,
     envoyerLien: 'Send the link 🔗',
@@ -952,7 +964,7 @@ const en: Textes = {
     licence: 'Etalab open licence',
     inspiration: 'Inspired by Worldle',
     code: 'Source code',
-    vie: 'No account, no cookies, no ads. Your anonymous results feed everyone’s figures, if you like.',
+    vie: 'No email, no cookies, no ads. Your anonymous results feed everyone’s figures, if you like.',
     confidentialite: 'Privacy',
   },
 
@@ -962,48 +974,60 @@ const en: Textes = {
       {
         titre: 'In short',
         textes: [
-          'Francle asks for no name, no email and no account. No cookies, no ads, no visitor tracking. Your games are kept in your browser.',
+          'Francle asks for no name, no email and no password. No cookies, no ads, no visitor tracking. Your games are kept in your browser.',
           'If you agree (it is the default setting), each finished daily game is also sent to the game’s server, with nothing that says who you are, to work out the figures of all players.',
+          'If you create a profile (it is optional), your nickname appears in the public ranking and in your league, and your daily games are linked to your profile.',
         ],
       },
       {
         titre: 'What is sent',
         textes: [
-          'For each finished daily game: the day number, the regions guessed in order, the result (found, lost or given up), the hard modes, the answers of the departments bonus, and a number drawn at random for that game only.',
-          'This number lets the game be replaced when it moves on (the bonus finished after the win). It changes with every game: it does not link your games together.',
-          'The first time, your daily games already played are sent too, once. Free play is never sent.',
+          'For each finished daily game: the day number, the regions guessed in order, the result (found, lost or given up), the hard modes and the answers of the departments bonus.',
+          'Sent anonymously, it carries a number drawn at random for it alone, which lets it be replaced when it moves on (the bonus finished after the win). It changes with every game: it does not link your games together.',
+          'The first time, your daily games already played are sent too, once (and to your profile, when you create one). Free play is never sent.',
+        ],
+      },
+      {
+        titre: 'The profile',
+        textes: [
+          'Your nickname, which everyone sees in the public ranking, and the members of your league in theirs. Your daily games are linked to it, to work out your points.',
+          'A secret code, kept in your browser, proves to the server that it is you. The server does not keep this code, only a fingerprint that cannot be turned back into it; the same goes for your backup code.',
+          'The “Report” button alerts moderation, which can remove a nickname from the public ranking. The server keeps who reported whom, until moderation has decided.',
         ],
       },
       {
         titre: 'Why',
         textes: [
-          'For the day’s figures: how many players, how many found it, and where you stand. The regions guessed are sent, not only the result, so that the server can check that a game is possible, and for future leagues between friends.',
+          'For the day’s figures (how many players, how many found it, where you stand), and for the rankings of your league and of the public. The regions guessed are sent, not only the result, so that the server can check that a game is possible.',
+          'The public ranking works on trust: the game cannot stop someone from cheating.',
         ],
       },
       {
         titre: 'What is kept, and where',
         textes: [
-          'The server stores each game on its own: its random number, the day, the game and its points. It keeps neither your IP address, nor the arrival time, nor anything that would link two games sent together, and keeps no request log.',
+          'The server keeps neither your IP address, nor the time your games arrive, and keeps no request log. It stores each anonymous game on its own, with nothing that would link two games sent together.',
           'The database is at Cloudflare, stored and processed in the European Union. As for any website, GitHub (which serves the game’s pages) and Cloudflare (which runs the server) see your IP address in order to reply; their own rules apply.',
         ],
       },
       {
         titre: 'How long',
         textes: [
-          'As long as the game exists: these are anonymous figures. A deleted game may remain for up to 7 days in the database’s automatic backups.',
+          'An anonymous game is deleted 12 months after its day. A profile without any game for 12 months is deleted, with its games and its place in its league; its nickname becomes free again.',
+          'Deleted data may remain for up to 7 days in the database’s automatic backups.',
         ],
       },
       {
         titre: 'Saying no',
         textes: [
-          'In the settings, turn off “Share my anonymous results”: the site no longer contacts the server at all, and everyone’s figures are no longer shown. Your games stay in your browser, as before.',
+          'In the settings, turn off “Share my anonymous results”: your games are no longer sent anonymously, and everyone’s figures are no longer shown. Without a profile, the site then no longer contacts the server at all.',
+          'The profile is optional. “Delete my profile”, in the settings, immediately deletes your profile, your sent games and your place in your league.',
         ],
       },
       {
         titre: 'A question, a deletion',
         textes: [
           'Open an issue on the game’s repository, on GitHub. It is public: do not write anything personal in it.',
-          'Nothing links your games to you: to delete them, their random numbers are needed. They are below, to copy into the issue.',
+          'Nothing links your anonymous games to you: to delete them, their random numbers are needed. They are below, to copy into the issue.',
         ],
       },
     ],

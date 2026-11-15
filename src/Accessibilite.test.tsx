@@ -74,7 +74,7 @@ describe('Le bas de page', () => {
       'https://github.com/deIbine/francle-web',
     )
     // depuis web.9.2.3 : plus « Aucune donnée collectée », mais ce qui l'est, et la page de confidentialité
-    expect(within(pied).getByText(/Ni compte, ni cookie, ni publicité/)).toBeDefined()
+    expect(within(pied).getByText(/Ni e-mail, ni cookie, ni publicité/)).toBeDefined()
     expect(within(pied).getByRole('button', { name: 'Confidentialité' })).toBeDefined()
   })
 })

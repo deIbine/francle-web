@@ -81,8 +81,9 @@ describe('L’onglet Classement', () => {
     expect(within(onglet).getByRole('heading', { name: 'octobre 2026' })).toBeDefined()
     const tableau = await within(onglet).findByRole('table', { name: /^Classement de «.La famille.», octobre 2026$/ })
     const [, ligne] = within(tableau).getAllByRole('row')
-    // rang 1, Zoé (toi), 6 points, moyenne 6 sur 1 partie (\s : l'espace insécable, gardé dans textContent)
-    expect(ligne.textContent).toMatch(/^1Zoé \(toi\)66 · 1\spartie$/)
+    // rang 1, Zoé (toi), sa moyenne et ses parties dessous, puis 6 points (\s : l'espace insécable, gardé dans
+    // textContent)
+    expect(ligne.textContent).toMatch(/^1Zoé \(toi\)moyenne 6 · 1\spartie6$/)
     expect(within(onglet).getByText(/^Code\s: [A-Z2-9]{6}$/)).toBeDefined()
     expect(within(onglet).getByRole('button', { name: 'Envoyer le lien 🔗' })).toBeDefined()
     // et axe n'y trouve rien qui gêne un lecteur d'écran ou le clavier (voir Accessibilite.test.tsx)
@@ -148,6 +149,8 @@ describe('Le lien d’invitation', () => {
     await joueur.click(await within(fenetre).findByRole('button', { name: 'Rejoindre la ligue' }))
     expect(await within(fenetre).findByText(/Bienvenue dans « La famille »/)).toBeDefined()
     expect(lireProfil()).toMatchObject({ pseudo: 'Tom' })
+    // le code de secours, montré une seule fois, est toujours là (web.9.3.4 : il disparaissait avec le bloc du profil)
+    expect(within(fenetre).getByText(/^[A-Z2-9]{4}(-[A-Z2-9]{4}){3}$/)).toBeDefined()
 
     // fermer la fenêtre retire le code de l'adresse
     await joueur.click(within(fenetre).getByRole('button', { name: 'Fermer' }))
