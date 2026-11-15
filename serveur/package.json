@@ -1,0 +1,14 @@
+{
+  "name": "francle-serveur",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler d1 migrations apply francle --local && wrangler dev",
+    "construire": "wrangler deploy --dry-run --outdir dist",
+    "migrer": "wrangler d1 migrations apply francle --remote",
+    "publier": "wrangler deploy"
+  },
+  "devDependencies": {
+    "wrangler": "4.155.0"
+  }
+}

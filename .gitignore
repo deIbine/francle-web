@@ -10,3 +10,5 @@ dist/
 .DS_Store
 # Réglages locaux de Claude Code (serveur de prévisualisation)
 .claude/
+# Le serveur (serveur/) : la base locale de « wrangler dev » et le Worker construit
+.wrangler/

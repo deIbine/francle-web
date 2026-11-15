@@ -34,6 +34,54 @@ jobs:
         with:
           path: dist
 
+  # Le serveur (serveur/, depuis web.9.2.1) : ses tests tournent déjà dans « verifier » (npm test lance les deux
+  # projets) ; ici, on vérifie que wrangler sait construire le Worker, sans rien publier (--dry-run).
+  serveur:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: serveur
+    env:
+      WRANGLER_SEND_METRICS: 'false'
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: serveur/package-lock.json
+      - run: npm ci
+      - run: npm run construire
+
+  # À chaque fusion dans main : la base d'abord (les migrations pas encore appliquées, qui ne font qu'ajouter), puis le
+  # Worker. Les secrets ne sont lus qu'ici : une PR, même venue d'ailleurs, n'y a jamais accès.
+  publier-serveur:
+    if: github.event_name == 'push'
+    needs: [verifier, serveur]
+    runs-on: ubuntu-latest
+    # une publication du serveur ne s'interrompt pas au milieu (une migration à moitié faite) : elles passent l'une
+    # après l'autre, sans s'annuler
+    concurrency:
+      group: publier-serveur
+      cancel-in-progress: false
+    defaults:
+      run:
+        working-directory: serveur
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+      WRANGLER_SEND_METRICS: 'false'
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: serveur/package-lock.json
+      - run: npm ci
+      - run: npm run migrer
+      - run: npm run publier
+
   publier:
     if: github.event_name == 'push'
     needs: verifier
