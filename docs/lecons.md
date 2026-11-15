@@ -2203,3 +2203,29 @@ Un Worker Cloudflare et sa base D1 (web.9.2.1), le site qui s'en sert (web.9.2.2
 - **Comment le penser** : on ne peut pas lire un secret, mais on peut raisonner sur ce que le masquage cache. Et
   avant d'enchaîner les fusions, regarder la première publication d'un nouveau service : ici, s'arrêter après #81 a
   évité de brancher le site sur un serveur absent.
+
+## web.9.3.0 Le découpage des ligues et du classement public (le 15 novembre 2026)
+
+Les décisions de web.9.3, sans code.
+
+### Un code public ne cache rien
+
+- **Pourquoi** : la décision 4 du 14 novembre voulait un classement public « protégé », la région du jour venant du
+  serveur. Mais le dépôt est public : la suite des régions se calcule par n'importe qui à partir du code. Le serveur ne
+  peut la cacher qu'en la tirant avec un secret, ce qui change les régions des jours à venir, et rend la partie du
+  jour dépendante du serveur. Dit clairement, ce coût a fait revenir l'utilisateur sur la protection.
+- **Comment le faire** : avant de promettre qu'une information est cachée, chercher tous les endroits où elle se
+  trouve ou se calcule : le code de la page, le dépôt, les réponses du serveur, la sauvegarde du navigateur.
+- **Comment le penser** : un secret n'existe que là où personne d'autre ne peut le lire ni le recalculer. En
+  logiciel libre, tout ce qui est dans le code est public ; seul ce qui est hors du dépôt (une clé, une graine rangée
+  dans les secrets) peut être secret.
+
+### Des réponses justes une à une, fausses ensemble
+
+- **Pourquoi** : « pseudo unique », « un seul appareil » et pas de récupération, chacune raisonnable, donnaient
+  ensemble un joueur qui perd son profil en effaçant son navigateur, et ne peut même plus reprendre son pseudo, pris
+  pour toujours. Et un pseudo, donnée personnelle, n'avait pas de durée de conservation.
+- **Comment le faire** : après chaque lot de réponses, rejouer un parcours de joueur de bout en bout (créer, perdre,
+  revenir, partir) avec toutes les décisions à la fois ; poser une question de plus pour chaque trou trouvé.
+- **Comment le penser** : comme à web.9.2 (« anonyme, partie par partie »), les ennuis naissent aux croisements. Se
+  demander : « que se passe-t-il quand ça tourne mal, avec tout ce qu'on vient de décider ? ».
