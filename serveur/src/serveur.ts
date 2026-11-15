@@ -3,7 +3,7 @@ Le serveur des chiffres de tous (web.9.2.1), et des profils depuis web.9.3.1.
 
     POST /parties          reçoit des parties finies anonymes (src/domaine/chiffres.ts), les vérifie et les range
     GET  /chiffres/<jour>  donne les chiffres d'un jour : joueurs, victoires, répartition des essais et des points
-    …                      les profils : voir profils.ts
+    …                      les profils : voir profils.ts ; la ligue : voir ligues.ts
 
 Un Worker Cloudflare est une seule fonction : elle reçoit une requête HTTP (Request) et rend une réponse (Response),
 comme une servlet Java, mais sans serveur à faire tourner soi-même. Cloudflare la lance à chaque requête, dans le
@@ -20,6 +20,7 @@ import { resume } from '../../src/domaine/transmission.ts'
 import { estPossible } from '../../src/domaine/verification.ts'
 import type { Base } from './base.ts'
 import { entetesCors, ILLISIBLE, json, jourDuServeur, lireCorps, TROP_GROS } from './http.ts'
+import { apercu, changerCode, classementLigue, creerLigue, quitter, rejoindre, retirer } from './ligues.ts'
 import { creer, lire, recevoirParties, secours, supprimer } from './profils.ts'
 
 // les adresses fixes : « MÉTHODE /chemin » -> ce qui y répond
@@ -31,6 +32,12 @@ const ADRESSES: Record<string, Traitement> = {
   'DELETE /profil': supprimer,
   'POST /profil/secours': secours,
   'POST /profil/parties': recevoirParties,
+  'POST /ligues': creerLigue,
+  'POST /ligue/rejoindre': rejoindre,
+  'POST /ligue/quitter': quitter,
+  'POST /ligue/retirer': retirer,
+  'POST /ligue/code': changerCode,
+  'GET /ligue/classement': classementLigue,
 }
 
 // le point d'entrée : maintenant est passé en paramètre (et non lu ici) pour que les tests choisissent le jour
@@ -44,6 +51,11 @@ export async function traiter(requete: Request, base: Base, maintenant: Date): P
     const traitement = ADRESSES[`${requete.method} ${chemin}`]
     if (traitement !== undefined) {
       return await traitement(requete, base, maintenant)
+    }
+    // l'aperçu d'une ligue par son code d'invitation (ligues.ts)
+    const invitation = /^\/ligues\/([A-Za-z0-9]{1,12})$/.exec(chemin)
+    if (invitation !== null && requete.method === 'GET') {
+      return await apercu(requete, base, invitation[1])
     }
     const jour = /^\/chiffres\/(\d{1,6})$/.exec(chemin)
     if (jour !== null && requete.method === 'GET') {

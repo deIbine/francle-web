@@ -14,6 +14,7 @@ choisie (voir plus bas).
  */
 import { createContext, useContext } from 'react'
 import type { ErreurProfil } from './profil.ts'
+import type { ErreurLigue } from './ligue.ts'
 import { score, total, type Bonus } from './domaine/bonus.ts'
 import type { EtatCase } from './domaine/calendrier.ts'
 import type { Direction } from './domaine/geographie.ts'
@@ -398,6 +399,61 @@ const fr = {
     erreurSuppression: 'La suppression a échoué\u00a0: le serveur ne répond pas.',
     perdu: (pseudo: string) =>
       `Ton profil «\u00a0${pseudo}\u00a0» n’est plus reconnu sur cet appareil\u00a0: il a été effacé, ou repris ailleurs. Avec ton code de secours, tu peux le retrouver ici.`,
+  },
+
+  // depuis web.9.3.2 : la ligue, dans l'onglet « Classement » des statistiques, et la fenêtre d'invitation
+  ligue: {
+    onglet: 'Classement',
+    sansProfil: 'Crée ton profil dans les réglages (⚙️) pour jouer en ligue entre amis.',
+    chargement: 'Chargement…',
+    injoignable: 'Le serveur ne répond pas. Réessaie plus tard.',
+    sansLigue:
+      'Tu n’es dans aucune ligue. Crée la tienne et invite tes amis, ou rejoins celle d’un ami avec son code.',
+    nom: 'Nom de la ligue',
+    creer: 'Créer la ligue',
+    code: 'Code de la ligue',
+    rejoindre: 'Rejoindre',
+    erreurs: {
+      'ligue-inconnue': 'Aucune ligue n’a ce code.',
+      'ligue-pleine': 'Cette ligue est pleine.',
+      longueur: 'De 3 à 30 caractères, dont au moins 3 lettres ou chiffres.',
+      caracteres: 'Seulement des lettres, des chiffres, des espaces et - _ . ’',
+      mot: 'Ce nom n’est pas accepté.',
+      reseau: 'Le serveur ne répond pas. Réessaie plus tard.',
+    } satisfies Record<ErreurLigue, string>,
+    tableau: (nom: string, mois: string) => `Classement de «\u00a0${nom}\u00a0», ${mois}`,
+    rang: 'Rang',
+    joueur: 'Joueur',
+    points: 'Points',
+    moyenne: 'Moyenne',
+    toi: '(toi)',
+    detail: (moyenne: string, parties: number) => `${moyenne} · ${parties}\u00a0partie${parties > 1 ? 's' : ''}`,
+    inviter: 'Inviter des amis',
+    codeLigue: (code: string) => `Code\u00a0: ${code}`,
+    envoyerLien: 'Envoyer le lien 🔗',
+    lienCopie: 'Lien copié\u00a0: envoie-le à tes amis.',
+    invitationTexte: (nom: string, lien: string) => `Rejoins ma ligue Francle «\u00a0${nom}\u00a0»\u00a0: ${lien}`,
+    membres: 'Membres',
+    createur: '(créateur)',
+    retirer: (pseudo: string) => `Retirer ${pseudo}`,
+    changerCode: 'Changer le code',
+    changerCodeAide: 'L’ancien code et l’ancien lien ne marcheront plus.',
+    quitter: 'Quitter la ligue',
+    confirmerQuitter: (nom: string) =>
+      `Quitter «\u00a0${nom}\u00a0»\u00a0? Tes points restent à toi, mais tu n’apparaîtras plus dans son classement.`,
+    oui: 'Oui, quitter',
+    non: 'Non',
+    invitation: {
+      titre: 'Rejoindre une ligue',
+      apercu: (nom: string, membres: number) => `«\u00a0${nom}\u00a0», ${membres}\u00a0membre${membres > 1 ? 's' : ''}`,
+      inconnue: 'Ce lien ne correspond à aucune ligue (son code a peut-être changé).',
+      creerProfil: 'Pour la rejoindre, crée d’abord ton profil\u00a0:',
+      deja: 'Tu es déjà dans cette ligue.',
+      quitteras: (nom: string) => `Tu quitteras ta ligue actuelle, «\u00a0${nom}\u00a0» (une seule ligue à la fois).`,
+      rejoindre: 'Rejoindre la ligue',
+      bienvenue: (nom: string) =>
+        `Bienvenue dans «\u00a0${nom}\u00a0»\u00a0! Son classement est dans les statistiques (📊), onglet Classement.`,
+    },
   },
 
   credits: {
@@ -786,6 +842,58 @@ const en: Textes = {
     erreurSuppression: 'Deletion failed: the server is not responding.',
     perdu: (pseudo: string) =>
       `Your profile “${pseudo}” is no longer recognised on this device: it was deleted, or recovered elsewhere. With your backup code, you can recover it here.`,
+  },
+
+  ligue: {
+    onglet: 'Ranking',
+    sansProfil: 'Create your profile in the settings (⚙️) to play in a league with friends.',
+    chargement: 'Loading…',
+    injoignable: 'The server is not responding. Try again later.',
+    sansLigue: 'You are not in any league. Create yours and invite your friends, or join a friend’s with its code.',
+    nom: 'League name',
+    creer: 'Create the league',
+    code: 'League code',
+    rejoindre: 'Join',
+    erreurs: {
+      'ligue-inconnue': 'No league has this code.',
+      'ligue-pleine': 'This league is full.',
+      longueur: '3 to 30 characters, with at least 3 letters or digits.',
+      caracteres: 'Only letters, digits, spaces and - _ . ’',
+      mot: 'This name is not accepted.',
+      reseau: 'The server is not responding. Try again later.',
+    },
+    tableau: (nom: string, mois: string) => `Ranking of “${nom}”, ${mois}`,
+    rang: 'Rank',
+    joueur: 'Player',
+    points: 'Points',
+    moyenne: 'Average',
+    toi: '(you)',
+    detail: (moyenne: string, parties: number) => `${moyenne} · ${parties} game${parties > 1 ? 's' : ''}`,
+    inviter: 'Invite friends',
+    codeLigue: (code: string) => `Code: ${code}`,
+    envoyerLien: 'Send the link 🔗',
+    lienCopie: 'Link copied: send it to your friends.',
+    invitationTexte: (nom: string, lien: string) => `Join my Francle league “${nom}”: ${lien}`,
+    membres: 'Members',
+    createur: '(creator)',
+    retirer: (pseudo: string) => `Remove ${pseudo}`,
+    changerCode: 'Change the code',
+    changerCodeAide: 'The old code and the old link will stop working.',
+    quitter: 'Leave the league',
+    confirmerQuitter: (nom: string) =>
+      `Leave “${nom}”? Your points stay yours, but you will no longer appear in its ranking.`,
+    oui: 'Yes, leave',
+    non: 'No',
+    invitation: {
+      titre: 'Join a league',
+      apercu: (nom: string, membres: number) => `“${nom}”, ${membres} member${membres > 1 ? 's' : ''}`,
+      inconnue: 'This link does not match any league (its code may have changed).',
+      creerProfil: 'To join it, first create your profile:',
+      deja: 'You are already in this league.',
+      quitteras: (nom: string) => `You will leave your current league, “${nom}” (one league at a time).`,
+      rejoindre: 'Join the league',
+      bienvenue: (nom: string) => `Welcome to “${nom}”! Its ranking is in the statistics (📊), Ranking tab.`,
+    },
   },
 
   credits: {
