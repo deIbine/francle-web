@@ -390,8 +390,8 @@ squash le 18 octobre 2026 sur l'accord de l'utilisateur, étiquettes `web-7.8` �
     rappelle en quelques lignes où on en est, puis **attend le signal de départ** de l'utilisateur. Rien n'est à
     redécider. Au départ, dans l'ordre :
     1. poser l'étiquette annotée `web-avant-serveur` sur `main` (le point de retour d'avant le serveur), et la pousser ;
-    2. guider l'utilisateur pour créer son compte Cloudflare et la base D1 (juridiction UE à la création, sinon
-       l'indication `weur`, décision 6) : c'est à lui de le faire, Claude ne crée ni compte ni clé ;
+    2. ~~guider l'utilisateur pour créer son compte Cloudflare et la base D1~~ : **fait par l'utilisateur le
+       15 novembre 2026** (« Ce qui est déjà en place chez Cloudflare » plus bas). Claude ne crée ni compte ni clé ;
     3. écrire **web.9.2.1 (le serveur seul)**, la vérifier, l'ouvrir en PR, et **s'arrêter** (décision 8) : fusion
        sur l'accord de l'utilisateur, après qu'il a rangé la clé Cloudflare dans les secrets de GitHub (décision 7) ;
     4. seulement ensuite, et sur un nouveau signal : web.9.2.2 et web.9.2.3, empilées et fusionnées ensemble.
@@ -1576,8 +1576,8 @@ sous-phases ») : « 152 joueurs aujourd'hui, 81 % ont trouvé ; tu fais mieux q
   le 1er septembre 2026, une requête au-delà échoue** jusqu'à minuit UTC : le jeu doit marcher sans le serveur.
   Source : developers.cloudflare.com/d1/platform/limits/.
 - **L'Europe** : D1 a une « juridiction UE » (données gardées et traitées en Europe), **choisie à la création de la
-  base, impossible à changer ensuite**. La documentation ne dit pas si elle est permise avec l'offre gratuite. À
-  défaut : l'indication d'emplacement `weur` (Europe de l'Ouest), sans garantie. Source :
+  base, impossible à changer ensuite**. La documentation ne disait pas si elle est permise avec l'offre gratuite :
+  **elle l'est** (constaté le 15 novembre 2026, à la création de la base). Source :
   developers.cloudflare.com/d1/configuration/data-location/.
 - **L'adresse du serveur** : le sous-domaine gratuit `….workers.dev` (le domaine de web.8 est repoussé).
 - Pas encore vérifié : la durée de « Time Travel » (restauration de D1 à une date passée) et le prix de l'offre
@@ -1620,12 +1620,26 @@ confidentialité le dit.
    refuser ; le bas de page « aucune donnée collectée » revu. **Fusionnée avec web.9.2.2** : le site n'envoie rien
    avant de dire ce qu'il envoie.
 
+#### Ce qui est déjà en place chez Cloudflare (le 15 novembre 2026, fait par l'utilisateur)
+
+- **Le compte**, avec l'offre gratuite.
+- **Le sous-domaine `francle.workers.dev`** : Cloudflare avait proposé d'office un nom tiré de l'adresse e-mail de
+  l'utilisateur ; il a été changé pour un nom neutre, puisqu'il fera partie de l'adresse publique du serveur.
+- **La base D1 `francle`**, identifiant `8a09c0d9-40de-4c5a-94e8-d908b7c25ada` (pas un secret : il ira dans la
+  configuration du serveur, dans le dépôt). **Juridiction : l'Union européenne** (décision 6, sans repli sur `weur`),
+  région choisie par Cloudflare : Europe de l'Est. La page de confidentialité pourra dire « données gardées et
+  traitées dans l'Union européenne ». Aucune table : c'est la migration de web.9.2.1 qui la crée, décrite dans le dépôt.
+- **La réplication en lecture (« Read replication », bêta) reste désactivée** : inutile pour un petit jeu.
+- Encore à noter : la durée de « Time Travel » (onglet du même nom sur la page de la base).
+
 #### Ce qui revient à l'utilisateur
 
-- Avant web.9.2.1 : créer le compte Cloudflare, puis la base D1 (Claude le guide pas à pas ; la juridiction se choisit
-  à la création).
+- ~~Avant web.9.2.1 : créer le compte Cloudflare, puis la base D1~~ : **fait le 15 novembre 2026** (ci-dessus).
 - Avant la fusion de web.9.2.1 : créer une clé d'API Cloudflare limitée au Worker et à D1, et la ranger dans les
-  secrets du dépôt GitHub (Claude ne manipule pas la clé elle-même).
+  secrets du dépôt GitHub (Claude ne manipule pas la clé elle-même) : `CLOUDFLARE_API_TOKEN` (le jeton) et
+  `CLOUDFLARE_ACCOUNT_ID` (l'identifiant du compte, affiché dans « Workers & Pages », cadre « Account details »).
+- Avant la fusion de web.9.2.3 : choisir le contact publié dans la page de confidentialité (le RGPD demande de dire
+  qui est responsable des données et comment le joindre) : une adresse e-mail dédiée, ou les « issues » du dépôt.
 - Après : surveiller les e-mails et les quotas de Cloudflare.
 
 ## Les améliorations à reprendre (relevées le 16 octobre 2026)
