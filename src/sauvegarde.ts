@@ -57,6 +57,9 @@ export interface PartieSauvee {
   // compléter), la clé « v1 » reste donc lisible par les deux versions
   readonly tirage?: string
   readonly envoyee?: string
+  // depuis web.9.3.1 : ce qui a été envoyé au profil du joueur, « <id du profil>:<empreinte> ». L'id du profil y est,
+  // pour qu'un nouveau profil (après une suppression) reçoive à nouveau tout l'historique
+  readonly envoyeeProfil?: string
 }
 
 export interface BonusSauve {
@@ -281,4 +284,35 @@ export function estEnvoyee(jour: number, stockage: Storage = localStorage): bool
   const parties = lire(stockage)
   const transmise = transmises(parties).find((partie) => partie.jour === jour)
   return transmise !== undefined && parties.get(jour)?.envoyee === empreinte(transmise)
+}
+
+// les parties finies à envoyer au profil n° profil : jamais envoyées à ce profil, ou changées depuis. Tout l'historique
+// part ainsi au premier envoi (décision 5 du 14 novembre : les parties déjà jouées comptent partout)
+export function aEnvoyerAuProfil(profil: string, stockage: Storage = localStorage): PartieTransmise[] {
+  const parties = lire(stockage)
+  return transmises(parties).filter(
+    (transmise) =>
+      transmise.etat !== 'en-cours' && parties.get(transmise.jour)?.envoyeeProfil !== marque(profil, transmise),
+  )
+}
+
+// note que ces parties ont été reçues par le profil n° profil (comme marquerEnvoyees, pour les parties anonymes)
+export function marquerEnvoyeesAuProfil(
+  profil: string,
+  envoyees: readonly PartieTransmise[],
+  stockage: Storage = localStorage,
+): void {
+  const parties = lire(stockage)
+  for (const envoyee of envoyees) {
+    const partie = parties.get(envoyee.jour)
+    if (partie !== undefined) {
+      parties.set(envoyee.jour, { ...partie, envoyeeProfil: marque(profil, envoyee) })
+    }
+  }
+  ecrire(parties, stockage)
+}
+
+// ce qu'on note d'une partie envoyée au profil n° profil
+function marque(profil: string, partie: PartieTransmise): string {
+  return `${profil}:${empreinte(partie)}`
 }

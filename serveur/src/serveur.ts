@@ -1,61 +1,36 @@
 /*
-Le serveur des chiffres de tous (web.9.2.1) : deux adresses, et rien d'autre.
+Le serveur des chiffres de tous (web.9.2.1), et des profils depuis web.9.3.1.
 
-    POST /parties          reçoit des parties finies (src/domaine/chiffres.ts), les vérifie et les range
+    POST /parties          reçoit des parties finies anonymes (src/domaine/chiffres.ts), les vérifie et les range
     GET  /chiffres/<jour>  donne les chiffres d'un jour : joueurs, victoires, répartition des essais et des points
+    …                      les profils : voir profils.ts
 
 Un Worker Cloudflare est une seule fonction : elle reçoit une requête HTTP (Request) et rend une réponse (Response),
 comme une servlet Java, mais sans serveur à faire tourner soi-même. Cloudflare la lance à chaque requête, dans le
 centre de données le plus proche du joueur.
 
-Ce que le serveur ne fait pas, exprès : il ne lit ni ne garde l'adresse IP du joueur, ni l'heure d'arrivée, ni aucun
-en-tête ; il range chaque partie à part, sans rien qui relie deux parties d'un même envoi (voir docs/plan.md, « Une
-limite née de trois réponses ensemble »).
+Ce que le serveur ne fait pas, exprès : il ne lit ni ne garde l'adresse IP du joueur, ni l'heure d'arrivée ; il range
+chaque partie anonyme à part, sans rien qui relie deux parties d'un même envoi (voir docs/plan.md, « Une limite née de
+trois réponses ensemble »). Les parties d'un profil, elles, lui sont rattachées : c'est ce que le joueur a choisi en le
+créant (web.9.3).
  */
-import {
-  chiffresDuJour,
-  lireEnvoiAuServeur,
-  sansTirage,
-  TAILLE_MAX_ENVOI,
-  type Groupe,
-} from '../../src/domaine/chiffres.ts'
-import { numero } from '../../src/domaine/regionDuJour.ts'
+import { chiffresDuJour, lireEnvoiAuServeur, sansTirage, TAILLE_MAX_ENVOI, type Groupe } from '../../src/domaine/chiffres.ts'
 import { points } from '../../src/domaine/score.ts'
 import { resume } from '../../src/domaine/transmission.ts'
 import { estPossible } from '../../src/domaine/verification.ts'
 import type { Base } from './base.ts'
+import { entetesCors, ILLISIBLE, json, jourDuServeur, lireCorps, TROP_GROS } from './http.ts'
+import { creer, lire, recevoirParties, secours, supprimer } from './profils.ts'
 
-// les pages qui ont le droit de lire les réponses du serveur : le site en ligne, et le site en local pendant le
-// développement (npm run dev, npm run preview). Un autre site peut toujours envoyer une requête, mais son navigateur
-// ne lui montrera pas la réponse (c'est la règle « CORS » des navigateurs)
-const ORIGINES = new Set([
-  'https://deibine.github.io',
-  'http://localhost:5173',
-  'http://localhost:4173',
-  'http://127.0.0.1:5173',
-])
-
-// les en-têtes CORS : ils disent au navigateur que la page d'origine peut lire cette réponse. « Vary: Origin » prévient
-// les caches que la réponse dépend de la page qui la demande
-function entetesCors(requete: Request): Record<string, string> {
-  const origine = requete.headers.get('Origin')
-  if (origine === null || !ORIGINES.has(origine)) {
-    return { Vary: 'Origin' }
-  }
-  return {
-    'Access-Control-Allow-Origin': origine,
-    'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-    'Access-Control-Allow-Headers': 'Content-Type',
-    'Access-Control-Max-Age': '86400',
-    Vary: 'Origin',
-  }
-}
-
-function json(requete: Request, statut: number, contenu: unknown, entetes: Record<string, string> = {}): Response {
-  return new Response(JSON.stringify(contenu), {
-    status: statut,
-    headers: { 'Content-Type': 'application/json; charset=utf-8', ...entetesCors(requete), ...entetes },
-  })
+// les adresses fixes : « MÉTHODE /chemin » -> ce qui y répond
+type Traitement = (requete: Request, base: Base, maintenant: Date) => Promise<Response>
+const ADRESSES: Record<string, Traitement> = {
+  'POST /parties': recevoir,
+  'POST /profils': creer,
+  'GET /profil': lire,
+  'DELETE /profil': supprimer,
+  'POST /profil/secours': secours,
+  'POST /profil/parties': recevoirParties,
 }
 
 // le point d'entrée : maintenant est passé en paramètre (et non lu ici) pour que les tests choisissent le jour
@@ -66,8 +41,9 @@ export async function traiter(requete: Request, base: Base, maintenant: Date): P
       // la question préalable d'un navigateur (« preflight ») avant certains envois : on répond seulement par les en-têtes
       return new Response(null, { status: 204, headers: entetesCors(requete) })
     }
-    if (chemin === '/parties' && requete.method === 'POST') {
-      return await recevoir(requete, base, maintenant)
+    const traitement = ADRESSES[`${requete.method} ${chemin}`]
+    if (traitement !== undefined) {
+      return await traitement(requete, base, maintenant)
     }
     const jour = /^\/chiffres\/(\d{1,6})$/.exec(chemin)
     if (jour !== null && requete.method === 'GET') {
@@ -83,27 +59,17 @@ export async function traiter(requete: Request, base: Base, maintenant: Date): P
 
 async function recevoir(requete: Request, base: Base, maintenant: Date): Promise<Response> {
   // la taille annoncée d'abord (sans rien lire), puis la taille réelle : un envoi trop gros est refusé en entier
-  const annoncee = Number(requete.headers.get('Content-Length') ?? 0)
-  if (annoncee > TAILLE_MAX_ENVOI) {
+  const corps = await lireCorps(requete, TAILLE_MAX_ENVOI)
+  if (corps === TROP_GROS) {
     return json(requete, 413, { erreur: 'envoi trop gros' })
   }
-  const texte = await requete.text()
-  if (new TextEncoder().encode(texte).length > TAILLE_MAX_ENVOI) {
-    return json(requete, 413, { erreur: 'envoi trop gros' })
-  }
-  let valeur: unknown
-  try {
-    valeur = JSON.parse(texte)
-  } catch {
-    return json(requete, 400, { erreur: 'envoi illisible' })
-  }
-  const envoi = lireEnvoiAuServeur(valeur)
+  const envoi = corps === ILLISIBLE ? undefined : lireEnvoiAuServeur(corps)
   if (envoi === undefined) {
     return json(requete, 400, { erreur: 'envoi illisible' })
   }
-  // le jour du serveur est celui du temps universel (le serveur n'a pas de fuseau) ; estPossible laisse un jour
-  // d'avance aux joueurs qui ont déjà passé minuit
-  const aujourdhui = numero(new Date(maintenant.getUTCFullYear(), maintenant.getUTCMonth(), maintenant.getUTCDate()))
+  // le jour du serveur est celui du temps universel ; estPossible laisse un jour d'avance aux joueurs qui ont déjà
+  // passé minuit
+  const aujourdhui = jourDuServeur(maintenant)
   // seules les parties finies et possibles sont rangées ; les autres sont ignorées, sans refuser tout l'envoi
   const rangees = envoi.parties
     .map((envoyee) => ({ tirage: envoyee.tirage, partie: sansTirage(envoyee) }))

@@ -13,6 +13,7 @@ Les composants n'importent pas TEXTES directement : ils appellent useTextes(), q
 choisie (voir plus bas).
  */
 import { createContext, useContext } from 'react'
+import type { ErreurProfil } from './profil.ts'
 import { score, total, type Bonus } from './domaine/bonus.ts'
 import type { EtatCase } from './domaine/calendrier.ts'
 import type { Direction } from './domaine/geographie.ts'
@@ -363,6 +364,42 @@ const fr = {
       `${pourcentage} % des victoires en ${essais} essai${essais > 1 ? 's' : ''}${toi ? ', comme toi' : ''}`,
   },
 
+  // depuis web.9.3.1 : le profil (pseudo et code secret), dans les réglages
+  profil: {
+    titre: 'Profil',
+    intro: 'Un pseudo pour les ligues entre amis et le classement public. Ni e-mail, ni mot de passe.',
+    public: 'Ton pseudo sera visible par tous, dans le classement public.',
+    pseudo: 'Ton pseudo',
+    creer: 'Créer mon profil',
+    patience: 'Un instant…',
+    erreurs: {
+      pris: 'Ce pseudo est déjà pris.',
+      longueur: 'De 3 à 20 caractères, dont au moins 3 lettres ou chiffres.',
+      caracteres: 'Seulement des lettres, des chiffres, des espaces et - _ . ’',
+      mot: 'Ce pseudo n’est pas accepté.',
+      'secours-inconnu': 'Ce code de secours ne correspond à aucun profil.',
+      reseau: 'Le serveur ne répond pas. Réessaie plus tard.',
+    } satisfies Record<ErreurProfil, string>,
+    secoursTitre: 'Ton code de secours',
+    secoursAide:
+      'Note-le maintenant\u00a0: il n’est montré qu’une fois. Si les données de ton navigateur sont effacées, il te permettra de retrouver ton profil.',
+    copier: 'Copier',
+    copie: 'Copié',
+    note: 'C’est noté',
+    aiSecours: 'J’ai un code de secours',
+    codeSecours: 'Code de secours',
+    retrouver: 'Retrouver mon profil',
+    annuler: 'Annuler',
+    connecte: (pseudo: string) => `Ton pseudo\u00a0: ${pseudo}`,
+    supprimer: 'Supprimer mon profil',
+    confirmer: 'Supprimer ton profil, tes parties envoyées et ta place dans la ligue\u00a0? C’est définitif.',
+    oui: 'Oui, supprimer',
+    non: 'Non',
+    erreurSuppression: 'La suppression a échoué\u00a0: le serveur ne répond pas.',
+    perdu: (pseudo: string) =>
+      `Ton profil «\u00a0${pseudo}\u00a0» n’est plus reconnu sur cet appareil\u00a0: il a été effacé, ou repris ailleurs. Avec ton code de secours, tu peux le retrouver ici.`,
+  },
+
   credits: {
     contours: 'Contours des régions et des départements\u00a0: IGN et INSEE',
     licence: 'licence ouverte Etalab',
@@ -456,7 +493,7 @@ const fr = {
     envoiTitre: 'Chiffres de tous',
     envoi: 'Partager mes résultats anonymes',
     envoiAide:
-      'Chaque partie du jour finie part, sans rien qui dise qui tu es, pour les chiffres de tous les joueurs. Désactivé, le site ne contacte plus le serveur.',
+      'Chaque partie du jour finie part, sans rien qui dise qui tu es, pour les chiffres de tous les joueurs. Désactivé, et sans profil, le site ne contacte plus le serveur.',
     envoiDetails: 'Ce qui est envoyé, et pourquoi',
   },
 }
@@ -716,6 +753,41 @@ const en: Textes = {
       `${pourcentage}% of wins in ${essais} guess${essais > 1 ? 'es' : ''}${toi ? ', like you' : ''}`,
   },
 
+  profil: {
+    titre: 'Profile',
+    intro: 'A nickname for leagues between friends and the public ranking. No email, no password.',
+    public: 'Your nickname will be visible to everyone, in the public ranking.',
+    pseudo: 'Your nickname',
+    creer: 'Create my profile',
+    patience: 'One moment…',
+    erreurs: {
+      pris: 'This nickname is already taken.',
+      longueur: '3 to 20 characters, with at least 3 letters or digits.',
+      caracteres: 'Only letters, digits, spaces and - _ . ’',
+      mot: 'This nickname is not accepted.',
+      'secours-inconnu': 'This backup code does not match any profile.',
+      reseau: 'The server is not responding. Try again later.',
+    },
+    secoursTitre: 'Your backup code',
+    secoursAide:
+      'Write it down now: it is shown only once. If your browser data is cleared, it will let you recover your profile.',
+    copier: 'Copy',
+    copie: 'Copied',
+    note: 'Written down',
+    aiSecours: 'I have a backup code',
+    codeSecours: 'Backup code',
+    retrouver: 'Recover my profile',
+    annuler: 'Cancel',
+    connecte: (pseudo: string) => `Your nickname: ${pseudo}`,
+    supprimer: 'Delete my profile',
+    confirmer: 'Delete your profile, your sent games and your place in the league? This cannot be undone.',
+    oui: 'Yes, delete',
+    non: 'No',
+    erreurSuppression: 'Deletion failed: the server is not responding.',
+    perdu: (pseudo: string) =>
+      `Your profile “${pseudo}” is no longer recognised on this device: it was deleted, or recovered elsewhere. With your backup code, you can recover it here.`,
+  },
+
   credits: {
     contours: 'Region and department outlines: IGN and INSEE',
     licence: 'Etalab open licence',
@@ -807,7 +879,7 @@ const en: Textes = {
     envoiTitre: 'Everyone’s figures',
     envoi: 'Share my anonymous results',
     envoiAide:
-      'Each finished daily game is sent, with nothing that says who you are, for the figures of all players. When off, the site no longer contacts the server.',
+      'Each finished daily game is sent, with nothing that says who you are, for the figures of all players. When off, and without a profile, the site no longer contacts the server.',
     envoiDetails: 'What is sent, and why',
   },
 }

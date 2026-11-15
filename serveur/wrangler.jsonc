@@ -18,6 +18,10 @@
   "observability": { "enabled": false },
   // et pas de statistiques d’usage envoyées par wrangler lui-même à Cloudflare
   "send_metrics": false,
+  // l'entretien de chaque nuit (depuis web.9.3.1), à 3 h en temps universel : effacer ce qui a dépassé sa durée de
+  // conservation (profils sans partie depuis 12 mois, parties anonymes de plus de 12 mois). Permis sur l'offre gratuite
+  // (5 tâches planifiées par compte, vérifié le 15 novembre 2026)
+  "triggers": { "crons": ["0 3 * * *"] },
   "d1_databases": [
     {
       // le nom sous lequel le code voit la base (env.BASE)
