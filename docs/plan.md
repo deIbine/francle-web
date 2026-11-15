@@ -420,8 +420,12 @@ squash le 18 octobre 2026 sur l'accord de l'utilisateur, étiquettes `web-7.8` �
   - **Encore à vérifier par l'utilisateur, en jouant** : web.9.2 sur un vrai téléphone, sur le site en ligne (les
     chiffres de tous dans la fenêtre des résultats, l'interrupteur de ⚙️, la page de confidentialité) ; puis
     surveiller les e-mails et les quotas de Cloudflare. **À confirmer** : la durée de conservation écrite dans la
-    page (« tant que le jeu existe »), qui n'avait pas été décidée avant. Ensuite, la prochaine étape est à choisir
-    avec l'utilisateur : web.9.3 (ligues et classement public, découpage à présenter), ou une autre candidate.
+    page (« tant que le jeu existe »), qui n'avait pas été décidée avant.
+  - **web.9.3 découpée et décidée le 15 novembre 2026, rien n'est commencé** (« Le découpage de web.9.3 » dans la
+    section web.9 plus bas) : un pseudo et un code secret, une seule ligue par joueur, tout profil dans le classement
+    public, **sans protection de la partie du jour** (revient sur la décision 4 du 14 novembre), tout d'affilée.
+    Notes : PR web.9.3.0, sans étiquette. **Pour reprendre** : rappeler où on en est, puis attendre le signal de
+    départ ; au départ, écrire web.9.3.1 à web.9.3.4 d'affilée, puis s'arrêter pour la relecture.
   - **Encore à vérifier par l'utilisateur, en jouant** : web.9.1 sur un vrai téléphone, sur le site en ligne (les
     onglets et le calendrier de la fenêtre 📊, le bouton « Envoyer mon bilan » qui ouvre le menu de partage, un lien
     reçu par une messagerie). Le partage ne marche que sur une page sécurisée (https, ou localhost) : par le réseau
@@ -1385,7 +1389,9 @@ classements »), sans rien commencer. Notée ici comme nouvelle phase à sa dema
 web.9.0). **Les six questions sont décidées le 14 novembre 2026** (« Les décisions » plus bas, PR web.9.0.1), avec
 l'organisation du dépôt et les règles pour revenir en arrière. **web.9.1 est faite et fusionnée le 14 novembre 2026**
 (« Le découpage de web.9.1 » plus bas) ; **web.9.2 est découpée et décidée le même jour, sans rien commencer**
-(« Le découpage de web.9.2 » plus bas) ; web.9.3 attend son découpage.
+(« Le découpage de web.9.2 » plus bas), écrite et fusionnée le 15 novembre 2026 ; **web.9.3 est découpée et décidée le
+15 novembre 2026, sans rien commencer** (« Le découpage de web.9.3 » plus bas : la protection de la décision 4 est
+abandonnée).
 
 ### Le point de départ
 
@@ -1428,7 +1434,8 @@ après n'importe laquelle).
    - Découpage estimé (ligues entre amis) : environ cinq PR, de la taille du bonus des départements : le serveur et la
      base (avec les règles d'accès), l'identité, l'envoi des parties vérifié, les ligues et les classements (par mois et
      depuis toujours, avec un minimum de parties), la confidentialité. Un classement public : à peu près le double.
-   - **Choisi le 14 novembre 2026 : ligues et classement public protégé** (décision 4), donc le double. S'ajoutent :
+   - **Choisi le 14 novembre 2026 : ligues et classement public protégé** (décision 4), donc le double. **Revu le
+     15 novembre 2026 : sans protection** (« Le découpage de web.9.3 », décision 12) ; la suite de ce point ne vaut plus. S'ajoutent :
      une partie du jour dont le serveur garde la réponse et calcule chaque essai (le cœur du jeu réécrit, derrière un
      interrupteur, voir « Revenir en arrière ») ; la modération des pseudos publics. Le découpage exact sera présenté
      avant de commencer web.9.3.
@@ -1473,7 +1480,7 @@ Posées une par une, avec une recommandation à chaque fois.
 | 1 | Sortir du « site sans serveur, aucune donnée collectée » ? | **Oui, jusqu'à web.9.3** (recommandé : jusqu'à web.9.2, web.9.3 décidée plus tard). Il faudra une page de confidentialité et revoir le bas de page dès web.9.2. |
 | 2 | Qu'est-ce qui fait « le meilleur joueur » ? | **Des points par partie** (recommandé) : victoire en 1 essai = 6 points, en 2 = 5… en 6 = 1 ; défaite ou abandon = 0. Classement au **total du mois** (tout le monde repart de zéro le 1er), avec la **moyenne par partie** affichée à côté. |
 | 3 | Le bonus et les modes 🌀 🙈 rapportent-ils des points ? | **Les deux, 10 points au plus par jour** (recommandé). Bonus : 0 point sous un quart des départements trouvés, 1 de un quart à trois quarts, 2 au-delà (la Corse pèse autant que l'Occitanie). 🌀 et 🙈 : +1 chacun, seulement en cas de victoire (les modes sont fixés au premier essai). Points entiers. |
-| 4 | Classements ouverts à tous, ou entre amis ? | **Ligues entre amis et classement public protégé** (recommandé : ligues seulement). La région du jour vient du serveur au lieu d'être lisible dans la page. **Limites connues et acceptées** : la triche devient plus difficile, pas impossible ni détectable (la silhouette reconnaissable par programme parmi 18, un second compte joué d'abord, une carte ou un ami) ; deux fois plus de travail ; plus de partie du jour hors ligne (la partie libre reste hors ligne). |
+| 4 | Classements ouverts à tous, ou entre amis ? | **Ligues entre amis et classement public protégé** (recommandé : ligues seulement). La région du jour vient du serveur au lieu d'être lisible dans la page. **Limites connues et acceptées** : la triche devient plus difficile, pas impossible ni détectable (la silhouette reconnaissable par programme parmi 18, un second compte joué d'abord, une carte ou un ami) ; deux fois plus de travail ; plus de partie du jour hors ligne (la partie libre reste hors ligne). **Revu le 15 novembre 2026 : sans protection** (décision 12 de web.9.3). |
 | 5 | Compter les parties déjà jouées ? | **Partout**, ligues et classement public compris (recommandé : jamais dans les classements). **Limite acceptée** : ces parties, gardées dans le navigateur, sont modifiables et n'ont jamais été vues par le serveur ; le classement public n'est donc pas protégé sur cette période (avec un classement au mois, surtout le premier mois et la vue « depuis toujours »). |
 | 6 | Quel hébergeur ? | **Cloudflare Workers + D1** (recommandé) : fonctions en TypeScript qui reprennent les règles de `src/domaine/`, base SQL (SQLite), pas de mise en pause. Tarifs, quotas et hébergement en Europe à revérifier au début de web.9.2, avant de créer le compte (par l'utilisateur). |
 
@@ -1505,7 +1512,7 @@ justifierait que si le serveur ne partageait aucun code avec le site.
 - **Le code** : une branche et une PR par sous-étape, comme d'habitude ; une PR s'annule par `git revert`. Le serveur,
   isolé dans `serveur/`, ne peut rien casser tant qu'il n'est pas branché au site.
 - **Le site en ligne** : GitHub Pages republie `main` à chaque fusion ; annuler une PR remet l'ancien site.
-- **Un interrupteur** pour la partie du jour protégée (web.9.3) : construite à côté de l'actuelle, activée par un
+- ~~**Un interrupteur** pour la partie du jour protégée (web.9.3)~~ (abandonné le 15 novembre 2026, décision 12 de web.9.3 : pas de protection) : construite à côté de l'actuelle, activée par un
   réglage ; en cas de problème, on remet l'ancienne en un commit, sans annuler le travail.
 - **Le serveur en ligne** : Cloudflare garde les versions d'un Worker (`wrangler rollback`). Le site doit **continuer à
   marcher si le serveur ne répond pas** (seuls les chiffres et classements manquent).
@@ -1707,6 +1714,65 @@ confidentialité le dit.
 - Pour développer avec le serveur en local : dans `serveur/`, `npm ci` puis `npm run dev` ; le site avec
   `VITE_SERVEUR=http://localhost:8787`. npm 11 bloque le script d'installation de `workerd` (le moteur local) : il
   a marché quand même le 15 novembre 2026.
+
+### Le découpage de web.9.3 (décidé le 15 novembre 2026)
+
+Présenté juste après la fusion de web.9.2, à la demande de l'utilisateur (« On passe en 9.3, balance les
+questions »). Les questions posées par lots (quatre au plus), une recommandation en premier, les limites des choix
+écartés de la recommandation notées à côté ; les réponses vérifiées ensemble, ce qui a donné une question de plus
+(décision 3). **Rien n'est commencé.**
+
+Ce que la décision 4 du 14 novembre n'avait pas assez dit : **le code du jeu est public** (le dépôt l'est). Toute
+personne peut donc calculer la région de demain à partir du code ; la cacher demanderait que le serveur la tire avec
+un secret, en changeant les régions des jours à venir. D'où la question 12, revenue sur la protection.
+
+#### Les décisions
+
+| # | Question | Décision |
+|---|---|---|
+| 1 | L'identité | **Un pseudo et un code secret** gardé dans le navigateur (recommandé) : ni e-mail, ni mot de passe. |
+| 2 | Un autre appareil | **Un seul appareil** (recommandé : un lien secret et un code). **Limite** : un joueur sur téléphone et sur PC a deux profils, et ses parties sont coupées en deux. |
+| 3 | Le code perdu | **Un code de secours**, montré une fois à la création du profil, à noter, présenté comme un secours ; **et un profil sans partie pendant 12 mois est effacé**, son pseudo redevient libre (les deux recommandés, réponse à une question née des décisions 1, 2 et 11 ensemble). **Limites** : le code de secours permettrait aussi de passer sur un autre appareil ; un joueur qui revient après une longue pause repart de zéro. Les 12 mois sont la durée de conservation des profils (page de confidentialité). |
+| 4 | La suppression | **Un bouton « Supprimer mon profil »** dans ⚙️, avec confirmation (recommandé) : profil, parties rattachées et place dans la ligue effacés aussitôt (hors les 7 jours des sauvegardes de Cloudflare). |
+| 5 | Les chiffres anonymes | **Les deux** (recommandé) : une partie part anonyme pour les chiffres du jour (comme web.9.2), et rattachée au profil pour les classements. |
+| 6 | Rejoindre une ligue | **Un lien d'invitation qui contient un code de 6 caractères**, tapable aussi (recommandé). Le créateur peut retirer un membre et changer le code. **Limite** : un code transmis plus loin laisse entrer n'importe qui, jusqu'à ce qu'il soit changé. |
+| 7 | Les tailles | **Une seule ligue par joueur** (recommandé : 10 ligues de 50 joueurs). Rejoindre une autre ligue fait quitter l'actuelle, après confirmation. **Limite** : pas à la fois la ligue de la famille et celle des collègues. |
+| 8 | Le classement public | **Tout profil y apparaît** (recommandé : sur demande). **Limite** : qui voulait seulement une ligue est publié aussi ; il faut le dire clairement à la création du profil, avant le choix du pseudo. |
+| 9 | La modération | **Une liste de mots interdits, un bouton « Signaler », et le retrait d'un pseudo du public par l'utilisateur** (recommandé) ; le joueur garde sa ligue. **Limite** : un peu de temps à chaque signalement. |
+| 10 | Les classements | **Le mois en cours et les mois passés** (recommandé), au total, la moyenne à côté (décision 2 du 14 novembre), dans la ligue et en public. |
+| 11 | Les pseudos | **Uniques** (recommandé), sans tenir compte des majuscules et des accents. |
+| 12 | La protection | **Aucune** (recommandé : une partie classée à part, tirée en secret par le serveur). Le classement public se fait sur la partie du jour actuelle ; le serveur vérifie seulement que les coups sont possibles (`domaine/verification.ts`). **Revient sur la décision 4 du 14 novembre** (plus de partie du jour protégée, ni d'interrupteur). **Limite** : tricher reste à la portée de qui lit le code ou modifie son historique, et le haut du classement public peut être faux. La décision 5 du 14 novembre (les parties déjà jouées comptent partout) reste valable. |
+| 13 | Le découpage | **Tout d'affilée** (recommandé : en deux temps), comme web.9.2 : les PR écrites à la suite, relues et fusionnées ensemble. **Limite** : beaucoup à relire d'un coup, et la ligue n'est essayée en vrai qu'à la fin. |
+
+Encore ouverte (posée le 15 novembre 2026, depuis web.9.2) : la durée de conservation des **chiffres anonymes**,
+écrite « tant que le jeu existe » dans la page de confidentialité, ou 12 mois comme les profils.
+
+#### Les PR (empilées, écrites d'affilée)
+
+1. **web.9.3.0 Les décisions** : ces notes, sans code.
+2. **web.9.3.1 Les profils** : côté serveur, les tables par une nouvelle migration qui ajoute sans rien détruire
+   (`0002_…`) ; la création d'un profil (pseudo unique, filtré) ; le code secret et le code de secours ; la
+   suppression ; l'effacement après 12 mois sans partie, par une tâche planifiée de Cloudflare (« Cron Trigger » :
+   vérifier qu'il est permis sur l'offre gratuite avant de l'écrire). Côté site : la création du profil dans ⚙️,
+   avec l'avertissement « ton pseudo sera public » ; l'envoi des parties rattachées au profil, historique compris
+   (décision 5 du 14 novembre).
+3. **web.9.3.2 La ligue** : créer, rejoindre par le lien ou le code, quitter, retirer un membre, changer le code ; le
+   classement du mois et des mois passés.
+4. **web.9.3.3 Le classement public et la modération** : le classement public, « Signaler », et l'outil de
+   l'utilisateur pour retirer un pseudo du public.
+5. **web.9.3.4 La confidentialité à jour** : le pseudo public, ce qui est rattaché au profil, les 12 mois, la
+   suppression.
+
+Choix techniques laissés à Claude (comme la décision 8 de web.9.2), expliqués dans les PR : le serveur ne garde
+qu'une empreinte du code secret (si la base fuitait, les codes ne seraient pas lisibles) ; si le créateur quitte sa
+ligue, elle passe au membre le plus ancien.
+
+#### Ce qui revient à l'utilisateur
+
+- Donner le signal de départ.
+- Ranger une **clé de modération** (un nouveau secret, pour que lui seul puisse retirer un pseudo du public), quand
+  web.9.3.3 l'expliquera.
+- Relire les PR et donner l'accord de fusion ; essayer la ligue en vrai, entre amis ; surveiller les signalements.
 
 ## Les améliorations à reprendre (relevées le 16 octobre 2026)
 
