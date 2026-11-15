@@ -2098,3 +2098,17 @@ La fusion des quatre PR empilées de web.9.1, puis le découpage et les décisio
   séparément, sans l'IP, sans numéro ni heure d'envoi commune. Le noter à côté des décisions.
 - **Comment le penser** : l'anonymat se joue sur ce qu'on **garde**, pas seulement sur ce qu'on envoie. Pour chaque
   donnée reçue, se demander : « une fois rangée, permet-elle de relier deux choses qu'on voulait garder séparées ? ».
+
+### Préparer un serveur sans jamais toucher à ses clés (le 15 novembre 2026)
+
+- **Pourquoi** : publier le serveur demande une clé d'API Cloudflare. Elle ouvre l'accès au compte : elle ne doit
+  passer ni par la conversation, ni par un fichier du dépôt.
+- **Comment le faire** : l'utilisateur crée la clé dans Cloudflare (le modèle « Edit Cloudflare Workers », plus la
+  permission D1), la colle directement dans les secrets du dépôt GitHub, et dit seulement « c'est fait ». Pour le
+  vérifier sans la voir : `gh secret list`, qui donne les noms et la date, jamais la valeur. Ce qui n'est pas secret
+  (l'identifiant de la base) va dans la configuration du dépôt ; l'identifiant du compte, sans être vraiment secret,
+  reste dans un secret, puisqu'il n'a rien à faire dans un dépôt public.
+- **Comment le penser** : séparer ce qui **désigne** (un identifiant : quel compte, quelle base) de ce qui **donne
+  le droit** (un jeton, un mot de passe). Le premier peut s'écrire ; le second ne se recopie jamais, et on vérifie
+  qu'il existe sans le lire. Au passage : Cloudflare avait proposé un sous-domaine tiré de l'adresse e-mail ; tout ce
+  qui finit dans une adresse publique se relit avant de servir.
