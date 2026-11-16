@@ -1908,6 +1908,10 @@ créé, « Créer mon profil » qui ouvre les réglages sur le champ du pseudo, 
   ⚑ et de « Supprimer mon profil » tombaient sous le bord de l'écran (`scrollIntoView({ block: 'nearest' })` à leur
   apparition). Essayés ensuite : retirer un membre, la confirmation du changement de code, ⚑ puis « Non », un lien
   d'invitation vers une autre ligue (« Quitter « La famille » et rejoindre »), « Oui, supprimer » puis « Non ».
+- **La CI de #94 en échec, corrigé** : `Profil.test.tsx` attendait que les parties arrivent au serveur, puis cherchait
+  aussitôt « Supprimer mon profil » (`getByRole`). Sur la machine de la CI, plus lente, les parties arrivaient avant
+  que React ait redessiné les réglages (le journal montrait encore le formulaire de création). `findByRole`, qui
+  attend ; jamais vu sur le PC (six passages de suite).
 
 ## Les améliorations à reprendre (relevées le 16 octobre 2026)
 

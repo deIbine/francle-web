@@ -2391,3 +2391,17 @@ classement (web.9.4.2), la ligue et l'invitation (web.9.4.3).
 - **Comment le penser** : comme deux méthodes qui se surchargent en Java, c'est une règle du langage qui choisit, pas
   l'ordre où on les a écrites à l'appel. Une capture au vrai format (ici, le navigateur en mode téléphone) voit ce que
   les tests ne voient pas : la couleur, l'alignement, ce qui tombe sous le bord de l'écran.
+
+### Un test qui passe sur le PC et échoue en CI : une course
+
+- **Pourquoi** : la CI de la PR #94 a échoué sur un test du profil qui passait six fois de suite sur le PC. Le test
+  attendait que les parties arrivent au serveur de test, puis cherchait tout de suite le bouton « Supprimer mon
+  profil ». Deux choses se faisaient en parallèle (l'envoi des parties, le nouvel affichage de React), et sur la
+  machine plus lente de la CI l'envoi gagnait.
+- **Comment le faire** : lire dans le journal de la CI (`gh run view <n> --log-failed`) la page que Testing Library
+  affiche au moment de l'échec : ici, encore le formulaire de création, donc un affichage en retard et non un bouton
+  absent. Puis chercher l'élément avec `findBy…` (qui réessaie jusqu'à une seconde) plutôt que `getBy…` (une seule
+  fois), dès qu'il dépend d'une chose asynchrone.
+- **Comment le penser** : « attendre A » ne garantit pas « B est fait », même si B part avant A. Dans un test, attendre
+  directement ce qu'on va utiliser. C'est le `Thread.sleep` contre `CountDownLatch` de Java : on attend le signal de
+  la chose elle-même.
