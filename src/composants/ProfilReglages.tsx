@@ -5,7 +5,7 @@ choisir), noter son code de secours (montré une seule fois), le retrouver avec 
 Les réglages sont déjà une fenêtre : la confirmation de la suppression s'affiche donc dans la fenêtre, à la place du
 bouton, plutôt que dans une seconde fenêtre par-dessus (deux fenêtres l'une sur l'autre se ferment dans le désordre).
  */
-import { useEffect, useId, useState, type FormEvent } from 'react'
+import { useEffect, useId, useRef, useState, type FormEvent } from 'react'
 import { estMasque } from '../ligue.ts'
 import { synchroniser } from '../envoi.ts'
 import { creerProfil, estProfil, restaurerProfil, supprimerProfil, useProfil, type ErreurProfil } from '../profil.ts'
@@ -15,8 +15,22 @@ const BOUTON = 'rounded bg-francle-fonce px-3 py-1.5 text-sm font-semibold text-
 const BOUTON_DISCRET = 'self-start text-sm underline hover:text-texte'
 const CHAMP = 'w-full rounded border border-bord bg-fond px-2 py-1.5'
 
-export function ProfilReglages() {
+// enVue (depuis web.9.4.3) : le bloc est amené à l'écran, et le curseur mis dans le champ du pseudo
+export function ProfilReglages({ enVue = false }: { enVue?: boolean }) {
   const textes = useTextes()
+  const bloc = useRef<HTMLFieldSetElement>(null)
+  useEffect(() => {
+    if (!enVue) {
+      return
+    }
+    // à l'image suivante : l'effet d'un enfant passe avant celui de la fenêtre qui le contient, et une fenêtre pas
+    // encore ouverte (showModal) ne peut ni défiler ni recevoir le focus. « ?. » : jsdom n'a pas scrollIntoView
+    const image = requestAnimationFrame(() => {
+      bloc.current?.scrollIntoView?.({ block: 'start' })
+      bloc.current?.querySelector('input')?.focus()
+    })
+    return () => cancelAnimationFrame(image)
+  }, [enVue])
   const [etat, setEtat] = useProfil()
   // le code de secours, montré juste après la création, jusqu'à « C'est noté »
   const [secours, setSecours] = useState<string>()
@@ -93,7 +107,7 @@ export function ProfilReglages() {
     erreur === 'suppression' ? textes.profil.erreurSuppression : erreur && textes.profil.erreurs[erreur]
 
   return (
-    <fieldset className="flex flex-col gap-3 border-t border-bord pt-3">
+    <fieldset ref={bloc} className="flex flex-col gap-3 border-t border-bord pt-3">
       <legend className="float-left mb-1 font-semibold">{textes.profil.titre}</legend>
 
       {estProfil(etat) ? (

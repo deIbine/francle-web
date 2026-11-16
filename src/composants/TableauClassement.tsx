@@ -6,6 +6,7 @@ aussi au classement public (web.9.3.3).
 Un vrai <table> plutôt que des <div> : un lecteur d'écran annonce la colonne de chaque nombre (« Points, 23 »), et
 permet de se déplacer de case en case.
  */
+import { Fragment } from 'react'
 import { moyenne, type LigneClassement } from '../domaine/classement.ts'
 import { useLangue, useTextes } from '../textes.ts'
 
@@ -19,16 +20,21 @@ interface Props {
   titre: string
   // ce qui s'ajoute au bout de chaque ligne (le bouton « Signaler » du classement public, web.9.3.3)
   enPlus?: (ligne: LigneClassement) => React.ReactNode
+  // une ligne de plus sous celle d'un joueur, sur toute la largeur, si elle rend quelque chose (la confirmation de
+  // « Signaler », depuis web.9.4.3 : la case du drapeau est trop étroite à 375 pixels)
+  sousLigne?: (ligne: LigneClassement) => React.ReactNode
 }
 
-export function TableauClassement({ lignes, moi, monId, titre, enPlus }: Props) {
+export function TableauClassement({ lignes, moi, monId, titre, enPlus, sousLigne }: Props) {
   const textes = useTextes()
   const langue = useLangue()
   const ligne = (l: LigneClassement, separee = false) => {
     const cEstMoi = l.id === monId
+    const dessous = sousLigne?.(l)
     return (
+      // Fragment : la ligne du joueur et, au besoin, la ligne de dessous, sous une seule clé
+      <Fragment key={l.id}>
       <tr
-        key={l.id}
         className={`${cEstMoi ? 'bg-francle-fonce/15 font-semibold' : ''} ${separee ? 'border-t-2 border-dashed border-bord' : ''}`}
       >
         <td className="px-2 py-1 text-right align-top tabular-nums">{l.rang}</td>
@@ -46,6 +52,14 @@ export function TableauClassement({ lignes, moi, monId, titre, enPlus }: Props) 
         <td className="px-2 py-1 text-right align-top tabular-nums">{l.total}</td>
         {enPlus && <td className="px-1 py-1 text-right align-top">{enPlus(l)}</td>}
       </tr>
+      {dessous && (
+        <tr>
+          <td colSpan={enPlus ? 4 : 3} className="px-2 pb-2 text-left">
+            {dessous}
+          </td>
+        </tr>
+      )}
+      </Fragment>
     )
   }
   return (

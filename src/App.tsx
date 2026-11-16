@@ -28,7 +28,15 @@ import { PartieLibre } from './PartieLibre.tsx'
 import { codeDuFragment } from './ligue.ts'
 import type { Liste } from './liste.ts'
 import { PanneauVisible } from './panneau.ts'
-import { aideVue, langueAffichee, marquerAideVue, uniteAffichee, useReglages, useTheme } from './reglages.ts'
+import {
+  aideVue,
+  langueAffichee,
+  marquerAideVue,
+  OUVRIR_PROFIL,
+  uniteAffichee,
+  useReglages,
+  useTheme,
+} from './reglages.ts'
 import { LangueContext, TEXTES } from './textes.ts'
 
 type Onglet = 'jour' | 'libre'
@@ -128,6 +136,18 @@ export default function App() {
   const [onglet, setOnglet] = useState<Onglet>('jour')
   const [reglages, changerReglages] = useReglages()
   const [fenetreReglages, setFenetreReglages] = useState(false)
+  // les réglages ouverts par « Créer mon profil » (depuis web.9.4.3) : ils s'ouvrent sur le bloc du profil
+  const [versProfil, setVersProfil] = useState(false)
+  useEffect(() => {
+    function ouvrir() {
+      // une fenêtre à la fois : les statistiques se ferment, les réglages s'ouvrent (voir fermerLesFenetres)
+      fermerLesFenetres()
+      setVersProfil(true)
+      setFenetreReglages(true)
+    }
+    window.addEventListener(OUVRIR_PROFIL, ouvrir)
+    return () => window.removeEventListener(OUVRIR_PROFIL, ouvrir)
+  }, [])
   // « Comment jouer » : ouvert d'emblée à la première visite
   const [fenetreAide, setFenetreAide] = useState(() => !aideVue())
   const [bilanAmi, oublierBilanAmi] = useBilanAmi()
@@ -394,10 +414,18 @@ export default function App() {
           {bilanAmi !== undefined && <Comparaison texte={bilanAmi} aujourdhui={numero(jour)} />}
         </Fenetre>
 
-        <Fenetre ouverte={fenetreReglages} onFermer={() => setFenetreReglages(false)} titre={textes.reglages.titre}>
+        <Fenetre
+          ouverte={fenetreReglages}
+          onFermer={() => {
+            setFenetreReglages(false)
+            setVersProfil(false)
+          }}
+          titre={textes.reglages.titre}
+        >
           <Reglages
             reglages={reglages}
             onChanger={changerReglages}
+            versProfil={versProfil}
             // une fenêtre à la fois : les réglages se ferment, la confidentialité s'ouvre (deux fenêtres l'une sur
             // l'autre se fermeraient dans le désordre, voir web.7.18)
             onConfidentialite={() => {

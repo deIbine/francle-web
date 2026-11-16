@@ -103,6 +103,15 @@ export function useReglages(): [Reglages, (changement: Partial<Reglages>) => voi
   return [reglages, (changement) => setReglages((avant) => ({ ...avant, ...changement }))]
 }
 
+// ouvrir les réglages sur le bloc du profil, depuis n'importe quel composant (depuis web.9.4.3 : le bouton « Créer mon
+// profil » du classement, rangé dans la fenêtre des statistiques, loin de l'en-tête qui garde la fenêtre des
+// réglages). Un évènement de la page plutôt qu'une fonction passée de composant en composant sur quatre niveaux ;
+// App l'écoute (comme l'évènement « francle-profil » de profil.ts)
+export const OUVRIR_PROFIL = 'francle-ouvrir-profil'
+export function ouvrirProfil(): void {
+  window.dispatchEvent(new Event(OUVRIR_PROFIL))
+}
+
 // le thème sombre est-il à appliquer ? « auto » suit le réglage du système (ordinateur ou téléphone)
 export function estSombre(theme: Theme): boolean {
   if (theme !== 'auto') {

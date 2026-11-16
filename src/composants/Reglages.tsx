@@ -10,6 +10,8 @@ interface Props {
   onChanger: (changement: Partial<LesReglages>) => void
   // ouvre la page de confidentialité (depuis web.9.2.3)
   onConfidentialite: () => void
+  // ouverts par « Créer mon profil » (depuis web.9.4.3) : le bloc du profil est amené à l'écran
+  versProfil?: boolean
 }
 
 // un groupe de boutons radio (un seul choix possible), avec son titre. Depuis web.7.16.4, les choix sont dessinés
@@ -75,7 +77,7 @@ function Case(props: { libelle: string; aide: string; coche: boolean; onChanger:
   )
 }
 
-export function Reglages({ reglages, onChanger, onConfidentialite }: Props) {
+export function Reglages({ reglages, onChanger, onConfidentialite, versProfil = false }: Props) {
   const textes = useTextes()
   return (
     <div className="flex flex-col gap-4 text-left">
@@ -145,7 +147,7 @@ export function Reglages({ reglages, onChanger, onConfidentialite }: Props) {
         </button>
       </fieldset>
       {/* le profil (depuis web.9.3.1) : pour la ligue et le classement public */}
-      <ProfilReglages />
+      <ProfilReglages enVue={versProfil} />
     </div>
   )
 }

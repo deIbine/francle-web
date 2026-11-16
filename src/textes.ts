@@ -404,7 +404,8 @@ const fr = {
   // depuis web.9.3.2 : la ligue, dans l'onglet « Classement » des statistiques, et la fenêtre d'invitation
   ligue: {
     onglet: 'Classement',
-    sansProfil: 'Crée ton profil dans les réglages (⚙️) pour jouer en ligue entre amis.',
+    sansProfil: 'Crée ton profil pour jouer en ligue entre amis.',
+    creerProfil: 'Créer mon profil',
     chargement: 'Chargement…',
     injoignable: 'Le serveur ne répond pas. Réessaie plus tard.',
     sansLigue:
@@ -436,7 +437,12 @@ const fr = {
     membres: 'Membres',
     createur: '(créateur)',
     retirer: (pseudo: string) => `Retirer ${pseudo}`,
+    confirmerRetirer: (pseudo: string) =>
+      `Retirer ${pseudo} de la ligue ? Avec le lien actuel, ${pseudo} pourra revenir : change aussi le code pour l’en empêcher.`,
+    ouiRetirer: 'Oui, retirer',
     changerCode: 'Changer le code',
+    confirmerCode: 'Changer le code ? L’ancien code et l’ancien lien ne marcheront plus : il faudra envoyer le nouveau.',
+    ouiCode: 'Oui, changer',
     changerCodeAide: 'L’ancien code et l’ancien lien ne marcheront plus.',
     quitter: 'Quitter la ligue',
     confirmerQuitter: (nom: string) =>
@@ -451,6 +457,7 @@ const fr = {
       deja: 'Tu es déjà dans cette ligue.',
       quitteras: (nom: string) => `Tu quitteras ta ligue actuelle, «\u00a0${nom}\u00a0» (une seule ligue à la fois).`,
       rejoindre: 'Rejoindre la ligue',
+      quitterEtRejoindre: (nom: string) => `Quitter « ${nom} » et rejoindre`,
       bienvenue: (nom: string) =>
         `Bienvenue dans «\u00a0${nom}\u00a0»\u00a0! Son classement est dans les statistiques (📊), onglet Classement.`,
     },
@@ -468,6 +475,9 @@ const fr = {
     horsClassement: 'Seules les parties jouées avec un profil comptent : crée le tien pour y apparaître.',
     colonneSignaler: 'Signaler',
     signaler: (pseudo: string) => `Signaler ${pseudo}`,
+    confirmerSignaler: (pseudo: string) => `Signaler « ${pseudo} » à la modération ?`,
+    ouiSignaler: 'Oui, signaler',
+    non: 'Non',
     signale: 'Signalé',
     masque: 'La modération a retiré ton pseudo du classement public. Tu restes dans ta ligue.',
   },
@@ -887,7 +897,8 @@ const en: Textes = {
 
   ligue: {
     onglet: 'Ranking',
-    sansProfil: 'Create your profile in the settings (⚙️) to play in a league with friends.',
+    sansProfil: 'Create your profile to play in a league with friends.',
+    creerProfil: 'Create my profile',
     chargement: 'Loading…',
     injoignable: 'The server is not responding. Try again later.',
     sansLigue: 'You are not in any league. Create yours and invite your friends, or join a friend’s with its code.',
@@ -917,7 +928,12 @@ const en: Textes = {
     membres: 'Members',
     createur: '(creator)',
     retirer: (pseudo: string) => `Remove ${pseudo}`,
+    confirmerRetirer: (pseudo: string) =>
+      `Remove ${pseudo} from the league? With the current link, ${pseudo} can come back: change the code too to prevent it.`,
+    ouiRetirer: 'Yes, remove',
     changerCode: 'Change the code',
+    confirmerCode: 'Change the code? The old code and the old link will stop working: you will need to send the new one.',
+    ouiCode: 'Yes, change',
     changerCodeAide: 'The old code and the old link will stop working.',
     quitter: 'Leave the league',
     confirmerQuitter: (nom: string) =>
@@ -932,6 +948,7 @@ const en: Textes = {
       deja: 'You are already in this league.',
       quitteras: (nom: string) => `You will leave your current league, “${nom}” (one league at a time).`,
       rejoindre: 'Join the league',
+      quitterEtRejoindre: (nom: string) => `Leave “${nom}” and join`,
       bienvenue: (nom: string) => `Welcome to “${nom}”! Its ranking is in the statistics (📊), Ranking tab.`,
     },
   },
@@ -947,6 +964,9 @@ const en: Textes = {
     horsClassement: 'Only games played with a profile count: create yours to appear here.',
     colonneSignaler: 'Report',
     signaler: (pseudo: string) => `Report ${pseudo}`,
+    confirmerSignaler: (pseudo: string) => `Report “${pseudo}” to the moderators?`,
+    ouiSignaler: 'Yes, report',
+    non: 'No',
     signale: 'Reported',
     masque: 'Moderation has removed your nickname from the public ranking. You remain in your league.',
   },

@@ -17,8 +17,10 @@ export function RejoindreLigue({ code }: { code: string }) {
   const [etat] = useProfil()
   const profil = estProfil(etat) ? etat : undefined
   const [apercu, setApercu] = useState<Apercu>('chargement')
-  // la ligue actuelle du joueur (pour le prévenir qu'il la quittera), ou null
-  const [actuelle, setActuelle] = useState<InfosLigue | null>()
+  // la ligue actuelle du joueur (pour le prévenir qu'il la quittera) : null s'il n'en a pas, 'injoignable' si le
+  // serveur n'a pas répondu, undefined tant qu'on attend. Depuis web.9.4.3, ces quatre cas restent distincts : avant,
+  // un serveur muet était pris pour « pas de ligue », et « Rejoindre » s'affichait avant la réponse, sans l'avertissement
+  const [actuelle, setActuelle] = useState<InfosLigue | null | 'injoignable'>()
   const [rejointe, setRejointe] = useState<InfosLigue>()
   const [erreur, setErreur] = useState<ErreurLigue>()
   // sans profil à l'ouverture, le bloc du profil reste affiché après la création : il montre le code de secours, qui
@@ -36,7 +38,7 @@ export function RejoindreLigue({ code }: { code: string }) {
   useEffect(() => {
     let annule = false
     if (profil !== undefined) {
-      void maLigue(profil).then((ligue) => !annule && setActuelle(ligue ?? null))
+      void maLigue(profil).then((ligue) => !annule && setActuelle(ligue === undefined ? 'injoignable' : ligue))
     }
     return () => {
       annule = true
@@ -64,7 +66,9 @@ export function RejoindreLigue({ code }: { code: string }) {
   if (apercu === null) {
     return <p className="text-sm">{textes.ligue.invitation.inconnue}</p>
   }
-  const deja = actuelle !== undefined && actuelle !== null && actuelle.code === code
+  // la ligue que le joueur quittera en rejoignant celle-ci, s'il en a une
+  const quittee = typeof actuelle === 'object' && actuelle !== null ? actuelle : undefined
+  const deja = quittee?.code === code
   return (
     <div className="flex flex-col gap-3 text-left">
       <p className="text-lg font-semibold break-words">{textes.ligue.invitation.apercu(apercu.nom, apercu.membres)}</p>
@@ -79,15 +83,21 @@ export function RejoindreLigue({ code }: { code: string }) {
         <p role="status" className="font-semibold">
           {textes.ligue.invitation.bienvenue(rejointe.nom)}
         </p>
+      ) : actuelle === undefined ? (
+        // pas de bouton avant de savoir si le joueur quittera une ligue : il pourrait cliquer avant l'avertissement
+        <p className="text-sm text-discret">{textes.ligue.chargement}</p>
+      ) : actuelle === 'injoignable' ? (
+        <p className="text-sm">{textes.ligue.injoignable}</p>
       ) : deja ? (
         <p className="text-sm">{textes.ligue.invitation.deja}</p>
       ) : (
         <>
-          {actuelle !== undefined && actuelle !== null && (
-            <p className="text-sm">{textes.ligue.invitation.quitteras(actuelle.nom)}</p>
-          )}
+          {quittee !== undefined && <p className="text-sm">{textes.ligue.invitation.quitteras(quittee.nom)}</p>}
+          {/* le bouton dit lui-même qu'on quitte l'autre ligue : c'est la confirmation de la décision 7 de web.9.3 */}
           <button type="button" className={`${BOUTON} self-start`} onClick={() => void rejoindre()}>
-            {textes.ligue.invitation.rejoindre}
+            {quittee === undefined
+              ? textes.ligue.invitation.rejoindre
+              : textes.ligue.invitation.quitterEtRejoindre(quittee.nom)}
           </button>
         </>
       )}
