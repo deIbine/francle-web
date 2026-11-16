@@ -100,7 +100,7 @@ l'autre, et le web n'a plus à rester égal au Java.
    Cloudflare Workers + D1, dans `serveur/` du même dépôt), web.9.3 des ligues entre amis et un classement public
    protégé. Détail plus bas dans « Les statistiques des joueurs (web.9) ».
 
-## Où on en est (mis à jour le 15 novembre 2026, sur le PC : web.9.3 fusionnée et en ligne)
+## Où on en est (mis à jour le 16 novembre 2026, sur le PC : web.9.4 en cours)
 
 ### À faire sur le PC (rien depuis le 9 novembre 2026)
 
@@ -435,6 +435,10 @@ squash le 18 octobre 2026 sur l'accord de l'utilisateur, étiquettes `web-7.8` �
     supprimées en local et sur GitHub. Vérifié ensuite : le classement public en ligne répond (vide, 0 joueur), la
     modération répond « fermée » (le secret `MODERATION` n'est pas encore rangé). Ces notes : PR web.9.3.5, sans
     étiquette.
+  - **web.9.4 Les corrections du 16 novembre 2026** : une analyse des bugs et de l'interface, demandée le
+    16 novembre 2026, a relevé onze points dans les profils, la ligue et le classement (section « Les corrections
+    relevées le 16 novembre 2026 » plus bas). Tous retenus, recommandations acceptées (« Ok pour les recos, tu peux
+    tout lancer ») : quatre PR empilées, web.9.4.0 (ces notes, sans étiquette) à web.9.4.3, étiquette `web-9.4`.
   - **Encore à faire par l'utilisateur** : ranger la clé de modération (« Ce qui revient à l'utilisateur » dans la
     section web.9.3) ; essayer la ligue en vrai, entre amis, sur téléphone ; surveiller les signalements. Ensuite,
     la prochaine étape est à choisir avec l'utilisateur.
@@ -1817,6 +1821,65 @@ ligue, elle passe au membre le plus ancien.
   pseudos coupés au milieu des mots à 375 pixels (la moyenne passe sous le pseudo).
 - 493 tests ; vérifié dans le navigateur intégré, avec le vrai serveur en local (`wrangler dev`, les migrations
   appliquées à la base locale) : invitation, création du profil, classement de la ligue et classement public.
+
+## Les corrections relevées le 16 novembre 2026 (web.9.4)
+
+Demandé par l'utilisateur le 16 novembre 2026 : « une analyse de bug, de petites améliorations possibles et
+d'interface ». Vérifié **sans rien modifier**, sur le PC : lint, types et tests (**493 sur 493**, 19 s) ; le code de
+web.9 relu (serveur, profils, ligue, classement public, modération) ; une partie du jour (Pays de la Loire, gagnée en
+3 essais, bonus passé), la création d'un profil et le classement essayés dans le navigateur intégré, à 375 × 812,
+avec le serveur **en local** (`wrangler dev`, rien vers le vrai serveur) ; le filtre des pseudos lancé sur une
+quarantaine de prénoms et de mots courants.
+
+### Les bugs
+
+| # | Problème | Pour le reproduire | Cause |
+|---|---|---|---|
+| 1 | Des pseudos innocents refusés : Dominique, Monique, Véronique, Unique, Technique, Badminton, Pussycat… ; des noms de ligue aussi (« La Clinique », « Pique-nique ») | Réglages, Profil, « Dominique » : « Ce pseudo n'est pas accepté » | `pseudo.ts` cherche les mots interdits de plus de 4 lettres **n'importe où** : « nique » est dans Domi**nique**, « admin » dans b**admin**ton. Sur une quarantaine de mots essayés, 22 refusés, presque tous à cause de « nique » et « admin » |
+| 2 | Le classement public reste ancien jusqu'à une minute : juste après avoir créé son profil (ou fini une partie), le joueur ne s'y voit pas | Ouvrir le classement public, créer un profil, le rouvrir : « Personne n'a encore joué ce mois-ci », alors que le serveur, demandé sans cache, répond « Loutre essai, 1er » | `public.ts` répond `Cache-Control: private, max-age=60`, et `Vary` ne nomme que `Origin` : le navigateur rend la même réponse pour cette adresse, quel que soit le code secret envoyé |
+| 3 | Une invitation peut faire quitter sa ligue sans prévenir : « Rejoindre » s'affiche avant de savoir si le joueur en a déjà une, et un serveur qui ne répond pas est pris pour « pas de ligue » | `RejoindreLigue.tsx` : `setActuelle(ligue ?? null)` | La décision 7 de web.9.3 voulait qu'on quitte sa ligue « après confirmation » |
+
+### Les soucis d'interface
+
+| # | Problème | Piste |
+|---|---|---|
+| 4 | « Retirer <pseudo> » et « Changer le code » (qui casse tous les liens envoyés) agissent en un clic, sans confirmation | La confirmation sur place de « Quitter la ligue » |
+| 5 | Le drapeau ⚑ « Signaler » agit en un toucher, collé aux points sur téléphone | Une confirmation sur place |
+| 6 | « Crée ton profil dans les réglages (⚙️) » : le bouton des réglages est une icône à curseurs, pas un engrenage | Un bouton « Créer mon profil » qui ouvre les réglages |
+| 7 | « Personne n'a encore joué ce mois-ci », montré à qui vient de jouer sans profil | Dire que seuls les profils sont classés, et comment en créer un |
+| 8 | Un pseudo refusé pour un mot interdit : « Ce pseudo n'est pas accepté », sans piste | Avec le point 1 ; ajouter « Essaie une autre orthographe » |
+| 9 | `TableauClassement.tsx` : la colonne du drapeau a un titre vide (`<td />`), qu'un lecteur d'écran n'annonce pas | Un `<th>` avec un texte pour les lecteurs d'écran |
+
+### Le serveur
+
+| # | Constat | Piste |
+|---|---|---|
+| 10 | Pour compter les classés, le serveur lit **toutes** leurs lignes (`limite: 1_000_000`) | Un `COUNT(*)` |
+| 11 | Rien ne limite la création de profils ni les signalements : une personne peut réserver des pseudos ou signaler en masse | **À surveiller seulement**, sans code : si cela arrive, une règle de limitation chez Cloudflare |
+
+Le reste du serveur est sain : le jour d'avance accepté après minuit, l'ordre des requêtes au départ d'une ligue, les
+empreintes des codes, la comparaison de la clé de modération. Vérifié aussi que ces erreurs ne peuvent pas exister
+dans le Java (aucun pseudo, ligue, classement ni serveur dans son `src/main`).
+
+### Les décisions (validées le 16 novembre 2026)
+
+L'utilisateur a retenu tous les points, puis accepté les recommandations (« Ok pour les recos, tu peux tout
+lancer »).
+
+- **Le nom** : web.9.4.
+- **(1) Une liste d'exceptions**, et non une règle « début de mot » : le filtre reste aussi strict qu'avant, sauf pour
+  les mots de la liste (moins de modération pour l'utilisateur, qui ne veut pas en faire beaucoup pour l'instant). Une
+  quarantaine de mots au départ, surtout la famille de « nique » (Dominique, technique, Martinique…) et badminton ;
+  en ajouter un plus tard : une ligne et un test. **Limite** : la liste ne sera jamais complète ; avec peu de joueurs,
+  un refus injuste coûte seulement un autre pseudo.
+- **(8)** Le message d'un mot refusé ajoute « Essaie une autre orthographe ».
+- **(2)** Le site demande toujours le classement du moment (`cache: 'no-store'`, comme les chiffres du jour), et le
+  serveur n'annonce plus de cache. **Limite** : feuilleter les mois redemande chaque mois au serveur.
+- **(6)** Un bouton « Créer mon profil » dans l'onglet Classement, qui ouvre les réglages.
+- **(3, 4, 5, 7, 9, 10)** Les pistes ci-dessus ; **(11)** rien à coder.
+- **Découpage** : web.9.4.0 (ces notes, sans étiquette) ; web.9.4.1 Les pseudos (1, 8) ; web.9.4.2 Le classement
+  (2, 7, 9, 10) ; web.9.4.3 La ligue (3, 4, 5, 6) et les leçons. PR empilées, fusionnées en squash sur l'accord de
+  l'utilisateur, étiquette `web-9.4`.
 
 ## Les améliorations à reprendre (relevées le 16 octobre 2026)
 
