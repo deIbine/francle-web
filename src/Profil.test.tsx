@@ -116,7 +116,9 @@ describe('Supprimer son profil', () => {
     deuxParties()
     const { joueur, reglages } = await creerProfil('Loutre')
     await waitFor(() => expect(base.sql('SELECT * FROM parties_profil')).toHaveLength(2))
-    await joueur.click(within(reglages).getByRole('button', { name: 'Supprimer mon profil' }))
+    // findBy (qui attend) et non getBy : les parties peuvent arriver au serveur AVANT que React ait redessiné les
+    // réglages avec le profil. Vu en CI à web.9.4.3 (une machine plus lente), jamais sur le PC
+    await joueur.click(await within(reglages).findByRole('button', { name: 'Supprimer mon profil' }))
     expect(within(reglages).getByText(/C’est définitif/)).toBeDefined()
     await joueur.click(within(reglages).getByRole('button', { name: 'Oui, supprimer' }))
     expect(await within(reglages).findByRole('button', { name: 'Créer mon profil' })).toBeDefined()

@@ -7,7 +7,7 @@ retirer un membre ou changer le code.
 Tout vient du serveur : chaque partie de l'onglet affiche « Chargement… » puis le résultat, ou « le serveur ne répond
 pas » ; le reste du jeu n'attend jamais.
  */
-import { useEffect, useId, useState, type FormEvent } from 'react'
+import { useEffect, useId, useRef, useState, type FormEvent } from 'react'
 import { useClassement } from '../useClassement.ts'
 import { dateDuMois } from '../domaine/calendrier.ts'
 import { moisDuNumero } from '../domaine/regionDuJour.ts'
@@ -24,14 +24,21 @@ import {
   signaler,
   type ErreurLigue,
   type InfosLigue,
+  type Membre,
 } from '../ligue.ts'
 import { estProfil, useProfil, type Profil } from '../profil.ts'
+import { ouvrirProfil } from '../reglages.ts'
 import { useLangue, useTextes } from '../textes.ts'
 import { Partager } from './Partager.tsx'
 import { TableauClassement } from './TableauClassement.tsx'
 
-export const BOUTON =
-  'rounded bg-francle-fonce px-3 py-1.5 text-sm font-semibold text-white hover:opacity-90 disabled:opacity-50'
+const FORME_BOUTON = 'rounded px-3 py-1.5 text-sm font-semibold text-white hover:opacity-90 disabled:opacity-50'
+export const BOUTON = `${FORME_BOUTON} bg-francle-fonce`
+// le bouton d'une action qui défait quelque chose (« Oui, retirer »), en rouge. Une couleur de fond à part, et non
+// « BOUTON bg-danger » : de deux classes Tailwind qui posent la même propriété, ce n'est pas la dernière écrite qui
+// gagne, mais la dernière dans la feuille de style, et bg-francle-fonce y venait après bg-danger (vu à web.9.4.3, dans
+// le navigateur en mode téléphone : « Oui, quitter » était bleu depuis web.9.3)
+export const BOUTON_DANGER = `${FORME_BOUTON} bg-danger`
 export const BOUTON_DISCRET = 'text-sm underline hover:text-texte disabled:opacity-50'
 export const CHAMP = 'w-full rounded border border-bord bg-fond px-2 py-1.5'
 
@@ -66,11 +73,51 @@ export function Classements({ aujourdhui }: Props) {
       {vue === 'public' ? (
         <ClassementPublic profil={profil} aujourdhui={aujourdhui} />
       ) : profil === undefined ? (
-        <p className="text-sm">{textes.ligue.sansProfil}</p>
+        <div className="flex flex-col items-center gap-2">
+          <p className="text-sm">{textes.ligue.sansProfil}</p>
+          <BoutonCreerProfil />
+        </div>
       ) : (
         // key : un autre profil (après une suppression et une création) repart d'une vue neuve
         <MaLigue key={profil.id} profil={profil} aujourdhui={aujourdhui} />
       )}
+    </div>
+  )
+}
+
+// « Créer mon profil » (depuis web.9.4.3) : ferme les statistiques et ouvre les réglages sur le bloc du profil. Avant, un
+// texte renvoyait aux « réglages (⚙️) », alors que le bouton des réglages montre des curseurs, pas un engrenage
+function BoutonCreerProfil() {
+  const textes = useTextes()
+  return (
+    <button type="button" className={BOUTON} onClick={ouvrirProfil}>
+      {textes.ligue.creerProfil}
+    </button>
+  )
+}
+
+// une action à confirmer sur place (depuis web.9.4.3 pour retirer un membre, changer le code et signaler ; avant, pour
+// quitter la ligue seulement) : la question, « Oui, … » et « Non ». Dans la fenêtre même, plutôt qu'une seconde
+// fenêtre par-dessus (deux fenêtres l'une sur l'autre se ferment dans le désordre, voir web.7.18)
+function Confirmer(props: { question: string; oui: string; non: string; onOui: () => void; onNon: () => void }) {
+  const bloc = useRef<HTMLDivElement>(null)
+  // amenée à l'écran à son apparition : en bas du classement, ses boutons tombaient sous le bord, sur téléphone (vu à
+  // 375 × 812). « nearest » : rien ne bouge si elle est déjà visible. « ?. » : jsdom n'a pas scrollIntoView
+  useEffect(() => {
+    bloc.current?.scrollIntoView?.({ block: 'nearest' })
+  }, [])
+  return (
+    // text-left : la fenêtre centre son texte, et la question centrée ne s'alignait pas sur ses boutons, à gauche
+    <div ref={bloc} className="flex flex-col gap-2 text-left">
+      <p className="text-sm">{props.question}</p>
+      <div className="flex gap-2">
+        <button type="button" className={BOUTON_DANGER} onClick={props.onOui}>
+          {props.oui}
+        </button>
+        <button type="button" className={BOUTON} onClick={props.onNon}>
+          {props.non}
+        </button>
+      </div>
     </div>
   )
 }
@@ -90,9 +137,12 @@ function ClassementPublic({ profil, aujourdhui }: { profil: Profil | undefined; 
   const [mois, setMois] = useState(dernier)
   const classement = useClassement(() => classementPublic(profil, mois), `${mois}:${profil?.id ?? ''}`)
   const [signales, setSignales] = useState<ReadonlySet<string>>(new Set())
+  // le joueur dont le signalement attend sa confirmation (depuis web.9.4.3 : avant, ⚑ signalait en un toucher)
+  const [aSignaler, setASignaler] = useState<string>()
   const nomDuMois = dateDuMois(mois).toLocaleDateString(langue, { month: 'long', year: 'numeric' })
 
   async function signalerPseudo(id: string) {
+    setASignaler(undefined)
     if (profil !== undefined && (await signaler(profil, id))) {
       setSignales((avant) => new Set([...avant, id]))
     }
@@ -103,7 +153,12 @@ function ClassementPublic({ profil, aujourdhui }: { profil: Profil | undefined; 
       <p className="text-xs text-discret">{textes.public.aide}</p>
       <ChoixMois mois={mois} premier={premier} dernier={dernier} onChoisir={setMois} />
       {/* depuis web.9.4.2 : sans profil, le joueur qui vient de jouer ne s'y trouve pas ; on lui dit pourquoi */}
-      {profil === undefined && <p className="text-sm">{textes.public.horsClassement}</p>}
+      {profil === undefined && (
+        <div className="flex flex-col items-center gap-2">
+          <p className="text-sm">{textes.public.horsClassement}</p>
+          <BoutonCreerProfil />
+        </div>
+      )}
       {classement === 'chargement' ? (
         <p className="text-sm text-discret">{textes.ligue.chargement}</p>
       ) : classement === undefined ? (
@@ -130,12 +185,24 @@ function ClassementPublic({ profil, aujourdhui }: { profil: Profil | undefined; 
                         type="button"
                         aria-label={textes.public.signaler(ligne.pseudo)}
                         title={textes.public.signaler(ligne.pseudo)}
-                        onClick={() => void signalerPseudo(ligne.id)}
+                        aria-expanded={aSignaler === ligne.id}
+                        onClick={() => setASignaler(aSignaler === ligne.id ? undefined : ligne.id)}
                         className="rounded px-1 text-discret hover:bg-surface hover:text-texte"
                       >
                         ⚑
                       </button>
                     ))
+            }
+            sousLigne={(ligne) =>
+              aSignaler === ligne.id && (
+                <Confirmer
+                  question={textes.public.confirmerSignaler(ligne.pseudo)}
+                  oui={textes.public.ouiSignaler}
+                  non={textes.public.non}
+                  onOui={() => void signalerPseudo(ligne.id)}
+                  onNon={() => setASignaler(undefined)}
+                />
+              )
             }
           />
         </>
@@ -294,12 +361,14 @@ function AvecLigue(props: {
   // la clé : le mois, et les membres (un départ ou un retrait change le classement)
   const membres = ligue.membres.map((membre) => membre.id).join(',')
   const classement = useClassement(() => classementLigue(profil, mois), `${mois}:${membres}`)
-  const [confirmation, setConfirmation] = useState(false)
+  // l'action qui attend sa confirmation, s'il y en a une (depuis web.9.4.3 : retirer et changer le code aussi)
+  const [aConfirmer, setAConfirmer] = useState<'quitter' | 'code' | Membre>()
   const [erreur, setErreur] = useState(false)
   const nomDuMois = dateDuMois(mois).toLocaleDateString(langue, { month: 'long', year: 'numeric' })
 
   // une action du créateur, qui rend la ligue à jour
   async function agir(action: Promise<InfosLigue | { erreur: ErreurLigue }>) {
+    setAConfirmer(undefined)
     const resultat = await action
     setErreur('erreur' in resultat)
     if (!('erreur' in resultat)) {
@@ -308,6 +377,7 @@ function AvecLigue(props: {
   }
 
   async function quitter() {
+    setAConfirmer(undefined)
     const fait = await quitterLigue(profil)
     setErreur(!fait)
     if (fait) {
@@ -341,45 +411,62 @@ function AvecLigue(props: {
         <h3 className="font-semibold">{textes.ligue.membres}</h3>
         <ul className="flex flex-col gap-1 text-sm">
           {ligue.membres.map((membre) => (
-            <li key={membre.id} className="flex items-center justify-between gap-2">
-              <span className="break-all">
-                {membre.pseudo}
-                {membre.createur && <span className="text-discret"> {textes.ligue.createur}</span>}
-              </span>
-              {ligue.createur && membre.id !== profil.id && (
-                <button
-                  type="button"
-                  className={BOUTON_DISCRET}
-                  onClick={() => void agir(retirerMembre(profil, membre.id))}
-                >
-                  {textes.ligue.retirer(membre.pseudo)}
-                </button>
+            <li key={membre.id} className="flex flex-col gap-1">
+              <div className="flex items-center justify-between gap-2">
+                <span className="break-all">
+                  {membre.pseudo}
+                  {membre.createur && <span className="text-discret"> {textes.ligue.createur}</span>}
+                </span>
+                {ligue.createur && membre.id !== profil.id && (
+                  <button
+                    type="button"
+                    className={BOUTON_DISCRET}
+                    aria-expanded={aConfirmer === membre}
+                    onClick={() => setAConfirmer(aConfirmer === membre ? undefined : membre)}
+                  >
+                    {textes.ligue.retirer(membre.pseudo)}
+                  </button>
+                )}
+              </div>
+              {aConfirmer === membre && (
+                <Confirmer
+                  question={textes.ligue.confirmerRetirer(membre.pseudo)}
+                  oui={textes.ligue.ouiRetirer}
+                  non={textes.ligue.non}
+                  onOui={() => void agir(retirerMembre(profil, membre.id))}
+                  onNon={() => setAConfirmer(undefined)}
+                />
               )}
             </li>
           ))}
         </ul>
-        {ligue.createur && (
-          <div className="flex flex-col gap-1">
-            <button type="button" className={`${BOUTON_DISCRET} self-start`} onClick={() => void agir(changerCode(profil))}>
-              {textes.ligue.changerCode}
-            </button>
-            <p className="text-xs text-discret">{textes.ligue.changerCodeAide}</p>
-          </div>
-        )}
-        {confirmation ? (
-          <div className="flex flex-col gap-2">
-            <p className="text-sm">{textes.ligue.confirmerQuitter(ligue.nom)}</p>
-            <div className="flex gap-2">
-              <button type="button" className={`${BOUTON} bg-danger`} onClick={() => void quitter()}>
-                {textes.ligue.oui}
+        {ligue.createur &&
+          (aConfirmer === 'code' ? (
+            <Confirmer
+              question={textes.ligue.confirmerCode}
+              oui={textes.ligue.ouiCode}
+              non={textes.ligue.non}
+              onOui={() => void agir(changerCode(profil))}
+              onNon={() => setAConfirmer(undefined)}
+            />
+          ) : (
+            <div className="flex flex-col gap-1">
+              <button type="button" className={`${BOUTON_DISCRET} self-start`} onClick={() => setAConfirmer('code')}>
+                {textes.ligue.changerCode}
               </button>
-              <button type="button" className={BOUTON} onClick={() => setConfirmation(false)}>
-                {textes.ligue.non}
-              </button>
+              <p className="text-xs text-discret">{textes.ligue.changerCodeAide}</p>
             </div>
-          </div>
+          ))}
+        {aConfirmer === 'quitter' ? (
+          <Confirmer
+            question={textes.ligue.confirmerQuitter(ligue.nom)}
+            oui={textes.ligue.oui}
+            non={textes.ligue.non}
+            onOui={() => void quitter()}
+            onNon={() => setAConfirmer(undefined)}
+          />
         ) : (
-          <button type="button" className={`${BOUTON_DISCRET} self-start`} onClick={() => setConfirmation(true)}>
+          <button type="button" className={`${BOUTON_DISCRET} self-start`} onClick={() => setAConfirmer('quitter')}>
             {textes.ligue.quitter}
           </button>
         )}

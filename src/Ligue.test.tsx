@@ -63,9 +63,14 @@ async function ongletClassement() {
 }
 
 describe('L’onglet Classement', () => {
-  it('sans profil, il dit d’en créer un', async () => {
-    const { onglet } = await ongletClassement()
-    expect(within(onglet).getByText(/Crée ton profil dans les réglages/)).toBeDefined()
+  // web.9.4.3 : un bouton qui ouvre les réglages sur le profil (avant, un texte renvoyait aux « réglages (⚙️) »)
+  it('sans profil, il dit d’en créer un, et son bouton ouvre les réglages sur le champ du pseudo', async () => {
+    const { joueur, onglet } = await ongletClassement()
+    expect(within(onglet).getByText(/Crée ton profil pour jouer en ligue/)).toBeDefined()
+    await joueur.click(within(onglet).getByRole('button', { name: 'Créer mon profil' }))
+    const reglages = await screen.findByRole('dialog', { name: 'Réglages' })
+    expect(screen.queryByRole('dialog', { name: 'Statistiques' })).toBeNull()
+    await waitFor(() => expect(document.activeElement).toBe(within(reglages).getByLabelText('Ton pseudo')))
   })
 
   it('créer une ligue : son classement du mois, son code et ses membres', async () => {
@@ -123,8 +128,26 @@ describe('L’onglet Classement', () => {
     const tom = await profil('Tom')
     await pour(tom.code, '/ligue/rejoindre', { code })
     const { joueur, onglet } = await ongletClassement()
+    // web.9.4.3 : une confirmation d'abord ; « Non » ne retire personne
     await joueur.click(await within(onglet).findByRole('button', { name: 'Retirer Tom' }))
+    await joueur.click(within(onglet).getByRole('button', { name: 'Non' }))
+    expect(within(onglet).getAllByText('Tom').length).toBeGreaterThan(0)
+    await joueur.click(within(onglet).getByRole('button', { name: 'Retirer Tom' }))
+    expect(within(onglet).getByText(/Retirer Tom de la ligue/)).toBeDefined()
+    await joueur.click(within(onglet).getByRole('button', { name: 'Oui, retirer' }))
     await waitFor(() => expect(within(onglet).queryByText('Tom')).toBeNull())
+  })
+
+  it('changer le code demande une confirmation', async () => {
+    const zoe = await profil('Zoé', true)
+    const { code } = await pour(zoe.code, '/ligues', { nom: 'La famille' })
+    const { joueur, onglet } = await ongletClassement()
+    await joueur.click(await within(onglet).findByRole('button', { name: 'Changer le code' }))
+    await joueur.click(within(onglet).getByRole('button', { name: 'Non' }))
+    expect(within(onglet).getByText(new RegExp(code))).toBeDefined()
+    await joueur.click(within(onglet).getByRole('button', { name: 'Changer le code' }))
+    await joueur.click(within(onglet).getByRole('button', { name: 'Oui, changer' }))
+    await waitFor(() => expect(within(onglet).queryByText(new RegExp(code))).toBeNull())
   })
 })
 
@@ -166,5 +189,24 @@ describe('Le lien d’invitation', () => {
     render(<App />)
     const fenetre = screen.getByRole('dialog', { name: 'Rejoindre une ligue' })
     expect(await within(fenetre).findByText(/Tu quitteras ta ligue actuelle, « Le bureau »/)).toBeDefined()
+    // web.9.4.3 : le bouton le redit
+    expect(within(fenetre).getByRole('button', { name: /^Quitter.+Le bureau.+et rejoindre$/ })).toBeDefined()
+  })
+
+  // web.9.4.3 : avant, un serveur muet sur la ligue actuelle était pris pour « pas de ligue », et « Rejoindre »
+  // s'affichait sans l'avertissement
+  it('sans réponse sur la ligue actuelle : pas de bouton « Rejoindre »', async () => {
+    const zoe = await profil('Zoé')
+    const { code } = await pour(zoe.code, '/ligues', { nom: 'La famille' })
+    await profil('Tom', true)
+    const avant = vi.mocked(fetch).getMockImplementation()!
+    vi.mocked(fetch).mockImplementation((entree, options) =>
+      new URL(entree as string).pathname === '/profil' ? Promise.reject(new TypeError('réseau')) : avant(entree, options),
+    )
+    window.history.replaceState(null, '', `/#ligue=${code}`)
+    render(<App />)
+    const fenetre = screen.getByRole('dialog', { name: 'Rejoindre une ligue' })
+    expect(await within(fenetre).findByText(/Le serveur ne répond pas/)).toBeDefined()
+    expect(within(fenetre).queryByRole('button', { name: /rejoindre/i })).toBeNull()
   })
 })

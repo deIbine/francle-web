@@ -5,18 +5,37 @@ choisir), noter son code de secours (montré une seule fois), le retrouver avec 
 Les réglages sont déjà une fenêtre : la confirmation de la suppression s'affiche donc dans la fenêtre, à la place du
 bouton, plutôt que dans une seconde fenêtre par-dessus (deux fenêtres l'une sur l'autre se ferment dans le désordre).
  */
-import { useEffect, useId, useState, type FormEvent } from 'react'
+import { useEffect, useId, useRef, useState, type FormEvent } from 'react'
 import { estMasque } from '../ligue.ts'
 import { synchroniser } from '../envoi.ts'
 import { creerProfil, estProfil, restaurerProfil, supprimerProfil, useProfil, type ErreurProfil } from '../profil.ts'
 import { useTextes } from '../textes.ts'
 
-const BOUTON = 'rounded bg-francle-fonce px-3 py-1.5 text-sm font-semibold text-white hover:opacity-90 disabled:opacity-50'
+const FORME_BOUTON = 'rounded px-3 py-1.5 text-sm font-semibold text-white hover:opacity-90 disabled:opacity-50'
+const BOUTON = `${FORME_BOUTON} bg-francle-fonce`
+// « Oui, supprimer », en rouge : une couleur de fond à part (voir BOUTON_DANGER dans Classements.tsx, web.9.4.3)
+const BOUTON_DANGER = `${FORME_BOUTON} bg-danger`
 const BOUTON_DISCRET = 'self-start text-sm underline hover:text-texte'
 const CHAMP = 'w-full rounded border border-bord bg-fond px-2 py-1.5'
 
-export function ProfilReglages() {
+// enVue (depuis web.9.4.3) : le bloc est amené à l'écran, et le curseur mis dans le champ du pseudo
+export function ProfilReglages({ enVue = false }: { enVue?: boolean }) {
   const textes = useTextes()
+  const bloc = useRef<HTMLFieldSetElement>(null)
+  useEffect(() => {
+    if (!enVue) {
+      return
+    }
+    // juste après : l'effet d'un enfant passe avant celui de la fenêtre qui le contient, et une fenêtre pas encore
+    // ouverte (showModal) ne peut ni défiler ni recevoir le focus. setTimeout plutôt que requestAnimationFrame, qui
+    // ne vient pas tant que la page ne se dessine pas (vu dans le navigateur intégré, panneau caché). « ?. » : jsdom
+    // n'a pas scrollIntoView
+    const attente = setTimeout(() => {
+      bloc.current?.scrollIntoView?.({ block: 'start' })
+      bloc.current?.querySelector('input')?.focus()
+    })
+    return () => clearTimeout(attente)
+  }, [enVue])
   const [etat, setEtat] = useProfil()
   // le code de secours, montré juste après la création, jusqu'à « C'est noté »
   const [secours, setSecours] = useState<string>()
@@ -93,7 +112,7 @@ export function ProfilReglages() {
     erreur === 'suppression' ? textes.profil.erreurSuppression : erreur && textes.profil.erreurs[erreur]
 
   return (
-    <fieldset className="flex flex-col gap-3 border-t border-bord pt-3">
+    <fieldset ref={bloc} className="flex flex-col gap-3 border-t border-bord pt-3">
       <legend className="float-left mb-1 font-semibold">{textes.profil.titre}</legend>
 
       {estProfil(etat) ? (
@@ -118,10 +137,12 @@ export function ProfilReglages() {
             </div>
           )}
           {confirmation ? (
-            <div className="flex flex-col gap-2">
+            // amenée à l'écran à son apparition (depuis web.9.4.3) : au bas des réglages, ses boutons tombaient sous
+            // le bord, sur téléphone. Une fonction ref : appelée avec l'élément dès qu'il est posé dans la page
+            <div className="flex flex-col gap-2" ref={(element) => element?.scrollIntoView?.({ block: 'nearest' })}>
               <p className="text-sm">{textes.profil.confirmer}</p>
               <div className="flex gap-2">
-                <button type="button" className={`${BOUTON} bg-danger`} disabled={patience} onClick={() => void supprimer()}>
+                <button type="button" className={BOUTON_DANGER} disabled={patience} onClick={() => void supprimer()}>
                   {patience ? textes.profil.patience : textes.profil.oui}
                 </button>
                 <button type="button" className={BOUTON} onClick={() => setConfirmation(false)}>
