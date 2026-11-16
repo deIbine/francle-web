@@ -23,13 +23,15 @@ export function ProfilReglages({ enVue = false }: { enVue?: boolean }) {
     if (!enVue) {
       return
     }
-    // à l'image suivante : l'effet d'un enfant passe avant celui de la fenêtre qui le contient, et une fenêtre pas
-    // encore ouverte (showModal) ne peut ni défiler ni recevoir le focus. « ?. » : jsdom n'a pas scrollIntoView
-    const image = requestAnimationFrame(() => {
+    // juste après : l'effet d'un enfant passe avant celui de la fenêtre qui le contient, et une fenêtre pas encore
+    // ouverte (showModal) ne peut ni défiler ni recevoir le focus. setTimeout plutôt que requestAnimationFrame, qui
+    // ne vient pas tant que la page ne se dessine pas (vu dans le navigateur intégré, panneau caché). « ?. » : jsdom
+    // n'a pas scrollIntoView
+    const attente = setTimeout(() => {
       bloc.current?.scrollIntoView?.({ block: 'start' })
       bloc.current?.querySelector('input')?.focus()
     })
-    return () => cancelAnimationFrame(image)
+    return () => clearTimeout(attente)
   }, [enVue])
   const [etat, setEtat] = useProfil()
   // le code de secours, montré juste après la création, jusqu'à « C'est noté »
