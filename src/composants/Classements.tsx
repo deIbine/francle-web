@@ -7,7 +7,7 @@ retirer un membre ou changer le code.
 Tout vient du serveur : chaque partie de l'onglet affiche « Chargement… » puis le résultat, ou « le serveur ne répond
 pas » ; le reste du jeu n'attend jamais.
  */
-import { useEffect, useId, useState, type FormEvent } from 'react'
+import { useEffect, useId, useRef, useState, type FormEvent } from 'react'
 import { useClassement } from '../useClassement.ts'
 import { dateDuMois } from '../domaine/calendrier.ts'
 import { moisDuNumero } from '../domaine/regionDuJour.ts'
@@ -32,8 +32,13 @@ import { useLangue, useTextes } from '../textes.ts'
 import { Partager } from './Partager.tsx'
 import { TableauClassement } from './TableauClassement.tsx'
 
-export const BOUTON =
-  'rounded bg-francle-fonce px-3 py-1.5 text-sm font-semibold text-white hover:opacity-90 disabled:opacity-50'
+const FORME_BOUTON = 'rounded px-3 py-1.5 text-sm font-semibold text-white hover:opacity-90 disabled:opacity-50'
+export const BOUTON = `${FORME_BOUTON} bg-francle-fonce`
+// le bouton d'une action qui défait quelque chose (« Oui, retirer »), en rouge. Une couleur de fond à part, et non
+// « BOUTON bg-danger » : de deux classes Tailwind qui posent la même propriété, ce n'est pas la dernière écrite qui
+// gagne, mais la dernière dans la feuille de style, et bg-francle-fonce y venait après bg-danger (vu à web.9.4.3, dans
+// le navigateur en mode téléphone : « Oui, quitter » était bleu depuis web.9.3)
+export const BOUTON_DANGER = `${FORME_BOUTON} bg-danger`
 export const BOUTON_DISCRET = 'text-sm underline hover:text-texte disabled:opacity-50'
 export const CHAMP = 'w-full rounded border border-bord bg-fond px-2 py-1.5'
 
@@ -95,11 +100,18 @@ function BoutonCreerProfil() {
 // quitter la ligue seulement) : la question, « Oui, … » et « Non ». Dans la fenêtre même, plutôt qu'une seconde
 // fenêtre par-dessus (deux fenêtres l'une sur l'autre se ferment dans le désordre, voir web.7.18)
 function Confirmer(props: { question: string; oui: string; non: string; onOui: () => void; onNon: () => void }) {
+  const bloc = useRef<HTMLDivElement>(null)
+  // amenée à l'écran à son apparition : en bas du classement, ses boutons tombaient sous le bord, sur téléphone (vu à
+  // 375 × 812). « nearest » : rien ne bouge si elle est déjà visible. « ?. » : jsdom n'a pas scrollIntoView
+  useEffect(() => {
+    bloc.current?.scrollIntoView?.({ block: 'nearest' })
+  }, [])
   return (
-    <div className="flex flex-col gap-2">
+    // text-left : la fenêtre centre son texte, et la question centrée ne s'alignait pas sur ses boutons, à gauche
+    <div ref={bloc} className="flex flex-col gap-2 text-left">
       <p className="text-sm">{props.question}</p>
       <div className="flex gap-2">
-        <button type="button" className={`${BOUTON} bg-danger`} onClick={props.onOui}>
+        <button type="button" className={BOUTON_DANGER} onClick={props.onOui}>
           {props.oui}
         </button>
         <button type="button" className={BOUTON} onClick={props.onNon}>

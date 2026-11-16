@@ -11,7 +11,10 @@ import { synchroniser } from '../envoi.ts'
 import { creerProfil, estProfil, restaurerProfil, supprimerProfil, useProfil, type ErreurProfil } from '../profil.ts'
 import { useTextes } from '../textes.ts'
 
-const BOUTON = 'rounded bg-francle-fonce px-3 py-1.5 text-sm font-semibold text-white hover:opacity-90 disabled:opacity-50'
+const FORME_BOUTON = 'rounded px-3 py-1.5 text-sm font-semibold text-white hover:opacity-90 disabled:opacity-50'
+const BOUTON = `${FORME_BOUTON} bg-francle-fonce`
+// « Oui, supprimer », en rouge : une couleur de fond à part (voir BOUTON_DANGER dans Classements.tsx, web.9.4.3)
+const BOUTON_DANGER = `${FORME_BOUTON} bg-danger`
 const BOUTON_DISCRET = 'self-start text-sm underline hover:text-texte'
 const CHAMP = 'w-full rounded border border-bord bg-fond px-2 py-1.5'
 
@@ -134,10 +137,12 @@ export function ProfilReglages({ enVue = false }: { enVue?: boolean }) {
             </div>
           )}
           {confirmation ? (
-            <div className="flex flex-col gap-2">
+            // amenée à l'écran à son apparition (depuis web.9.4.3) : au bas des réglages, ses boutons tombaient sous
+            // le bord, sur téléphone. Une fonction ref : appelée avec l'élément dès qu'il est posé dans la page
+            <div className="flex flex-col gap-2" ref={(element) => element?.scrollIntoView?.({ block: 'nearest' })}>
               <p className="text-sm">{textes.profil.confirmer}</p>
               <div className="flex gap-2">
-                <button type="button" className={`${BOUTON} bg-danger`} disabled={patience} onClick={() => void supprimer()}>
+                <button type="button" className={BOUTON_DANGER} disabled={patience} onClick={() => void supprimer()}>
                   {patience ? textes.profil.patience : textes.profil.oui}
                 </button>
                 <button type="button" className={BOUTON} onClick={() => setConfirmation(false)}>

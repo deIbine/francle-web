@@ -1900,6 +1900,14 @@ créé, « Créer mon profil » qui ouvre les réglages sur le champ du pseudo, 
   `ouvrirProfil()` (`reglages.ts`), un évènement qu'`App` écoute ; les leçons.
 - **Trouvé en vérifiant, corrigé** : le focus mis au champ du pseudo par `requestAnimationFrame` ne venait jamais quand
   la page ne se dessine pas (panneau caché) ; remplacé par `setTimeout`.
+- **Revu en mode téléphone** (le 16 novembre 2026, à la demande de l'utilisateur : le navigateur intégré à 375 × 812,
+  écran tactile simulé, en sombre et en clair, avec de vrais touchers et des captures) : les boutons « Oui, … » étaient
+  bleus et non rouges, depuis web.9.3 pour « Oui, quitter » et « Oui, supprimer » (`BOUTON bg-danger` : la couleur
+  qui gagne est celle qui vient en dernier dans la feuille de style, pas dans l'attribut ; d'où `BOUTON_DANGER`) ; la
+  question des confirmations était centrée et ses boutons à gauche (`text-left`) ; les boutons de la confirmation de
+  ⚑ et de « Supprimer mon profil » tombaient sous le bord de l'écran (`scrollIntoView({ block: 'nearest' })` à leur
+  apparition). Essayés ensuite : retirer un membre, la confirmation du changement de code, ⚑ puis « Non », un lien
+  d'invitation vers une autre ligue (« Quitter « La famille » et rejoindre »), « Oui, supprimer » puis « Non ».
 
 ## Les améliorations à reprendre (relevées le 16 octobre 2026)
 

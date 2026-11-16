@@ -2377,3 +2377,17 @@ classement (web.9.4.2), la ligue et l'invitation (web.9.4.3).
   suivante ».
 - **Comment le penser** : c'est le même patron « observateur » que l'évènement du profil (web.9.3). Pour « attendre
   qu'autre chose soit fait », choisir le moyen qui dépend de cette chose (ici, la fin du rendu), pas de l'affichage.
+
+### Deux classes Tailwind pour la même propriété : l'attribut ne décide pas
+
+- **Pourquoi** : en mode téléphone, « Oui, retirer » était bleu, pas rouge. Le bouton portait
+  `bg-francle-fonce … bg-danger` : la dernière classe écrite semblait devoir gagner. Mais le navigateur ne lit pas
+  l'ordre des classes dans l'attribut : entre deux règles CSS de même force, gagne celle qui vient en dernier **dans la
+  feuille de style**, et Tailwind y a rangé `bg-francle-fonce` après `bg-danger`. « Oui, quitter » et « Oui,
+  supprimer » étaient bleus depuis web.9.3 ; aucun test ne regarde une couleur.
+- **Comment le faire** : dans la page, `getComputedStyle(bouton).backgroundColor` donne la couleur vraiment appliquée.
+  Pour corriger, ne jamais poser deux classes de la même propriété : une forme commune (`FORME_BOUTON`), puis une
+  couleur chacun (`BOUTON`, `BOUTON_DANGER`).
+- **Comment le penser** : comme deux méthodes qui se surchargent en Java, c'est une règle du langage qui choisit, pas
+  l'ordre où on les a écrites à l'appel. Une capture au vrai format (ici, le navigateur en mode téléphone) voit ce que
+  les tests ne voient pas : la couleur, l'alignement, ce qui tombe sous le bord de l'écran.
