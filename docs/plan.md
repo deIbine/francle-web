@@ -100,7 +100,7 @@ l'autre, et le web n'a plus à rester égal au Java.
    Cloudflare Workers + D1, dans `serveur/` du même dépôt), web.9.3 des ligues entre amis et un classement public
    protégé. Détail plus bas dans « Les statistiques des joueurs (web.9) ».
 
-## Où on en est (mis à jour le 16 novembre 2026, sur le PC : web.9.4 en cours)
+## Où on en est (mis à jour le 16 novembre 2026, sur le PC : web.9.4 fusionnée et en ligne)
 
 ### À faire sur le PC (rien depuis le 9 novembre 2026)
 
@@ -439,6 +439,15 @@ squash le 18 octobre 2026 sur l'accord de l'utilisateur, étiquettes `web-7.8` �
     16 novembre 2026, a relevé onze points dans les profils, la ligue et le classement (section « Les corrections
     relevées le 16 novembre 2026 » plus bas). Tous retenus, recommandations acceptées (« Ok pour les recos, tu peux
     tout lancer ») : quatre PR empilées, web.9.4.0 (ces notes, sans étiquette) à web.9.4.3, étiquette `web-9.4`.
+    Écrites le même jour, revues en mode téléphone à la demande de l'utilisateur (trois défauts d'affichage
+    corrigés), la CI de #94 corrigée (un test instable) avant toute fusion, à sa demande. **Fusionnées en squash le
+    même jour**, sur l'accord de l'utilisateur (« Oui, fusionne »), une PR à la fois, chaque suivante reposée sur
+    `main` (`git rebase --onto origin/main <ancienne pointe> <branche>`, base changée en `main`, contenu inchangé
+    vérifié par `git diff`) : `8db1347` (#91), `de29a35` (#92), `2b333b3` (#93), `4778981` (#94) ; `main` identique
+    à la version testée. Aucune migration : les trois premières publications ont été annulées au profit de la
+    dernière, qui publie le tout (site et Worker publiés ; vérifié ensuite : le classement public en ligne répond
+    `Cache-Control: no-store`, la nouvelle version). Étiquette annotée `web-9.4` sur `4778981` ; les quatre branches supprimées en local
+    et sur GitHub. Ces notes : PR web.9.4.5, sans étiquette.
   - **Encore à faire par l'utilisateur** : ranger la clé de modération (« Ce qui revient à l'utilisateur » dans la
     section web.9.3) ; essayer la ligue en vrai, entre amis, sur téléphone ; surveiller les signalements. Ensuite,
     la prochaine étape est à choisir avec l'utilisateur.
