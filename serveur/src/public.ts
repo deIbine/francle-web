@@ -13,7 +13,7 @@ La modération demande la clé de modération (« Authorization: Bearer <clé> �
 l'utilisateur dans Cloudflare (MODERATION, voir docs/plan.md), jamais dans le dépôt. Sans ce secret, la modération
 est fermée.
  */
-import type { Classement } from '../../src/domaine/classement.ts'
+import { joursDuMois, type Classement } from '../../src/domaine/classement.ts'
 import type { Base } from './base.ts'
 import { codeDe, empreinte, json, lireCorps } from './http.ts'
 import { lignes, moisDemande } from './ligues.ts'
@@ -31,16 +31,32 @@ export async function classementPublic(requete: Request, base: Base): Promise<Re
     return json(requete, 400, { erreur: 'mois-invalide' })
   }
   const premiers = await lignes(base, mois, { ...PUBLICS, limite: PREMIERS })
-  // le nombre de classés : la ligne du dernier rang ne suffit pas (des rangs peuvent être partagés)
-  const tous = await lignes(base, mois, { ...PUBLICS, limite: 1_000_000 })
+  const joueurs = await nombreDeClasses(base, mois)
   const profil = await profilDe(requete, base)
   const moi =
     profil === undefined || premiers.some((ligne) => ligne.id === profil.id)
       ? undefined
       : (await lignes(base, mois, { ...PUBLICS, seul: profil.id }))[0]
-  const classement: Classement = { mois, lignes: premiers, joueurs: tous.length, ...(moi && { moi }) }
-  // une minute en cache : le classement change lentement, et un joueur qui feuillette les mois ne redemande rien
-  return json(requete, 200, classement, { 'Cache-Control': 'private, max-age=60' })
+  const classement: Classement = { mois, lignes: premiers, joueurs, ...(moi && { moi }) }
+  // pas de cache (depuis web.9.4.2) : avec « max-age=60 », le navigateur rendait la même réponse pendant une minute,
+  // quel que soit le code secret envoyé. Le joueur qui venait de créer son profil, ou de finir une partie, ne s'y
+  // voyait pas. « no-store » : toujours la réponse du moment
+  return json(requete, 200, classement, { 'Cache-Control': 'no-store' })
+}
+
+// le nombre de classés du mois : les profils publics qui y ont au moins une partie. La ligne du dernier rang ne suffit
+// pas (des rangs peuvent être partagés). Compté par la base (depuis web.9.4.2) : avant, le serveur lisait toutes les
+// lignes du classement pour les compter, et ce travail grandissait avec chaque joueur
+async function nombreDeClasses(base: Base, mois: number): Promise<number> {
+  const [premier, dernier] = joursDuMois(mois)
+  const { results } = await base
+    .prepare(
+      `SELECT COUNT(DISTINCT pp.profil) AS nombre FROM parties_profil pp JOIN profils p ON p.id = pp.profil
+       WHERE p.masque = 0 AND pp.jour BETWEEN ? AND ?`,
+    )
+    .bind(premier, dernier)
+    .all<{ nombre: number }>()
+  return results[0]?.nombre ?? 0
 }
 
 export async function signaler(requete: Request, base: Base): Promise<Response> {

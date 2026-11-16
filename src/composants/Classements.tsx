@@ -102,6 +102,8 @@ function ClassementPublic({ profil, aujourdhui }: { profil: Profil | undefined; 
     <div className="flex flex-col gap-3">
       <p className="text-xs text-discret">{textes.public.aide}</p>
       <ChoixMois mois={mois} premier={premier} dernier={dernier} onChoisir={setMois} />
+      {/* depuis web.9.4.2 : sans profil, le joueur qui vient de jouer ne s'y trouve pas ; on lui dit pourquoi */}
+      {profil === undefined && <p className="text-sm">{textes.public.horsClassement}</p>}
       {classement === 'chargement' ? (
         <p className="text-sm text-discret">{textes.ligue.chargement}</p>
       ) : classement === undefined ? (
