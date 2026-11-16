@@ -2307,3 +2307,73 @@ modération (web.9.3.3), la confidentialité et les notes (web.9.3.4).
 - **Comment le penser** : se demander où la donnée doit arriver, et l'y lire sans passer par le site : un affichage
   peut se tromper sans rien montrer. Quand chaque fusion change la production, une pile se fusionne à la vitesse de
   sa publication, pas à celle des clics.
+
+## web.9.4 Les corrections du 16 novembre 2026
+
+Une analyse des bugs et de l'interface (web.9.4.0, les notes), puis trois PR empilées : les pseudos (web.9.4.1), le
+classement (web.9.4.2), la ligue et l'invitation (web.9.4.3).
+
+### Un filtre se teste aussi sur ce qui doit passer
+
+- **Pourquoi** : « Dominique », « Véronique », « Badminton » étaient refusés comme pseudos. Les mots interdits de plus
+  de 4 lettres sont cherchés n'importe où, et « nique » se cache dans Domi**nique**, « admin » dans b**admin**ton. Les
+  tests ne vérifiaient que des mots grossiers, refusés comme prévu.
+- **Comment le faire** : passer une liste de mots courants dans la fonction (ici, une quarantaine de prénoms et de
+  mots, lancés dans Node : `import('./src/domaine/pseudo.ts')`), relever les refus injustes, puis en faire un test
+  « accepte les mots courants ». Pour corriger : une liste d'exceptions effacées du pseudo AVANT la recherche,
+  remplacées par « | » pour que deux morceaux recollés ne forment pas un mot refusé.
+- **Comment le penser** : un filtre a deux erreurs possibles, laisser passer le mauvais et refuser le bon. Se
+  demander : « qu'est-ce qui doit **passer** ? », pas seulement « qu'est-ce qui doit être refusé ? ». Choisir entre une
+  règle plus souple et une liste d'exceptions, c'est choisir laquelle des deux erreurs on préfère : ici, peu de
+  modération, donc un filtre strict et des exceptions.
+
+### Le cache du navigateur ne connaît que l'adresse
+
+- **Pourquoi** : juste après avoir créé son profil, le joueur ne se voyait pas dans le classement public pendant une
+  minute. Le serveur répondait `Cache-Control: private, max-age=60` : le navigateur gardait la réponse pour cette
+  adresse, et la rendait même quand la demande portait un autre code secret. Les tests ne pouvaient pas le voir :
+  jsdom n'a pas de cache HTTP.
+- **Comment le faire** : dans la page, comparer `fetch(adresse, { cache: 'no-store' })` et `fetch(adresse)` : deux
+  réponses différentes trahissent un cache. Pour une réponse qui dépend de qui demande, ou qui doit être à jour,
+  `cache: 'no-store'` côté site et `Cache-Control: no-store` côté serveur ; sinon `Vary` doit nommer chaque en-tête
+  dont la réponse dépend (`Vary: Origin, Authorization`).
+- **Comment le penser** : un cache se demande « de quoi dépend cette réponse ? ». Si la réponse est « de l'adresse et
+  d'autre chose », le cache doit le savoir, ou ne pas garder la réponse. C'est le même principe qu'une clé de
+  `HashMap` Java : tout ce qui distingue deux valeurs doit être dans la clé.
+
+### Trois états ne se fondent pas en deux
+
+- **Pourquoi** : dans la fenêtre d'invitation, `setActuelle(ligue ?? null)` confondait « le serveur ne répond pas » et
+  « pas de ligue », et « Rejoindre » s'affichait avant la réponse. Un joueur pouvait quitter sa ligue sans avoir lu
+  l'avertissement.
+- **Comment le faire** : garder un état par cas (`undefined` : on attend ; `null` : pas de ligue ;
+  `'injoignable'` ; les infos), n'afficher le bouton qu'une fois la réponse reçue, et le faire parler lui-même
+  (« Quitter « Le bureau » et rejoindre »). Un test simule le serveur muet sur cette seule adresse.
+- **Comment le penser** : `??` et `||` effacent une différence. Avant de les écrire, se demander : « les deux cas
+  doivent-ils vraiment se comporter pareil ? ». Une action qui détruit quelque chose attend de savoir ce qu'elle
+  détruit.
+
+### Une action qui défait ce que d'autres ont fait se confirme
+
+- **Pourquoi** : « Retirer Tom », « Changer le code » (qui casse tous les liens envoyés) et « Signaler » agissaient en un
+  clic, alors que « Quitter la ligue » demandait déjà une confirmation. Sur téléphone, un doigt qui glisse suffit.
+- **Comment le faire** : un seul composant `Confirmer` (la question, « Oui, … », « Non »), affiché sur place à la place
+  du bouton, et un seul état : l'action qui attend (`'quitter' | 'code' | Membre`). Pour un tableau trop étroit, une
+  ligne de plus sous la ligne du joueur (`colSpan`).
+- **Comment le penser** : se demander pour chaque bouton « que perd quelqu'un si je clique par erreur, et qui ? ».
+  Quand la réponse est « un ami, ou un lien déjà envoyé », une confirmation. Une seconde fenêtre par-dessus la
+  première se fermerait dans le désordre (web.7.18) : la confirmation reste dans la fenêtre.
+
+### Un évènement de la page plutôt qu'une fonction sur quatre étages
+
+- **Pourquoi** : le bouton « Créer mon profil » est dans l'onglet Classement, dans la fenêtre des statistiques, dans la
+  partie du jour ; la fenêtre des réglages est gardée par `App`. Passer une fonction `onOuvrirProfil` à travers
+  quatre composants qui n'en ont que faire (le « prop drilling ») les aurait tous changés.
+- **Comment le faire** : `ouvrirProfil()` envoie un évènement maison (`window.dispatchEvent(new Event(…))`), qu'`App`
+  écoute pour fermer les fenêtres ouvertes et ouvrir les réglages sur le profil. Le champ du pseudo reçoit le focus
+  dans un `setTimeout` : l'effet d'un composant passe avant celui de la fenêtre qui le contient, et une fenêtre pas
+  encore ouverte ne peut pas recevoir le focus. D'abord écrit avec `requestAnimationFrame`, qui passait les tests mais
+  ne venait jamais dans le navigateur intégré au panneau caché : une page qui ne se dessine pas n'a pas d'« image
+  suivante ».
+- **Comment le penser** : c'est le même patron « observateur » que l'évènement du profil (web.9.3). Pour « attendre
+  qu'autre chose soit fait », choisir le moyen qui dépend de cette chose (ici, la fin du rendu), pas de l'affichage.
