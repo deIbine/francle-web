@@ -35,6 +35,29 @@ const GROSSIERS = [
 ]
 const MOTS_REFUSES = [...GROSSIERS, 'admin', 'moderat', 'francle', 'officiel', 'official']
 
+// les mots permis qui contiennent un mot refusé (depuis web.9.4.1), déjà simplifiés : « nique » se cache dans
+// Dominique et technique, « admin » dans badminton. Ils sont effacés du pseudo AVANT la recherche des mots refusés :
+// « Dominique » passe, « Dominique Connard » reste refusé. Une liste plutôt qu'une règle plus souple, pour que le
+// filtre reste aussi strict ailleurs (décision du 16 novembre 2026 : peu de modération). Un refus injuste signalé par
+// un joueur : ajouter le mot ici, et dans le test « accepte les mots courants »
+const EXCEPTIONS = [
+  // les prénoms
+  'dominique', 'monique', 'veronique',
+  // les mots en -nique (« communique » couvre aussi « communiquer », qui contient « niquer »)
+  'unique', 'technique', 'clinique', 'tunique', 'panique', 'mecanique', 'electronique', 'britannique', 'germanique',
+  'hispanique', 'chronique', 'harmonique', 'ironique', 'cynique', 'tonique', 'sonique', 'bionique', 'tectonique',
+  'symphonique', 'platonique', 'botanique', 'organique', 'volcanique', 'satanique', 'titanique', 'oceanique',
+  'ethnique', 'martinique', 'piquenique', 'communique',
+  // les autres
+  'badminton', 'pussycat',
+].sort((a, b) => b.length - a.length)
+
+// la clé du pseudo, sans ses mots permis. Remplacés par « | » et non effacés : deux morceaux recollés ne doivent pas
+// former un mot refusé (« pu » + « dominique » + « te »)
+function sansExceptions(cle: string): string {
+  return EXCEPTIONS.reduce((reste, mot) => reste.replaceAll(mot, '|'), cle)
+}
+
 export type RefusPseudo = 'longueur' | 'caracteres' | 'mot'
 
 // pourquoi un pseudo est refusé, ou undefined s'il est permis. Les lettres de toutes les langues (\p{L}), les
@@ -48,7 +71,7 @@ export function refusPseudo(saisie: string, max = PSEUDO_MAX, mots = MOTS_REFUSE
   if (!/^[\p{L}\p{N} _.'’-]+$/u.test(pseudo)) {
     return 'caracteres'
   }
-  const cle = clePseudo(pseudo)
+  const cle = sansExceptions(clePseudo(pseudo))
   const decoupe = pseudo.split(/[^\p{L}\p{N}]+/u).map(simplifier)
   const refuse = mots.some((mot) => (mot.length <= 4 ? decoupe.includes(mot) || cle === mot : cle.includes(mot)))
   return refuse ? 'mot' : undefined
