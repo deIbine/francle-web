@@ -91,7 +91,7 @@ export async function apercuLigue(code: string): Promise<{ nom: string; membres:
 
 // le classement de sa ligue pour le mois donné (voir moisDuNumero), ou undefined
 export async function classementLigue(profil: Profil, mois: number): Promise<Classement | undefined> {
-  const reponse = await appeler<unknown>(`/ligue/classement?mois=${mois}`, profil)
+  const reponse = await appeler<unknown>(`/ligue/classement?mois=${mois}`, profil, { cache: 'no-store' })
   return reponse?.statut === 200 ? lireClassement(reponse.corps) : undefined
 }
 
@@ -111,9 +111,11 @@ export function codeDuFragment(fragment: string): string | undefined {
   return /^[A-Z0-9]{6}$/.test(code) ? code : undefined
 }
 
-// depuis web.9.3.3 : le classement public, lisible sans profil (avec un profil, il contient aussi la ligne du joueur)
+// depuis web.9.3.3 : le classement public, lisible sans profil (avec un profil, il contient aussi la ligne du joueur).
+// « no-store » (depuis web.9.4.2) : toujours la réponse du moment, jamais une copie gardée par le navigateur, qui
+// pouvait dater d'avant le profil ou la dernière partie (comme les chiffres du jour, envoi.ts)
 export async function classementPublic(profil: Profil | undefined, mois: number): Promise<Classement | undefined> {
-  const reponse = await appeler<unknown>(`/classement?mois=${mois}`, profil)
+  const reponse = await appeler<unknown>(`/classement?mois=${mois}`, profil, { cache: 'no-store' })
   return reponse?.statut === 200 ? lireClassement(reponse.corps) : undefined
 }
 

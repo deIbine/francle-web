@@ -75,6 +75,21 @@ describe('Le classement public', () => {
     expect(corps.joueurs).toBe(PREMIERS + 1)
     expect(corps.moi).toMatchObject({ pseudo: 'Tom', rang: PREMIERS + 1, total: 4 })
   })
+
+  // web.9.4.2 : le nombre de classés compté par la base, sans les pseudos retirés par la modération
+  it('compte les classés du mois, sans les pseudos retirés', async () => {
+    await joueur('Zoé', 1)
+    const tom = await joueur('Tom', 3)
+    await joueur('Eva')
+    base.sql(`UPDATE profils SET masque = 1 WHERE id = '${tom.id}'`)
+    expect((await classement()).corps.joueurs).toBe(1)
+  })
+
+  // web.9.4.2 : avec « max-age=60 », le navigateur gardait une réponse d'avant le profil ou la dernière partie
+  it('ne se garde pas en cache : toujours la réponse du moment', async () => {
+    const reponse = await traiter(new Request(`${ADRESSE}/classement?mois=${OCTOBRE}`), base, MAINTENANT)
+    expect(reponse.headers.get('Cache-Control')).toBe('no-store')
+  })
 })
 
 describe('Signaler et modérer', () => {

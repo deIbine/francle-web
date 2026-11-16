@@ -80,6 +80,18 @@ describe('Le classement public', () => {
     ])
     expect(within(onglet).getByText(/^2\sjoueurs classés$/)).toBeDefined()
     expect(within(onglet).queryByRole('button', { name: /^Signaler/ })).toBeNull()
+    // web.9.4.2 : sans profil, on dit pourquoi on n'y est pas
+    expect(within(onglet).getByText(/Seules les parties jouées avec un profil comptent/)).toBeDefined()
+  })
+
+  // web.9.4.2 : le navigateur ne doit jamais rendre une copie gardée (elle pouvait dater d'avant le profil)
+  it('est toujours redemandé au serveur, sans copie gardée par le navigateur', async () => {
+    await joueur('Zoé', 1)
+    const { onglet } = await vuePublique()
+    await within(onglet).findByRole('table')
+    const demandes = vi.mocked(fetch).mock.calls.filter(([adresse]) => String(adresse).includes('/classement?'))
+    expect(demandes.length).toBeGreaterThan(0)
+    expect(demandes.every(([, options]) => options?.cache === 'no-store')).toBe(true)
   })
 
   it('avec un profil : sa ligne mise en avant, et « Signaler » à côté des autres', async () => {

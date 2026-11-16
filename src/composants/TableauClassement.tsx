@@ -62,7 +62,13 @@ export function TableauClassement({ lignes, moi, monId, titre, enPlus }: Props) 
           <th scope="col" className="px-2 py-1 text-right font-normal">
             {textes.ligue.points}
           </th>
-          {enPlus && <td />}
+          {/* depuis web.9.4.2 : un vrai titre de colonne, lu seulement par les lecteurs d'écran (une case vide n'était
+              pas annoncée, et la colonne des drapeaux restait sans nom) */}
+          {enPlus && (
+            <th scope="col" className="px-1 py-1 font-normal">
+              <span className="sr-only">{textes.public.colonneSignaler}</span>
+            </th>
+          )}
         </tr>
       </thead>
       <tbody>
