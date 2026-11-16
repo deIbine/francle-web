@@ -1,5 +1,13 @@
 import { describe, expect, it } from 'vitest'
-import { clePseudo, nettoyerPseudo, normaliserCode, refusPseudo, tirerCodeLigue, tirerSecours } from './pseudo.ts'
+import {
+  clePseudo,
+  nettoyerPseudo,
+  normaliserCode,
+  refusNomLigue,
+  refusPseudo,
+  tirerCodeLigue,
+  tirerSecours,
+} from './pseudo.ts'
 
 describe('Les pseudos', () => {
   it('deux pseudos sont identiques sans majuscules, accents, espaces ni ponctuation', () => {
@@ -27,6 +35,29 @@ describe('Les pseudos', () => {
     // un mot court n'est refusé que comme mot entier : « habitant » contient un mot de 4 lettres, et reste permis
     expect(refusPseudo('Habitant')).toBeUndefined()
     expect(refusPseudo('Ma bite')).toBe('mot')
+  })
+
+  // web.9.4.1 : avant, « nique » (cherché partout) refusait Dominique, et « admin » refusait Badminton
+  it('accepte les mots courants qui contiennent un mot refusé', () => {
+    const permis = ['Dominique', 'Véronique', 'MONIQUE', 'Unique', 'Polytechnique', 'Électronique', 'Martinique',
+      'Communiquer', 'Fan de badminton', 'Pussycat', 'Panique à bord']
+    for (const pseudo of permis) {
+      expect(refusPseudo(pseudo), pseudo).toBeUndefined()
+    }
+    expect(refusNomLigue('La Clinique')).toBeUndefined()
+    expect(refusNomLigue('Le pique-nique')).toBeUndefined()
+    expect(refusNomLigue('Lycée technique')).toBeUndefined()
+  })
+
+  it('un mot permis ne fait pas passer le reste du pseudo', () => {
+    expect(refusPseudo('Dominique Connard')).toBe('mot')
+    expect(refusPseudo('Admin Badminton')).toBe('mot')
+    expect(refusPseudo('Nique')).toBe('mot')
+    // deux morceaux autour d'un mot permis ne se recollent pas en un mot refusé
+    expect(refusPseudo('Pudominiquete')).toBeUndefined()
+    // les refus voulus restent : ils imitent l'équipe du jeu
+    expect(refusPseudo('Modérateur')).toBe('mot')
+    expect(refusPseudo('Francleur')).toBe('mot')
   })
 })
 
