@@ -1881,6 +1881,26 @@ lancer »).
   (2, 7, 9, 10) ; web.9.4.3 La ligue (3, 4, 5, 6) et les leçons. PR empilées, fusionnées en squash sur l'accord de
   l'utilisateur, étiquette `web-9.4`.
 
+### Fait à web.9.4 (le 16 novembre 2026)
+
+Trois PR empilées sur web.9.4.0 (branches `web-9-4-1-pseudos`, `web-9-4-2-classement`, `web-9-4-3-ligue`). 500 tests,
+lint, types et build passent ; `npm run verifier:navigateur` : 28 écrans, 0 problème ; essayé dans le navigateur
+intégré à 375 × 812, avec le serveur en local : « Dominique » accepté, le classement public à jour aussitôt le profil
+créé, « Créer mon profil » qui ouvre les réglages sur le champ du pseudo, la confirmation de ⚑.
+
+- **web.9.4.1 Les pseudos (1, 8)** : `pseudo.ts`, 35 exceptions (les prénoms et les mots en -nique, badminton,
+  pussycat), effacées de la clé avant la recherche ; « Essaie une autre orthographe » dans les messages de refus.
+  « Modérateur », « Francleur », « Emmerdeur » restent refusés, exprès.
+- **web.9.4.2 Le classement (2, 7, 9, 10)** : `Cache-Control: no-store` pour le classement public, `cache: 'no-store'`
+  côté site pour les deux classements ; `nombreDeClasses()` (un `COUNT(DISTINCT …)`) ; sans profil, « Seules les
+  parties jouées avec un profil comptent » au-dessus du classement public ; un titre pour la colonne ⚑.
+- **web.9.4.3 La ligue (3, 4, 5, 6)** : un composant `Confirmer` pour retirer, changer le code, quitter et signaler
+  (la confirmation de ⚑ sur une ligne de plus du tableau, `sousLigne`) ; la fenêtre d'invitation attend de connaître
+  la ligue actuelle, dit « le serveur ne répond pas » au besoin, et son bouton devient « Quitter « … » et rejoindre » ;
+  `ouvrirProfil()` (`reglages.ts`), un évènement qu'`App` écoute ; les leçons.
+- **Trouvé en vérifiant, corrigé** : le focus mis au champ du pseudo par `requestAnimationFrame` ne venait jamais quand
+  la page ne se dessine pas (panneau caché) ; remplacé par `setTimeout`.
+
 ## Les améliorations à reprendre (relevées le 16 octobre 2026)
 
 Relevées en relisant le code après web.6. Le bug du changement de jour a été corrigé tout de suite (PR #9, étiquette
