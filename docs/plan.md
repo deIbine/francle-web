@@ -2001,6 +2001,23 @@ lancer ») :
 
 **web.9.5.3 Les détails (6 à 10)**, empilée sur web.9.5.2, avec ses notes et ses leçons.
 
+### La seconde vérification générale (le 18 novembre 2026), et web.9.5.4
+
+Demandée de nouveau par l'utilisateur, sur web.9.5.3, et élargie : en plus du parcours principal et du clavier, un
+parcours à deux joueurs (chacun dans son navigateur) sur téléphone (375), tablette (768) et ordinateur (1280) : profil
+et code de secours, ligue, invitation acceptée par le second joueur (profil créé dans la fenêtre), lien de
+comparaison, ligue rouverte, confidentialité, modes 🌀 et 🙈, partie libre jouée jusqu'au bout. Tout passe, sans
+erreur de console. Deux points (« Oui, propose », puis « Oui, lance ») :
+
+| # | Constat | Décision |
+|---|---|---|
+| 11 | **L'en-tête trop large** : 352 pixels au n° 37 sur un écran de 320 (📊 hors de l'écran, page dézoomée, contraire au critère 1.4.10 des WCAG), 361 au n° 100 (20 janvier 2027) et 370 au n° 1000 : les téléphones de 360 pixels auraient débordé aussi | Sous 375 pixels, le numéro passe sous « Francle », en petit (`max-[375px]:block`) : sa longueur ne compte plus. Variantes mesurées avant (titre plus petit : 346 au n° 1000 ; boutons serrés : 326) |
+| 12 | « Son classement est dans les statistiques (📊) » : le bouton montre des barres dessinées, pas cet emoji (comme le ⚙️ de web.9.4) | Un bouton « Voir le classement » : l'invitation se ferme, les statistiques s'ouvrent sur Classement, vue « Ma ligue » (`ouvrirClassement()`, un évènement comme `ouvrirProfil()`) |
+
+**web.9.5.4 L'en-tête et le classement (11, 12)**, empilée sur web.9.5.3. `npm run verifier:navigateur` vérifie en
+plus la largeur de la page à 320 et 360 pixels, aux n° 100 et 1000, en français et en anglais (l'horloge de la page
+avancée) : 6 échecs sur l'ancien en-tête, 0 sur le nouveau.
+
 ## Les améliorations à reprendre (relevées le 16 octobre 2026)
 
 Relevées en relisant le code après web.6. Le bug du changement de jour a été corrigé tout de suite (PR #9, étiquette

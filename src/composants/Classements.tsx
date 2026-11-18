@@ -47,15 +47,24 @@ interface Props {
   aujourdhui: number
   // la fenêtre des statistiques est-elle ouverte ? (depuis web.9.5.1, voir useFraicheur)
   ouverte?: boolean
+  // augmente de 1 à chaque « Voir le classement » (depuis web.9.5.4) : la vue « Ma ligue », même si « Public » était
+  // choisie
+  versLigue?: number
 }
 
 // depuis web.9.3.3, deux vues : « Ma ligue » et « Public ». Deux boutons dont l'un est enfoncé (aria-pressed) : un
 // lecteur d'écran dit lequel est choisi
-export function Classements({ aujourdhui, ouverte = true }: Props) {
+export function Classements({ aujourdhui, ouverte = true, versLigue = 0 }: Props) {
   const textes = useTextes()
   const [etat] = useProfil()
   const profil = estProfil(etat) ? etat : undefined
   const [vue, setVue] = useState<'ligue' | 'public'>('ligue')
+  // « Voir le classement » : la vue « Ma ligue » (ajusté pendant l'affichage, comme dans Statistiques.tsx)
+  const [ligueVue, setLigueVue] = useState(versLigue)
+  if (ligueVue !== versLigue) {
+    setLigueVue(versLigue)
+    setVue('ligue')
+  }
   // redemander les classements à chaque ouverture de la fenêtre, et quand une partie arrive au serveur (web.9.5.1)
   const fraicheur = useFraicheur(ouverte)
   const bouton = (nom: 'ligue' | 'public', libelle: string) => (

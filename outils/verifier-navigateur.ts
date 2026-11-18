@@ -5,7 +5,8 @@ Les tests (npm test) lancent axe dans jsdom, un faux navigateur qui ne dessine r
 de couleur ni ce qui est visible. Ce script joue une partie dans un vrai navigateur (Microsoft Edge, déjà installé sur
 Windows, piloté par Playwright), en thème clair puis en thème sombre, et lance axe sur chaque écran : « Comment jouer »,
 une partie en cours, les réglages, le bonus et sa confirmation, la fenêtre des résultats, le bilan, la partie libre,
-et la page en anglais.
+et la page en anglais. Depuis web.9.5.4, il vérifie aussi que rien ne dépasse de l'écran à 320 et 360 pixels de
+large, avec un numéro du jour à 3 et 4 chiffres (voir largeurs()).
 
 Lancement, à la main (pas dans la CI pour l'instant, décidé le 9 novembre 2026) :
     npm run verifier:navigateur
@@ -229,6 +230,39 @@ async function partieDuJour(navigateur: Browser, adresse: string, theme: Theme):
   await contexte.close()
 }
 
+// la largeur de la page sur les petits téléphones (depuis web.9.5.4) : à 320 pixels (le minimum demandé par les WCAG,
+// critère 1.4.10) et à 360 (les téléphones Android courants), rien ne doit dépasser de l'écran. Le numéro du jour
+// s'allonge avec le temps : l'horloge de la page est avancée au n° 100 (20 janvier 2027) et au n° 1000 (8 juillet
+// 2029). Avant web.9.5.4, l'en-tête faisait 352 pixels de large au n° 37, et 361 au n° 100. Aucune partie n'est jouée :
+// la page ne contacte pas le serveur
+async function largeurs(navigateur: Browser, adresse: string): Promise<void> {
+  for (const locale of ['fr-FR', 'en-GB']) {
+    for (const [jour, date] of [[100, '2027-01-20T12:00:00'], [1000, '2029-07-08T12:00:00']] as const) {
+      for (const largeur of [320, 360]) {
+        const contexte = await navigateur.newContext({ locale, viewport: { width: largeur, height: 700 } })
+        const page = await contexte.newPage()
+        await page.clock.setFixedTime(new Date(date))
+        await page.goto(adresse)
+        await page.getByRole('dialog').first().waitFor()
+        // ce qui est entre les accolades s'exécute DANS la page (voir verifier())
+        const largeurPage = await page.evaluate(() => {
+          const { document } = globalThis as unknown as { document: { documentElement: { scrollWidth: number } } }
+          return document.documentElement.scrollWidth
+        })
+        ecransVerifies++
+        const nom = `${locale}, n° ${jour}, ${largeur} pixels de large`
+        if (largeurPage > largeur) {
+          problemes.push(`${nom} : la page fait ${largeurPage} pixels de large`)
+          console.log(`  ÉCHEC ${nom} : la page fait ${largeurPage} pixels de large`)
+        } else {
+          console.log(`  ok   ${nom}`)
+        }
+        await contexte.close()
+      }
+    }
+  }
+}
+
 // le site construit (dist/), servi sur un port libre ; resolvedUrls donne l'adresse, chemin de base compris
 const serveur = await preview({ preview: { port: 4173, strictPort: false }, logLevel: 'warn' })
 const adresse = serveur.resolvedUrls?.local[0]
@@ -241,6 +275,8 @@ try {
   for (const theme of ['light', 'dark'] as const) {
     await partieDuJour(navigateur, adresse, theme)
   }
+  console.log('Largeur de la page sur les petits téléphones')
+  await largeurs(navigateur, adresse)
 } finally {
   await navigateur.close()
   await serveur.close()

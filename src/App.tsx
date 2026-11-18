@@ -32,6 +32,7 @@ import {
   aideVue,
   langueAffichee,
   marquerAideVue,
+  OUVRIR_CLASSEMENT,
   OUVRIR_PROFIL,
   uniteAffichee,
   useReglages,
@@ -147,6 +148,16 @@ export default function App() {
     }
     window.addEventListener(OUVRIR_PROFIL, ouvrir)
     return () => window.removeEventListener(OUVRIR_PROFIL, ouvrir)
+  }, [])
+  // « Voir le classement » (depuis web.9.5.4) : l'invitation se ferme, l'onglet du jour s'affiche ; la partie du jour,
+  // qui écoute le même évènement, ouvre alors sa fenêtre sur le classement
+  useEffect(() => {
+    function ouvrir() {
+      fermerLesFenetres()
+      setOnglet('jour')
+    }
+    window.addEventListener(OUVRIR_CLASSEMENT, ouvrir)
+    return () => window.removeEventListener(OUVRIR_CLASSEMENT, ouvrir)
   }, [])
   // « Comment jouer » : ouvert d'emblée à la première visite
   const [fenetreAide, setFenetreAide] = useState(() => !aideVue())
@@ -279,7 +290,13 @@ export default function App() {
               // l'espace hors du span : dans le span, les lecteurs d'écran la perdraient (« Francleno° 3 »)
               <>
                 {' '}
-                <span className="text-base font-normal text-discret">{textes.numero(numero(jour))}</span>
+                {/* sous 375 pixels (depuis web.9.5.4), le numéro passe sous « Francle », en petit : à côté, l'en-tête
+                    débordait (352 pixels de large à 320 au n° 37, et dès le n° 100, le 20 janvier 2027, les téléphones
+                    de 360 pixels aussi). Sous le titre, sa longueur ne compte plus. max-[375px]: : la classe ne
+                    s'applique que sur un écran de moins de 375 pixels de large */}
+                <span className="text-base font-normal text-discret max-[375px]:-mt-1 max-[375px]:block max-[375px]:text-sm max-[375px]:leading-4">
+                  {textes.numero(numero(jour))}
+                </span>
               </>
             )}
           </h1>

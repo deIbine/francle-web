@@ -112,6 +112,14 @@ export function ouvrirProfil(): void {
   window.dispatchEvent(new Event(OUVRIR_PROFIL))
 }
 
+// de même, ouvrir les statistiques sur le classement de la ligue (depuis web.9.5.4 : le bouton « Voir le classement »
+// de la fenêtre d'invitation ; avant, un texte renvoyait aux « statistiques (📊) », alors que le bouton montre des
+// barres dessinées). App l'écoute (une fenêtre à la fois, l'onglet du jour), et la partie du jour, qui garde la fenêtre
+export const OUVRIR_CLASSEMENT = 'francle-ouvrir-classement'
+export function ouvrirClassement(): void {
+  window.dispatchEvent(new Event(OUVRIR_CLASSEMENT))
+}
+
 // le thème sombre est-il à appliquer ? « auto » suit le réglage du système (ordinateur ou téléphone)
 export function estSombre(theme: Theme): boolean {
   if (theme !== 'auto') {

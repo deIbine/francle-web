@@ -30,7 +30,7 @@ import { angleDuJour, MODE_DU_JOUR, numero as numeroDuJour, regionDuJour } from 
 import { minuitSuivant } from './domaine/temps.ts'
 import { synchroniser } from './envoi.ts'
 import { usePause } from './pause.ts'
-import { aideVue, modesReglages, uniteAffichee, type Reglages } from './reglages.ts'
+import { aideVue, modesReglages, OUVRIR_CLASSEMENT, uniteAffichee, type Reglages } from './reglages.ts'
 import { useChangementAilleurs } from './onglets.ts'
 import {
   CLE,
@@ -134,6 +134,18 @@ export function PartieDuJour({ jour, reglages, demandeStats, demandeListe, onLis
   useEffect(() => {
     void synchroniser()
   }, [reglages.envoi, parties])
+
+  // « Voir le classement » (depuis web.9.5.4, ouvrirClassement() dans reglages.ts) : la fenêtre s'ouvre sur le
+  // classement de la ligue. versClassement augmente à chaque demande, comme demandeStats
+  const [versClassement, setVersClassement] = useState(0)
+  useEffect(() => {
+    function ouvrir() {
+      setVersClassement((n) => n + 1)
+      setFenetre(true)
+    }
+    window.addEventListener(OUVRIR_CLASSEMENT, ouvrir)
+    return () => window.removeEventListener(OUVRIR_CLASSEMENT, ouvrir)
+  }, [])
 
   // 📊 a été cliqué : on ouvre la fenêtre. On compare à la dernière demande vue PENDANT l'affichage, plutôt que
   // dans un useEffect : React le recommande pour « ajuster un état quand une prop change », sans affichage de trop
@@ -266,6 +278,7 @@ export function PartieDuJour({ jour, reglages, demandeStats, demandeListe, onLis
           dernier={partie.etat === 'gagnee' ? partie.essais.length : undefined}
           ouverte={fenetre}
           finDePartie={finDePartie}
+          versClassement={versClassement}
           // le lien de comparaison, dès qu'il y a une partie finie à comparer
           enPlus={unePartieFinie && <EnvoyerBilan historique={historique} aujourdhui={numero} />}
         />

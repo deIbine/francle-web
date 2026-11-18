@@ -2505,3 +2505,30 @@ des résultats (web.9.5.1), les finitions (web.9.5.2).
   par quelque chose d'au moins aussi visible : ici un anneau de 2 pixels (`focus:ring-2`), en bleu Francle, et en bleu
   clair en sombre, pour garder un contraste d'au moins 3:1 avec le fond.
 - **Comment le penser** : le contour par défaut est laid mais sûr. L'enlever est une promesse : « je fais mieux ».
+
+### Ce qui grandit avec le temps se teste dans le futur
+
+- **Pourquoi** : l'en-tête tenait à 375 pixels, la largeur de l'iPhone sur lequel on regardait. À 320, il débordait
+  déjà (352 pixels de large), et le numéro du jour, qui gagne un chiffre au n° 100 puis au n° 1000, l'aurait fait
+  déborder sur les téléphones Android de 360 pixels dès le 20 janvier 2027 : un défaut qui serait apparu un matin, sans
+  qu'aucun code ait changé.
+- **Comment le faire** : mesurer la largeur de la page (`document.documentElement.scrollWidth`, qui doit rester égale à
+  la largeur de l'écran) à plusieurs tailles, dont 320 (le minimum des WCAG, critère 1.4.10). Pour voir le futur,
+  avancer l'horloge de la page : `page.clock.setFixedTime(new Date('2027-01-20'))` dans Playwright. Puis faire tenir
+  la solution quelle que soit la longueur (ici, le numéro sous le titre sur les petits écrans, `max-[375px]:block`),
+  plutôt que de gagner quelques pixels qu'un chiffre de plus reprendra. Enfin, garder la mesure dans
+  `npm run verifier:navigateur`, et vérifier qu'elle échoue sur l'ancien code (6 échecs).
+- **Comment le penser** : pour chaque texte affiché, se demander « peut-il s'allonger ? » : un numéro qui grandit, un
+  pseudo, un nom de ligue, une autre langue. Un écran qui tient aujourd'hui n'est qu'un cas ; la question est de savoir
+  s'il tient avec le plus long contenu possible et le plus petit écran.
+
+### Désigner un bouton par ce qu'il montre, ou mieux, le remplacer par un bouton
+
+- **Pourquoi** : « Son classement est dans les statistiques (📊) » : le bouton de l'en-tête montre des barres
+  dessinées depuis web.7.17, pas cet emoji. Le même décalage que le ⚙️ corrigé à web.9.4.
+- **Comment le faire** : chercher les emoji qui désignent un bouton dans les textes (`grep -n "📊\|⚙️\|📃\|❓"
+  src/textes.ts`). Plutôt que de décrire le chemin, offrir le raccourci : un bouton « Voir le classement », qui envoie
+  un évènement de la page (`ouvrirClassement()`), écouté par `App` (fermer l'invitation, l'onglet du jour) et par la
+  partie du jour (la fenêtre, l'onglet Classement, la vue « Ma ligue »).
+- **Comment le penser** : un texte qui explique où cliquer vieillit à chaque changement d'interface. Un bouton qui y
+  mène ne vieillit pas. Quand on écrit « va dans… », se demander : « pourquoi ne pas l'emmener directement ? ».

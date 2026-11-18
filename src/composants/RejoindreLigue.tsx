@@ -6,6 +6,7 @@ l'invitation. Déjà dans une autre ligue, on prévient qu'on la quittera (une s
 import { useEffect, useState } from 'react'
 import { apercuLigue, maLigue, rejoindreLigue, type ErreurLigue, type InfosLigue } from '../ligue.ts'
 import { estProfil, useProfil } from '../profil.ts'
+import { ouvrirClassement } from '../reglages.ts'
 import { useTextes } from '../textes.ts'
 import { BOUTON } from './Classements.tsx'
 import { ProfilReglages } from './ProfilReglages.tsx'
@@ -80,9 +81,15 @@ export function RejoindreLigue({ code }: { code: string }) {
       )}
       {profil === undefined ? null : rejointe !== undefined ? (
         // à la place du bouton, et non de toute la fenêtre : le code de secours, s'il est affiché, le reste
-        <p role="status" className="font-semibold">
-          {textes.ligue.invitation.bienvenue(rejointe.nom)}
-        </p>
+        // depuis web.9.5.4, un bouton qui mène au classement, plutôt qu'un texte qui renvoyait aux « statistiques (📊) »
+        <div className="flex flex-col gap-2">
+          <p role="status" className="font-semibold">
+            {textes.ligue.invitation.bienvenue(rejointe.nom)}
+          </p>
+          <button type="button" className={`${BOUTON} self-start`} onClick={ouvrirClassement}>
+            {textes.ligue.invitation.voirClassement}
+          </button>
+        </div>
       ) : actuelle === undefined ? (
         // pas de bouton avant de savoir si le joueur quittera une ligue : il pourrait cliquer avant l'avertissement
         <p className="text-sm text-discret">{textes.ligue.chargement}</p>

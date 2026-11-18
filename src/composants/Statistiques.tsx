@@ -38,9 +38,12 @@ interface Props {
   // augmente de 1 à chaque fin de partie (depuis web.9.5.1) : les résultats s'ouvrent alors sur le Résumé, et non sur
   // le dernier onglet choisi. Une fenêtre fermée n'est pas retirée de la page : elle garde son état, l'onglet compris
   finDePartie?: number
+  // augmente de 1 à chaque « Voir le classement » (depuis web.9.5.4) : l'onglet Classement, vue « Ma ligue »
+  versClassement?: number
 }
 
-export function Statistiques({ historique, aujourdhui, dernier, enPlus, ouverte = true, finDePartie = 0 }: Props) {
+export function Statistiques(props: Props) {
+  const { historique, aujourdhui, dernier, enPlus, ouverte = true, finDePartie = 0, versClassement = 0 } = props
   const textes = useTextes()
   const [onglet, setOnglet] = useState<Onglet>('resume')
   const id = useId()
@@ -50,6 +53,12 @@ export function Statistiques({ historique, aujourdhui, dernier, enPlus, ouverte 
   if (finVue !== finDePartie) {
     setFinVue(finDePartie)
     setOnglet('resume')
+  }
+  // de même, « Voir le classement » : l'onglet Classement
+  const [classementVu, setClassementVu] = useState(versClassement)
+  if (classementVu !== versClassement) {
+    setClassementVu(versClassement)
+    setOnglet('classement')
   }
 
   // ← et → : l'onglet d'avant ou d'après, en boucle ; Début et Fin : le premier ou le dernier
@@ -96,7 +105,7 @@ export function Statistiques({ historique, aujourdhui, dernier, enPlus, ouverte 
         )}
         {onglet === 'details' && <Details historique={historique} />}
         {onglet === 'calendrier' && <Calendrier historique={historique} aujourdhui={aujourdhui} />}
-        {onglet === 'classement' && <Classements aujourdhui={aujourdhui} ouverte={ouverte} />}
+        {onglet === 'classement' && <Classements aujourdhui={aujourdhui} ouverte={ouverte} versLigue={versClassement} />}
       </div>
     </section>
   )

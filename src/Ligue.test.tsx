@@ -180,6 +180,33 @@ describe('Le lien d’invitation', () => {
     expect(window.location.hash).toBe('')
   })
 
+  // web.9.5.4 : avant, un texte renvoyait aux « statistiques (📊) », alors que le bouton montre des barres dessinées
+  it('« Voir le classement » ferme l’invitation et ouvre le classement de la ligue', async () => {
+    const zoe = await profil('Zoé')
+    const { code } = await pour(zoe.code, '/ligues', { nom: 'La famille' })
+    await profil('Tom', true)
+    const joueur = userEvent.setup()
+    render(<App />)
+    // les statistiques laissées sur le classement public : le bouton doit ramener à « Ma ligue »
+    await joueur.click(screen.getByRole('button', { name: 'Voir les statistiques' }))
+    const stats = screen.getByRole('dialog', { name: 'Statistiques' })
+    await joueur.click(within(stats).getByRole('tab', { name: 'Classement' }))
+    await joueur.click(within(stats).getByRole('button', { name: 'Public' }))
+    await joueur.click(within(stats).getByRole('tab', { name: 'Résumé' }))
+    await joueur.click(within(stats).getByRole('button', { name: 'Fermer' }))
+    // le lien d'invitation, collé dans l'onglet déjà ouvert sur le jeu
+    window.location.hash = `#ligue=${code}`
+    const fenetre = await screen.findByRole('dialog', { name: 'Rejoindre une ligue' })
+    await joueur.click(await within(fenetre).findByRole('button', { name: 'Rejoindre la ligue' }))
+    await joueur.click(await within(fenetre).findByRole('button', { name: 'Voir le classement' }))
+
+    expect(screen.queryByRole('dialog', { name: 'Rejoindre une ligue' })).toBeNull()
+    const ouverte = screen.getByRole('dialog', { name: 'Statistiques' })
+    expect(within(ouverte).getByRole('tab', { name: 'Classement' }).getAttribute('aria-selected')).toBe('true')
+    expect(within(ouverte).getByRole('button', { name: 'Ma ligue' }).getAttribute('aria-pressed')).toBe('true')
+    expect(await within(ouverte).findByRole('heading', { name: 'La famille' })).toBeDefined()
+  })
+
   it('déjà dans une autre ligue : la fenêtre prévient qu’on la quittera', async () => {
     const zoe = await profil('Zoé')
     const { code } = await pour(zoe.code, '/ligues', { nom: 'La famille' })

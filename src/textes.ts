@@ -461,7 +461,9 @@ const fr = {
       rejoindre: 'Rejoindre la ligue',
       quitterEtRejoindre: (nom: string) => `Quitter « ${nom} » et rejoindre`,
       bienvenue: (nom: string) =>
-        `Bienvenue dans «\u00a0${nom}\u00a0»\u00a0! Son classement est dans les statistiques (📊), onglet Classement.`,
+        `Bienvenue dans «\u00a0${nom}\u00a0»\u00a0!`,
+      // depuis web.9.5.4 : le bouton qui ouvre le classement de la ligue, à la place de « (📊), onglet Classement »
+      voirClassement: 'Voir le classement',
     },
   },
 
@@ -951,7 +953,8 @@ const en: Textes = {
       quitteras: (nom: string) => `You will leave your current league, “${nom}” (one league at a time).`,
       rejoindre: 'Join the league',
       quitterEtRejoindre: (nom: string) => `Leave “${nom}” and join`,
-      bienvenue: (nom: string) => `Welcome to “${nom}”! Its ranking is in the statistics (📊), Ranking tab.`,
+      bienvenue: (nom: string) => `Welcome to “${nom}”!`,
+      voirClassement: 'See the ranking',
     },
   },
 
