@@ -7,7 +7,8 @@ Windows, piloté par Playwright), en thème clair puis en thème sombre, et lanc
 une partie en cours, les réglages, le bonus et sa confirmation, la fenêtre des résultats, le bilan, la partie libre,
 et la page en anglais. Depuis web.9.5.4, il vérifie aussi que rien ne dépasse de l'écran à 320 et 360 pixels de
 large, avec un numéro du jour à 3 et 4 chiffres (voir largeurs()), et, depuis web.9.5.5, l'intérieur des fenêtres des
-statistiques et des réglages (voir fenetres()).
+statistiques et des réglages (voir fenetres()) ; depuis web.9.5.6, les réglages en contrastes élevés de Windows (voir
+contrastes()).
 
 Lancement, à la main (pas dans la CI pour l'instant, décidé le 9 novembre 2026) :
     npm run verifier:navigateur
@@ -304,6 +305,59 @@ async function fenetres(page: Page, locale: string, largeur: number): Promise<vo
   await page.keyboard.press('Escape')
 }
 
+// les contrastes élevés de Windows (depuis web.9.5.6) : les couleurs y sont imposées par le système, et les fonds du
+// site effacés. Avant web.9.5.6, les interrupteurs des réglages disparaissaient, et le choix fait (« Français »,
+// « Automatique »…) ne se voyait qu'au gras. Vérifié ici, d'après le bloc « forced-colors » de src/index.css : chaque
+// interrupteur a un bord, et chaque choix fait garde son propre fond (forced-color-adjust: none). La couleur du fond ne
+// peut pas servir de preuve : getComputedStyle rend celle écrite par le site, même effacée à l'écran. Sans profil, les
+// réglages ne contactent pas le serveur
+async function contrastes(navigateur: Browser, adresse: string): Promise<void> {
+  for (const colorScheme of ['light', 'dark'] as const) {
+    const contexte = await navigateur.newContext({ locale: 'fr-FR', forcedColors: 'active', colorScheme })
+    const page = await contexte.newPage()
+    await page.goto(adresse)
+    await page.getByRole('dialog').first().waitFor()
+    await page.keyboard.press('Escape')
+    await page.getByRole('button', { name: 'Ouvrir les réglages' }).click()
+    await page.getByRole('dialog', { name: 'Réglages' }).waitFor()
+    // ce qui est entre les accolades s'exécute DANS la page (voir verifier())
+    const [rails, sansBord, choix, sansFond] = await page.evaluate(() => {
+      interface Element {
+        nextElementSibling: Element | null
+      }
+      const { document, getComputedStyle } = globalThis as unknown as {
+        document: { querySelectorAll: (s: string) => Element[] }
+        getComputedStyle: (e: Element) => { borderTopWidth: string; forcedColorAdjust: string }
+      }
+      const rails = [...document.querySelectorAll('dialog[open] label > input[type="checkbox"].peer')].map(
+        (caseACocher) => caseACocher.nextElementSibling as Element,
+      )
+      const choix = [...document.querySelectorAll('dialog[open] label:has(> input[type="radio"].sr-only:checked)')]
+      return [
+        rails.length,
+        rails.filter((rail) => parseFloat(getComputedStyle(rail).borderTopWidth) === 0).length,
+        choix.length,
+        choix.filter((libelle) => getComputedStyle(libelle).forcedColorAdjust !== 'none').length,
+      ]
+    })
+    ecransVerifies++
+    const nom = `contrastes élevés, ${colorScheme === 'light' ? 'clair' : 'sombre'}, réglages`
+    const defauts = [
+      ...(rails === 0 ? ['aucun interrupteur trouvé'] : []),
+      ...(sansBord > 0 ? [`${sansBord} interrupteur(s) sur ${rails} sans bord`] : []),
+      ...(choix === 0 ? ['aucun choix trouvé'] : []),
+      ...(sansFond > 0 ? [`${sansFond} choix fait(s) sur ${choix} sans son propre fond`] : []),
+    ]
+    if (defauts.length > 0) {
+      problemes.push(`${nom} : ${defauts.join(', ')}`)
+      console.log(`  ÉCHEC ${nom} : ${defauts.join(', ')}`)
+    } else {
+      console.log(`  ok   ${nom} (${rails} interrupteurs, ${choix} choix)`)
+    }
+    await contexte.close()
+  }
+}
+
 // le site construit (dist/), servi sur un port libre ; resolvedUrls donne l'adresse, chemin de base compris
 const serveur = await preview({ preview: { port: 4173, strictPort: false }, logLevel: 'warn' })
 const adresse = serveur.resolvedUrls?.local[0]
@@ -318,6 +372,8 @@ try {
   }
   console.log('Largeur de la page sur les petits téléphones')
   await largeurs(navigateur, adresse)
+  console.log('Contrastes élevés de Windows')
+  await contrastes(navigateur, adresse)
 } finally {
   await navigateur.close()
   await serveur.close()

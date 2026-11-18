@@ -2035,6 +2035,33 @@ modération). Aucun nouveau défaut ; le débordement à 320 pixels, vu à web.9
 l'intérieur des fenêtres des statistiques (chaque onglet) et des réglages à 320 et 360 pixels : 9 échecs sur l'ancien
 code, 0 sur le nouveau (56 écrans).
 
+### La quatrième vérification générale (le 18 novembre 2026), et web.9.5.6
+
+Demandée encore par l'utilisateur, sur web.9.5.5. Tout ce qui était vérifié avant tient toujours (parcours principal,
+élargi sur quatre tailles, à l'horizontale, clavier, les 84 fenêtres). Trois angles de plus :
+
+- **Le serveur en panne, puis très lent (8 secondes)** : la partie et le bonus se jouent ; les résultats s'ouvrent sans
+  « Les joueurs du jour » ; le classement, la création du profil et l'invitation disent « Le serveur ne répond pas »
+  (« Chargement… », « Un instant… » quand il est lent) ; la partie libre se joue ; aucune erreur du programme. Rien à
+  corriger.
+- **Le texte agrandi à 150 % et 200 %** (critère 1.4.4 des WCAG) : sur ordinateur, tout reste lisible et rien ne
+  déborde. Sur téléphone (375 pixels), la page demande 526 pixels de large à 150 % et 701 à 200 %, et défile en
+  largeur. **Limite connue, non corrigée** (décidé le 18 novembre 2026) : c'est au-delà des 320 pixels du critère
+  1.4.10 (agrandir le texte à 150 % sur 375 pixels revient à un écran d'environ 250), les réglages de taille du texte
+  de l'iPhone n'agissent pas sur ce site, et la corriger demanderait de repenser l'en-tête (sur deux rangées).
+- **Les contrastes élevés de Windows** (`forced-colors`) : le système efface les fonds du site. Les interrupteurs des
+  réglages disparaissaient entièrement, le choix fait (« Français / English », le thème, les distances, « Ma ligue /
+  Public ») ne se voyait qu'au gras, l'onglet choisi en haut pas du tout, et les boutons ressemblaient à du texte. Les
+  barres de répartition disparaissent aussi, mais leurs pourcentages sont écrits : rien n'est perdu.
+
+**web.9.5.6 Les contrastes élevés** (« Oui, propose », puis « Oui, lance »), empilée sur web.9.5.5 : un bloc
+`@media (forced-colors: active)` dans `src/index.css`, qui rend la main au site (`forced-color-adjust: none`) pour ces
+éléments seulement, avec les couleurs du système (`Highlight`, `Canvas`, `CanvasText`, `ButtonText`), que Windows
+traduit par celles du joueur. Les règles visent les rôles et les états déjà là pour les lecteurs d'écran
+(`aria-pressed`, `aria-selected`, `:checked`). `npm run verifier:navigateur` vérifie les réglages en contrastes
+élevés, en clair et en sombre : chaque interrupteur a un bord, chaque choix fait garde son fond (2 échecs sur l'ancien
+code, 0 sur le nouveau).
+
 ## Les améliorations à reprendre (relevées le 16 octobre 2026)
 
 Relevées en relisant le code après web.6. Le bug du changement de jour a été corrigé tout de suite (PR #9, étiquette

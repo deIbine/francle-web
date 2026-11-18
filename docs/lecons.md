@@ -2557,3 +2557,24 @@ des résultats (web.9.5.1), les finitions (web.9.5.2).
 - **Comment le penser** : pour chaque rangée, se demander ce qui compte le plus : qu'elle reste sur une ligne (serrer,
   raccourcir), ou que chaque élément garde sa taille (replier). En CSS, `flex-wrap` est le « retour à la ligne » des
   boîtes, comme un `FlowLayout` de Swing.
+
+### Ce qui ne se montre que par une couleur disparaît en contrastes élevés
+
+- **Pourquoi** : en contrastes élevés de Windows, le système impose les couleurs du joueur et efface les fonds dessinés
+  par le site. Les interrupteurs des réglages, faits d'un rail coloré et d'un rond blanc, disparaissaient
+  entièrement ; le choix fait parmi « Français / English » ne se voyait plus qu'au gras ; l'onglet choisi en haut, pas
+  du tout. Aucun test ne le voyait : jsdom ne connaît pas ce mode, et axe vérifie les contrastes des couleurs du site,
+  pas celles du système.
+- **Comment le faire** : l'imiter dans Playwright (`newContext({ forcedColors: 'active' })`), en clair et en sombre,
+  et regarder les captures. Pour corriger, un bloc `@media (forced-colors: active)` : pour les seuls éléments dont
+  l'état est une couleur, `forced-color-adjust: none` rend la main au site, qui utilise alors les **couleurs du
+  système** (`Highlight` pour ce qui est choisi, `Canvas` et `CanvasText` pour le fond et le texte, `ButtonText` pour
+  les bords) : Windows les traduit par celles du joueur. Viser les rôles et les états déjà posés pour les lecteurs
+  d'écran (`aria-pressed`, `aria-selected`, `:checked`) plutôt que des classes : un nouvel élément en profite seul.
+- **Le piège du contrôle** : `getComputedStyle()` rend la couleur de fond écrite par le site, même quand Windows
+  l'efface à l'écran. Un contrôle sur cette couleur passait sur l'ancien code ; il vérifie donc
+  `forcedColorAdjust === 'none'`, et une bordure pour les interrupteurs. D'où, encore, l'habitude de lancer un
+  nouveau contrôle sur l'ancien code : sans cela, il aurait semblé marcher.
+- **Comment le penser** : pour chaque état (choisi, coché, actif), se demander « se voit-il autrement que par une
+  couleur ? ». Un bord, un soulignement, une coche, un texte. C'est aussi le critère 1.4.1 des WCAG (l'usage de la
+  couleur), et cela sert aussi aux joueurs qui distinguent mal les couleurs.

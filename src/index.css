@@ -45,3 +45,52 @@ body {
   background-color: var(--color-fond);
   color: var(--color-texte);
 }
+
+/* Les contrastes élevés de Windows (depuis web.9.5.6). Le système y impose les couleurs choisies par le joueur et
+   efface les fonds dessinés par le site : ce qui ne montrait son état que par un fond disparaissait (les interrupteurs
+   des réglages, entièrement ; le choix fait parmi « Français / English », « Ma ligue / Public »… ; l'onglet choisi
+   en haut) et les boutons, sans bord, ressemblaient à du texte. Pour ces éléments seulement, forced-color-adjust: none
+   rend la main au site, qui utilise alors les couleurs du système (Highlight, la couleur de sélection ; Canvas et
+   CanvasText, le fond et le texte ; ButtonText) : Windows les traduit par celles du joueur.
+   Les règles visent les rôles et les états déjà là pour les lecteurs d'écran (aria-pressed, aria-selected,
+   :checked) : un nouveau bouton ou un nouvel onglet en profite sans rien ajouter. Elles ne sont dans aucune couche
+   (@layer) : elles passent devant les classes de Tailwind, rangées dans la couche « utilities » */
+@media (forced-colors: active) {
+  /* les boutons retrouvent un bord (les onglets ont le leur, plus bas) */
+  button:not([role='tab']) {
+    border: 1px solid ButtonText;
+  }
+
+  /* les interrupteurs (Case, dans Reglages.tsx) : la vraie case est invisible (sr-only), suivie du dessin du rail ;
+     un rail bordé, et plein quand la case est cochée, avec son rond (::after) */
+  label > input[type='checkbox'].peer + span {
+    forced-color-adjust: none;
+    background: Canvas;
+    border: 1px solid CanvasText;
+  }
+  label > input[type='checkbox'].peer:checked + span {
+    background: Highlight;
+    border-color: Highlight;
+  }
+  label > input[type='checkbox'].peer + span::after {
+    background: CanvasText;
+  }
+  label > input[type='checkbox'].peer:checked + span::after {
+    background: HighlightText;
+  }
+
+  /* ce qui est choisi : un choix des réglages (Choix, dans Reglages.tsx), un bouton enfoncé (« Ma ligue / Public »),
+     la suggestion choisie aux flèches pendant la saisie */
+  label:has(> input[type='radio'].sr-only:checked),
+  button[aria-pressed='true'],
+  [role='option'][aria-selected='true'] {
+    forced-color-adjust: none;
+    background: Highlight;
+    color: HighlightText;
+  }
+
+  /* l'onglet choisi, souligné (les onglets du haut n'avaient que leur fond) */
+  [role='tab'][aria-selected='true'] {
+    border-bottom: 2px solid Highlight;
+  }
+}
