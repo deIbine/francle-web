@@ -27,7 +27,9 @@ function Choix<T extends string>(props: {
   // le même « name » pour tous les boutons du groupe : c'est ce qui les rend exclusifs (cocher l'un décoche l'autre)
   const nom = useId()
   return (
-    <fieldset className="flex items-center justify-between gap-2">
+    // flex-wrap (depuis web.9.5.5) : si les choix ne tiennent pas à côté du titre, ils passent dessous. À 320 pixels,
+    // « Thème » et « Automatique / Clair / Sombre » faisaient 312 pixels pour 282
+    <fieldset className="flex flex-wrap items-center justify-between gap-2">
       {/* float-left : une <legend> se place d'habitude sur le bord du cadre ; ainsi, elle se range dans la ligne */}
       <legend className="float-left font-semibold">{props.titre}</legend>
       <div className="flex rounded-lg bg-surface p-0.5 text-sm">

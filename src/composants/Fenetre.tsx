@@ -77,7 +77,9 @@ export function Fenetre({ ouverte, onFermer, titre, children, repli, enHaut = fa
       // marge, comme son centrage)
       className={`${enHaut ? 'mx-auto mt-4 mb-auto' : 'm-auto'} w-[min(28rem,calc(100%-2rem))] rounded-lg bg-fond p-0 text-texte shadow-xl backdrop:bg-black/50`}
     >
-      <div className="flex flex-col gap-4 p-5 text-center">
+      {/* max-[375px]:px-4 (depuis web.9.5.5) : 16 pixels de marge de chaque côté au lieu de 20 sur les petits écrans. À
+          320 pixels, la fenêtre n'a que 282 pixels pour son contenu, et les onglets des statistiques y tenaient pile */}
+      <div className="flex flex-col gap-4 p-5 text-center max-[375px]:px-4">
         <header className="flex items-center justify-between">
           <h2 id={idTitre} className="text-xl font-bold">
             {titre}

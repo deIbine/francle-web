@@ -6,7 +6,8 @@ de couleur ni ce qui est visible. Ce script joue une partie dans un vrai navigat
 Windows, piloté par Playwright), en thème clair puis en thème sombre, et lance axe sur chaque écran : « Comment jouer »,
 une partie en cours, les réglages, le bonus et sa confirmation, la fenêtre des résultats, le bilan, la partie libre,
 et la page en anglais. Depuis web.9.5.4, il vérifie aussi que rien ne dépasse de l'écran à 320 et 360 pixels de
-large, avec un numéro du jour à 3 et 4 chiffres (voir largeurs()).
+large, avec un numéro du jour à 3 et 4 chiffres (voir largeurs()), et, depuis web.9.5.5, l'intérieur des fenêtres des
+statistiques et des réglages (voir fenetres()).
 
 Lancement, à la main (pas dans la CI pour l'instant, décidé le 9 novembre 2026) :
     npm run verifier:navigateur
@@ -257,10 +258,50 @@ async function largeurs(navigateur: Browser, adresse: string): Promise<void> {
         } else {
           console.log(`  ok   ${nom}`)
         }
+        if (jour === 1000) {
+          await fenetres(page, locale, largeur)
+        }
         await contexte.close()
       }
     }
   }
+}
+
+// l'intérieur des fenêtres (depuis web.9.5.5) : leur contenu doit tenir dans leur largeur. À 320 pixels, les quatre
+// onglets des statistiques faisaient 314 pixels pour 282, et le choix du thème des réglages 312 : la fenêtre défilait
+// en largeur, son texte coupé à gauche. Sans profil, ces écrans ne contactent pas le serveur
+async function fenetres(page: Page, locale: string, largeur: number): Promise<void> {
+  const fr = locale === 'fr-FR'
+  const mesurer = async (ecran: string) => {
+    const [contenu, place] = await page.evaluate(() => {
+      const { document } = globalThis as unknown as {
+        document: { querySelector: (s: string) => { scrollWidth: number; clientWidth: number } }
+      }
+      const fenetre = document.querySelector('dialog[open]')
+      return [fenetre.scrollWidth, fenetre.clientWidth]
+    })
+    ecransVerifies++
+    const nom = `${locale}, ${largeur} pixels de large, ${ecran}`
+    if (contenu > place) {
+      problemes.push(`${nom} : le contenu fait ${contenu} pixels pour ${place}`)
+      console.log(`  ÉCHEC ${nom} : le contenu fait ${contenu} pixels pour ${place}`)
+    } else {
+      console.log(`  ok   ${nom}`)
+    }
+  }
+  await page.keyboard.press('Escape')
+  await page.locator(`button[title="${fr ? 'Voir les statistiques' : 'See statistics'}"]`).click()
+  const onglets = page.locator('dialog[open] [role=tab]')
+  await onglets.first().waitFor()
+  for (let i = 0; i < (await onglets.count()); i++) {
+    await onglets.nth(i).click()
+    await mesurer(`statistiques, « ${await onglets.nth(i).textContent()} »`)
+  }
+  await page.keyboard.press('Escape')
+  await page.locator(`button[title="${fr ? 'Ouvrir les réglages' : 'Open settings'}"]`).click()
+  await page.locator('dialog[open] fieldset').first().waitFor()
+  await mesurer('réglages')
+  await page.keyboard.press('Escape')
 }
 
 // le site construit (dist/), servi sur un port libre ; resolvedUrls donne l'adresse, chemin de base compris

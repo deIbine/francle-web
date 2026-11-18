@@ -2532,3 +2532,28 @@ des résultats (web.9.5.1), les finitions (web.9.5.2).
   partie du jour (la fenêtre, l'onglet Classement, la vue « Ma ligue »).
 - **Comment le penser** : un texte qui explique où cliquer vieillit à chaque changement d'interface. Un bouton qui y
   mène ne vieillit pas. Quand on écrit « va dans… », se demander : « pourquoi ne pas l'emmener directement ? ».
+
+### Mesurer l'intérieur des boîtes, pas seulement la page
+
+- **Pourquoi** : à web.9.5.4, la largeur de la page était mesurée (`document.documentElement.scrollWidth`) et tout
+  tenait à 320 pixels. Pourtant, deux fenêtres défilaient en largeur : une fenêtre `<dialog>` qui défile garde son
+  débordement pour elle, la page n'en sait rien. Seule une capture l'a montré (« tatistiques », coupé à gauche).
+- **Comment le faire** : pour chaque boîte qui peut défiler (une fenêtre, une liste, un tableau), comparer
+  `scrollWidth` (la largeur du contenu) et `clientWidth` (la place visible). Pour trouver le coupable, chercher les
+  éléments les plus profonds dont le bord droit dépasse celui de la boîte (`getBoundingClientRect()`). Ici : la
+  rangée d'onglets et le choix du thème, rien d'autre sur 84 fenêtres. Puis corriger seulement sur les petits écrans
+  (`max-[375px]:`), et ajouter la mesure à `npm run verifier:navigateur` (9 échecs sur l'ancien code).
+- **Comment le penser** : un contrôle ne voit que ce qu'il mesure. « La page tient » ne veut pas dire « tout tient ».
+  Se demander : « où, dans cet écran, quelque chose peut-il défiler sans que la page bouge ? ».
+
+### Une rangée qui ne tient pas : serrer ou replier
+
+- **Pourquoi** : deux rangées trop larges à 320 pixels, deux solutions. Les onglets doivent rester sur une ligne (une
+  rangée d'onglets repliée se lit mal) : on les serre. Le titre « Thème » et ses trois choix peuvent passer l'un sous
+  l'autre sans rien perdre : on laisse la ligne se replier (`flex-wrap`), et seulement quand la place manque.
+- **Comment le faire** : essayer les variantes dans la page avant de toucher au code, par une feuille de style ajoutée
+  à la volée (`page.evaluate` qui crée une balise `<style>`), et mesurer chacune. Ici, des onglets plus petits (12
+  pixels de texte) tenaient aussi, mais au prix de la lisibilité.
+- **Comment le penser** : pour chaque rangée, se demander ce qui compte le plus : qu'elle reste sur une ligne (serrer,
+  raccourcir), ou que chaque élément garde sa taille (replier). En CSS, `flex-wrap` est le « retour à la ligne » des
+  boîtes, comme un `FlowLayout` de Swing.

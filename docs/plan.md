@@ -2018,6 +2018,23 @@ erreur de console. Deux points (« Oui, propose », puis « Oui, lance ») :
 plus la largeur de la page à 320 et 360 pixels, aux n° 100 et 1000, en français et en anglais (l'horloge de la page
 avancée) : 6 échecs sur l'ancien en-tête, 0 sur le nouveau.
 
+### La troisième vérification générale (le 18 novembre 2026), et web.9.5.5
+
+Demandée encore par l'utilisateur, sur web.9.5.4, avec deux angles de plus : le téléphone tenu à l'horizontale
+(812 × 375 et 667 × 375 : chaque fenêtre défile jusqu'à son dernier bouton, rien à corriger) et la largeur de
+**l'intérieur de chaque fenêtre** à 320 et 360 pixels, en français et en anglais (84 mesures : aide, réglages avec et
+sans profil, liste, statistiques et leurs onglets, ligue, résultats, comparaison, invitation, confidentialité,
+modération). Aucun nouveau défaut ; le débordement à 320 pixels, vu à web.9.5.4, ramené à deux causes (« Oui, lance ») :
+
+| # | Constat | Décision |
+|---|---|---|
+| 13 | Les quatre onglets des statistiques (aussi dans la fenêtre des résultats) : 314 pixels pour 282 en français, 296 en anglais ; la fenêtre défilait en largeur, son texte coupé à gauche | Sous 375 pixels, moins de marge dans chaque onglet (`max-[375px]:px-1`), et 16 pixels de marge intérieure aux fenêtres au lieu de 20 (`max-[375px]:px-4`), pour ne pas tenir pile |
+| 14 | Le choix du thème des réglages (« Automatique / Clair / Sombre ») : 312 pixels pour 282, en français | `flex-wrap` : les choix passent sous leur titre quand ils ne tiennent pas à côté |
+
+**web.9.5.5 Les fenêtres à 320 pixels (13, 14)**, empilée sur web.9.5.4. `npm run verifier:navigateur` mesure en plus
+l'intérieur des fenêtres des statistiques (chaque onglet) et des réglages à 320 et 360 pixels : 9 échecs sur l'ancien
+code, 0 sur le nouveau (56 écrans).
+
 ## Les améliorations à reprendre (relevées le 16 octobre 2026)
 
 Relevées en relisant le code après web.6. Le bug du changement de jour a été corrigé tout de suite (PR #9, étiquette

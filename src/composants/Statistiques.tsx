@@ -91,7 +91,9 @@ export function Statistiques(props: Props) {
             tabIndex={onglet === nom ? 0 : -1}
             onClick={() => setOnglet(nom)}
             // -mb-px : la bordure de l'onglet choisi recouvre celle de la liste, comme une languette
-            className={`-mb-px flex-1 border-b-2 px-2 py-1.5 text-sm font-semibold ${
+            // max-[375px]:px-1 (depuis web.9.5.5) : moins de marge dans chaque onglet sur les petits écrans. À 320
+            // pixels, les quatre onglets faisaient 314 pixels pour 282, et la fenêtre défilait en largeur
+            className={`-mb-px flex-1 border-b-2 px-2 py-1.5 text-sm font-semibold max-[375px]:px-1 ${
               onglet === nom ? 'border-francle-fonce text-texte' : 'border-transparent text-discret hover:text-texte'
             }`}
           >
