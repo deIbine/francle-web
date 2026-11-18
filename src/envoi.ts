@@ -79,6 +79,10 @@ export function synchroniser(): Promise<void> {
   return file
 }
 
+// l'évènement qui prévient la page que des parties sont arrivées au profil, sur le serveur (depuis web.9.5.1) : les
+// classements affichés se redemandent alors (useFraicheur, useClassement.ts)
+export const PARTIES_RECUES = 'francle-parties-recues'
+
 // les parties finies pas encore reçues par le profil, par morceaux, comme les parties anonymes. Si le serveur ne
 // reconnaît plus le code (401 : profil effacé, ou repris sur un autre appareil), le site l'oublie (profil.ts)
 async function envoyerAuProfil(): Promise<void> {
@@ -87,21 +91,30 @@ async function envoyerAuProfil(): Promise<void> {
     return
   }
   const parties = aEnvoyerAuProfil(profil.id)
-  for (let debut = 0; debut < parties.length; debut += PARTIES_PAR_ENVOI) {
-    const morceau = parties.slice(debut, debut + PARTIES_PAR_ENVOI)
-    const reponse = await demander(
-      '/profil/parties',
-      { method: 'POST', body: JSON.stringify({ v: VERSION_TRANSMISSION, parties: morceau }) },
-      profil,
-    )
-    if (reponse.status === 401) {
-      perdreProfil()
-      return
+  let recues = false
+  try {
+    for (let debut = 0; debut < parties.length; debut += PARTIES_PAR_ENVOI) {
+      const morceau = parties.slice(debut, debut + PARTIES_PAR_ENVOI)
+      const reponse = await demander(
+        '/profil/parties',
+        { method: 'POST', body: JSON.stringify({ v: VERSION_TRANSMISSION, parties: morceau }) },
+        profil,
+      )
+      if (reponse.status === 401) {
+        perdreProfil()
+        return
+      }
+      if (!reponse.ok) {
+        return
+      }
+      marquerEnvoyeesAuProfil(profil.id, morceau)
+      recues = true
     }
-    if (!reponse.ok) {
-      return
+  } finally {
+    // finally : même si un morceau suivant échoue (réseau coupé en route), ceux déjà reçus comptent au classement
+    if (recues) {
+      window.dispatchEvent(new Event(PARTIES_RECUES))
     }
-    marquerEnvoyeesAuProfil(profil.id, morceau)
   }
 }
 

@@ -101,8 +101,15 @@ export function PartieDuJour({ jour, reglages, demandeStats, demandeListe, onLis
   // vrai quand le bonus vient d'être lancé par le joueur (victoire ou bouton) : le focus du clavier va alors sur son
   // titre, la saisie ou le bouton qu'il vient d'utiliser ayant disparu. Pas quand on reprend un bonus en revenant
   const [focusBonus, setFocusBonus] = useState(false)
+  // augmente de 1 à chaque fin de partie (depuis web.9.5.1) : les statistiques reviennent alors au Résumé
+  const [finDePartie, setFinDePartie] = useState(0)
+  // les résultats qui s'ouvrent d'eux-mêmes à la fin de la partie (défaite, abandon, bonus fini ou passé)
+  function ouvrirResultatsDeFin() {
+    setFinDePartie((n) => n + 1)
+    setFenetre(true)
+  }
   // la fenêtre des résultats, un peu après la dernière réponse du bonus
-  const pause = usePause(() => setFenetre(true))
+  const pause = usePause(ouvrirResultatsDeFin)
   // « Voir les résultats », où revient le focus quand la fenêtre se ferme et que le bouton qui l'avait a disparu
   // (« Passer », à la fin du bonus)
   const boutonResultats = useRef<HTMLButtonElement>(null)
@@ -147,7 +154,7 @@ export function PartieDuJour({ jour, reglages, demandeStats, demandeListe, onLis
     if (suite.etat === 'gagnee') {
       lancerBonus(suite)
     } else if (!enCours(suite)) {
-      setFenetre(true)
+      ouvrirResultatsDeFin()
     }
   }
 
@@ -163,7 +170,7 @@ export function PartieDuJour({ jour, reglages, demandeStats, demandeListe, onLis
     // passé avant toute réponse : il n'a pas commencé, on revient à la silhouette et il reste à jouer
     if (!commence(suite)) {
       setBonus(undefined)
-      setFenetre(true)
+      ouvrirResultatsDeFin()
       return
     }
     setBonus(suite)
@@ -172,7 +179,7 @@ export function PartieDuJour({ jour, reglages, demandeStats, demandeListe, onLis
     if (suite.etat === 'termine') {
       pause.lancer()
     } else if (suite.etat === 'passe') {
-      setFenetre(true)
+      ouvrirResultatsDeFin()
     }
   }
 
@@ -257,6 +264,8 @@ export function PartieDuJour({ jour, reglages, demandeStats, demandeListe, onLis
           historique={historique}
           aujourdhui={numero}
           dernier={partie.etat === 'gagnee' ? partie.essais.length : undefined}
+          ouverte={fenetre}
+          finDePartie={finDePartie}
           // le lien de comparaison, dès qu'il y a une partie finie à comparer
           enPlus={unePartieFinie && <EnvoyerBilan historique={historique} aujourdhui={numero} />}
         />

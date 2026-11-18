@@ -12,6 +12,9 @@ import App from './App.tsx'
 import { MODE_DU_JOUR, regionDuNumero } from './domaine/regionDuJour.ts'
 import { tirables } from './domaine/regions.ts'
 import { CLE_PROFIL } from './profil.ts'
+import { nouvellePartie, proposer } from './domaine/partie.ts'
+import { synchroniser } from './envoi.ts'
+import { enregistrer } from './sauvegarde.ts'
 
 const CLE_MODERATION = 'cle-de-moderation-de-test'
 let base: ReturnType<typeof baseDeTest>
@@ -92,6 +95,54 @@ describe('Le classement public', () => {
     const demandes = vi.mocked(fetch).mock.calls.filter(([adresse]) => String(adresse).includes('/classement?'))
     expect(demandes.length).toBeGreaterThan(0)
     expect(demandes.every(([, options]) => options?.cache === 'no-store')).toBe(true)
+  })
+
+  // web.9.5.1 : la fenêtre fermée reste dans la page ; rouverte, elle montrait le classement de sa première demande
+  it('est redemandé à chaque ouverture de la fenêtre', async () => {
+    const { joueur: clavier, onglet } = await vuePublique()
+    expect(await within(onglet).findByText('Aucun joueur classé ce mois-ci.')).toBeDefined()
+    await clavier.click(within(screen.getByRole('dialog', { name: 'Statistiques' })).getByRole('button', { name: 'Fermer' }))
+    // pendant ce temps, Zoé joue
+    await joueur('Zoé', 1)
+    await clavier.click(screen.getByRole('button', { name: 'Voir les statistiques' }))
+    const fenetre = screen.getByRole('dialog', { name: 'Statistiques' })
+    // le même onglet, toujours là (il n'a pas été refait), mais à jour
+    expect(await within(fenetre).findByRole('table', { name: 'Classement public, octobre 2026' })).toBeDefined()
+    expect(within(fenetre).getByText('Zoé')).toBeDefined()
+  })
+
+  // web.9.5.1 : les résultats s'ouvraient sur le dernier onglet choisi, et le classement n'avait pas la partie du jour
+  it('après une partie : les résultats sur le Résumé, et le classement avec la partie, une fois arrivée', async () => {
+    const moi = await serveur('/profils', { pseudo: 'Moi' })
+    localStorage.setItem(CLE_PROFIL, JSON.stringify({ id: moi.id, pseudo: moi.pseudo, code: moi.code }))
+    const { joueur: clavier, onglet } = await vuePublique()
+    expect(await within(onglet).findByText('Aucun joueur classé ce mois-ci.')).toBeDefined()
+    await clavier.click(within(screen.getByRole('dialog', { name: 'Statistiques' })).getByRole('button', { name: 'Fermer' }))
+
+    const champ = screen.getByRole('combobox', { name: 'Ta proposition' })
+    await clavier.type(champ, `${regionDuNumero(2).nom.fr}{Escape}{Enter}`)
+    await clavier.click(screen.getByRole('button', { name: 'Passer' }))
+    const resultats = screen.getByRole('dialog', { name: 'Résultats' })
+    expect(within(resultats).getByRole('tab', { name: 'Résumé' }).getAttribute('aria-selected')).toBe('true')
+
+    await clavier.click(within(resultats).getByRole('tab', { name: 'Classement' }))
+    await clavier.click(within(resultats).getByRole('button', { name: 'Public' }))
+    expect(await within(resultats).findByText('Moi')).toBeDefined()
+  })
+
+  // web.9.5.1 : des parties arrivées au profil pendant que la fenêtre est ouverte (l'évènement PARTIES_RECUES)
+  it('se redemande quand des parties arrivent au serveur, sans « Chargement… » entre-temps', async () => {
+    const moi = await serveur('/profils', { pseudo: 'Moi' })
+    localStorage.setItem(CLE_PROFIL, JSON.stringify({ id: moi.id, pseudo: moi.pseudo, code: moi.code }))
+    const { onglet } = await vuePublique()
+    expect(await within(onglet).findByText('Aucun joueur classé ce mois-ci.')).toBeDefined()
+    // une partie gagnée, sauvée puis envoyée (comme le ferait un autre onglet)
+    const cible = regionDuNumero(2)
+    enregistrer(2, proposer(nouvellePartie(cible, MODE_DU_JOUR), cible.nom.fr)!)
+    await synchroniser()
+    // l'évènement est parti, la nouvelle demande est en route : l'ancien classement reste affiché en attendant
+    expect(within(onglet).queryByText('Chargement…')).toBeNull()
+    expect(await within(onglet).findByText('Moi')).toBeDefined()
   })
 
   it('avec un profil : sa ligne mise en avant, et « Signaler » à côté des autres', async () => {

@@ -8,7 +8,7 @@ Tout vient du serveur : chaque partie de l'onglet affiche « Chargement… » pu
 pas » ; le reste du jeu n'attend jamais.
  */
 import { useEffect, useId, useRef, useState, type FormEvent } from 'react'
-import { useClassement } from '../useClassement.ts'
+import { useClassement, useFraicheur } from '../useClassement.ts'
 import { dateDuMois } from '../domaine/calendrier.ts'
 import { moisDuNumero } from '../domaine/regionDuJour.ts'
 import {
@@ -45,15 +45,19 @@ export const CHAMP = 'w-full rounded border border-bord bg-fond px-2 py-1.5'
 interface Props {
   // le numéro de la partie du jour : le mois en cours en découle
   aujourdhui: number
+  // la fenêtre des statistiques est-elle ouverte ? (depuis web.9.5.1, voir useFraicheur)
+  ouverte?: boolean
 }
 
 // depuis web.9.3.3, deux vues : « Ma ligue » et « Public ». Deux boutons dont l'un est enfoncé (aria-pressed) : un
 // lecteur d'écran dit lequel est choisi
-export function Classements({ aujourdhui }: Props) {
+export function Classements({ aujourdhui, ouverte = true }: Props) {
   const textes = useTextes()
   const [etat] = useProfil()
   const profil = estProfil(etat) ? etat : undefined
   const [vue, setVue] = useState<'ligue' | 'public'>('ligue')
+  // redemander les classements à chaque ouverture de la fenêtre, et quand une partie arrive au serveur (web.9.5.1)
+  const fraicheur = useFraicheur(ouverte)
   const bouton = (nom: 'ligue' | 'public', libelle: string) => (
     <button
       type="button"
@@ -71,7 +75,7 @@ export function Classements({ aujourdhui }: Props) {
         {bouton('public', textes.public.public)}
       </div>
       {vue === 'public' ? (
-        <ClassementPublic profil={profil} aujourdhui={aujourdhui} />
+        <ClassementPublic profil={profil} aujourdhui={aujourdhui} fraicheur={fraicheur} />
       ) : profil === undefined ? (
         <div className="flex flex-col items-center gap-2">
           <p className="text-sm">{textes.ligue.sansProfil}</p>
@@ -79,7 +83,7 @@ export function Classements({ aujourdhui }: Props) {
         </div>
       ) : (
         // key : un autre profil (après une suppression et une création) repart d'une vue neuve
-        <MaLigue key={profil.id} profil={profil} aujourdhui={aujourdhui} />
+        <MaLigue key={profil.id} profil={profil} aujourdhui={aujourdhui} fraicheur={fraicheur} />
       )}
     </div>
   )
@@ -130,12 +134,13 @@ function moisPossibles(aujourdhui: number): [number, number] {
 
 // le classement public du mois (web.9.3.3), lisible sans profil. Avec un profil, la ligne du joueur (même au-delà des
 // 100 premiers) et un bouton « Signaler » à côté des autres pseudos
-function ClassementPublic({ profil, aujourdhui }: { profil: Profil | undefined; aujourdhui: number }) {
+function ClassementPublic(props: { profil: Profil | undefined; aujourdhui: number; fraicheur: number }) {
+  const { profil, aujourdhui, fraicheur } = props
   const textes = useTextes()
   const langue = useLangue()
   const [premier, dernier] = moisPossibles(aujourdhui)
   const [mois, setMois] = useState(dernier)
-  const classement = useClassement(() => classementPublic(profil, mois), `${mois}:${profil?.id ?? ''}`)
+  const classement = useClassement(() => classementPublic(profil, mois), `${mois}:${profil?.id ?? ''}`, fraicheur)
   const [signales, setSignales] = useState<ReadonlySet<string>>(new Set())
   // le joueur dont le signalement attend sa confirmation (depuis web.9.4.3 : avant, ⚑ signalait en un toucher)
   const [aSignaler, setASignaler] = useState<string>()
@@ -211,7 +216,7 @@ function ClassementPublic({ profil, aujourdhui }: { profil: Profil | undefined; 
   )
 }
 
-function MaLigue({ profil, aujourdhui }: { profil: Profil; aujourdhui: number }) {
+function MaLigue({ profil, aujourdhui, fraicheur }: { profil: Profil; aujourdhui: number; fraicheur: number }) {
   const textes = useTextes()
   // 'chargement', les infos, null (pas de ligue) ou undefined (le serveur ne répond pas)
   const [ligue, setLigue] = useState<InfosLigue | null | undefined | 'chargement'>('chargement')
@@ -227,7 +232,9 @@ function MaLigue({ profil, aujourdhui }: { profil: Profil; aujourdhui: number })
     return () => {
       annule = true
     }
-  }, [profil])
+    // fraicheur (depuis web.9.5.1) : la ligue aussi est redemandée à chaque ouverture, pour un membre arrivé entre-temps.
+    // L'ancienne reste affichée jusqu'à la réponse (l'état n'est pas remis à « chargement »)
+  }, [profil, fraicheur])
 
   if (ligue === 'chargement') {
     return <p className="text-sm text-discret">{textes.ligue.chargement}</p>
@@ -238,7 +245,7 @@ function MaLigue({ profil, aujourdhui }: { profil: Profil; aujourdhui: number })
   if (ligue === null) {
     return <SansLigue profil={profil} onLigue={setLigue} />
   }
-  return <AvecLigue profil={profil} ligue={ligue} aujourdhui={aujourdhui} onLigue={setLigue} />
+  return <AvecLigue profil={profil} ligue={ligue} aujourdhui={aujourdhui} fraicheur={fraicheur} onLigue={setLigue} />
 }
 
 // un petit formulaire : un champ, un bouton, et le message d'erreur
@@ -351,16 +358,17 @@ function AvecLigue(props: {
   profil: Profil
   ligue: InfosLigue
   aujourdhui: number
+  fraicheur: number
   onLigue: (ligue: InfosLigue | null) => void
 }) {
-  const { profil, ligue, aujourdhui, onLigue } = props
+  const { profil, ligue, aujourdhui, fraicheur, onLigue } = props
   const textes = useTextes()
   const langue = useLangue()
   const [premier, dernier] = moisPossibles(aujourdhui)
   const [mois, setMois] = useState(dernier)
   // la clé : le mois, et les membres (un départ ou un retrait change le classement)
   const membres = ligue.membres.map((membre) => membre.id).join(',')
-  const classement = useClassement(() => classementLigue(profil, mois), `${mois}:${membres}`)
+  const classement = useClassement(() => classementLigue(profil, mois), `${mois}:${membres}`, fraicheur)
   // l'action qui attend sa confirmation, s'il y en a une (depuis web.9.4.3 : retirer et changer le code aussi)
   const [aConfirmer, setAConfirmer] = useState<'quitter' | 'code' | Membre>()
   const [erreur, setErreur] = useState(false)
