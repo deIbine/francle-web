@@ -77,7 +77,8 @@ const fr = {
   titre: 'Francle',
   numero: (n: number) => `n°\u00a0${n}`,
   sousTitre: 'Devine la région française du jour, en six essais.',
-  sousTitreLibre: 'Devine une région française tirée au hasard, en six essais.',
+  // sans « française » (depuis web.9.5.2) : la phrase tient sur une ligne à 375 pixels, comme celle du jour
+  sousTitreLibre: 'Devine une région tirée au hasard, en six essais.',
   onglets: { titre: 'Sorte de partie', jour: 'Partie du jour', libre: 'Partie libre' },
   // le bouton de langue montre la langue vers laquelle il fait passer
   autreLangue: { court: 'EN', long: 'Switch to English' },

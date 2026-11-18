@@ -2405,3 +2405,60 @@ classement (web.9.4.2), la ligue et l'invitation (web.9.4.3).
 - **Comment le penser** : « attendre A » ne garantit pas « B est fait », même si B part avant A. Dans un test, attendre
   directement ce qu'on va utiliser. C'est le `Thread.sleep` contre `CountDownLatch` de Java : on attend le signal de
   la chose elle-même.
+
+## web.9.5 Les corrections du 18 novembre 2026
+
+Un checkup des bugs et de l'interface (web.9.5.0, les notes), puis deux PR empilées : le classement à jour et l'onglet
+des résultats (web.9.5.1), les finitions (web.9.5.2).
+
+### Une fenêtre fermée n'est pas une fenêtre détruite
+
+- **Pourquoi** : avec un profil, le joueur ouvrait 📊, regardait le classement public (« Aucun joueur classé »),
+  fermait, puis gagnait la partie. Les résultats s'ouvraient sur ce même onglet, toujours vide, alors que le serveur le
+  classait premier. La fenêtre `<dialog>` fermée reste dans la page, et React garde l'état de tout ce qu'elle contient :
+  le classement, demandé une fois, n'était redemandé que si le mois ou les membres changeaient. Une partie jouée ne
+  change ni l'un ni l'autre. Les tests ne le voyaient pas : chacun ouvrait la fenêtre une seule fois.
+- **Comment le faire** : pour un composant qui montre des données d'un serveur, faire la liste de ce qui peut les
+  changer (ici : le mois, les membres, une partie arrivée au serveur, le temps passé fenêtre fermée), et vérifier que
+  chacun relance la demande. Ce qui n'est pas dans les dépendances de l'effet ne relance rien. Ici, un nombre de
+  plus, la « fraîcheur » (`useFraicheur`), qui augmente à chaque ouverture de la fenêtre et à chaque arrivée de parties
+  au profil (un évènement de la page, `PARTIES_RECUES`, envoyé par `envoi.ts`). Pour le tester : ouvrir, fermer, faire
+  changer le serveur, rouvrir, puis vérifier que la nouvelle donnée s'affiche. Et lancer le nouveau test sur l'ancien
+  code pour le voir échouer (un commit temporaire, puis `git checkout HEAD~1 -- <fichiers>`).
+- **Comment le penser** : en Swing, un `JDialog` caché par `setVisible(false)` garde lui aussi ses champs, et le Java
+  de Francle refait sa fenêtre des statistiques à chaque fois, d'où l'absence du bug. La question à se poser : « cette
+  donnée est-elle encore vraie la deuxième fois qu'on la montre ? ». Une donnée qu'on n'a pas redemandée n'est pas
+  « la dernière », mais seulement « la première ».
+
+### Recharger sans faire clignoter
+
+- **Pourquoi** : redemander le classement en repassant par « Chargement… » ferait sauter le tableau sous les yeux du
+  joueur, à chaque ouverture et encore une fois quand sa partie arrive au serveur.
+- **Comment le faire** : séparer ce qui change la **question** (le mois : l'ancienne réponse ne vaut plus, on affiche
+  « Chargement… ») de ce qui demande seulement une **réponse plus fraîche** (la fraîcheur : l'ancienne réponse reste
+  affichée jusqu'à la nouvelle). Dans `useClassement`, les deux relancent l'effet, mais seule la clé décide du
+  « Chargement… ».
+- **Comment le penser** : se demander « l'ancienne réponse est-elle fausse, ou seulement peut-être vieille ? ». Fausse,
+  on la retire ; vieille, on la garde en attendant mieux.
+
+### Une action qui échoue le dit là où on regarde
+
+- **Pourquoi** : un signalement ⚑ qui n'aboutissait pas (serveur muet) faisait disparaître la confirmation sans un mot.
+  Le joueur pouvait croire que c'était fait.
+- **Comment le faire** : chaque `await` qui peut échouer a deux suites à écrire, la réussite et l'échec. Le message
+  d'échec va près de l'action (sous la ligne du pseudo, pas sous un tableau qui peut faire 100 lignes), en
+  `role="alert"` pour les lecteurs d'écran, et s'efface quand on réessaie. Pour le tester, faire échouer une seule
+  adresse : `vi.mocked(fetch).mockImplementation(…)`, qui rejette pour `/signaler` et laisse passer le reste.
+- **Comment le penser** : « et si ça rate ? » se pose pour chaque bouton qui parle au serveur. Un silence est une
+  réponse, et le joueur la comprend souvent comme « c'est fait ».
+
+### Une cible au doigt se mesure
+
+- **Pourquoi** : le bouton FR/EN faisait 29 × 22 pixels, sous les 24 pixels demandés par le critère 2.5.8 des WCAG 2.2.
+  À l'œil, rien ne le trahissait, et axe, l'outil des tests d'accessibilité, ne mesure pas les tailles dans jsdom (qui
+  ne dessine rien).
+- **Comment le faire** : dans la vraie page, `getBoundingClientRect()` sur chaque bouton
+  (`[...document.querySelectorAll('header button')].map(…)`), en mode téléphone. Corriger par une taille minimale
+  (`min-h-6`, 24 pixels) plutôt que par plus de marge intérieure : l'aspect ne change presque pas.
+- **Comment le penser** : un doigt est bien moins précis qu'une souris. Pour chaque petit bouton, se demander « est-il
+  au moins aussi grand qu'un bout de doigt ? » : 24 pixels au minimum, 44 si on peut.

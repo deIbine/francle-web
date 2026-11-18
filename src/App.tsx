@@ -288,7 +288,9 @@ export default function App() {
               // « Switch to English », et une commande vocale (« clique sur EN ») ne trouvait pas le bouton. La phrase
               // entière reste, dans title : une infobulle, et une description lue après le nom
               title={textes.autreLangue.long}
-              className="rounded border border-bord px-1.5 py-0.5 text-xs font-bold hover:bg-surface"
+              // min-h-6 (depuis web.9.5.2) : 24 pixels de haut au moins, le minimum d'une cible au doigt (WCAG 2.2,
+              // critère 2.5.8). Il n'en faisait que 22 (29 × 22, mesuré à 375 pixels)
+              className="min-h-6 rounded border border-bord px-1.5 py-0.5 text-xs font-bold hover:bg-surface"
             >
               {textes.autreLangue.court}
             </button>

@@ -123,7 +123,7 @@ describe('La partie libre', () => {
     await joueur.click(screen.getByRole('tab', { name: 'Partie libre' }))
     expect(screen.getByRole('heading', { level: 1 }).textContent).toBe('Francle')
     // le sous-titre ne parle plus de « la région du jour »
-    expect(screen.getByText('Devine une région française tirée au hasard, en six essais.')).toBeDefined()
+    expect(screen.getByText('Devine une région tirée au hasard, en six essais.')).toBeDefined()
     expect(within(panneau()).queryAllByRole('row').filter((ligne) => ligne.closest('tbody'))).toHaveLength(0)
     await proposer(joueur, cible.nom.fr)
     // une victoire lance le bonus ; « Passer » avant toute réponse ouvre les résultats

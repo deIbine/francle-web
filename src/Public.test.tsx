@@ -166,6 +166,27 @@ describe('Le classement public', () => {
     expect(violations.map((violation) => violation.id)).toEqual([])
   })
 
+  // web.9.5.2 : avant, la confirmation disparaissait sans un mot
+  it('un signalement qui n’aboutit pas le dit, sous la ligne du pseudo', async () => {
+    await joueur('Zoé', 1)
+    await joueur('Tom', 3, true)
+    const { joueur: clavier, onglet } = await vuePublique()
+    await within(onglet).findByRole('table')
+    // le serveur ne répond plus aux signalements
+    vi.mocked(fetch).mockImplementation((entree, options) =>
+      String(entree).endsWith('/signaler')
+        ? Promise.reject(new TypeError('Failed to fetch'))
+        : traiter(new Request(entree as string, options), base, new Date(), CLE_MODERATION),
+    )
+    await clavier.click(within(onglet).getByRole('button', { name: 'Signaler Zoé' }))
+    await clavier.click(within(onglet).getByRole('button', { name: 'Oui, signaler' }))
+    expect((await within(onglet).findByRole('alert')).textContent).toBe('Le serveur ne répond pas. Réessaie plus tard.')
+    expect(within(onglet).queryByText('Signalé')).toBeNull()
+    // on peut réessayer : le message s'efface
+    await clavier.click(within(onglet).getByRole('button', { name: 'Signaler Zoé' }))
+    expect(within(onglet).queryByRole('alert')).toBeNull()
+  })
+
   it('un pseudo retiré par la modération : le joueur le lit dans ses réglages', async () => {
     const zoe = await joueur('Zoé', 1, true)
     await serveur('/moderation/masquer', { profil: zoe.id, masque: true }, CLE_MODERATION)

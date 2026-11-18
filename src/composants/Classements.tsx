@@ -144,12 +144,21 @@ function ClassementPublic(props: { profil: Profil | undefined; aujourdhui: numbe
   const [signales, setSignales] = useState<ReadonlySet<string>>(new Set())
   // le joueur dont le signalement attend sa confirmation (depuis web.9.4.3 : avant, ⚑ signalait en un toucher)
   const [aSignaler, setASignaler] = useState<string>()
+  // le joueur dont le signalement n'a pas abouti (depuis web.9.5.2 : avant, la confirmation disparaissait sans un mot).
+  // Le message s'affiche sous sa ligne, là où le joueur regarde, et non sous un tableau qui peut faire 100 lignes
+  const [echec, setEchec] = useState<string>()
   const nomDuMois = dateDuMois(mois).toLocaleDateString(langue, { month: 'long', year: 'numeric' })
 
   async function signalerPseudo(id: string) {
     setASignaler(undefined)
-    if (profil !== undefined && (await signaler(profil, id))) {
+    setEchec(undefined)
+    if (profil === undefined) {
+      return
+    }
+    if (await signaler(profil, id)) {
       setSignales((avant) => new Set([...avant, id]))
+    } else {
+      setEchec(id)
     }
   }
 
@@ -191,7 +200,10 @@ function ClassementPublic(props: { profil: Profil | undefined; aujourdhui: numbe
                         aria-label={textes.public.signaler(ligne.pseudo)}
                         title={textes.public.signaler(ligne.pseudo)}
                         aria-expanded={aSignaler === ligne.id}
-                        onClick={() => setASignaler(aSignaler === ligne.id ? undefined : ligne.id)}
+                        onClick={() => {
+                          setEchec(undefined)
+                          setASignaler(aSignaler === ligne.id ? undefined : ligne.id)
+                        }}
                         className="rounded px-1 text-discret hover:bg-surface hover:text-texte"
                       >
                         ⚑
@@ -199,7 +211,7 @@ function ClassementPublic(props: { profil: Profil | undefined; aujourdhui: numbe
                     ))
             }
             sousLigne={(ligne) =>
-              aSignaler === ligne.id && (
+              aSignaler === ligne.id ? (
                 <Confirmer
                   question={textes.public.confirmerSignaler(ligne.pseudo)}
                   oui={textes.public.ouiSignaler}
@@ -207,6 +219,12 @@ function ClassementPublic(props: { profil: Profil | undefined; aujourdhui: numbe
                   onOui={() => void signalerPseudo(ligne.id)}
                   onNon={() => setASignaler(undefined)}
                 />
+              ) : (
+                echec === ligne.id && (
+                  <p role="alert" className="text-sm text-danger">
+                    {textes.ligue.injoignable}
+                  </p>
+                )
               )
             }
           />
