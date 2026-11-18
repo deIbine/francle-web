@@ -100,7 +100,7 @@ l'autre, et le web n'a plus à rester égal au Java.
    Cloudflare Workers + D1, dans `serveur/` du même dépôt), web.9.3 des ligues entre amis et un classement public
    protégé. Détail plus bas dans « Les statistiques des joueurs (web.9) ».
 
-## Où on en est (mis à jour le 16 novembre 2026, sur le PC : web.9.4 fusionnée et en ligne)
+## Où on en est (mis à jour le 18 novembre 2026, sur le PC : web.9.5 en cours, voir « Les corrections relevées le 18 novembre 2026 »)
 
 ### À faire sur le PC (rien depuis le 9 novembre 2026)
 
@@ -1921,6 +1921,52 @@ créé, « Créer mon profil » qui ouvre les réglages sur le champ du pseudo, 
   aussitôt « Supprimer mon profil » (`getByRole`). Sur la machine de la CI, plus lente, les parties arrivaient avant
   que React ait redessiné les réglages (le journal montrait encore le formulaire de création). `findByRole`, qui
   attend ; jamais vu sur le PC (six passages de suite).
+
+## Les corrections relevées le 18 novembre 2026 (web.9.5)
+
+Demandé par l'utilisateur le 18 novembre 2026 : « un checkup bugs, petites améliorations et améliorations
+d'interface ». Vérifié **sans rien modifier**, sur le PC : lint, types et tests (**500 sur 500**, 21 s) ; le code du
+jeu relu (`App`, partie du jour, partie libre, sauvegarde, envoi, profil, ligue, classements) ; une partie du jour
+(Île-de-France, gagnée en 2 essais, bonus passé) jouée dans le navigateur intégré à 375 × 812, en sombre et en clair,
+en français et en anglais, avec un profil d'essai et le serveur **en local** ; aucune erreur dans la console, aucun
+ticket ni PR ouverts sur GitHub. Vérifié aussi que ces défauts ne peuvent pas exister dans le Java (ni serveur, ni
+classement, ni onglets dans ses statistiques, refaites à chaque ouverture ; pas d'écran de téléphone).
+
+### Le bug
+
+| # | Problème | Pour le reproduire | Cause |
+|---|---|---|---|
+| 1 | Le classement de la fenêtre des statistiques n'est jamais redemandé tant que la page reste ouverte | Avec un profil : 📊, Classement, Public (« Aucun joueur classé ») ; fermer, gagner la partie : les résultats s'ouvrent sur ce même onglet, toujours « Aucun joueur classé », alors que le serveur répond « Essai checkup, 1er, 5 points ». De même pour « Ma ligue » | Un `<dialog>` fermé reste dans la page avec son état : le classement n'est redemandé que si sa clé (le mois, les membres) change, et une partie jouée ne la change pas. Il faut aussi attendre que la partie soit arrivée au serveur |
+
+### Les soucis d'interface
+
+| # | Problème | Piste |
+|---|---|---|
+| 2 | Un signalement ⚑ qui échoue (serveur muet) ne dit rien : la confirmation disparaît, sans message (vu en lisant le code) | « Le serveur ne répond pas », comme pour les actions de la ligue |
+| 3 | Le bouton FR/EN mesure 29 × 22 px, sous les 24 px demandés pour une cible tactile (WCAG 2.2, 2.5.8) | Un peu plus de marge intérieure, même aspect |
+| 4 | Les résultats s'ouvrent sur le dernier onglet choisi des statistiques (Classement, dans l'essai) | Revenir au Résumé à chaque fin de partie |
+| 5 | En partie libre, le sous-titre prend deux lignes à 375 px : le plateau descend d'une ligne en changeant d'onglet | Un texte plus court |
+
+Toujours en attente, déjà notés ailleurs, **non retenus cette fois** : l'aperçu des liens (Open Graph, `theme-color`),
+faisable dès maintenant avec l'adresse GitHub Pages ; les silhouettes qui montrent les limites des départements
+(l'Île-de-France du jour se reconnaît à Paris et à la petite couronne).
+
+### Les décisions (validées le 18 novembre 2026)
+
+L'utilisateur a retenu les points 1 à 5 (« Tout, sauf 6 et 7 »), puis accepté les recommandations (« Ok pour toutes
+les recos »), et donné le départ (« Tu peux tout lancer »).
+
+- **Le nom** : web.9.5.
+- **(1)** Le classement redemandé à chaque ouverture de la fenêtre, puis une fois la partie arrivée au serveur : un
+  compteur de plus dans sa clé. Plutôt que de retirer le contenu de la fenêtre à sa fermeture, qui ferait perdre
+  l'onglet et le mois choisis, et ne réglerait pas l'arrivée de la partie au serveur.
+- **(4)** Le Résumé à chaque fin de partie (victoire, défaite, abandon, bonus fini) ; ouverte par 📊, la fenêtre garde
+  l'onglet choisi.
+- **(5)** « Devine une région tirée au hasard, en six essais. », et l'anglais vérifié sur une ligne.
+- **(3)** Au moins 24 px de haut, même bordure, même texte. **(2)** La piste ci-dessus.
+- **Découpage** : web.9.5.0 (ces notes, sans étiquette) ; web.9.5.1 Le classement à jour (1, 4) ; web.9.5.2 Les
+  finitions (2, 3, 5) et les leçons. PR empilées, fusionnées en squash sur l'accord de l'utilisateur, étiquette
+  `web-9.5`.
 
 ## Les améliorations à reprendre (relevées le 16 octobre 2026)
 
