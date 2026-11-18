@@ -77,7 +77,7 @@ describe('L’outre-mer : le numéro', () => {
     await joueur.type(screen.getByRole('combobox', { name: 'Ta réponse' }), '972{Enter}')
     // toute la carte est en rouge : « en rouge sur la carte » ne désignait rien
     expect(await screen.findByText(/^Raté : c’était Guadeloupe \(971\) \(ta réponse : Martinique \(972\)\)\.$/)).toBeDefined()
-    // un seul département : pas de « Clique ou passe sur un département », son nom et son résultat
+    // un seul département : pas de « Clique sur un département », son nom et son résultat
     expect(await screen.findByText('Guadeloupe (971), manqué')).toBeDefined()
     expect(screen.queryByText(/Clique ou passe/)).toBeNull()
   })

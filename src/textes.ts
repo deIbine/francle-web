@@ -308,8 +308,9 @@ const fr = {
     zoom: 'Paris et la petite couronne, agrandis',
     trouve: 'trouvé',
     manque: 'manqué',
-    // « clique » : le doigt d'un téléphone n'a pas de survol (le nom s'affiche aussi au clavier)
-    survol: 'Clique ou passe sur un département pour voir son nom.',
+    // « clique » seulement (depuis web.9.5.3) : un téléphone n'a pas de survol. Le survol marche toujours à la souris, sans
+    // être annoncé ; le nom s'affiche aussi au clavier
+    survol: 'Clique sur un département pour voir son nom.',
     saisie: 'Ta réponse',
     saisieExemple: 'Un nom ou un numéro…',
     saisieNumero: 'Un numéro…',
@@ -359,8 +360,8 @@ const fr = {
     titre: 'Les joueurs du jour',
     resume: (joueurs: number, taux: number) =>
       `${joueurs.toLocaleString('fr-FR')} joueur${joueurs > 1 ? 's' : ''} aujourd’hui · ${taux} % ${joueurs > 1 ? 'ont' : 'a'} trouvé`,
-    mieuxQue: (pourcentage: number, points: number) =>
-      `Avec ${points} point${points > 1 ? 's' : ''}, tu fais mieux que ${pourcentage} % des joueurs.`,
+    autantOuMieuxQue: (pourcentage: number, points: number) =>
+      `Avec ${points} point${points > 1 ? 's' : ''}, tu fais autant ou mieux que ${pourcentage} % des joueurs.`,
     repartition: 'Victoires de tous par nombre d’essais',
     barre: (essais: number, pourcentage: number, toi: boolean) =>
       `${pourcentage} % des victoires en ${essais} essai${essais > 1 ? 's' : ''}${toi ? ', comme toi' : ''}`,
@@ -810,7 +811,7 @@ const en: Textes = {
     zoom: 'Paris and its inner suburbs, enlarged',
     trouve: 'found',
     manque: 'missed',
-    survol: 'Click or hover over a department to see its name.',
+    survol: 'Click a department to see its name.',
     saisie: 'Your answer',
     saisieExemple: 'A name or a number…',
     saisieNumero: 'A number…',
@@ -854,8 +855,8 @@ const en: Textes = {
     titre: 'Today’s players',
     resume: (joueurs: number, taux: number) =>
       `${joueurs.toLocaleString('en-GB')} player${joueurs > 1 ? 's' : ''} today · ${taux}% found it`,
-    mieuxQue: (pourcentage: number, points: number) =>
-      `With ${points} point${points > 1 ? 's' : ''}, you did better than ${pourcentage}% of players.`,
+    autantOuMieuxQue: (pourcentage: number, points: number) =>
+      `With ${points} point${points > 1 ? 's' : ''}, you did as well as or better than ${pourcentage}% of players.`,
     repartition: 'Everyone’s wins by number of guesses',
     barre: (essais: number, pourcentage: number, toi: boolean) =>
       `${pourcentage}% of wins in ${essais} guess${essais > 1 ? 'es' : ''}${toi ? ', like you' : ''}`,

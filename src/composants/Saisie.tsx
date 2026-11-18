@@ -141,7 +141,10 @@ export function Saisie({ suggerer, onProposer, etiquette, exemple, bouton, desac
         // la liste se ferme quand on quitte le champ (un clic sur une suggestion arrive avant, voir onMouseDown)
         onBlur={() => setOuverte(false)}
         // disabled: : l'apparence du champ grisé
-        className="min-w-0 flex-1 rounded border border-bord px-3 py-2 focus:border-francle-fonce focus:outline-none disabled:bg-surface disabled:text-discret"
+        // focus:ring-2 (depuis web.9.5.3) : un anneau de 2 pixels autour du champ qui a le focus. Avant, seule sa bordure
+        // de 1 pixel changeait de couleur, à peine visible au clavier. En sombre, le bleu clair : le bleu foncé n'a qu'un
+        // contraste de 2,5:1 sur le fond sombre (voir PartieLibre.tsx), sous les 3:1 demandés
+        className="min-w-0 flex-1 rounded border border-bord px-3 py-2 focus:border-francle-fonce focus:ring-2 focus:ring-francle-fonce focus:outline-none dark:focus:border-francle-clair dark:focus:ring-francle-clair disabled:bg-surface disabled:text-discret"
       />
       <button
         type="submit"

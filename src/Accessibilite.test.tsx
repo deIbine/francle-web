@@ -55,6 +55,16 @@ describe('Comment jouer', () => {
     expect(screen.queryByRole('dialog')).toBeNull()
   })
 
+  // web.9.5.3 : rien n'avait le focus avant la fenêtre ; il restait sur la page entière, et Tab repartait de la fin
+  it('fermé à la première visite, il rend le focus au bouton ❓', async () => {
+    localStorage.removeItem(CLE_AIDE)
+    const joueur = userEvent.setup()
+    render(<App />)
+    await joueur.click(within(screen.getByRole('dialog', { name: 'Comment jouer' })).getByRole('button', { name: 'Jouer' }))
+    expect(document.activeElement).toBe(screen.getByRole('button', { name: 'Comment jouer' }))
+    // Échap : vérifié dans un vrai navigateur seulement, l'imitation de <dialog> (preparationTests.ts) ne le connaît pas
+  })
+
   it('se rouvre avec le bouton ❓', async () => {
     const joueur = userEvent.setup()
     render(<App />)

@@ -10,7 +10,7 @@ créer une neuve. Tout son état repart de zéro pour la nouvelle région.
 
 C'est App qui surveille le changement de jour, que la partie soit finie ou non (voir useJour).
  */
-import { useEffect, useId, useState, type KeyboardEvent } from 'react'
+import { useEffect, useId, useRef, useState, type KeyboardEvent } from 'react'
 import { Aide } from './composants/Aide.tsx'
 import { Comparaison } from './composants/Comparaison.tsx'
 import { Confidentialite } from './composants/Confidentialite.tsx'
@@ -150,6 +150,10 @@ export default function App() {
   }, [])
   // « Comment jouer » : ouvert d'emblée à la première visite
   const [fenetreAide, setFenetreAide] = useState(() => !aideVue())
+  // le bouton ❓, où revient le focus quand « Comment jouer » se ferme à la première visite (depuis web.9.5.3). Rien
+  // n'avait le focus avant son ouverture : le navigateur le laissait sur la page entière, et la touche Tab repartait de
+  // la fin de la page, où se trouve la fenêtre. Pas le champ de saisie : sur téléphone, il ouvrirait le clavier
+  const boutonAide = useRef<HTMLButtonElement>(null)
   const [bilanAmi, oublierBilanAmi] = useBilanAmi()
   // la page de confidentialité (depuis web.9.2.3) : ouverte d'emblée par l'adresse …/#confidentialite, un lien qu'on
   // peut donner, ou quand ce lien est ouvert dans un onglet déjà sur le jeu (seul le fragment change : la page ne se
@@ -251,6 +255,7 @@ export default function App() {
         <header className="grid grid-cols-[1fr_auto_1fr] items-center gap-x-2 gap-y-2">
           <div className="flex items-center gap-0.5 justify-self-start">
             <button
+              ref={boutonAide}
               type="button"
               onClick={() => setFenetreAide(true)}
               title={textes.aide.ouvrir}
@@ -390,6 +395,7 @@ export default function App() {
 
         <Fenetre
           ouverte={fenetreAide}
+          repli={boutonAide}
           onFermer={() => {
             setFenetreAide(false)
             marquerAideVue()

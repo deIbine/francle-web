@@ -160,7 +160,8 @@ export function Plateau({ partie, onChanger, modes, angle, unite, fin, demandeLi
           <button
             type="button"
             onClick={() => setConfirmation(true)}
-            className="self-center text-sm text-discret underline hover:text-texte"
+            // min-h-6 (depuis web.9.5.3) : 24 pixels de haut au moins, le minimum d'une cible au doigt (il en faisait 20)
+            className="min-h-6 self-center text-sm text-discret underline hover:text-texte"
           >
             {textes.abandonner}
           </button>

@@ -139,14 +139,19 @@ export function tauxDeVictoire(chiffres: ChiffresDuJour): number {
   return chiffres.joueurs === 0 ? 0 : Math.round((chiffres.victoires * 100) / chiffres.joueurs)
 }
 
-// « tu fais mieux que 72 % » : la part des AUTRES joueurs du jour qui ont eu strictement moins de points. compte : vrai
-// si la partie du joueur est déjà parmi les chiffres (il l'a envoyée) ; on la retire alors, pour ne pas se comparer à
-// soi-même. undefined s'il n'y a personne d'autre
-export function mieuxQue(chiffres: ChiffresDuJour, mesPoints: number, compte: boolean): number | undefined {
+// « tu fais autant ou mieux que 72 % » : la part des AUTRES joueurs du jour qui ont eu autant de points ou moins. compte :
+// vrai si la partie du joueur est déjà parmi les chiffres (il l'a envoyée) ; on la retire alors, pour ne pas se comparer
+// à soi-même. undefined s'il n'y a personne d'autre
+//
+// Depuis web.9.5.3, les ex aequo comptent : avant, seuls les joueurs à strictement moins de points comptaient, et un
+// joueur à égalité avec tous lisait « tu fais mieux que 0 % des joueurs », comme s'il était dernier
+export function autantOuMieuxQue(chiffres: ChiffresDuJour, mesPoints: number, compte: boolean): number | undefined {
   const autres = chiffres.joueurs - (compte ? 1 : 0)
   if (autres <= 0) {
     return undefined
   }
-  const moins = chiffres.points.slice(0, mesPoints).reduce((somme, nombre) => somme + nombre, 0)
-  return Math.round((moins * 100) / autres)
+  // slice(0, mesPoints + 1) : les cases 0 à mesPoints, ses ex aequo compris (dont lui-même, s'il est compté)
+  const autantOuMoins =
+    chiffres.points.slice(0, mesPoints + 1).reduce((somme, nombre) => somme + nombre, 0) - (compte ? 1 : 0)
+  return Math.round((autantOuMoins * 100) / autres)
 }

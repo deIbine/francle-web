@@ -6,7 +6,7 @@ Tant que les chiffres ne sont pas arrivés, ou si le serveur ne répond pas, rie
 d'avant web.9.2, sans message d'erreur ni place réservée.
  */
 import { useEffect, useId, useState } from 'react'
-import { mieuxQue, tauxDeVictoire, type ChiffresDuJour } from '../domaine/chiffres.ts'
+import { autantOuMieuxQue, tauxDeVictoire, type ChiffresDuJour } from '../domaine/chiffres.ts'
 import { points } from '../domaine/score.ts'
 import type { Resultat } from '../domaine/statistiques.ts'
 import { chiffresDuJour, synchroniser } from '../envoi.ts'
@@ -24,7 +24,7 @@ export function ChiffresDeTous({ jour, resultat }: Props) {
   const titre = useId()
   const [chiffres, setChiffres] = useState<ChiffresDuJour>()
   // la partie du joueur était-elle déjà reçue par le serveur quand les chiffres sont arrivés ? Alors elle y est
-  // comptée, et le joueur ne doit pas se comparer à lui-même (voir mieuxQue)
+  // comptée, et le joueur ne doit pas se comparer à lui-même (voir autantOuMieuxQue)
   const [compte, setCompte] = useState(false)
   const mesPoints = points(resultat)
 
@@ -49,7 +49,7 @@ export function ChiffresDeTous({ jour, resultat }: Props) {
   if (chiffres === undefined || chiffres.joueurs === 0) {
     return null
   }
-  const mieux = mieuxQue(chiffres, mesPoints, compte)
+  const mieux = autantOuMieuxQue(chiffres, mesPoints, compte)
   const plusGrande = Math.max(1, ...chiffres.repartition)
   const essais = resultat.etat === 'gagnee' ? resultat.essais : undefined
   return (
@@ -58,8 +58,9 @@ export function ChiffresDeTous({ jour, resultat }: Props) {
         {textes.tous.titre}
       </h3>
       <p className="text-sm">{textes.tous.resume(chiffres.joueurs, tauxDeVictoire(chiffres))}</p>
-      {mieux !== undefined && (
-        <p className="text-sm font-semibold">{textes.tous.mieuxQue(mieux, mesPoints)}</p>
+      {/* pas à 0 % (depuis web.9.5.3) : seul dernier, la phrase n'apprendrait rien au joueur, et le découragerait */}
+      {mieux !== undefined && mieux > 0 && (
+        <p className="text-sm font-semibold">{textes.tous.autantOuMieuxQue(mieux, mesPoints)}</p>
       )}
       {chiffres.victoires > 0 && (
         <ol className="flex flex-col gap-1 text-sm" aria-label={textes.tous.repartition}>

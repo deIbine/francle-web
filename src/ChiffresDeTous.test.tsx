@@ -70,8 +70,8 @@ describe('Les chiffres de tous', () => {
     const fenetre = screen.getByRole('dialog', { name: 'Résultats' })
     const section = await within(fenetre).findByRole('region', { name: 'Les joueurs du jour' })
     expect(within(section).getByText('3 joueurs aujourd’hui · 100 % ont trouvé')).toBeDefined()
-    // 5 points : mieux que l'autre joueur à 4 points, pas que celui à 6 ; la partie du joueur n'est pas comptée deux fois
-    expect(within(section).getByText('Avec 5 points, tu fais mieux que 50 % des joueurs.')).toBeDefined()
+    // 5 points : autant ou mieux que l'autre joueur à 4 points, pas que celui à 6 ; la partie du joueur n'est pas comptée deux fois
+    expect(within(section).getByText('Avec 5 points, tu fais autant ou mieux que 50 % des joueurs.')).toBeDefined()
     // le nom d'une image garde l'espace insécable, contrairement au texte affiché (voir docs/lecons.md)
     expect(within(section).getByRole('img', { name: '33 % des victoires en 2 essais, comme toi' })).toBeDefined()
     expect(within(section).getByRole('img', { name: '33 % des victoires en 1 essai' })).toBeDefined()
@@ -85,6 +85,30 @@ describe('Les chiffres de tous', () => {
     await synchroniser()
     expect(envois()).toHaveLength(avant)
     expect(aEnvoyer()).toEqual([])
+  })
+
+  // web.9.5.3 : seul dernier, « tu fais autant ou mieux que 0 % » n'apprendrait rien, et découragerait
+  it('seul dernier : pas de phrase « autant ou mieux que »', async () => {
+    // un autre joueur, trouvé du premier coup (6 points), contre 5 pour le joueur
+    await traiter(
+      new Request('https://serveur/parties', {
+        method: 'POST',
+        body: JSON.stringify({
+          v: 1,
+          parties: [
+            { tirage: 'b'.repeat(32), jour: 2, regions: [AUJOURDHUI.id], etat: 'gagnee', modes: { rotation: false, cachee: false } },
+          ],
+        }),
+      }),
+      base,
+      new Date(),
+    )
+    mesParties()
+    render(<App />)
+    const fenetre = screen.getByRole('dialog', { name: 'Résultats' })
+    const section = await within(fenetre).findByRole('region', { name: 'Les joueurs du jour' })
+    expect(within(section).getByText(/^2\sjoueurs aujourd’hui/)).toBeDefined()
+    expect(within(section).queryByText(/autant ou mieux/)).toBeNull()
   })
 
   it('refusé dans les réglages : le site ne contacte pas du tout le serveur', async () => {

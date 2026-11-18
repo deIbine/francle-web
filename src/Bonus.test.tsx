@@ -290,7 +290,7 @@ describe('Le bonus des départements, partie du jour', () => {
     await joueur.hover(zone)
     expect(within(panneau()).getByText(`${nom(DEPS[0])}, trouvé`, { selector: 'p' })).toBeDefined()
     await joueur.unhover(zone)
-    expect(within(panneau()).getByText('Clique ou passe sur un département pour voir son nom.')).toBeDefined()
+    expect(within(panneau()).getByText('Clique sur un département pour voir son nom.')).toBeDefined()
     // un clic seul, sans survol (le doigt sur un téléphone) : fireEvent n'envoie que le clic, là où user-event
     // passerait d'abord la souris dessus
     fireEvent.click(within(await carte()).getByRole('img', { name: `${nom(DEPS[1])}, trouvé` }))

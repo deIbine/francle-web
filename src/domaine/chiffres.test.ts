@@ -4,7 +4,7 @@ import {
   FORME_TIRAGE,
   lireChiffres,
   lireEnvoiAuServeur,
-  mieuxQue,
+  autantOuMieuxQue,
   PARTIES_PAR_ENVOI,
   sansTirage,
   tauxDeVictoire,
@@ -95,18 +95,30 @@ describe('lireChiffres', () => {
   })
 })
 
-describe('mieuxQue', () => {
-  it('compte les autres joueurs qui ont eu strictement moins de points', () => {
-    // 6 points, partie comptée parmi les 10 : 7 des 9 autres ont moins (2 à 0, 5 à 4)
-    expect(mieuxQue(CHIFFRES, 6, true)).toBe(78)
-    // 4 points, partie pas envoyée : 2 des 10 ont moins
-    expect(mieuxQue(CHIFFRES, 4, false)).toBe(20)
-    expect(mieuxQue(CHIFFRES, 0, true)).toBe(0)
+describe('autantOuMieuxQue', () => {
+  // la répartition : 2 joueurs à 0 point, 5 à 4 points, 3 à 6 points
+  it('compte les autres joueurs qui ont eu autant de points ou moins (depuis web.9.5.3, les ex aequo comptent)', () => {
+    // 6 points, partie comptée parmi les 10 : les 9 autres ont autant ou moins
+    expect(autantOuMieuxQue(CHIFFRES, 6, true)).toBe(100)
+    // 4 points, partie pas envoyée : 7 des 10 (2 à 0, 5 à 4)
+    expect(autantOuMieuxQue(CHIFFRES, 4, false)).toBe(70)
+    // 0 point, partie comptée : 1 des 9 autres (l'autre joueur à 0)
+    expect(autantOuMieuxQue(CHIFFRES, 0, true)).toBe(11)
+  })
+
+  it('à égalité avec tous : 100 %, et non plus 0 %', () => {
+    const egaux = chiffresDuJour(2, [{ etat: 'gagnee', essais: 2, points: 5, nombre: 4 }])
+    expect(autantOuMieuxQue(egaux, 5, true)).toBe(100)
+  })
+
+  it('seul dernier : 0 % (la phrase n’est alors pas affichée, voir ChiffresDeTous.tsx)', () => {
+    const autres = chiffresDuJour(2, [{ etat: 'gagnee', essais: 1, points: 6, nombre: 3 }])
+    expect(autantOuMieuxQue(autres, 2, false)).toBe(0)
   })
 
   it("ne dit rien quand le joueur est seul", () => {
     const seul = chiffresDuJour(2, [{ etat: 'gagnee', essais: 2, points: 5, nombre: 1 }])
-    expect(mieuxQue(seul, 5, true)).toBeUndefined()
-    expect(mieuxQue(seul, 5, false)).toBe(0)
+    expect(autantOuMieuxQue(seul, 5, true)).toBeUndefined()
+    expect(autantOuMieuxQue(seul, 5, false)).toBe(100)
   })
 })

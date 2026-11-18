@@ -2462,3 +2462,46 @@ des résultats (web.9.5.1), les finitions (web.9.5.2).
   (`min-h-6`, 24 pixels) plutôt que par plus de marge intérieure : l'aspect ne change presque pas.
 - **Comment le penser** : un doigt est bien moins précis qu'une souris. Pour chaque petit bouton, se demander « est-il
   au moins aussi grand qu'un bout de doigt ? » : 24 pixels au minimum, 44 si on peut.
+
+### Un pourcentage se lit comme une phrase
+
+- **Pourquoi** : « Avec 4 points, tu fais mieux que 0 % des joueurs » s'affichait à un joueur à égalité avec tous les
+  autres. Le calcul était juste (personne n'avait *strictement* moins de points), mais la phrase disait « tu es
+  dernier ».
+- **Comment le faire** : écrire les cas limites de la phrase, pas seulement ceux du calcul : tous à égalité, seul
+  premier, seul dernier, seul joueur. Pour chacun, lire la phrase à voix haute. Ici : compter les ex aequo
+  (`autantOuMieuxQue`, « autant ou mieux que »), et ne rien dire à 0 %, où la phrase n'apprendrait rien. Un test par
+  cas, dans `chiffres.test.ts`.
+- **Comment le penser** : un nombre montré au joueur est un message, pas seulement un résultat. La question à se
+  poser : « que comprend le joueur dans le pire cas ? ». Un « 0 % » vrai mais blessant est un défaut d'interface.
+
+### Un texte d'aide ne promet que ce que l'appareil sait faire
+
+- **Pourquoi** : « Clique ou passe sur un département » s'affichait aussi sur téléphone, où un doigt ne survole rien.
+- **Comment le faire** : relire chaque consigne sur les deux appareils, téléphone et ordinateur. Quand un geste n'existe
+  que sur l'un, soit deux textes (`matchMedia('(pointer: coarse)')`, comme le partage), soit, plus simple, ne nommer
+  que le geste commun (« clique »), en gardant l'autre en bonus silencieux.
+- **Comment le penser** : une aide qui décrit un geste impossible fait douter le joueur de tout le reste. Se demander
+  « ce verbe a-t-il un sens sur un écran tactile ? ».
+
+### Où va le focus quand une fenêtre se ferme ?
+
+- **Pourquoi** : à la première visite, « Comment jouer » s'ouvre seul ; rien n'avait le focus avant. À la fermeture, le
+  navigateur le rendait donc… à la page entière (`<body>`), et la touche Tab repartait de l'endroit de la fenêtre, à la
+  fin de la page : un premier Tab qui ne mène nulle part de visible. Les tests ne le voyaient pas, et le relevé au
+  clavier (Playwright, `document.activeElement` après chaque Tab) l'a montré.
+- **Comment le faire** : pour chaque fenêtre, se demander qui l'ouvre. Ouverte par un bouton, le navigateur y ramène le
+  focus ; ouverte toute seule, il faut lui donner un « repli » (la prop `repli` de `Fenetre`, qui existait déjà pour le
+  bouton « Passer » disparu). Ici, le bouton ❓ : en haut de la page, d'où Tab suit l'ordre naturel. Pas le champ de
+  saisie, plus direct au clavier, mais qui ouvrirait le clavier du téléphone sans qu'on l'ait demandé.
+- **Comment le penser** : le focus est la position du joueur au clavier, comme le curseur d'un éditeur. Une fenêtre qui
+  se ferme doit le reposer quelque part d'utile, comme un `JDialog` Swing rend le focus à la fenêtre qui l'a ouvert.
+
+### Retirer le contour du focus, c'est devoir le remplacer
+
+- **Pourquoi** : le champ de saisie avait `focus:outline-none`, pour remplacer le contour du navigateur par une bordure
+  bleue. Mais une bordure de 1 pixel qui change de couleur se voit à peine.
+- **Comment le faire** : chercher les `outline-none` (`grep -rn "outline-none" src`) et vérifier que chacun est remplacé
+  par quelque chose d'au moins aussi visible : ici un anneau de 2 pixels (`focus:ring-2`), en bleu Francle, et en bleu
+  clair en sombre, pour garder un contraste d'au moins 3:1 avec le fond.
+- **Comment le penser** : le contour par défaut est laid mais sûr. L'enlever est une promesse : « je fais mieux ».

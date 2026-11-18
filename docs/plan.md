@@ -1968,6 +1968,39 @@ les recos »), et donné le départ (« Tu peux tout lancer »).
   finitions (2, 3, 5) et les leçons. PR empilées, fusionnées en squash sur l'accord de l'utilisateur, étiquette
   `web-9.5`.
 
+### Fait à web.9.5.1 et web.9.5.2 (le 18 novembre 2026)
+
+- **web.9.5.1 (1, 4)** : `useFraicheur` (`useClassement.ts`), qui augmente à chaque ouverture de la fenêtre et quand des
+  parties arrivent au profil (l'évènement `PARTIES_RECUES`, `envoi.ts`) ; le classement se redemande alors, l'ancien
+  affiché jusqu'à la réponse ; la ligue aussi. Un compteur des fins de partie dans `PartieDuJour` ramène les
+  statistiques au Résumé.
+- **web.9.5.2 (2, 3, 5)** : le message sous la ligne du pseudo quand un signalement échoue ; `min-h-6` pour FR/EN ; le
+  sous-titre raccourci ; les leçons.
+- **Vérifié** : 504 tests ; `npm run verifier:navigateur` (28 écrans, 0 problème) ; dans le navigateur intégré à
+  375 × 812, serveur en local : FR/EN à 30 × 24, le classement rouvert avec un nouveau joueur, un signalement serveur
+  arrêté. Le panneau du navigateur s'étant caché (et Chrome n'y livrant plus l'évènement « close » des `<dialog>`, d'où
+  une fausse alerte), les captures du retour au Résumé ont été faites avec Playwright (Edge sans fenêtre).
+
+### La vérification générale (le 18 novembre 2026), et web.9.5.3
+
+Demandée par l'utilisateur : « Refais une vérification générale, notamment sur mobile mais aussi sur navigateur
+classique ». Playwright (Edge sans fenêtre), contre le site et le serveur en local : un parcours complet (de « Comment
+jouer » à la partie libre et à l'anglais, 19 écrans) sur téléphone (375 × 812, tactile) et sur ordinateur
+(1280 × 800), en clair et en sombre, soit 76 captures ; les erreurs de la console, le défilement horizontal et les
+cibles de moins de 24 pixels mesurés ; puis le jeu au clavier seul sur ordinateur. Rien de cassé ; cinq petits points,
+ajoutés à web.9.5 sur la demande de l'utilisateur (« Ajoute les 5 points », puis « Ok pour toutes les recos, tu peux
+lancer ») :
+
+| # | Constat | Décision |
+|---|---|---|
+| 6 | « Avec 4 points, tu fais mieux que 0 % des joueurs » : à égalité avec tous, le joueur lisait 0 % | « autant ou mieux que » (les ex aequo comptent) ; pas de phrase à 0 % (seul dernier) |
+| 7 | « Clique ou passe sur un département » sur téléphone, sans survol | « Clique sur un département pour voir son nom. » (le survol marche toujours à la souris) |
+| 8 | Le focus du champ de saisie : sa bordure de 1 pixel change seulement de couleur | Un anneau de 2 pixels, bleu Francle (bleu clair en sombre) |
+| 9 | Après « Comment jouer » fermé à la première visite, le premier Tab ne va sur rien (le focus repart de la fin de la page) | Le focus rendu au bouton ❓ ; pas au champ, qui ouvrirait le clavier du téléphone |
+| 10 | « Abandonner » et « Passer » : 20 pixels de haut | 24 pixels au moins (`min-h-6`), même aspect. Les liens du bas de page (dans du texte) et la carte des départements (l'encadré agrandi) restent tels quels |
+
+**web.9.5.3 Les détails (6 à 10)**, empilée sur web.9.5.2, avec ses notes et ses leçons.
+
 ## Les améliorations à reprendre (relevées le 16 octobre 2026)
 
 Relevées en relisant le code après web.6. Le bug du changement de jour a été corrigé tout de suite (PR #9, étiquette
