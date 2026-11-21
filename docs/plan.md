@@ -100,7 +100,7 @@ l'autre, et le web n'a plus à rester égal au Java.
    Cloudflare Workers + D1, dans `serveur/` du même dépôt), web.9.3 des ligues entre amis et un classement public
    protégé. Détail plus bas dans « Les statistiques des joueurs (web.9) ».
 
-## Où on en est (mis à jour le 16 novembre 2026, sur le PC : web.9.4 fusionnée et en ligne)
+## Où on en est (mis à jour le 21 novembre 2026 : web.9.4 en ligne ; le checkup du 18 novembre annulé, voir « Le checkup du 18 novembre 2026 (annulé) »)
 
 ### À faire sur le PC (rien depuis le 9 novembre 2026)
 
@@ -1921,6 +1921,27 @@ créé, « Créer mon profil » qui ouvre les réglages sur le champ du pseudo, 
   aussitôt « Supprimer mon profil » (`getByRole`). Sur la machine de la CI, plus lente, les parties arrivaient avant
   que React ait redessiné les réglages (le journal montrait encore le formulaire de création). `findByRole`, qui
   attend ; jamais vu sur le PC (six passages de suite).
+
+## Le checkup du 18 novembre 2026 (annulé)
+
+Demandé par l'utilisateur : « un checkup bugs, petites améliorations et améliorations d'interface ». Il a grossi en
+une journée à sept PR empilées (#96 à #102, de web.9.5.0 à web.9.5.6) : chaque « refais une vérification générale »
+ajoutait un angle plus pointu (écrans de 320 pixels, texte à 200 %, contrastes élevés de Windows, pseudos de 20 lettres
+larges…) et une PR de plus. L'utilisateur a tout fait fermer **sans fusion** : « on est allé trop dans un niveau de
+détails et ce n'est pas forcément utile, annule tout ». Branches supprimées, fichiers d'essai locaux effacés ; le code
+n'a pas changé. **La leçon** : un checkup s'en tient à ce qui gêne de vrais joueurs, en un lot d'une ou deux PR ;
+redemandé, il refait la même vérification et dit « rien de nouveau » s'il n'y a rien.
+
+« On reprendra plus tard sur ce qui est important. » Les trois constats qui comptent, à proposer à ce moment-là :
+
+| # | Constat | Piste essayée |
+|---|---|---|
+| 1 | **Le classement reste ancien** : dans la fenêtre des statistiques, le classement (ligue et public) n'est jamais redemandé tant que la page reste ouverte, et ne montre pas la partie qu'on vient de jouer. La fenêtre fermée garde son état, et la clé du classement ne change qu'avec le mois ou les membres | Redemander à chaque ouverture de la fenêtre et quand des parties arrivent au profil, en gardant l'ancien affiché jusqu'à la réponse |
+| 2 | **L'en-tête débordera le 20 janvier 2027 (n° 100)** sur les téléphones Android de 360 pixels, très courants : « Francle n° 100 » et les boutons font 361 pixels (352 aujourd'hui, 370 au n° 1000). **À traiter avant cette date** | Sous 375 pixels, le numéro sous le titre, en petit (`max-[375px]:block`) |
+| 3 | **Contrastes élevés de Windows** : les interrupteurs des réglages y sont invisibles (on ne voit pas si Rotation, Image cachée… sont activés) | Un bloc `@media (forced-colors: active)` dans `src/index.css`, avec les couleurs du système |
+
+Le reste relevé ce jour-là (écrans de 320 pixels, pseudos de 20 lettres larges sans espace, texte agrandi à 200 % sur
+téléphone, petits textes) est jugé pointilleux : ne pas le reproposer, sauf si l'utilisateur le demande.
 
 ## Les améliorations à reprendre (relevées le 16 octobre 2026)
 
